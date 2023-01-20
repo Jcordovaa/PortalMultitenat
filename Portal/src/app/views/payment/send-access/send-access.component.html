@@ -1,0 +1,447 @@
+<div class="breadcrumb">
+    <h1>Envío de accesos clientes</h1>
+    <ul>
+        <li>Administración</li>
+        <li>Accesos Clientes</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Rut Cliente</label>
+                            <input type="text" autocomplete="off" (blur)="validaRut()" required maxlength="12"
+                                class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut" placeholder="Rut">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Código Auxiliar</label>
+                            <input type="text" autocomplete="off" required maxlength="12" class="form-control"
+                                id="codAux" name="codAux" [(ngModel)]="searchCodAux" placeholder="Código auxiliar">
+                        </div>
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Razón Social / Nombre</label>
+                            <input type="text" autocomplete="off" required class="form-control" id="nombre"
+                                name="nombre" [(ngModel)]="searchNombre" placeholder="Razón social/Nombre">
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Vendedor</label>
+                            <select [(ngModel)]="selectedVendedor" class="form-control" name="catPadre"
+                                #catPadre="ngModel" required>
+                                <option *ngFor="let c of vendedores" [ngValue]="c.venCod">
+                                    {{ c.venDes }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Condición de Venta</label>
+                            <select [(ngModel)]="selectedCondVenta" class="form-control" name="catPadre"
+                                #catPadre="ngModel" required>
+                                <option *ngFor="let c of condVentas" [ngValue]="c.cveCod">
+                                    {{ c.cveDes }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Categoria Cliente</label>
+                            <select [(ngModel)]="selectedCatCliente" class="form-control" name="catPadre"
+                                #catPadre="ngModel" required>
+                                <option *ngFor="let c of catClientes" [ngValue]="c.catCod">
+                                    {{ c.catDes }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Lista de Precios</label>
+                            <select [(ngModel)]="selectListaPrecio" class="form-control" name="catPadre"
+                                #catPadre="ngModel" required>
+                                <option *ngFor="let c of listasPrecio" [ngValue]="c.codLista">
+                                    {{ c.desLista }}
+                                </option>
+                            </select>
+                        </div>
+                            <div class="col-md-8 form-group mb-3 desktop">
+                                <label for="firstName">Tipo de búsqueda</label>
+                                <br>
+                                <label class="radio radio-primary ml-3 mr-3 text-16" style="display: initial;">
+                                    <input type="radio" name="radio" [value]="1" [(ngModel)]="tipoBusqueda">
+                                    <span>Todos</span>
+                                    <span class="checkmark"></span>
+                                </label>
+                                <label class="radio radio-success ml-3 mr-3 text-16" style="display: initial;">
+                                    <input type="radio" name="radio" [value]="2" [(ngModel)]="tipoBusqueda">
+                                    <span>Sin credenciales</span>
+                                    <span class="checkmark"></span>
+                                </label>
+
+                            </div>
+                    </div>
+
+                    <div class="row">
+                       
+
+                        <div class="movil">
+                            <div class="col-md-8 form-group mb-3">
+                                <label for="firstName">Tipo de búsqueda</label>
+                                <br>
+                                <label class="radio radio-primary ml-3 mr-3 text-16" style="display: initial;">
+                                    <input type="radio" name="radio2" [value]="1" [(ngModel)]="tipoBusqueda">
+                                    <span>Todos</span>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-8 form-group mb-3">
+                                <label class="radio radio-success ml-3 mr-3 text-16" style="display: initial;">
+                                    <input type="radio" name="radio2" [value]="2" [(ngModel)]="tipoBusqueda">
+                                    <span>Sin credenciales</span>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-12 form-group mb-3 align-self-end" align="center">
+                                <button id="sss" (click)="search()" style="margin-top: 10px; margin-left: 15px;"
+                                    class="btn btn-primary justify-content-between align-items-center mr-3"> <i
+                                        class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span>
+                                </button>
+                                <button id="sss2" style="margin-left: 15px; margin-top: 10px;" (click)="limpiar()"
+                                    class="btn btn-secondary mr-3"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-12" *ngIf="showDetail && clientes.length > 0">
+                        <div class="desktop">
+                            <div class="card">
+                                <div class="card-content">
+                                    <!--DESKTOP-->
+
+                                    <div class="material-datatables">
+                                        <table class="table table-striped table-no-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">
+                                                        <label class="checkbox checkbox-outline-primary"
+                                                            style="margin-bottom: 20px;">
+                                                            <input type="checkbox" name="checkAllSel"
+                                                                [(ngModel)]="checkAll" (change)="onSelAll($event)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                    </th>
+                                                    <th scope="col">Rut</th>
+                                                    <th scope="col">Código</th>
+                                                    <th scope="col">Nombre</th>
+                                                    <th scope="col">Correo Ficha</th>
+                                                    <!-- <th scope="col">Cambiar Correo</th> -->
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let c of clientes | paginate: config">
+                                                    <th scope="row">
+                                                        <label class="checkbox checkbox-outline-primary">
+                                                            <input type="checkbox" [name]="'checkSel' + c.nombre"
+                                                                [(ngModel)]="c.checked" (change)="onSel($event, c)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                    </th>
+                                                    <td>{{ c.rut }}</td>
+                                                    <td>{{ c.codAux }}</td>
+                                                    <td>{{ c.nombre }}</td>
+                                                    <td *ngIf="c.correo != '' && c.correo != null">{{ c.correo}}</td>
+                                                    <td *ngIf="c.correo == '' || c.correo == null">Sin Información</td>
+                                                    <!-- <td style="text-align: center;">
+                                                        <img (click)="openModalContacto(modalContacto,c)"
+                                                            container="body" ngbTooltip="Cambiar Correo"
+                                                            style="cursor: pointer;" src="assets/images/icon/change.png"
+                                                            width="25" height="25" alt="Cambiar correo">
+                                                    </td> -->
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-3" *ngIf="clientes?.length > 0">
+                                    <pagination-controls (pageChange)="changePageClientes($event)" maxSize="6"
+                                        responsive="true" previousLabel="" nextLabel="">
+                                    </pagination-controls>
+                                    <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--MOVIL-->
+                        <div class="movil">
+                            <div class="material-datatables">
+                                <table class="table table-striped table-no-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">
+                                                <label class="checkbox checkbox-outline-primary">
+                                                    <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll"
+                                                        (change)="onSelAll($event)">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </th>
+                                            <th scope="col">Cliente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let c of clientes | paginate: config">
+                                            <td scope="row" style="vertical-align: middle;">
+                                                <label class="checkbox checkbox-outline-primary">
+                                                    <input type="checkbox" name="checkSel" [(ngModel)]="c.checked"
+                                                        (change)="onSel($event, c)">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <strong>Rut: </strong>{{ c.rut }}<br />
+                                                <strong>Código: </strong>{{ c.codAux }}<br />
+                                                <strong>Nombre: </strong>{{ c.nombre }}<br />
+                                                <strong *ngIf="c.correo != '' && c.correo != null">Correo Ficha:
+                                                </strong>{{ c.correo}}
+                                                <strong *ngIf="c.correo == '' || c.correo == null">Correo Ficha:
+                                                </strong>Sin Información<br />
+                                                <!-- <strong>Cambiar Correo: </strong><img
+                                                    (click)="openModalContacto(modalContacto,c)" container="body"
+                                                    ngbTooltip="Cambiar Correo" style="cursor: pointer;"
+                                                    src="assets/images/icon/change.png" width="25" height="25"
+                                                    alt="Cambiar correo"><br /> -->
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-12 mt-3" *ngIf="clientes?.length > 0">
+                                <pagination-controls (pageChange)="changePageClientes($event)" maxSize="6"
+                                    responsive="true" previousLabel="" nextLabel="">
+                                </pagination-controls>
+                                <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" *ngIf="clientes.length == 0 && showDetail">
+                        <div class="col-md-12">
+                            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                No se encontraron clientes.
+                            </ngb-alert>
+                        </div>
+                    </div>
+
+                    
+                    <div class="col-lg-4 col-md-4 col-sm-4" style="margin-left: auto;
+                    margin-right: auto; margin-top: 50px;">
+                        <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                            <div class="card-body text-center">
+                                <i class="i-Mail-Send"></i>
+                                <div class="content" style="max-width: 90px !important;align-items: center;">
+                                    <p class="text-primary mt-2 mb-0">Clientes Seleccionados</p>
+                                    <p class="lead text-primary text-19 mb-2" style="font-weight: 600; ">{{clientesSeleccionados.length}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3 ml-3 mr-3" *ngIf="showAlert">
+                        <label for="firstName" style="color: red;">Se han seleccionado más de 500 clientes, por
+                            políticas de correo solo es posible enviar 500 correos diarios, el sistema enviará hasta el
+                            límite indicado, el resto de los correos se descartará por lo que es recomendable volver
+                            acceder 24hrs después para enviar a los clientes pendientes.</label>
+                    </div>
+
+                    <div class="row mt-3" style="float: right;" *ngIf="showDetail && clientes.length > 0">
+                        <btn-loading id="sss" (click)="openModalSend(modalSend)"
+                            btnClass="btn-primary justify-content-between align-items-center mr-3"> <i
+                                class="i-Mail-Send mr-3"></i> <span class="mr-3">Enviar Credenciales por correo</span>
+                        </btn-loading>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalContacto let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Cambiar Correo</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 mb-3" *ngIf="contactosCliente?.length > 0">
+                Seleccione uno de los contactos
+            </div>
+            <div class="col-md-12 mb-3" *ngIf="contactosCliente?.length == 0 || contactosCliente == null">
+                No existen contactos asociados
+            </div>
+            <div *ngIf="contactosCliente?.length > 0" class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sel.</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Correo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let contacto of ClientecontactosRes">
+                                <th scope="row">
+                                    <!-- <input type="checkbox" class="checkbox checkbox-primary"> -->
+                                    <label class="checkbox checkbox-outline-primary">
+                                        <input [disabled]="checkCorreoManual == 1" type="radio" id="1" name="check"
+                                            (change)="onChange(contacto,this)">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </th>
+                                <td>{{ contacto.nombreContacto }}</td>
+                                <td>{{ contacto.correo }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <hr>
+                <label class="checkbox checkbox-outline-primary"> Otro (Si esta marcado el correo se enviara a esta
+                    opcion)
+                    <input type="checkbox" name="check" [(ngModel)]="checkCorreoManual">
+                    <span class="checkmark"></span>
+                </label>
+
+                <div *ngIf="checkCorreoManual == 1" class="col-md-12">
+                    <label for="firstName">Indique email</label>
+                    <input
+                        [ngClass]="emailManual.errors && (emailManual.dirty || emailManual.touched) ? 'form-control is-invalid' : 'form-control'"
+                        type="email" autocomplete="off" id="emailManual" name="emailManual" [(ngModel)]="emailManual"
+                        placeholder="Email" required
+                        pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
+                    <p *ngIf="emailManual.errors && (emailManual.dirty || emailManual.touched)" class="text-danger"
+                        style="margin-top: 2px; font-size: 12px">
+                        Correo es requerido
+                    </p>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="guardarCorreoContacto()" class="btn btn-primary btn-rounded">Aceptar</button>
+    </div>
+</ng-template>
+
+
+
+<ng-template #modalSend let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Enviar Credenciales</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p>A continuación seleccione los cargos a los que desea enviar las credenciales de acceso.</p>
+        <div class="row">
+
+            <div class="form-group col-md-12 mb-3">
+                <label class="switch switch-success mr-3">
+                    <span>Enviar a todos los cargos.</span>
+                    <input #inputEl7 [(ngModel)]="enviarTodosCargos" type="checkbox" id="exampleCheck7"
+                        name="exampleCheck7" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-group col-md-12 mb-3" *ngIf="!enviarTodosCargos">
+                <label for="picker1" class="text-lbl">Cargos (*)</label>
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos" bindLabel="carNom"
+                    placeholder="Cargos" #lpo="ngModel" name="lpo" [(ngModel)]="selectedCargos" bindValue="carCod"
+                    [multiple]="true" [closeOnSelect]="false">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-md-12 mb-3" *ngIf="!enviarTodosCargos">
+                <label class="switch switch-success mr-3">
+                    <span>Si ningun contacto tiene el cargo seleccionado, Enviar a todos los contactos.</span>
+                    <input #inputEl3 [(ngModel)]="enviarTodosContactos" type="checkbox" id="exampleCheck3"
+                        name="exampleCheck3" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-group col-md-12 mb-3">
+                <label class="switch switch-success mr-3">
+                    <span>Si cliente no tiene contactos, Enviar al correo de la ficha cliente</span>
+                    <input #inputEl3 [(ngModel)]="enviarFicha" type="checkbox" id="exampleCheck3"
+                        name="exampleCheck3" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="send()" class="btn btn-primary btn-rounded">Enviar</button>
+    </div>
+</ng-template>
+
+
+<ng-template #modalErrores let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Clientes sin correos electronicos para envio de accesos</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+        Segun las opciones ingresadas no se ha encontrado ningun correo electronico para realizar el envio de los accesos al portal a los siguientes clientes.
+      <div class="row" style="margin-top: 15;">
+        <div class="col-lg-12">
+          <div class="card card-ecommerce-1 mb-4">
+            <div class="card-body text-center" style="padding: 0rem !important">
+  
+              <div class="table-responsive">
+                <table class="table ">
+                  <thead>
+                    <tr>
+                      <th scope="col">RUT</th>
+                      <th scope="col">Código Auxiliar</th>
+                      <th scope="col">Nombre</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let d of clientesSinDatos">
+                      <td><span class="text-13">{{d.rut}}</span></td>
+                      <td><span class="text-13">{{d.codAux}}</span></td>
+                      <td><span class="text-13">{{d.nombre}}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+  
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" (click)="modal.dismiss('Cross click')" class="btn btn-primary">Aceptar</button>
+    </div>
+  </ng-template>

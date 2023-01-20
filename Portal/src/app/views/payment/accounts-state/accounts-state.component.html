@@ -1,0 +1,744 @@
+<div class="breadcrumb">
+    <h1>Estado de cuentas</h1>
+    <ul>
+        <li>Portal de pagos</li>
+        <li>Estado de cuentas</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <!-- <form> -->
+                <div class="row">
+                    <div class="col-md-4 form-group mb-3">
+                        <label for="lastName">Tipo de documento</label>
+                        <select [(ngModel)]="selectedTipoDoc" class="form-control" name="tipoD2" #tipoD2="ngModel">
+                            <option *ngFor="let td of tiposDocs" [ngValue]="td">
+                                {{ td.nombre }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 form-group mb-3">
+                        <label for="firstName">Número</label>
+                        <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
+                            placeholder="0">
+                    </div>
+
+                    <div class="col-md-4 form-group mb-3">
+                        <label for="lastName">Estado</label>
+                        <select [(ngModel)]="selectedEstado" class="form-control" name="tipoD" #tipoD="ngModel">
+                            <option *ngFor="let e of estados" [ngValue]="e">
+                                {{ e.nombre }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-9 form-group mb-3">
+
+
+                        <label for="firstName">Fecha: </label>
+                        <input type="radio" [value]="1" name="fecha" id="1" [(ngModel)]="tipoFecha"
+                            style="margin-left: 20px;">
+                        Emisión
+                        <input type="radio" [value]="2" name="fecha" id="2" [(ngModel)]="tipoFecha"
+                            style="margin-left: 10px;">
+                        Vencimiento
+
+                        <div class="row" style="align-items: right;">
+                            <div class="col-md-5 form-group mb-3">
+                                <div class="input-group">
+                                    <input class="form-control" readonly name="d2" #c2="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
+                                        #d2="ngbDatepicker" placeholder="DESDE">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 form-group mb-3">
+                                <div class="input-group">
+                                    <input class="form-control" readonly name="d1" #c1="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
+                                        #d1="ngbDatepicker" placeholder="HASTA">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    <div class="col-md-12 form-group mb-4 align-self-end">
+                        <!-- <label for="sss">.</label> -->
+                        <button id="sss" (click)="filter()" style="margin-top: 20px;"
+                            class="btn btn-primary justify-content-between align-items-center"> <i
+                                class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span>
+                        </button>
+                        <button id="sss2" style="margin-left: 15px; margin-top: 20px;" (click)="limpiarFiltros()"
+                            class="btn btn-secondary mr-3"><span><i class="i-Paint-Brush"></i>
+                                Limpiar</span></button>
+                        <button id="ss3" (click)="export()" style="margin-top: 20px;"
+                            *ngIf="configuracion.permiteExportarExcel == 1 && compras?.length > 0 "
+                            [disabled]="compras?.length == 0" class="btn btn-secondary mr-3"><i
+                                class="i-File-Excel"></i> Exportar a Excel</button>
+                    </div>
+
+                </div>
+
+                <div class="row movil">
+                    Para los Documentos en UF el valor del montos actualizados es realizado  sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy' }}</b>
+                    correspondiente a <b>${{valorUfActrual | monto}}</b>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+
+                        <!-- DESKTOP -->
+                        <div class="desktop" *ngIf="existDocSegundaMoneda">
+                            <div class="card o-hidden mt-3" style="max-height: 400px; ">
+                                <div class="table-responsive">
+                                    <table id="tbDetalle" class="table table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <label class="checkbox checkbox-outline-primary"
+                                                        style="margin-bottom: 20px;">
+                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll"
+                                                            (change)="onSelAll($event)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th style="text-align: left;" scope="col">Documento</th>
+                                                <th scope="col">Número</th>
+                                                <th scope="col">Fecha Emisión</th>
+                                                <th scope="col">Fecha Vencimiento</th>
+                                                <th scope="col">Moneda</th>
+                                                <th  class="centrarTexto" scope="col">Monto en Mda. Origen</th>
+                                                <th  class="centrarTexto" scope="col">Monto en Mda. Nacional a la Fecha Emisión $</th>
+                                                <th  class="centrarTexto" scope="col">Monto Mda. Nacional Actualizado $</th>
+                                                <th  class="centrarTexto" scope="col">Saldo En Mda. Nacional $</th>
+                                                <th  class="centrarTexto" scope="col" *ngIf="configuracion.permiteAbonoParcial == 1">Monto a
+                                                    pagar Moneda Nacional $</th>
+                                                <th scope="col">Estado</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let c of compras; let i = index">
+                                                <th scope="row">
+                                                    <label class="checkbox checkbox-outline-primary">
+                                                        <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                            (change)="onSel($event, c)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <td style="text-align: left;" contenteditable="false">{{ c.documento }}
+                                                </td>
+                                                <td contenteditable="false">{{ c.nro }}</td>
+                                                <td contenteditable="false">{{ c.fechaEmision | date: 'dd/MM/yyyy' }}
+                                                </td>
+                                                <td contenteditable="false">{{ c.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                                <td contenteditable="false" width="100px"><span
+                                                        class="badge badge-secondary"
+                                                        style="font: 1rem;">{{c.desMon}}</span></td>
+                                                <td class="alinearTexto" contenteditable="false" width="100px">{{c.debe | monto}}</td>
+                                                <td class="alinearTexto" (mouseover)="fechaEmision =  c.fechaEmision" *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="100px" [ngbTooltip]="tipContentOrigen"  container="body"
+                                                style="cursor: pointer;">{{c.montoOriginalBase | monto}}</td>
+                                                <td class="alinearTexto" *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="100px" [ngbTooltip]="tipContentActual" container="body"
+                                                style="cursor: pointer;">{{c.montoBase | monto}}</td>
+                                                <td class="alinearTexto" *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="200px" [ngbTooltip]="tipContentActual" container="body"
+                                                style="cursor: pointer;">{{c.saldoBase | monto}} <img
+                                                        container="body" ngbTooltip="Ver Abonos"
+                                                        style="cursor: pointer;"
+                                                        (click)="openInfoModal(detalleSaldo, c)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22"></td>
+                                                        <td class="alinearTexto" *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="100px">{{c.montoBase | monto}}</td>
+                                                        <td class="alinearTexto" *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="100px">{{c.montoBase | monto}}</td>
+                                                        <td class="alinearTexto"  *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada" contenteditable="false" width="200px">{{c.saldoBase | monto}} <img
+                                                                container="body" ngbTooltip="Ver Abonos"
+                                                                style="cursor: pointer;"
+                                                                (click)="openInfoModal(detalleSaldo, c)"
+                                                                src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                                width="22" height="22"></td>
+                                                <td contenteditable="true" width="150px">
+                                                    <input type="text" min="0" [disabled]="c.bloqueadoPago"
+                                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                        class="form-control form-control-sm" name="asd"
+                                                        [value]="c.aPagar | monto "
+                                                        (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                </td>
+                                                <td><span
+                                                        *ngIf="c.estado == 'V' || c.estado == 'Vencido' || c.estado == 'VENCIDO'"
+                                                        class="badge badge-danger mr-1">Vencido</span>
+                                                    <span
+                                                        *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
+                                                        class="badge badge-success mr-1">Pendiente</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="movil" *ngIf="existDocSegundaMoneda">
+                            <div class="card o-hidden mt-3" style="max-height: 800px; ">
+                                <div class="table-responsive">
+                                    <table id="tbDetalle" class="table table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <label class="checkbox checkbox-outline-primary"
+                                                        style="margin-bottom: 20px;">
+                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll"
+                                                            (change)="onSelAll($event)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th scope="col"> </th>
+                                                <th scope="col" *ngIf="configuracion.permiteAbonoParcial == 1">A
+                                                    Pagar
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let c of compras">
+                                                <th style="vertical-align:middle;" scope="row">
+                                                    <label class="checkbox checkbox-outline-primary">
+                                                        <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                            (change)="onSel($event, c)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <td style="text-align: left;">
+                                                    <strong>Documento: </strong>{{ c.documento }}<br />
+                                                    <strong>Número: </strong>{{ c.nro }}<br />
+                                                    <strong>Fecha Emisión: </strong>{{ c.fechaEmision | date:
+                                                    'dd/MM/yyyy'
+                                                    }}<br />
+                                                    <strong>Fecha Vencimiento: </strong>{{ c.fechaVcto | date:
+                                                    'dd/MM/yyyy' }}<br />
+                                                    <strong>Moneda: </strong><span class="badge badge-secondary"
+                                                        style="font: 1rem;">{{c.desMon}}</span><br />
+                                                    <strong>Monto en Mda. Origen: </strong>{{c.debe | monto}}<br />
+                                                    <strong >Monto en Mda. Nacional a la Fecha Emisión $:
+                                                    </strong><p style="margin-bottom: 0px;" *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada">{{c.montoOriginalBase | monto}}</p>
+                                                    <p style="margin-bottom: 0px;" *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada">{{c.saldoBase | monto}}</p>
+                                                    <strong>Monto Mda. Nacional Actualizado $: </strong>${{ c.montoBase |
+                                                    monto }}<br />
+                                                    <strong>Saldo En Mda. Nacional $: </strong>{{c.saldoBase | monto}} <img
+                                                        container="body" ngbTooltip="Ver Abonos"
+                                                        style="cursor: pointer;"
+                                                        (click)="openInfoModal(detalleSaldo, c)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22"><br />
+                                                    <strong>Estado: </strong><span
+                                                        *ngIf="c.estado == 'V' || c.estado == 'Vencido' || c.estado == 'VENCIDO'"
+                                                        class="badge badge-danger mr-1">Vencido</span>
+                                                    <span
+                                                        *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
+                                                        class="badge badge-success mr-1">Pendiente</span><br />
+                                                </td>
+                                                <td style="vertical-align:middle;" contenteditable="true" width="120px"
+                                                    *ngIf="configuracion.permiteAbonoParcial == 1">
+                                                    <input type="text" min="0" [disabled]="c.bloqueadoPago"
+                                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                        class="form-control form-control-sm" name="asd"
+                                                        [value]="c.aPagar | monto"
+                                                        (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+
+
+                        <!--TABLA SIN MONEDAS ADICIONALES-->
+                        <div class="desktop" *ngIf="!existDocSegundaMoneda">
+                            <div class="card o-hidden mt-3" style="max-height: 400px;">
+                                <div class="table-responsive">
+                                    <table id="tbDetalle" class="table table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <label class="checkbox checkbox-outline-primary"
+                                                        style="margin-bottom: 20px;">
+                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll"
+                                                            (change)="onSelAll($event)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th style="text-align: left;" scope="col">Documento</th>
+                                                <th scope="col">Número</th>
+                                                <th scope="col">Fecha Emisión</th>
+                                                <th scope="col">Fecha Vencimiento.</th>
+                                                <th class="centrarTexto" scope="col">Monto $</th>
+                                                <th class="centrarTexto" scope="col" style="min-width: 150px;">Saldo $</th>
+                                                <th class="centrarTexto" scope="col" style="text-align: center; min-width: 150px;"
+                                                    *ngIf="configuracion.permiteAbonoParcial == 1">Monto a pagar $
+                                                </th>
+                                                <th scope="col">Estado</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let c of compras; let i = index">
+                                                <th scope="row">
+                                                    <label class="checkbox checkbox-outline-primary">
+                                                        <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                            (change)="onSel($event, c)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <td style="text-align: left;" contenteditable="false">{{ c.documento }}
+                                                </td>
+                                                <td contenteditable="false">{{ c.nro }}</td>
+                                                <td contenteditable="false">{{ c.fechaEmision | date: 'dd/MM/yyyy'
+                                                    }}</td>
+                                                <td contenteditable="false">{{ c.fechaVcto | date: 'dd/MM/yyyy' }}
+                                                </td>
+                                                <td class="alinearTexto" contenteditable="false" width="100px">{{ c.debe | monto}}</td>
+                                                <td class="alinearTexto" contenteditable="false" width="120px">{{ c.saldo | monto }} <img
+                                                        container="body" ngbTooltip="Ver Abonos"
+                                                        style="cursor: pointer;"
+                                                        (click)="openInfoModal(detalleSaldo, c)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22"></td>
+                                                <td  contenteditable="true" width="120px"
+                                                    *ngIf="configuracion.permiteAbonoParcial == 1">
+                                                    <input type="text" min="0"
+                                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                        class="form-control form-control-sm" name="asd"
+                                                        [value]="c.aPagar | monto" [disabled]="c.bloqueadoPago"
+                                                        (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                </td>
+                                                <td><span
+                                                        *ngIf="c.estado == 'V' || c.estado == 'Vencido' || c.estado == 'VENCIDO'"
+                                                        class="badge badge-danger mr-1">Vencido</span>
+                                                    <span
+                                                        *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
+                                                        class="badge badge-success mr-1">Pendiente</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--MOVIL-->
+                        <div class="movil" *ngIf="!existDocSegundaMoneda">
+                            <div class="card o-hidden mt-3" style="max-height: 800px; ">
+                                <div class="table-responsive">
+                                    <table id="tbDetalle" class="table table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">
+                                                    <label class="checkbox checkbox-outline-primary"
+                                                        style="margin-bottom: 20px;">
+                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll"
+                                                            (change)="onSelAll($event)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <th scope="col"> </th>
+                                                <th scope="col" *ngIf="configuracion.permiteAbonoParcial == 1">A
+                                                    Pagar
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let c of compras">
+                                                <th style="vertical-align:middle;" scope="row">
+                                                    <label class="checkbox checkbox-outline-primary">
+                                                        <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                            (change)="onSel($event, c)">
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                </th>
+                                                <td style="text-align: left;">
+                                                    <strong>Documento: </strong>{{ c.documento }}<br />
+                                                    <strong>Folio: </strong>{{ c.nro }}<br />
+                                                    <strong>Fecha: </strong>{{ c.fechaEmision | date: 'dd/MM/yyyy'
+                                                    }}<br />
+                                                    <strong>Fecha Vencimiento: </strong>{{ c.fechaVcto | date:
+                                                    'dd/MM/yyyy' }}<br />
+                                                    <strong>Monto: </strong>${{ c.debe | monto }}<br />
+                                                    <strong>Saldo: </strong>${{ c.saldo | monto }} <img container="body"
+                                                        ngbTooltip="Ver Abonos" style="cursor: pointer;"
+                                                        (click)="openInfoModal(detalleSaldo, c)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22"><br />
+                                                    <strong>Estado: </strong><span
+                                                        *ngIf="c.estado == 'V' || c.estado == 'Vencido' || c.estado == 'VENCIDO'"
+                                                        class="badge badge-danger mr-1">Vencido</span>
+                                                    <span
+                                                        *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
+                                                        class="badge badge-success mr-1">Pendiente</span><br />
+                                                </td>
+                                                <td style="vertical-align:middle;" contenteditable="true" width="120px"
+                                                    *ngIf="configuracion.permiteAbonoParcial == 1">
+                                                    <input type="text" min="0" [disabled]="c.bloqueadoPago"
+                                                        onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                                        class="form-control form-control-sm" name="asd"
+                                                        [value]="c.aPagar | monto"
+                                                        (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row desktop" style="margin-right: 20px;" *ngIf="compras?.length > 0">
+                    <div class="col-sm-3 align-self-start">
+
+                    </div>
+                    <div class="col align-self-center" align="center">
+                        <div class="form-group row" style="display:flex;
+                        justify-content:center;
+                        align-items:center;"> 
+                            <label for="inputEmail3" class="col-sm-4 col-form-label"><strong>Total a
+                                    Pagar</strong></label>
+                            <div class="col-sm-6 mr-0 pr-0">
+                                <input type="text" disabled class="form-control" name="totalpagar" placeholder="Total"
+                                    value="$ {{totalPagar | monto}}">
+                            </div>
+                            <div class="col-sm-2 mr-0 pr-0">
+                                <button class="btn btn-primary" (click)="SeleccionarPago(pasarelaPago)" type="button"
+                                [disabled]="selected.length == 0"
+                                [style.cursor]="selected.length == 0 ? 'no-drop' : 'pointer'">
+                                Pagar
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 align-self-end">
+
+                    </div>
+                 
+                </div>
+
+                <!--MOVIL-->
+                <div class="row movil" style="margin-right: 20px;" *ngIf="compras?.length > 0">
+                    <div class="col-sm-3 align-self-start">
+
+                    </div>
+                    <div class="col-sm-6 align-self-center">
+                        <div class="form-group row">
+                            <label for="inputEmail3" class="col col-form-label"><strong>Total a
+                                    Pagar</strong></label>
+                            <div class="col mr-0 pr-0">
+                                <input type="text" disabled class="form-control" name="totalpagar" placeholder="Total"
+                                    value="$ {{totalPagar | monto}}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 align-self-end" align="right">
+
+                    </div>
+                </div>
+
+                <div class="row rowButtonMovil"  *ngIf="compras?.length > 0">
+
+                        <button class="btn btn-primary" (click)="SeleccionarPago(pasarelaPago)" type="button"
+                            [disabled]="selected.length == 0"
+                            [style.cursor]="selected.length == 0 ? 'no-drop' : 'pointer'">
+                            Pagar
+                        </button>
+                  
+                </div>
+
+                <!-- </form> -->
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row" style=" display: flex;
+justify-content: center;
+align-items: center;">
+    <p  class="badge badge-danger mr-1 text-12" style="font-size: calc(0.5rem + 0.5vw) !important;" >{{configDiseno.textoNoConsideraTodaDeuda}}</p>
+</div>
+
+<button id="btnModal" style="display: none;" (click)="openModal(modalBasic)">Modal</button>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Pago de cuentas</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-ecommerce-1 mb-4">
+                    <div class="card-body text-center" style="padding: 0rem !important" *ngIf="paymentResultState != 0">
+                        <div *ngIf="paymentResultState == 1">
+                            <img src="../../../../assets/images/Success_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">Pago realizado correctamente.</h3>
+                            <p>Las cuentas selecciondas fueron pagadas exitosamente.</p>
+                        </div>
+                        <div *ngIf="paymentResultState == 2">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">El pago fue anulado o rechazado.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.
+                            </p>
+                        </div>
+                        <div *ngIf="paymentResultState == 3">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">El pago fue anulado.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.
+                            </p>
+                        </div>
+                        <div *ngIf="paymentResultState == 4">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+                            <h3 class="text-primary mt-4">Ocurrio un error al generar comprobante.</h3>
+                            <p>El pago se realizo pero ocurrio un error al generar comprobante, se envio aviso al administrador para regurlizar el pago.
+                            </p>
+                            <p>Si realizo un abono parcial, de momento el documento no se podra seleccionar para su pago para evitar problemas.
+                            </p>
+                        </div>
+                        <div *ngIf="paymentResultState != 1 && paymentResultState != 2 && paymentResultState != 3 && paymentResultState != 4">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">Ocurrio un error al realizar el pago.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.
+                            </p>
+                        </div>
+
+                        <div class="table-responsive mt-5" *ngIf="logPasarela != null && paymentResultState == 1">
+                            <table class="table ">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Comprobante Pago</th>
+                                        <th scope="col">Medio de pago</th>
+                                        <th scope="col">Código Autorización</th>
+                                        <th scope="col">Cuotas</th>
+                                        <th scope="col">Monto</th>
+                                        <th scope="col">Documento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="text-13">{{logPasarela.comprobanteContable}}</span></td>
+                                        <td><span class="text-13">{{logPasarela.pasarelaPago}}</span></td>
+                                        <td><span class="text-13">{{logPasarela.codigo}}</span></td>
+                                        <td><span class="text-13">{{logPasarela.cuotas}}</span></td>
+                                        <td><span class="text-13">${{logPasarela.monto | monto}}</span></td>
+                                        <td>
+                                            <img (click)="downloadPDF(logPasarela.comprobanteContable)" container="body"
+                                                ngbTooltip="Documento PDF" style="cursor: pointer;"
+                                                src="./assets/images/icon/pdf.png" width="20" height="20" alt="">
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn btn-primary btn-rounded">Aceptar</button>
+    </div>
+</ng-template>
+
+<ng-template #pasarelaPago let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Pago de cuentas</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                    <div class="card-body text-center">
+                        <i class="i-Money-2"></i>
+                        <div class="content" style="max-width:100%">
+                            <p class="text-muted mt-2 mb-0">Total a Pagar</p>
+                            <p class="lead text-primary text-24 mb-2">$ {{totalPagar | monto}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                    <div class="card-body text-center">
+                        <i class="i-Receipt-3"></i>
+                        <div class="content" style="max-width:100%">
+                            <p class="text-muted mt-2 mb-0">Documentos Seleccionados</p>
+                            <p class="lead text-primary text-24 mb-2">{{selected.length}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 mb-3 text-center">
+                <h4 class="modal-title" id="modal-basic-title">Selecciona el medio de pago:</h4>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <ul class="ulSel">
+                <li class="liSel" *ngFor="let p of pasarelas">
+                    <input type="checkbox" id="cb{{p.idPasarela}}" (change)="changePasarela(p, $event)" />
+                    <label class="labelSel" style="border: 1px solid #e0e0eb;" for="cb{{p.idPasarela}}"><img
+                            style="width:120px;height: 50px;" [src]="p.logo" /></label>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" [disabled]="bloqueaBotonPago" (click)="pagar()" class="btn btn-primary">Pagar</button>
+    </div>
+</ng-template>
+
+
+<ng-template #tipContent>Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b> correspondiente a
+    <b>$35.000</b>
+</ng-template>
+
+
+
+<ng-template #detalleSaldo let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title justify-content-center" id="modal-basic-title">Abonos</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-sm-6">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                    <div class="card-body text-center">
+                        <i class="i-Money-2"></i>
+                        <div class="content" style="max-width:100%">
+                            <p class="text-muted mt-2 mb-0">Total Documento Origen $</p>
+                            <p class="lead text-primary text-24 mb-2">{{totalDocumentoAbono | monto}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
+                    <div class="card-body text-center">
+                        <i class="i-Money-2"></i>
+                        <div class="content" style="max-width:100%">
+                            <p class="text-muted mt-2 mb-0">Saldo Pendiente $</p>
+                            <p class="lead text-primary text-24 mb-2">{{saldoPendiente | monto}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row desktop">
+            <div class="table-responsive mt-5">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tipo De Documento</th>
+                            <th scope="col">Número Documento</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Monto Abono $</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of abonos; let i = index">
+                            <td><span class="text-13">{{a.documento}}</span></td>
+                            <td><span class="text-13">{{a.nro}}</span></td>
+                            <td><span class="text-13">{{a.fechaEmision | date: 'dd/MM/yyyy'}}</span></td>
+                            <td><span class="text-13">{{a.debe | monto}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row movil">
+            <div class="table-responsive mt-5">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Detalle</th>
+                            <th scope="col">Monto Abono $</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of abonos; let i = index">
+                            <td style="text-align: left;">
+                                <strong>Documento: </strong>{{ a.documento }}<br />
+                                <strong>Número: </strong>{{ a.nro }}<br />
+                                <strong>Fecha Pago: </strong>{{a.fechaEmision | date: 'dd/MM/yyyy'}}<br />
+                            </td>
+                            <td style="vertical-align: middle;"><span class="text-13">{{a.debe | monto}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn btn-primary">Cerrar</button>
+    </div>
+</ng-template>
+
+
+
+<ng-template #tipContentActual>Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy' }}</b> correspondiente a
+    <b>${{valorUfActrual | monto}}</b>
+</ng-template>
+
+
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de la UF al dia <b>{{fechaEmision| date: 'dd/MM/yyyy' }}</b> correspondiente a
+    <b>$0</b>
+</ng-template>

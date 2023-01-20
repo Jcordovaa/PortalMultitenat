@@ -1,0 +1,2279 @@
+<div class="breadcrumb">
+  <h1>Mis Compras</h1>
+  <ul>
+    <li>Portal de pagos</li>
+    <li>Mis Compras</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card user-profile o-hidden mb-4" *ngIf="muestraCabecera">
+  <div class="header-cover" [ngStyle]="{'background-image': 'url(' + configDiseno.bannerMisCompras + ')'}"
+    style="background-image: url('assets/images/SlideDetail.jpg')"></div>
+  <!--FCA 07-07-2022-->
+  <div class="user-info">
+    <img class="profile-picture avatar-lg mb-2" [src]="configDiseno.iconoMisCompras" alt="">
+    <p class="m-0 text-24">{{configDiseno.tituloMisCompras}}</p>
+  </div>
+
+
+  <div class="card-body">
+
+    <div class="row" *ngIf="existModuloInventario && loadingMisCompras">
+      <div [ngClass]="cantidadRecuadrosDocumentos == 4 || cantidadRecuadrosDocumentos == 2 ? 'col-lg-6' : 'col-lg-4'"
+        *ngIf="configuracion.muestraComprasFacturadas == 1">
+        <div class="card-box" [ngStyle]="{backgroundColor: configDiseno.colorFondoMisCompras}">
+          <div class="inner">
+            <h3 [ngStyle]="{color: configDiseno.colorIconosMisCompras}">${{ totalCompras | monto}} </h3>
+            <p [ngStyle]="{color: configDiseno.colorIconosMisCompras}">{{configDiseno.tituloComprasFacturadas}}</p>
+          </div>
+
+          <a (click)="muestraFinalizadas()" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+              class="i-Arrow-Down"></i></a>
+        </div>
+      </div>
+
+      <div [ngClass]="cantidadRecuadrosDocumentos == 4 || cantidadRecuadrosDocumentos == 2 ? 'col-lg-6' : 'col-lg-4'"
+        *ngIf="configuracion.muestraPendientesFacturar == 1 && existModuloNotaVenta">
+        <div class="card-box" [ngStyle]="{backgroundColor: configDiseno.colorFondoPendientesMisCompras}">
+          <div class="inner">
+            <h3 [ngStyle]="{color: configDiseno.colorIconosMisCompras}">${{ totalNV | monto}} </h3>
+            <p [ngStyle]="{color: configDiseno.colorIconosMisCompras}">{{configDiseno.tituloPendientesFacturar}}</p>
+          </div>
+
+          <a (click)="muestraPendientes()" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+              class="i-Arrow-Down"></i></a>
+        </div>
+      </div>
+
+      <div [ngClass]="cantidadRecuadrosDocumentos == 4 || cantidadRecuadrosDocumentos == 2 ? 'col-lg-6' : 'col-lg-4'"
+        *ngIf="configuracion.muestraProductos == 1">
+        <div class="card-box" [ngStyle]="{backgroundColor: configDiseno.colorFondoProductosMisCompras}">
+          <div class="inner">
+            <h3 [ngStyle]="{color: configDiseno.colorIconosMisCompras}">{{ CantidadProductos}} </h3>
+            <p [ngStyle]="{color: configDiseno.colorIconosMisCompras}">{{configDiseno.tituloProductos}}</p>
+          </div>
+
+          <a (click)="muestraProductos()" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+              class="i-Arrow-Down"></i></a>
+        </div>
+      </div>
+
+      <div [ngClass]="cantidadRecuadrosDocumentos == 4 || cantidadRecuadrosDocumentos == 2 ? 'col-lg-6' : 'col-lg-4'"
+        *ngIf="configuracion.muestraGuiasPendientes == 1">
+        <div class="card-box" [ngStyle]="{backgroundColor: configDiseno.colorFondoGuiasMisCompras}">
+          <div class="inner">
+            <h3 [ngStyle]="{color: configDiseno.colorIconosMisCompras}">${{ totalGuias | monto}} </h3>
+            <p [ngStyle]="{color: configDiseno.colorIconosMisCompras}">{{configDiseno.tituloGuiasPendientes}}</p>
+          </div>
+
+          <a (click)="muestraGuia()" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+              class="i-Arrow-Down"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="!existModuloInventario && loadingMisCompras">
+      <div class="col-md-12">
+        <div class="card mb-4">
+          <div class="card-body">
+            <form>
+              <div class="row">
+                <div class="col-md-3 form-group mb-3">
+                  <label for="firstName">Número Documento</label>
+                  <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
+                    placeholder="0">
+                </div>
+
+                <div class="col-md-9 form-group mb-3">
+
+
+                  <label for="firstName">Fecha: </label>
+                  <input type="radio" [value]="1" name="fecha" id="1" [(ngModel)]="tipoFecha"
+                    style="margin-left: 20px;">
+                  Emisión
+                  <input type="radio" [value]="2" name="fecha" id="2" [(ngModel)]="tipoFecha"
+                    style="margin-left: 10px;">
+                  Vencimiento
+
+                  <div class="row" style="align-items: right;">
+                    <div class="col-md-5 form-group mb-3">
+                      <div class="input-group">
+                        <input class="form-control" readonly name="d2" #c2="ngModel" style="background-color: #f8f9fa;"
+                          [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" placeholder="DESDE">
+                        <div class="input-group-append">
+                          <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                            <i class="icon-regular i-Calendar-4"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-5 form-group mb-3">
+                      <div class="input-group">
+                        <input class="form-control" readonly name="d1" #c1="ngModel" style="background-color: #f8f9fa;"
+                          [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" placeholder="HASTA">
+                        <div class="input-group-append">
+                          <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                            <i class="icon-regular i-Calendar-4"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 form-group mb-4 align-self-end">
+                  <!-- <label for="sss">.</label> -->
+                  <button type="button" class="btn btn-primary mr-3" style="margin-top: 20px;"
+                    [ngStyle]="{backgroundColor: configDiseno.colorBotonBuscar}"
+                    (click)="filterContabilizados(selectedTabMonedas)">
+                    <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+
+                  <button id="sss2" style="margin-top: 20px;" (click)="limpiarFiltrosContabilizados()"
+                    class="btn btn-secondary mr-3"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+                  </button>
+                  <button id="ss3" (click)="exportComprasContabilizadas(selectedTabMonedas)" style="margin-top: 20px;"
+                    *ngIf="configuracion.permiteExportarExcel == 1 && compras?.length > 0 "
+                    [disabled]="compras?.length == 0" class="btn btn-secondary mr-3"><i class="i-File-Excel"></i>
+                    Exportar a
+                    Excel</button>
+                  <button (click)="volver(2)" style="margin-top: 20px;" class="btn btn-secondary mr-3"><i
+                      class="i-To-Left"></i> Volver</button>
+                </div>
+              </div>
+
+              <div class="col-md-3 form-group mb-4 align-self-end" style="margin-top: 20px;">
+
+              </div>
+
+              <div class="col-md-12" style="margin-top: 20px;">
+                <div class="card">
+                  <div class="card-content">
+                    <ngb-tabset class="p-0" (tabChange)="changeTabContabilizados($event)">
+                      <ngb-tab [id]="1" [title]="configDiseno.tituloMonedaPeso">
+                        <ng-template ngbTabContent>
+
+                          <div class="row" *ngIf="compras?.length == 0 ">
+
+                            <div class="col-md-12">
+                              <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                {{noResultText}}
+                              </ngb-alert>
+                            </div>
+                          </div>
+
+                          <div class="material-datatables" *ngIf="compras?.length > 0 ">
+
+                            <!--TABLA VERSION DESKTOP-->
+                            <div class="desktop">
+                              <table class="table table-striped table-no-bordered table-hover">
+                                <thead>
+                                  <tr>
+                                    <th style="text-align: left;">Documento</th>
+                                    <th>Nro. Doc.</th>
+                                    <th>Fecha Emisión</th>
+                                    <th>Fecha Vcto.</th>
+                                    <th class="centrarTexto">Monto $</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr *ngFor="let c of compras | paginate: config">
+                                    <td>{{ c.documento }}</td>
+                                    <td>{{ c.nro }}</td>
+                                    <td>{{ c.fechaEmision | date: 'dd/MM/yyyy' }}</td>
+                                    <td>{{ c.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                    <td class="alinearTexto">{{ c.debe | monto }}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!--TABLA VERSION MOVIL-->
+                            <div class="movil">
+                              <table class="table table-striped table-no-bordered table-hover">
+                                <thead>
+                                  <tr>
+                                    <!-- <th class="TableIcon" scope="col"> </th> -->
+                                    <th scope="col"> </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr *ngFor="let c of compras | paginate: config">
+                                    <td>
+                                      <strong>Tipo Documento:
+                                      </strong>{{c.documento}}<br />
+                                      <strong>Nro. Documento:
+                                      </strong>{{c.nro}}<br />
+                                      <strong>Fecha Emisión:
+                                      </strong>{{c.fechaEmision | date:
+                                      'dd/MM/yyyy'}}<br />
+                                      <strong>Fecha Vencimiento:
+                                      </strong>{{c.fechaVcto |
+                                      date: 'dd/MM/yyyy' }}<br />
+                                      <strong>Monto $: </strong>{{c.saldo |
+                                      monto}}<br />
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                          </div>
+
+
+
+                          <div class="col-md-12 mt-3" *ngIf="compras?.length > 0">
+                            <pagination-controls [ngStyle]="{color : configDiseno.colorBotonBuscar}"
+                              (pageChange)="changePageContabilizados($event, 1)" maxSize="6" responsive="true"
+                              previousLabel="" nextLabel="">
+                            </pagination-controls>
+                            <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                          </div>
+                        </ng-template>
+                      </ngb-tab>
+
+
+
+                      <ngb-tab [id]="2" [title]="configDiseno.tituloOtraMoneda" *ngIf="existComprasSegundaMoneda">
+                        <ng-template ngbTabContent>
+
+                          <div class="row" *ngIf="compras?.length == 0 ">
+
+                            <div class="col-md-12">
+                              <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                {{noResultText}}
+                              </ngb-alert>
+                            </div>
+                          </div>
+
+                          <div class="material-datatables" *ngIf="compras?.length > 0">
+                            <div class="desktop">
+
+                              <table class="table table-striped table-no-bordered table-hover">
+
+                                <thead>
+                                  <tr>
+
+                                    <th style="text-align: left;">Documento</th>
+                                    <th>Nro. Doc.</th>
+                                    <th>Fecha Emisión</th>
+                                    <th>Fecha Vencimiento</th>
+                                    <th class="centrarTexto">Moneda</th>
+                                    <th class="centrarTexto">Monto en Moneda Origen</th>
+                                    <th class="centrarTexto">Monto en Mda. Nacional a la Fecha Emisión $</th>
+                                    <th class="centrarTexto">Monto en Mda. Nacional Actualizado $</th>
+                                    <th class="centrarTexto">Saldo en Mda. Nacional Actualizado $</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr *ngFor="let c of compras | paginate: config">
+                                    <td style="text-align: left;">{{c.documento}}
+                                    </td>
+                                    <td>{{c.nro}}</td>
+                                    <td>{{c.fechaEmision | date: 'dd/MM/yyyy'}}</td>
+                                    <td>{{c.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                    <td>{{c.desMon}}</td>
+                                    <td class="alinearTexto">{{c2.debe | monto }}</td>
+                                    <td class="alinearTexto" [ngbTooltip]="tipContentOrigen"
+                                      (mousemove)="fechaEmision = c.fechaEmision" container="body"
+                                      style="cursor: pointer;"> 0
+                                    </td>
+                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body"
+                                      style="cursor: pointer;">
+                                      {{c.montoBase | monto}}
+                                    </td>
+                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body"
+                                      style="cursor: pointer;">
+                                      {{c.saldoBase | monto}}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          <div class="movil">
+                            Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
+                            correspondiente a <b>$35.000</b>
+                            <table class="table table-striped table-no-bordered table-hover">
+
+                              <thead>
+                                <tr>
+                                  <!-- <th class="TableIcon" scope="col"> </th> -->
+                                  <th scope="col"> </th>
+                                  <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let c of compras | paginate: config">
+                                  <td>
+                                    <strong>Documento:
+                                    </strong>{{c.documento}}<br />
+                                    <strong>Nro. Doc.:
+                                    </strong>{{c.nro}}<br />
+                                    <strong>Fecha Emisión:
+                                    </strong>{{c.fechaEmision | date:
+                                    'dd/MM/yyyy'}}<br />
+                                    <strong>Fecha Vencimiento:
+                                    </strong>{{c.fechaVcto |
+                                    date: 'dd/MM/yyyy' }}<br />
+                                    <strong>Moneda: </strong>{{c.desMon}}<br />
+                                    <strong>Monto en Moneda Origen:
+                                    </strong>{{c.debe | monto}}<br />
+                                    <strong>Monto en Mda. Nacional a la Fecha Emisión $:
+                                    </strong>0<br />
+                                    <strong>Monto en Mda. Nacional Actualizado $:
+                                    </strong>{{c.montoBase | monto}}<br />
+                                    <strong>Saldo en Mda. Nacional Actualizado $:
+                                    </strong>{{c.saldoBase | monto}}<br />
+                                  </td>
+                                  <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                                    <div ngbDropdown>
+                                      <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                        class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                        id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg"
+                                          width="16px" height="16px" viewBox="0 0 24 24" fill="none"
+                                          stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          class="text-body align-middle mr-25 feather feather-more-vertical">
+                                          <circle cx="12" cy="12" r="1"></circle>
+                                          <circle cx="12" cy="5" r="1"></circle>
+                                          <circle cx="12" cy="19" r="1"></circle>
+                                        </svg></button>
+                                      <div ngbDropdownMenu>
+                                        <button (click)="verDetalle(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                            class="i-Receipt"
+                                            style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                        <button (click)="verDespacho(c,modalDespachos)" style="cursor: pointer;"
+                                          ngbDropdownItem><i class="i-Check"
+                                            style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Despachos</button>
+                                        <div class="dropdown-divider"></div>
+                                        <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;"
+                                          ngbDropdownItem><i class="i-Download1"
+                                            style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+
+
+
+                          <div class="col-md-12 mt-3" *ngIf="compras?.length > 0">
+                            <pagination-controls [ngStyle]="{color : configDiseno.colorBotonBuscar}"
+                              (pageChange)="changePageContabilizados($event, 2)" maxSize="6" responsive="true"
+                              previousLabel="" nextLabel="">
+                            </pagination-controls>
+                            <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                          </div>
+                        </ng-template>
+                      </ngb-tab>
+                    </ngb-tabset>
+
+                  </div>
+                </div>
+              </div>
+
+
+              <hr>
+
+              <div class="row">
+                <div class="col align-self-start">
+
+                </div>
+                <div class="col align-self-center">
+
+                </div>
+              </div>
+
+            </form>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style=" display: flex;
+  justify-content: center;
+  align-items: center;">
+      <p  class="badge badge-danger mr-1 text-12" style="font-size: calc(0.5rem + 0.5vw) !important;" >{{configDiseno.textoNoConsideraTodaDeuda}}</p>
+  </div>
+</div>
+
+
+
+<div class="row" *ngIf="!showDetail && muestraDocFinalizados">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="mb-3">{{configDiseno.tituloComprasFacturadas}}</h4>
+        <form>
+          <div class="row">
+            <div class="col-md-3 form-group mb-3">
+              <label for="firstName">Número Documento</label>
+              <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
+                placeholder="0">
+            </div>
+
+            <div class="col-md-9 form-group mb-3">
+
+
+              <label for="firstName">Fecha: </label>
+              <input type="radio" [value]="1" name="fecha" id="1" [(ngModel)]="tipoFecha" style="margin-left: 20px;">
+              Emisión
+              <input type="radio" [value]="2" name="fecha" id="2" [(ngModel)]="tipoFecha" style="margin-left: 10px;">
+              Vencimiento
+
+              <div class="row" style="align-items: right;">
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d2" #c2="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" placeholder="DESDE">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d1" #c1="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" placeholder="HASTA">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 form-group mb-4 align-self-end">
+              <!-- <label for="sss">.</label> -->
+              <button type="button" class="btn btn-primary mr-3" style="margin-top: 20px;"
+                [ngStyle]="{backgroundColor: configDiseno.colorBotonBuscar}" (click)="filter(selectedTabMonedas)"> <i
+                  class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+
+              <button id="sss2" style="margin-top: 20px;" (click)="limpiarFiltros()"
+                class="btn btn-secondary mr-3"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+              </button>
+              <button id="ss3" (click)="exportCompras(selectedTabMonedas)" style="margin-top: 20px;"
+                *ngIf="configuracion.permiteExportarExcel == 1 && compras?.length > 0 "
+                [disabled]="compras?.length == 0" class="btn btn-secondary mr-3"><i class="i-File-Excel"></i> Exportar a
+                Excel</button>
+              <button (click)="volver(2)" style="margin-top: 20px;" class="btn btn-secondary mr-3"><i
+                  class="i-To-Left"></i> Volver</button>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group mb-4 align-self-end" style="margin-top: 20px;">
+
+          </div>
+
+          <div class="col-md-12" style="margin-top: 20px;">
+            <div class="card">
+              <div class="card-content">
+                <ngb-tabset class="p-0" (tabChange)="changeTabFacturas($event)">
+                  <ngb-tab [id]="1" [title]="configDiseno.tituloMonedaPeso">
+                    <ng-template ngbTabContent>
+
+                      <div class="row" *ngIf="compras?.length == 0 ">
+
+                        <div class="col-md-12">
+                          <ngb-alert class="alert-card text-center" [dismissible]="false">
+                            {{noResultText}}
+                          </ngb-alert>
+                        </div>
+                      </div>
+
+                      <div class="material-datatables" *ngIf="compras?.length > 0 ">
+
+                        <!--TABLA VERSION DESKTOP-->
+                        <div class="desktop">
+                          <table class="table table-striped table-no-bordered table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col">Tipo de documento</th>
+                                <th scope="col">Nro. Doc.</th>
+                                <!-- <th scope="col">Nro. NV.</th>                        -->
+                                <th scope="col">Fecha Emisión</th>
+                                <th scope="col">Fecha Vcto.</th>
+                                <th style="text-align: right;" scope="col">Monto $</th>
+                                <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let c of compras | paginate: config">
+                                <td>{{ c.documento }}</td>
+                                <td>{{ c.nro }}</td>
+                                <!-- <td>{{ c.notaVenta }}</td>                      -->
+                                <td>{{ c.femision | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ c.fvencimiento | date: 'dd/MM/yyyy' }}</td>
+                                <td style="text-align: right;">{{ c.monto | monto }}</td>
+                                <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                                  <div ngbDropdown>
+                                    <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                      class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                      id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                        height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                      </svg></button>
+                                    <div ngbDropdownMenu>
+                                      <button (click)="verDetalle(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                          class="i-Receipt"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                      <button (click)="verDespacho(c,modalDespachos)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Check"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Despachos</button>
+                                      <div class="dropdown-divider"></div>
+                                      <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Download1"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <!--TABLA VERSION MOVIL-->
+                        <div class="movil">
+                          <table class="table table-striped table-no-bordered table-hover">
+                            <thead>
+                              <tr>
+                                <!-- <th class="TableIcon" scope="col"> </th> -->
+                                <th scope="col"> </th>
+                                <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let c of compras | paginate: config">
+                                <!-- <td class="TableIcon" style="vertical-align:middle;"> <img
+                                      style="min-width: 80px; min-height: 80px;" width="80px" height="80px"
+                                      src="./assets/images/icon/documento.png"></td>-->
+                                <td>
+                                  <strong>Documento: </strong>{{ c.documento }}<br />
+                                  <strong>Nro. Documento: </strong>{{ c.nro }}<br />
+                                  <strong>Fecha Emisión: </strong>{{ c.femision | date: 'dd/MM/yyyy' }}<br />
+                                  <strong>Fecha Vencimiento: </strong>{{ c.fvencimiento | date: 'dd/MM/yyyy' }}<br />
+                                  <strong>Monto: </strong>{{ c.monto | monto }}<br />
+                                </td>
+                                <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                                  <div ngbDropdown>
+                                    <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                      class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                      id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                        height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                      </svg></button>
+                                    <div ngbDropdownMenu>
+                                      <button (click)="verDetalle(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                          class="i-Receipt"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                      <button (click)="verDespacho(c,modalDespachos)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Check"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Despachos</button>
+                                      <div class="dropdown-divider"></div>
+                                      <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Download1"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                      </div>
+
+
+
+                      <div class="col-md-12 mt-3" *ngIf="compras?.length > 0">
+                        <pagination-controls [ngStyle]="{color : configDiseno.colorBotonBuscar}"
+                          (pageChange)="changePageFacturas($event, 1)" maxSize="6" responsive="true" previousLabel=""
+                          nextLabel="">
+                        </pagination-controls>
+                        <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                      </div>
+                    </ng-template>
+                  </ngb-tab>
+
+
+
+                  <ngb-tab [id]="2" [title]="configDiseno.tituloOtraMoneda" *ngIf="existComprasSegundaMoneda">
+                    <ng-template ngbTabContent>
+
+                      <div class="row" *ngIf="compras?.length == 0 ">
+
+                        <div class="col-md-12">
+                          <ngb-alert class="alert-card text-center" [dismissible]="false">
+                            {{noResultText}}
+                          </ngb-alert>
+                        </div>
+                      </div>
+
+                      <div class="material-datatables" *ngIf="compras?.length > 0 ">
+                        <div class="desktop">
+
+                          <table class="table table-striped table-no-bordered table-hover">
+
+                            <thead>
+                              <tr>
+
+                                <th style="text-align: left;">Documento</th>
+                                <th>Nro. Doc.</th>
+                                <th>Fecha Emisión</th>
+                                <th>Fecha Vencimiento</th>
+                                <th>Moneda</th>
+                                <th class="centrarTexto">Monto en Moneda Origen</th>
+                                <th class="centrarTexto">Monto en Mda. Nacional a la Fecha Emisión</th>
+                                <th>Detalle</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let c of compras | paginate: config">
+                                <td style="text-align: left;">{{c.documento}}
+                                </td>
+                                <td>{{c.nro}}</td>
+                                <td>{{c.femision | date: 'dd/MM/yyyy'}}</td>
+                                <td>{{c.fvencimiento | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{c.desMon}}</td>
+                                <td class="alinearTexto">{{c.montoMonedaOriginal | monto}}</td>
+                                <td class="alinearTexto" [ngbTooltip]="tipContent" container="body"
+                                  style="cursor: pointer;">{{c.monto
+                                  | monto}}
+                                </td>
+                                <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                                  <div ngbDropdown>
+                                    <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                      class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                      id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                        height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                      </svg></button>
+                                    <div ngbDropdownMenu>
+                                      <button (click)="verDetalle(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                          class="i-Receipt"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                      <button (click)="verDespacho(c,modalDespachos)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Check"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Despachos</button>
+                                      <div class="dropdown-divider"></div>
+                                      <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Download1"
+                                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div class="movil">
+                        Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
+                        correspondiente a <b>$35.000</b>
+                        <table class="table table-striped table-no-bordered table-hover">
+
+                          <thead>
+                            <tr>
+                              <!-- <th class="TableIcon" scope="col"> </th> -->
+                              <th scope="col"> </th>
+                              <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let c of compras | paginate: config">
+                              <td>
+                                <strong>Documento: </strong>{{ c.documento }}<br />
+                                <strong>Nro. Documento: </strong>{{ c.nro }}<br />
+                                <strong>Fecha Emisión: </strong>{{ c.femision | date: 'dd/MM/yyyy' }}<br />
+                                <strong>Fecha Vencimiento: </strong>{{ c.fvencimiento | date: 'dd/MM/yyyy' }}<br />
+                                <strong class="centrarTexto">Moneda: </strong>{{ c.desMon }}<br />
+                                <strong class="centrarTexto">Monto en Moneda Origen: </strong>{{ c.montoMonedaOriginal |
+                                monto }}<br />
+                                <strong class="centrarTexto">Monto en Mda. Nacional a la Fecha Emisión: </strong>{{
+                                c.monto | monto }}<br />
+                              </td>
+                              <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                                <div ngbDropdown>
+                                  <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                    class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                    id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                      height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                      class="text-body align-middle mr-25 feather feather-more-vertical">
+                                      <circle cx="12" cy="12" r="1"></circle>
+                                      <circle cx="12" cy="5" r="1"></circle>
+                                      <circle cx="12" cy="19" r="1"></circle>
+                                    </svg></button>
+                                  <div ngbDropdownMenu>
+                                    <button (click)="verDetalle(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                        class="i-Receipt"
+                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                    <button (click)="verDespacho(c,modalDespachos)" style="cursor: pointer;"
+                                      ngbDropdownItem><i class="i-Check"
+                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Despachos</button>
+                                    <div class="dropdown-divider"></div>
+                                    <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;"
+                                      ngbDropdownItem><i class="i-Download1"
+                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+
+
+
+
+                      <div class="col-md-12 mt-3" *ngIf="compras?.length > 0">
+                        <pagination-controls [ngStyle]="{color : configDiseno.colorBotonBuscar}"
+                          (pageChange)="changePageFacturas($event, 2)" maxSize="6" responsive="true" previousLabel=""
+                          nextLabel="">
+                        </pagination-controls>
+                        <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                      </div>
+                    </ng-template>
+                  </ngb-tab>
+                </ngb-tabset>
+
+              </div>
+            </div>
+          </div>
+
+
+          <hr>
+
+          <div class="row">
+            <div class="col align-self-start">
+
+            </div>
+            <div class="col align-self-center">
+
+            </div>
+          </div>
+
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="!showDetail && muestraDocPendientes">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="mb-3">{{configDiseno.tituloPendientesFacturar}}</h4>
+        <form>
+          <div class="row">
+            <div class="col-md-3 form-group mb-3">
+              <label for="lastName">Nota Venta</label>
+              <input type="number" min="0" class="form-control" id="nta" name="nta" [(ngModel)]="notaVenta"
+                placeholder="0">
+            </div>
+
+            <div class="col-md-9 form-group mb-3">
+
+
+              <label for="firstName">Fecha de Emisión: </label>
+              <div class="row" style="align-items: right;">
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d2" #c2="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" placeholder="DESDE">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d1" #c1="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" placeholder="HASTA">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="col-md-12 form-group mb-4 align-self-end">
+              <!-- <label for="sss">.</label> -->
+              <button type="button" class="btn btn-primary" style="margin-top: 20px;"
+                [ngStyle]="{backgroundColor: configDiseno.colorBotonBuscar}" (click)="filterNv()"> <i
+                  class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+
+              <button id="sss2" style="margin-left: 15px; margin-top: 20px;" (click)="limpiarFiltrosNv()"
+                class="btn btn-secondary mr-3" [loading]="loading"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+              </button>
+              <button id="ss3" (click)="exportNV()" style="margin-top: 20px;"
+                *ngIf="configuracion.permiteExportarExcel == 1 && notasVenta?.length > 0 "
+                [disabled]="notasVenta?.length == 0" class="btn btn-secondary mr-3"><i class="i-File-Excel"></i>
+                Exportar a Excel</button>
+              <button (click)="volver(4)" class="btn btn-secondary" style="margin-top: 20px;"><i class="i-To-Left"></i>
+                Volver</button>
+            </div>
+
+          </div>
+
+          <div class="col-md-12" style="margin-top: 20px;">
+            <div class="card">
+              <div class="card-content">
+
+                <div class="row" *ngIf="notasVenta?.length == 0 ">
+
+                  <div class="col-md-12">
+                    <ngb-alert class="alert-card text-center" [dismissible]="false">
+                      {{noResultText}}
+                    </ngb-alert>
+                  </div>
+                </div>
+
+
+                <!--MOVIL-->
+                <div class="movil" *ngIf="notasVenta?.length > 0 ">
+                  <div class="material-datatables">
+                    <table class="table table-striped table-no-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col"> </th>
+                          <th scope="col">Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let c of notasVenta | paginate: config">
+                          <td>
+                            <strong>Nota Venta: </strong>{{ c.nvNumero }}<br />
+                            <strong>Fecha: </strong>{{ c.fecha | date: 'dd/MM/yyyy' }}<br />
+                            <strong>Fecha entrega: </strong>{{ c.fechaEntrega | date: 'dd/MM/yyyy' }}<br />
+                            <strong>Monto: </strong>${{ c.monto | monto }}<br />
+                            <strong>Facturado: </strong>${{ c.montoFacturado | monto }}<br />
+                            <strong>Saldo por facturar: </strong>${{ c.montoPendiente | monto }}<br />
+                          </td>
+                          <td style="vertical-align:middle;">
+                            <div ngbDropdown>
+                              <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                  height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  class="text-body align-middle mr-25 feather feather-more-vertical">
+                                  <circle cx="12" cy="12" r="1"></circle>
+                                  <circle cx="12" cy="5" r="1"></circle>
+                                  <circle cx="12" cy="19" r="1"></circle>
+                                </svg></button>
+                              <div ngbDropdownMenu>
+                                <button (click)="verDetalleNv(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                <div class="dropdown-divider"></div>
+                                <button (click)="descargarDocumentos(2,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Download1"
+                                    style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                              </div>
+                            </div>
+
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+
+
+                <!--TABLA ESCRITORIO-->
+                <div class="desktop"  *ngIf="notasVenta?.length > 0 ">
+                  <div class="material-datatables">
+                    <table class="table table-striped table-no-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">Nota Venta</th>
+                          <th scope="col">Fecha</th>
+                          <th scope="col">Fecha entrega</th>
+                          <th style="text-align: right;" scope="col">Monto $</th>
+                          <th style="text-align: right;" scope="col">Facturado $</th>
+                          <th style="text-align: right;" scope="col">Saldo por facturar $</th>
+                          <th scope="col">Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let c of notasVenta | paginate: config">
+                          <td>{{ c.nvNumero }}</td>
+                          <td>{{ c.fecha | date: 'dd/MM/yyyy' }}</td>
+                          <td>{{ c.fechaEntrega | date: 'dd/MM/yyyy' }}</td>
+                          <td style="text-align: right;">{{ c.monto | monto }}</td>
+                          <td style="text-align: right;">{{ c.montoFacturado | monto }}</td>
+                          <td style="text-align: right;">{{ c.montoPendiente | monto }}</td>
+                          <td style="vertical-align:middle;">
+                            <div ngbDropdown>
+                              <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                  height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  class="text-body align-middle mr-25 feather feather-more-vertical">
+                                  <circle cx="12" cy="12" r="1"></circle>
+                                  <circle cx="12" cy="5" r="1"></circle>
+                                  <circle cx="12" cy="19" r="1"></circle>
+                                </svg></button>
+                              <div ngbDropdownMenu>
+                                <button (click)="verDetalleNv(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                <div class="dropdown-divider"></div>
+                                <button (click)="descargarDocumentos(2,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Download1"
+                                    style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                              </div>
+                            </div>
+
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+
+
+
+
+                <div class="col-md-12 mt-3" *ngIf="notasVenta?.length > 0">
+                  <pagination-controls (pageChange)="changePageNV($event)" maxSize="6" responsive="true"
+                    previousLabel="" nextLabel="">
+                  </pagination-controls>
+                  <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="row">
+            <div class="col align-self-start">
+
+            </div>
+            <div class="col align-self-center">
+
+            </div>
+          </div>
+
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="!showDetailProducto && muestraProductosCompras">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="mb-3">{{configDiseno.tituloProductos}}</h4>
+        <form>
+          <div class="row">
+            <div class="col-md-3 form-group mb-3">
+              <label for="lastName">Número Documento</label>
+              <input type="number" class="form-control" id="folioPr" name="folioPr" [(ngModel)]="folio"
+                placeholder="Ingrese Número documento">
+            </div>
+            <div class="col-md-3 form-group mb-3" style="margin-left: 15px;">
+              <label for="lastName">Codigo de Producto</label>
+              <input type="text" class="form-control" id="codigo" name="codigo" [(ngModel)]="codigoProd"
+                placeholder="Ingrese codigo de producto">
+            </div>
+
+            <div class="col-md-3 form-group mb-3" style="margin-left: 15px;">
+              <label for="lastName">Nombre de Producto</label>
+              <input type="text" class="form-control" id="nombre" name="nombre" [(ngModel)]="nomProd"
+                placeholder="Ingrese nombre de producto">
+            </div>
+
+            <div class="col-md-9 form-group mb-3">
+
+
+              <label for="firstName">Fecha de compra: </label>
+              <div class="row" style="align-items: right;">
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d2" #c2="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" placeholder="DESDE">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d1" #c1="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" placeholder="HASTA">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-12 form-group mb-4 align-self-end">
+              <!-- <label for="sss">.</label> -->
+              <button type="button" class="btn btn-primary" style="margin-top: 20px;"
+                [ngStyle]="{backgroundColor: configDiseno.colorBotonBuscar}" (click)="filterPr()"> <i
+                  class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+
+              <button id="sss2" style="margin-left: 15px; margin-top: 20px;" (click)="limpiarFiltrosPr()"
+                class="btn btn-secondary mr-3" [loading]="loading"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+              </button>
+              <button id="ss3" (click)="exportProductos()" style="margin-top: 20px;"
+                *ngIf="configuracion.permiteExportarExcel == 1 && productos?.length > 0 "
+                [disabled]="productos?.length == 0" class="btn btn-secondary mr-3"><i class="i-File-Excel"></i> Exportar
+                a Excel</button>
+              <button (click)="volver(5)" class="btn btn-secondary" style="margin-top: 20px;"><i class="i-To-Left"></i>
+                Volver</button>
+            </div>
+
+          </div>
+
+          <div class="row mt-3" style="margin-top: 20px;">
+
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-content">
+
+
+                  <div class="row" *ngIf="productos?.length == 0 ">
+
+                    <div class="col-md-12">
+                      <ngb-alert class="alert-card text-center" [dismissible]="false">
+                        {{noResultText}}
+                      </ngb-alert>
+                    </div>
+                  </div>
+
+
+                  <div class="desktop" *ngIf="productos?.length > 0 ">
+                    <div class="material-datatables">
+                      <table id="dtDocumentos" class="table table-striped table-no-bordered table-hover" datatable="ng"
+                        style="overflow-x: auto; width: 100%;">
+                        <thead>
+                          <tr>
+                            <th scope="col">Codigo</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Tipo Doc.</th>
+                            <th scope="col">Nro. Doc.</th>
+                            <th style="text-align: right;" scope="col">Precio $</th>
+                            <th style="text-align: right;" scope="col">Total $</th>
+                            <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let c of productos | paginate: config">
+                            <td>{{ c.codProd }}</td>
+                            <td>{{c.desProd}}</td>
+                            <td>{{ c.cantidad | monto }}</td>
+                            <td>{{ c.fecha | date: 'dd/MM/yyyy' }}</td>
+                            <td>{{ c.documento }}</td>
+                            <td>{{ c.folio }}</td>
+                            <td style="text-align: right;">{{ c.precio | monto }}</td>
+                            <td style="text-align: right;" >{{ c.totalLinea | monto }}</td>
+                            <td style="vertical-align:middle;">
+                              <div ngbDropdown>
+                                <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                  class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                  id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                    height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="text-body align-middle mr-25 feather feather-more-vertical">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                  </svg></button>
+                                <div ngbDropdownMenu>
+                                  <button (click)="verDetalleProducto(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                      class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                  <div class="dropdown-divider"></div>
+                                  <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                      class="i-Download1"
+                                      style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!--MOVIL-->
+                  <div class="movil" *ngIf="productos?.length > 0 ">
+                    <div class="material-datatables">
+                      <table id="dtDocumentos" class="table table-striped table-no-bordered table-hover" datatable="ng"
+                        style="overflow-x: auto; width: 100%;">
+                        <thead>
+                          <tr>
+                            <th scope="col"> </th>
+                            <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let c of productos | paginate: config">
+                            <td>
+                              <strong>Tipo Documento: </strong>{{ c.documento }}<br />
+                              <strong>Nro. Doc: </strong>{{ c.folio }}<br />
+                              <strong>Fecha: </strong>{{ c.fecha | date: 'dd/MM/yyyy' }}<br />
+                              <strong>Codigo: </strong>{{ c.codProd }}<br />
+                              <strong>Nombre: </strong>{{c.desProd}}<br />
+                              <strong>Cantidad: </strong>{{ c.cantidad | monto }}<br />
+                              <strong>Precio: </strong>${{ c.precio | monto }}<br />
+                              <strong>Total: </strong>${{ c.totalLinea | monto }}<br />
+                            </td>
+                            <td style="vertical-align:middle;">
+                              <div ngbDropdown>
+                                <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                  class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                  id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                    height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="text-body align-middle mr-25 feather feather-more-vertical">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                  </svg></button>
+                                <div ngbDropdownMenu>
+                                  <button (click)="verDetalleProducto(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                      class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                  <div class="dropdown-divider"></div>
+                                  <button (click)="descargarDocumentos(1,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                      class="i-Download1"
+                                      style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+
+
+
+
+                  <div class="col-md-12 mt-3" *ngIf="productos?.length > 0">
+                    <pagination-controls (pageChange)="changePageProducto($event)" maxSize="6" responsive="true"
+                      previousLabel="" nextLabel="">
+                    </pagination-controls>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="row">
+            <div class="col align-self-start">
+
+            </div>
+            <div class="col align-self-center">
+
+            </div>
+          </div>
+
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row" *ngIf="!showDetail && muestraGuias">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h4 class="mb-3">{{configDiseno.tituloGuiasPendientes}}</h4>
+        <form>
+          <div class="row">
+            <div class="col-md-3 form-group mb-3">
+              <label for="firstName">Número de Guia</label>
+              <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
+                placeholder="0">
+            </div>
+
+            <div class="col-md-9 form-group mb-3">
+
+
+              <label for="firstName">Fecha de Emisión: </label>
+              <div class="row" style="align-items: right;">
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d2" #c2="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" placeholder="DESDE">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-5 form-group mb-3">
+                  <div class="input-group">
+                    <input class="form-control" readonly name="d1" #c1="ngModel" style="background-color: #f8f9fa;"
+                      [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" placeholder="HASTA">
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                        <i class="icon-regular i-Calendar-4"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 form-group mb-4 align-self-end">
+              <!-- <label for="sss">.</label> -->
+              <button type="button" class="btn btn-primary mr-3" style="margin-top: 20px;"
+                [ngStyle]="{backgroundColor: configDiseno.colorBotonBuscar}" (click)="filterGuias()"> <i
+                  class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+
+              <button id="sss2" style="margin-top: 20px;" (click)="limpiarFiltrosGuias()" class="btn btn-secondary mr-3"
+                [loading]="loading"><span><i class="i-Paint-Brush"></i> Limpiar</span>
+              </button>
+              <button id="ss3" (click)="exportGuias()" style="margin-top: 20px;"
+                *ngIf="configuracion.permiteExportarExcel == 1 && guias?.length > 0 " [disabled]="guias?.length == 0"
+                class="btn btn-secondary mr-3"><i class="i-File-Excel"></i> Exportar a
+                Excel</button>
+              <button (click)="volver(7)" style="margin-top: 20px;" class="btn btn-secondary mr-3"><i
+                  class="i-To-Left"></i> Volver</button>
+            </div>
+          </div>
+
+          <div class="col-md-3 form-group mb-4 align-self-end" style="margin-top: 20px;">
+
+          </div>
+
+          <div class="col-md-12" style="margin-top: 20px;">
+            <div class="card">
+              <div class="card-content">
+
+
+                <div class="row" *ngIf="guias?.length == 0 ">
+
+                  <div class="col-md-12">
+                    <ngb-alert class="alert-card text-center" [dismissible]="false">
+                      {{noResultText}}
+                    </ngb-alert>
+                  </div>
+                </div>
+
+
+                <div class="material-datatables" *ngIf="guias?.length > 0 ">
+                  <!--TABLA VERSION DESKTOP-->
+                  <div class="desktop">
+                    <table class="table table-striped table-no-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">Nro. Doc.</th>
+                          <th scope="col">Fecha Emisión</th>
+                          <th style="text-align: right;" scope="col">Monto $</th>
+                          <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let c of guias | paginate: config">
+                          <td>{{ c.nro }}</td>
+                          <td>{{ c.fecha | date: 'dd/MM/yyyy' }}</td>
+                          <td style="text-align: right;">{{ c.total | monto }}</td>
+                          <td style="vertical-align:middle;">
+                            <div ngbDropdown>
+                              <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                  height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  class="text-body align-middle mr-25 feather feather-more-vertical">
+                                  <circle cx="12" cy="12" r="1"></circle>
+                                  <circle cx="12" cy="5" r="1"></circle>
+                                  <circle cx="12" cy="19" r="1"></circle>
+                                </svg></button>
+                              <div ngbDropdownMenu>
+                                <button (click)="verDetalleGuia(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                <div class="dropdown-divider"></div>
+                                <button (click)="descargarDocumentos(3,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Download1"
+                                    style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!--TABLA VERSION MOVIL-->
+                  <div class="movil">
+                    <table class="table table-striped table-no-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <!-- <th class="TableIcon" scope="col"> </th> -->
+                          <th scope="col"> </th>
+                          <th scope="col" *ngIf="configuracion.inventarioSoftland == 1">Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let c of guias | paginate: config">
+                          <td>
+                            <strong>Nro. Documento: </strong>{{ c.nro }}<br />
+                            <strong>Fecha Emisión: </strong>{{ c.fecha | date: 'dd/MM/yyyy' }}<br />
+                            <strong>Monto: </strong>${{ c.total | monto }}<br />
+                          </td>
+                          <td style="vertical-align:middle;">
+                            <div ngbDropdown>
+                              <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                  height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"
+                                  class="text-body align-middle mr-25 feather feather-more-vertical">
+                                  <circle cx="12" cy="12" r="1"></circle>
+                                  <circle cx="12" cy="5" r="1"></circle>
+                                  <circle cx="12" cy="19" r="1"></circle>
+                                </svg></button>
+                              <div ngbDropdownMenu>
+                                <button (click)="verDetalleGuia(c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                <div class="dropdown-divider"></div>
+                                <button (click)="descargarDocumentos(3,c)" style="cursor: pointer;" ngbDropdownItem><i
+                                    class="i-Download1"
+                                    style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Descargar</button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+
+
+                <div class="col-md-12 mt-3" *ngIf="guias?.length > 0">
+                  <pagination-controls [ngStyle]="{color : configDiseno.colorBotonBuscar}"
+                    (pageChange)="changePageGuias($event)" maxSize="6" responsive="true" previousLabel="" nextLabel="">
+                  </pagination-controls>
+                  <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <hr>
+
+          <div class="row">
+            <div class="col align-self-start">
+
+            </div>
+            <div class="col align-self-center">
+
+            </div>
+          </div>
+
+        </form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="false">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="card-title mb-3">
+          Detalle de la compra
+        </div>
+        <form>
+          <div class="row">
+            <div class="col-md-6 form-group mb-3">
+              <label for="firstName">Folio</label>
+              <input type="text" class="form-control" id="firstName" value="{{ detalleCab.folio }}">
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Nota venta</label>
+              <input type="text" class="form-control" id="lastName" value="{{ notaVenta }}">
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Condición venta</label>
+              <input type="text" class="form-control" id="lastName" value="{{ detalleCab.condVenta }}">
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="exampleInputEmail1">Fecha</label>
+              <input type="text" class="form-control" id="exampleInputEmail1"
+                value="{{ detalleCab.fechaEmision | date: 'dd/MM/yyyy' }}">
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="phone">Descuento</label>
+              <input class="form-control" id="phone" value="${{ detalleCab.descuento | monto }}">
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="credit">Total</label>
+              <input class="form-control" id="credit" value="${{ detalleCab.total | monto }}">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="false">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+
+
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-content">
+              <!--DESKTOP-->
+              <div class="desktop">
+                <div class="material-datatables">
+                  <table class="table table-striped table-no-bordered table-hover" datatable="ng">
+                    <thead>
+                      <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col">Producto </th>
+                        <th style="text-align: right;" scope="col">Cantidad</th>
+                        <th style="text-align: right;" scope="col">Precio Unitario</th>
+                        <th style="text-align: right;" scope="col">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let c of detalleDet">
+                        <td>{{ c.codigo }}</td>
+                        <td>{{ c.desProd }}</td>
+                        <td style="text-align: right;">{{ c.cantidad }}</td>
+                        <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
+                        <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!--MOVIL-->
+              <div class="movil">
+                <div class="material-datatables">
+                  <table class="table table-striped table-no-bordered table-hover" datatable="ng">
+                    <thead>
+                      <tr>
+                        <th scope="col">Código</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let c of detalleDet">
+                        <td>{{ c.codigo }}</td>
+                        <td>
+                          <strong>Producto: </strong>{{ c.desProd }}<br />
+                          <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                          <strong>Precio Unitario: </strong>{{ c.precioUnitario | monto }}<br />
+                          <strong>Total: </strong>${{ c.total | monto }}<br />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row mt-3">
+          <div class="col align-self-start">
+
+          </div>
+          <div class="col align-self-center">
+
+          </div>
+          <div class="col align-self-end" align="right">
+            <btn-loading btnClass="btn-secondary btn-rounded" (click)="showDetail = false"><span>Volver</span>
+            </btn-loading>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="showDetail">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-sm-flex mb-5" style="position:relative">
+          <span class="m-auto"></span>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver(1)">Volver</button>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" [ngbTooltip]="tipDocumentos"  container="body"
+            (click)="openModalSend(modalEnvio,'doc',detalleCab)"><img
+            src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button>
+          <button class="btn btn-primary mb-sm-0 mb-3" (click)="print(1)">Imprimir</button>
+        </div>
+        <!---===== Print Area =======-->
+        <div id="print-area">
+          <div class="row">
+            <div class="col-md-6">
+              <h4 class="font-weight-bold">Factura</h4>
+              <p>{{ detalleCab.folio }}</p>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <!-- <p *ngIf="detalleCab.fechaVencimiento != '' && detalleCab.fechaVencimiento != null"><strong>Estado:
+                </strong> {{estadoDoc}}</p> -->
+              <p><strong>Fecha Emisión: </strong> {{ detalleCab.fechaEmision | date: 'dd/MM/yyyy' }}</p>
+              <p *ngIf="detalleCab.fechaVencimiento != '' && detalleCab.fechaVencimiento != null"><strong>Fecha
+                  Vencimiento: </strong> {{ detalleCab.fechaVencimiento | date: 'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+          <div class="mt-3 mb-4 border-top"></div>
+          <div class="row mb-5">
+            <div class="col-md-6 mb-3 mb-sm-0">
+              <h5 class="font-weight-bold">Razón social / Nombre</h5>
+              <p>{{detalleCab.razonSocial}}</p>
+              <h5 class="font-weight-bold">Dirección</h5>
+              <span style="white-space: pre-line">
+                {{detalleCab.direccion}}
+              </span>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <h5 class="font-weight-bold">RUT</h5>
+              <p>{{detalleCab.rut}}</p>
+              <!-- <h5 class="font-weight-bold">Condición de venta</h5>
+              <p>{{ detalleCab.condVenta }}</p> -->
+              <h5 *ngIf="detalleCab.nvnumero != 0" class="font-weight-bold">Nota de venta</h5>
+              <p *ngIf="detalleCab.nvnumero != 0">{{ detalleCab.nvnumero }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <!--DESKTOP-->
+              <div class="desktop">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Producto</th>
+                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Precio Unitario</th>
+                      <th style="text-align: right;" scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td scope="row"> {{i + 1}} </td>
+                      <td>{{ c.codigo }}</td>
+                      <td>{{ c.desProd }}</td>
+                      <td style="text-align: right;">{{ c.cantidad }}</td>
+                      <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
+                      <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--MOVIL-->
+              <div class="movil">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td scope="row"> {{i + 1}} </td>
+                      <td>
+                        <strong>Código: </strong>{{ c.codigo }}<br />
+                        <strong>Producto: </strong>{{ c.desProd }}<br />
+                        <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                        <strong>Precio Unitario: </strong>{{ c.precioUnitario | monto }}<br />
+                        <strong>Total: </strong>${{ c.total | monto }}<br />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+            <div class="col-md-12">
+              <div class="invoice-summary float-right">
+                <p>Sub total: <span>${{ detalleCab.neto | monto }}</span></p>
+                <p>IVA: <span>
+                    ${{ detalleCab.iva | monto }}
+                  </span></p>
+                <h5 class="font-weight-bold">Total: <span>
+                    ${{ detalleCab.total | monto }}
+                  </span></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--==== / Print Area =====-->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row" *ngIf="showDetailProducto">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-sm-flex mb-5" style="position:relative">
+          <span class="m-auto"></span>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver(6)">Volver</button>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" [ngbTooltip]="tipDocumentos"  container="body"
+            (click)="openModalSend(modalEnvio,'doc',detalleCab)"><img
+            src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button>
+          <button class="btn btn-primary mb-sm-0 mb-3" (click)="print(1)">Imprimir</button>
+        </div>
+        <!---===== Print Area =======-->
+        <div id="print-area">
+          <div class="row">
+            <div class="col-md-6">
+              <h4 class="font-weight-bold">Factura</h4>
+              <p>{{ detalleCab.folio }}</p>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <!-- <p *ngIf="detalleCab.fechaVencimiento != null && detalleCab.fechaVencimiento != ''"><strong>Estado:
+                </strong> {{estadoDoc}}</p> -->
+              <p><strong>Fecha Emisión: </strong> {{ detalleCab.fechaEmision | date: 'dd/MM/yyyy' }}</p>
+              <p *ngIf="detalleCab.fechaVencimiento != null && detalleCab.fechaVencimiento != ''"><strong>Fecha
+                  Vencimiento: </strong> {{ detalleCab.fechaVencimiento | date: 'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+          <div class="mt-3 mb-4 border-top"></div>
+          <div class="row mb-5">
+            <div class="col-md-6 mb-3 mb-sm-0">
+              <h5 class="font-weight-bold">Razón social / Nombre</h5>
+              <p>{{detalleCab.razonSocial}}</p>
+              <h5 class="font-weight-bold">Dirección</h5>
+              <span style="white-space: pre-line">
+                {{detalleCab.direccion}}
+              </span>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <h5 class="font-weight-bold">RUT</h5>
+              <p>{{detalleCab.rut}}</p>
+              <!-- <h5 class="font-weight-bold">Condición de venta</h5>
+              <p>{{ detalleCab.condVenta }}</p> -->
+              <h5 *ngIf="detalleCab.nvnumero != 0" class="font-weight-bold">Nota de venta</h5>
+              <p *ngIf="detalleCab.nvnumero != 0">{{ detalleCab.nvnumero }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <!--DESKTOP-->
+              <div class="desktop">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Producto</th>
+                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Precio Unitario $</th>
+                      <th style="text-align: right;" scope="col">Total $</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <th *ngIf="productoVenta == c.codigo" scope="row" style="background-color: rgb(162, 163, 163);">
+                        {{i
+                        + 1}} </th>
+                      <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163);">{{ c.codigo }}
+                      </td>
+                      <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163);">{{ c.desProd
+                        }}
+                      </td>
+                      <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163); text-align: right; ">{{ c.cantidad
+                        }}
+                      </td>
+                      <td  *ngIf="productoVenta == c.codigo"
+                        style="background-color: rgb(162, 163, 163); text-align: right;">{{
+                        c.precioUnitario | monto }}</td>
+                      <td *ngIf="productoVenta == c.codigo"
+                        style="background-color: rgb(162, 163, 163); text-align: right;">{{ c.total | monto }}</td>
+
+                        <th *ngIf="productoVenta != c.codigo" scope="row"> {{i + 1}} </th>
+                      <td *ngIf="productoVenta != c.codigo">{{ c.codigo }}</td>
+                      <td *ngIf="productoVenta != c.codigo">{{ c.desProd }}</td>
+                      <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.cantidad }}</td>
+                      <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.precioUnitario | monto }}
+                      </td>
+                      <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.total | monto }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--MOVIL-->
+              <div class="movil">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col"> </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td *ngIf="productoVenta == c.codigo" scope="row" style="background-color: rgb(162, 163, 163);">
+                        {{i
+                        + 1}} </td>
+                      <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163);">
+                        <strong>Código: </strong>{{ c.codigo }}<br />
+                        <strong>Producto: </strong>{{ c.desProd }}<br />
+                        <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                        <strong>Precio Unitario: </strong>{{ c.precioUnitario | monto }}<br />
+                        <strong>Total: </strong>${{ c.total | monto }}<br />
+                      </td>
+                    </tr>
+
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td *ngIf="productoVenta != c.codigo" scope="row"> {{i + 1}} </td>
+                      <td *ngIf="productoVenta != c.codigo">
+                        <strong>Código: </strong>{{ c.codigo }}<br />
+                        <strong>Producto: </strong>{{ c.desProd }}<br />
+                        <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                        <strong>Precio Unitario: </strong>{{ c.precioUnitario | monto }}<br />
+                        <strong>Total: </strong>${{ c.total | monto }}<br />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="invoice-summary float-right">
+                <p>Sub total: <span>${{ detalleCab.neto | monto }}</span></p>
+                <p>IVA: <span>
+                    ${{ detalleCab.iva | monto }}
+                  </span></p>
+                <h5 class="font-weight-bold">Total: <span>
+                    ${{ detalleCab.total | monto }}
+                  </span></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--==== / Print Area =====-->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" *ngIf="showDetailNv">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-sm-flex mb-5" style="position:relative">
+          <span class="m-auto"></span>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver(3)">Volver</button>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" [ngbTooltip]="tipDocumentos"  container="body"
+            (click)="openModalSend(modalEnvio,'nv',NotaVentaDetalle)"><img
+            src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button>
+          <button class="btn btn-primary mb-sm-0 mb-3" (click)="print(2)">Imprimir</button>
+        </div>
+        <!---===== Print Area =======-->
+        <div id="print-area">
+          <div class="row">
+            <div class="col-md-6">
+              <h4 class="font-weight-bold">Nota de venta</h4>
+              <p>{{ NotaVentaDetalle.nvNumero }}</p>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <p><strong>Estado: </strong> {{ estadoDoc }}</p>
+              <p><strong>Fecha Emisión: </strong> {{ NotaVentaDetalle.fecha | date: 'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+          <div class="mt-3 mb-4 border-top"></div>
+          <div class="row mb-5">
+            <div class="col-md-6 mb-3 mb-sm-0">
+              <h5 class="font-weight-bold">Razón social / Nombre</h5>
+              <p>{{NotaVentaDetalle.cliente}}</p>
+              <h5 class="font-weight-bold">Dirección</h5>
+              <span style="white-space: pre-line">
+                {{NotaVentaDetalle.direccion}}
+              </span>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <h5 class="font-weight-bold">Vendedor</h5>
+              <p>{{ NotaVentaDetalle.vendedor }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <!--DESKTOP-->
+              <div class="desktop">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Producto</th>
+                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Precio Unitario</th>
+                      <th style="text-align: right;" scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of NotaVentaDetalle.detalle; let i = index">
+                      <th scope="row"> {{i + 1}} </th>
+                      <td>{{ c.codProducto }}</td>
+                      <td>{{ c.desProducto }}</td>
+                      <td style="text-align: right;">{{ c.cantidad }}</td>
+                      <td style="text-align: right;">{{ c.precio | monto }}</td>
+                      <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--MOVIL-->
+              <div class="movil">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col"> </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of NotaVentaDetalle.detalle; let i = index">
+                      <td scope="row"> {{i + 1}} </td>
+                      <td>
+                        <strong>Código: </strong>{{ c.codProducto }}<br />
+                        <strong>Producto: </strong>{{ c.desProducto }}<br />
+                        <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                        <strong>Precio Unitario: </strong>{{ c.precio | monto }}<br />
+                        <strong>Total: </strong>${{ c.total | monto }}<br />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="invoice-summary float-right">
+                <p>Sub total: <span>${{ NotaVentaDetalle.subTotal | monto }}</span></p>
+                <p>IVA: <span>
+                    ${{ NotaVentaDetalle.impuestos | monto }}
+                  </span></p>
+                <h5 class="font-weight-bold">Total: <span>
+                    ${{ NotaVentaDetalle.monto | monto }}
+                  </span></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--==== / Print Area =====-->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" *ngIf="showDetailGuia">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-sm-flex mb-5" style="position:relative">
+          <span class="m-auto"></span>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver(8)">Volver</button>
+          <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" [ngbTooltip]="tipDocumentos"  container="body"
+            (click)="openModalSend(modalEnvio,'doc',detalleCab)"><img
+            src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button>
+          <button class="btn btn-primary mb-sm-0 mb-3" (click)="print(1)">Imprimir</button>
+        </div>
+        <!---===== Print Area =======-->
+        <div id="print-area">
+          <div class="row">
+            <div class="col-md-6">
+              <h4 class="font-weight-bold">Guia de Despacho</h4>
+              <p>{{ detalleCab.folio }}</p>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <!-- <p><strong>Estado: </strong> {{estadoGuia}}</p> -->
+              <p><strong>Fecha Emisión: </strong> {{ detalleCab.fechaEmision | date: 'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+          <div class="mt-3 mb-4 border-top"></div>
+          <div class="row mb-5">
+            <div class="col-md-6 mb-3 mb-sm-0">
+              <h5 class="font-weight-bold">Razón social / Nombre</h5>
+              <p>{{detalleCab.razonSocial}}</p>
+              <h5 class="font-weight-bold">Dirección</h5>
+              <span style="white-space: pre-line">
+                {{detalleCab.direccion}}
+              </span>
+            </div>
+            <div class="col-md-6 text-sm-right">
+              <h5 class="font-weight-bold">RUT</h5>
+              <p>{{detalleCab.rut}}</p>
+              <!-- <h5 class="font-weight-bold">Condición de venta</h5>
+              <p>{{ detalleCab.condVenta }}</p> -->
+              <h5 *ngIf="detalleCab.nvnumero != 0" class="font-weight-bold">Nota de venta</h5>
+              <p *ngIf="detalleCab.nvnumero != 0">{{ detalleCab.nvnumero }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <!--DESKTOP-->
+              <div class="desktop">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Código</th>
+                      <th scope="col">Producto</th>
+                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Precio Unitario</th>
+                      <th style="text-align: right;" scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td scope="row"> {{i + 1}} </td>
+                      <td>{{ c.codigo }}</td>
+                      <td>{{ c.desProd }}</td>
+                      <td style="text-align: right;">{{ c.cantidad }}</td>
+                      <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
+                      <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--MOVIL-->
+              <div class="movil">
+                <table class="table table-hover mb-4">
+                  <thead class="bg-gray-300">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of detalleDet; let i = index">
+                      <td scope="row"> {{i + 1}} </td>
+                      <td>
+                        <strong>Código: </strong>{{ c.codigo }}<br />
+                        <strong>Producto: </strong>{{ c.desProd }}<br />
+                        <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                        <strong>Precio Unitario: </strong>{{ c.precioUnitario | monto }}<br />
+                        <strong>Total: </strong>${{ c.total | monto }}<br />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+            <div class="col-md-12">
+              <div class="invoice-summary float-right">
+                <p>Sub total: <span>${{ detalleCab.neto | monto }}</span></p>
+                <p>IVA: <span>
+                    ${{ detalleCab.iva | monto }}
+                  </span></p>
+                <h5 class="font-weight-bold">Total: <span>
+                    ${{ detalleCab.total | monto }}
+                  </span></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--==== / Print Area =====-->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<ng-template #modalDespachos let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Despachos</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card card-ecommerce-1 mb-4">
+          <div class="card-body text-center" style="padding: 0rem !important">
+
+            <div class="table-responsive">
+              <table class="table ">
+                <thead>
+                  <tr>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">N° Documento</th>
+                    <!-- <th scope="col">Fecha</th> -->
+                    <th scope="col">Código Producto</th>
+                    <th scope="col">Nombre Producto</th>
+                    <th style="text-align: right;" scope="col">Cantidad Facturada</th>
+                    <th style="text-align: right;" scope="col">Cantidad Despachada</th>
+                    <!-- <th scope="col">Detalle</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let d of despachos">
+                    <td><span class="text-13">{{d.documento}}</span></td>
+                    <td><span class="text-13">{{d.folio}}</span></td>
+                    <td><span class="text-13">{{d.codProducto}}</span></td>
+                    <td><span class="text-13">{{d.desProducto}}</span></td>
+                    <td style="text-align: right;"><span class="text-13">{{d.cantidadFacturada}}</span></td>
+                    <td style="text-align: right;"><span class="text-13">{{d.cantidad}}</span></td>
+                    <!-- <td><span class="text-13">{{d.fecha | date: 'dd/MM/yyyy'}}</span></td> -->
+                    <!-- <td style="vertical-align:middle;" *ngIf="configuracion.inventarioSoftland == 1">
+                      <div ngbDropdown>
+                        <button ngbDropdownToggle (click)="verDetalleDespacho(d,modalDespachosDetalle)"
+                          aria-haspopup="true" aria-expanded="false" type="button"
+                          class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                          id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                            height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            class="text-body align-middle mr-25 feather feather-more-vertical">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                          </svg></button>
+                      </div>
+                    </td> -->
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="modal.dismiss('Cross click')" class="btn btn-primary">Aceptar</button>
+  </div>
+</ng-template>
+
+<ng-template #modalDespachosDetalle let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Detalle</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card card-ecommerce-1 mb-4">
+          <div class="card-body text-center" style="padding: 0rem !important">
+
+            <div class="table-responsive">
+              <table class="table ">
+                <thead>
+                  <tr>
+                    <th scope="col">Codigo</th>
+                    <th scope="col">Producto</th>
+                    <th style="text-align: right;" scope="col">Cantidad Facturada</th>
+                    <th style="text-align: right;" scope="col">Cantidad Despachada</th>
+                    <th style="text-align: right;" scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let dt of detalleDespacho">
+                    <td><span class="text-13">{{dt.codProducto}}</span></td>
+                    <td><span class="text-13">{{dt.desProducto}}</span></td>
+                    <td style="text-align: right;"><span class="text-13">{{dt.cantidadFacturada}}</span></td>
+                    <td style="text-align: right;"><span class="text-13">{{dt.cantidad}}</span></td>
+                    <td style="text-align: right;"><span class="text-13">{{dt.total}}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="modal.dismiss('Cross click')" class="btn btn-primary">Aceptar</button>
+  </div>
+</ng-template>
+
+
+<ng-template #modalEnvio let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Documentos</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12 mb-3">
+        Seleccione los documentos que desea enviar o descargar.
+      </div>
+      <div class="col-md-12 mb-2">
+        <ul>
+          <li><input type="checkbox" id="cb1" [(ngModel)]="enviaPdf" />
+            <label style="border: 1px solid #e0e0eb;" for="cb1"><img style="width:50px;height: 50px;"
+                src="../../../../assets/images/icon/PdfImage.png" /></label>
+          </li>
+          <li *ngIf="esFactuarada"><input type="checkbox" id="cb2" [(ngModel)]="enviaXml" />
+            <label style="border: 1px solid #e0e0eb;" for="cb2"><img style="width:50px;height: 50px;"
+                src="../../../../assets/images/icon/xml.png" /></label>
+          </li>
+          <li>
+            <button type="button" class="btn btn-primary" style="margin-left: 30px"
+              (click)="descargarDocumentos(tipoDescarga, documentoAEnviar)"> <i class="i-File"></i><span
+                class="mr-3">Descargar</span></button>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <br>
+      <div class="col-md-12 mb-3">
+        {{tituloEnvio}}
+      </div>
+      <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+        <div class="table-responsive">
+          <table class="table table-hover" style="display: block;height: 200px; overflow-y: scroll">
+            <thead>
+              <tr>
+                <th scope="col">Sel.</th>
+                <th style="width: 44%;" scope="col">Nombre</th>
+                <th style="width: 45%;" scope="col">Correo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let contacto of contactosCliente">
+                <th scope="row">
+                  <!-- <input type="checkbox" class="checkbox checkbox-primary"> -->
+                  <label class="checkbox checkbox-outline-primary">
+                    <input type="checkbox" name="check" (change)="onChange(contacto)">
+                    <span class="checkmark"></span>
+                  </label>
+                </th>
+                <td>{{ contacto.nombreContacto }}</td>
+                <td>{{ contacto.correo }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+        <hr>
+      </div>
+      <div class="col-md-12 form-group">
+        <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='otrosCorreo'
+          (onAdd)="onAdd($event, 1)" theme='primary' secondaryPlaceholder="Ingrese correo"
+          [placeholder]="'Ingrese correo'"></tag-input>
+        <p>Puede ingresar los correos necesarios presionando enter</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="send(tipoDocEnvio)" class="btn btn-primary">Enviar</button>
+  </div>
+</ng-template>
+
+
+<ng-template #tipContentActual>Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
+    }}</b> correspondiente a
+  <b>${{valorUfActrual | monto}}</b>
+</ng-template>
+
+
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de la UF al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
+    }}</b> correspondiente a
+  <b>$0</b>
+</ng-template>
+
+<ng-template #tipDocumentos>Descargar o enviar archivos asociados al documento
+</ng-template>

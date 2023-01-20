@@ -1,0 +1,114 @@
+<!-- [ngStyle]="{'background-image': 'url(' + configDiseno.bannerPortal + ')'}"-->
+<div *ngIf="!esPago && loadingScreen" class="contenedortaita"
+    [ngStyle]="{'border-color': configDiseno.colorFondoPortada, 'background-image': 'url(' + configDiseno.imagenPortada + ')'}">
+    <section id="seccion1" *ngIf="!muestraPago && !muestraInicio " class="contenedor">
+        <div class="section00">
+        </div>
+        <div class="section11">
+        </div>
+        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
+            <div  class="form2" id="verticalForm">
+                <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
+                    <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
+                </div>
+                <a (click)="cambioMenu(2)" [ngStyle]="{'background-color': configDiseno.colorBotonPagoRapido}"
+                    *ngIf="configuracion.habilitaPagoRapido == 1" style="cursor: pointer; color: #ffffff;"
+                    class="boton">PAGA TU CUENTA</a>
+                <a (click)="cambioMenu(1)" [ngStyle]="{'background-color': configDiseno.colorBotonInicioSesion}"
+                    style="cursor: pointer; color: #101cad;" class="boton2">INCIAR SESIÓN </a>
+                <a class="botonsimple" style="cursor: pointer; color: #ffffff;"
+                    (click)="recuperarContrasena()">¿Olvidaste la contraseña?</a>
+            </div>
+        </div>
+        <!-- <div class="section22 animate__animated animate__fadeInLeft">
+
+            <div class="form2">
+                <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
+                    <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
+                </div>
+                <a (click)="cambioMenu(2)" [ngStyle]="{'background-color': configDiseno.colorBotonPagoRapido}"
+                    *ngIf="configuracion.habilitaPagoRapido == 1" style="cursor: pointer; color: #ffffff;"
+                    class="boton">PAGA TU CUENTA</a>
+                <a (click)="cambioMenu(1)" [ngStyle]="{'background-color': configDiseno.colorBotonInicioSesion}"
+                    style="cursor: pointer; color: #101cad;" class="boton2">INCIAR SESIÓN </a>
+                <a class="botonsimple" style="cursor: pointer; color: #ffffff;"
+                    (click)="recuperarContrasena()">¿Olvidaste la contraseña?</a>
+            </div>
+        </div> -->
+        <div class="section3">
+        </div>
+    </section>
+    <section id="seccion2" *ngIf="muestraPago" class="contenedor">
+        <div class="section0">
+        </div>
+
+        <div style="margin-right: 40px;" class="section1 animate__animated animate__fadeInRight">
+
+            <div class="form ">
+                <ul>
+                    <li class="lista1">
+                        <h2><span>1.</span>Primer paso</h2>
+                        <p>Revisa y paga documentos pendientes solo ingresando Rut o número de documento</p>
+                    </li>
+                    <li class="lista2">
+                        <h2><span>2.</span>Segundo paso</h2>
+                        <p>Selecciona los documentos que quieres pagar</p>
+                    </li>
+                    <li>
+                        <h2><span>3.</span>Tercer paso</h2>
+                        <p>Utiliza el medio de pago que mas te acomode y cancela tu deuda</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
+            <div  class="form2" id="verticalForm">
+                <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
+                    <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
+                </div>
+                <form>
+                    <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()"
+                        [(ngModel)]="rutPagoRapido">
+                    <p *ngIf="configuracion.utilizaDocumentoPagoRapido == 1"
+                        style="color: #ffffff; text-align: center;">O</p>
+                    <input *ngIf="configuracion.utilizaDocumentoPagoRapido == 1" class="place" type="number"
+                        placeholder="Número documento" name="docPago" [(ngModel)]="numDocPagoRapido">
+                </form>
+                <a class="boton3" [ngStyle]="{'background-color': configDiseno.colorBotonPagar}"
+                    style="cursor: pointer; color: #ffffff;" (click)="pagar()">PAGAR </a>
+                <a class="botonsimple" style="cursor: pointer; color: #ffffff;" (click)="cambioMenu(-1)"> Volver</a>
+            </div>
+        </div>
+        <div class="section3">
+        </div>
+    </section>
+    <section id="seccion3" *ngIf="muestraInicio" class="contenedor">
+        <div class="section00">
+        </div>
+
+        <div class="section11">
+
+        </div>
+        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
+            <div  class="form2" id="verticalForm">
+                <div class="logo2" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
+                    <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
+                </div>
+                <form>
+                    <input class="place" (blur)="validaRut()" id="rut" name="rut" [(ngModel)]="signInModel.rutLogin"
+                        type="text" placeholder="Escribe tu Rut">
+                    <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email"
+                        placeholder="Correo electrónico">
+                    <input class="place" id="pass" name="pass" [(ngModel)]="signInModel.pass" type="password"
+                        placeholder="Password">
+                </form>
+                <a (click)="iniciarSesion()" class="boton3" style="cursor: pointer; color: #ffffff;">INICIAR SESIÓN
+                </a>
+                <a class="botonsimple" style="cursor: pointer; color: #ffffff;" (click)="cambioMenu(-1)">Volver</a>
+
+            </div>
+        </div>
+        <div class="section3">
+        </div>
+    </section>
+</div>

@@ -1,0 +1,66 @@
+<form #paymentForm="ngForm">
+  <div class="row">
+    <div class="form-group col-md-12 mb-3">
+      <label for="card">Rut</label>
+      <input
+        type="text"
+        class="form-control"
+        id="card"
+        name="card"
+        placeholder="Rut"
+        disabled
+        [(ngModel)]="resume.rut"
+      />
+    </div>
+    <div class="form-group col-md-12 mb-3">
+      <label for="exp">Razón Social</label>
+      <input
+        type="text"
+        class="form-control"
+        id="exp"
+        name="exp"
+        placeholder="Razón Social"
+        disabled
+        [(ngModel)]="resume.razonSocial"
+      />
+    </div>
+    <div class="form-group col-md-12 mb-3">
+      <label for="security">Documentos seleccionados</label>
+      <input
+        type="text"
+        class="form-control"
+        id="security"
+        name="security"
+        placeholder="Security code"
+        disabled
+        [(ngModel)]="resume.documentos.length"
+      />
+    </div>
+    <div class="form-group col-md-12 mb-3">
+      <label for="security2">Total a pagar</label>
+      <input
+        class="form-control"
+        currencyMask
+        id="security2"
+        name="security2"
+        [(ngModel)]="resume.totalPagar"
+        placeholder="Total a pagar"
+        disabled
+        [options]="{ prefix: '$ ', thousands: '.', decimal: ',', precision: 0, align: 'left' }"
+      />
+    </div>
+    <div class="form-group col-md-12 mb-3">
+      <label for="security3">Pagos</label>
+      <input
+        class="form-control"
+        currencyMask
+        id="security3"
+        name="security3"
+        [(ngModel)]="resume.totalPagando"
+        placeholder="Pagos"
+        disabled
+        [options]="{ prefix: '$ ', thousands: '.', decimal: ',', precision: 0, align: 'left' }"
+      />
+    </div>
+  </div>
+</form>

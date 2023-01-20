@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		
+		<style>
+			.invoice-box {
+				max-width: 800px;
+				margin: auto;
+				padding: 30px;
+				border: 1px solid #eee;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+				font-size: 16px;
+				line-height: 24px;
+				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				color: #555;
+			}
+
+			.invoice-box table {
+				width: 100%;
+				line-height: inherit;
+				text-align: left;
+			}
+
+			.invoice-box table td {
+				padding: 5px;
+				vertical-align: top;
+			}
+
+			.invoice-box table tr td:nth-child(2) {
+				text-align: right;
+			}
+
+			.invoice-box table tr.top table td {
+				padding-bottom: 20px;
+			}
+
+			.invoice-box table tr.top table td.title {
+				font-size: 45px;
+				line-height: 45px;
+				color: #333;
+			}
+
+			.invoice-box table tr.information table td {
+				padding-bottom: 40px;
+			}
+
+			.invoice-box table tr.heading td {
+				background: #eee;
+				border-bottom: 1px solid #ddd;
+				font-weight: bold;
+			}
+
+			.invoice-box table tr.details td {
+				padding-bottom: 20px;
+			}
+
+			.invoice-box table tr.item td {
+				border-bottom: 1px solid #eee;
+			}
+
+			.invoice-box table tr.item.last td {
+				border-bottom: none;
+			}
+
+
+			@media only screen and (max-width: 600px) {
+				.invoice-box table tr.top table td {
+					width: 100%;
+					display: block;
+					text-align: center;
+				}
+
+				.invoice-box table tr.information table td {
+					width: 100%;
+					display: block;
+					text-align: center;
+				}
+			}
+
+			/** RTL **/
+			.invoice-box.rtl {
+				direction: rtl;
+				font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+			}
+
+			.invoice-box.rtl table {
+				text-align: right;
+			}
+
+			.invoice-box.rtl table tr td:nth-child(2) {
+				text-align: left;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="invoice-box">
+			<table cellpadding="0" cellspacing="0">
+				<tr class="top">
+					<td colspan="2">
+						<table>
+							<tr>
+								<td class="title">
+									<img src="{LOGO}" style="width: 100%; max-width: 300px" />
+								</td>
+								
+								<td style="width: 200px">
+										<table style="border= 1px; border-style: solid;">
+											<tr>
+												<td style="text-align: center;">
+													N° Comprobante
+												</td>
+											</tr>
+											<tr>
+												<td style="text-align: center;">
+													<strong>{NUMCOMPROBANTE}</strong>
+												</td>
+											</tr>
+									 	</table>
+								</td>							
+								<table>
+								 </td>							
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+				<tr class="information">
+					<td colspan="2">
+						<table>
+							<tr>
+								<td>
+									<span style="font-weight:bold;">{EMPRESA}</span><br />
+									{RUT}<br />
+									{DIRECCION}<br />
+									{CORREO}<br />
+									
+								</td>
+
+								<td>
+									<!-- <span style="color:{COLOR}; font-weight:bold;">{TIPODOCUMENTO}</span><br /> -->
+									<!-- Numero #: <strong>{FOLIO}</strong><br /> -->
+									Fecha: <strong>{EMISION}</strong><br />
+									Hora: <strong>{HORA}</strong><br />
+									<!-- Vencimiento: <strong>{VENCIMIENTO}</strong> -->
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			
+
+			<table cellpadding="0" cellspacing="0">
+
+				<tr class="heading">
+					<td >Número Documento</td>
+					<td style="text-align: left">Tipo Documento</td>
+					<td style="text-align: center">Monto $</td>
+					<td style="text-align: center">Saldo $</td>
+					<td style="text-align: center">Pagado $</td>
+				</tr>
+				<!--detalle-->
+				<tr class="item">
+					<td>{NUMDOC}</td>
+					<td style="text-align: left;">{TIPODOC}</td>
+					<td style="text-align: right;">{MONTODOC}</td>
+					<td style="text-align: right;">{SALDODOC}</td>
+					<td style="text-align: right;">{PAGADODOC}</td>
+				</tr>
+				<!--detalle-->
+
+			</table>
+			
+				
+			<table style="margin-top:20px" cellpadding="0" cellspacing="0">
+				<tr class="top">
+					<td colspan="2">
+						<table>
+							<tr>
+								<td class="title">
+									
+								</td>
+								
+								
+								<td>
+									<span style="font-weight:bold;">Total: {MONTOTOTAL}</span>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

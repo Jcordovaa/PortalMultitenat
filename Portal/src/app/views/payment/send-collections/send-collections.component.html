@@ -1,0 +1,269 @@
+<div class="breadcrumb">
+    <h1>Envío de Cobranza</h1>
+    <ul>
+        <li>Portal de pagos</li>
+        <li>Envío de Cobranza</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-4 form-group mb-3">
+                            <label for="firstName">Rut</label>
+                            <input type="text" (blur)="validaRut()" required maxlength="12" class="form-control" id="rut" name="rut" [(ngModel)]="searchRut" placeholder="Rut">
+                        </div>
+
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="firstName">Razón Social / Nombre</label>
+                            <input type="text" [disabled]="true" class="form-control" id="raz" name="raz" [(ngModel)]="searchRazonSocial" placeholder="Razón Social / Nombre">
+                        </div>
+
+                        <div class="col-md-2 form-group mb-3">
+                            <button 
+                                class="btn btn-primary btn-rounded mt-4" 
+                                (click)="search()" 
+                                type="button"
+                                [disabled]="searchRut.length == 0"
+                                [style.cursor]="searchRut.length == 0 ? 'no-drop' : 'pointer'"
+                            >
+                                Buscar
+                            </button>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <hr>
+                        </div>
+
+                        <div class="col-md-4 form-group" *ngIf="showDetail">
+                            <label for="firstName">Folio</label>
+                            <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio" placeholder="0">
+                        </div>
+
+                        <div class="col-md-4 form-group" *ngIf="showDetail">
+                            <label for="lastName">Desde</label>
+                            <div class="input-group">
+                                <input class="form-control" placeholder="dd/mm/yyyy" readonly
+                                       name="d2" #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker">
+                                <div class="input-group-append">
+                                  <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                      <i class="icon-regular i-Calendar-4"></i>
+                                  </button>
+                                </div>
+                              </div>
+                        </div>
+                        <div class="col-md-4 form-group" *ngIf="showDetail">
+                            <label for="lastName">Hasta</label>
+                            <div class="input-group">
+                                <input class="form-control" placeholder="dd/mm/yyyy" readonly
+                                       name="d1" #c1="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker">
+                                <div class="input-group-append">
+                                  <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                                      <i class="icon-regular i-Calendar-4"></i>
+                                  </button>
+                                </div>
+                              </div>
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3" *ngIf="showDetail">
+                            <label for="lastName">Tipo Doc.</label>
+                            <select [(ngModel)]="selectedTipoDoc"
+                                    class="form-control"
+                                    name="tipoD2" #tipoD2="ngModel">
+                                <option *ngFor="let td of tiposDocs"
+                                        [ngValue]="td">
+                                    {{ td.nombre }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 form-group mb-3" *ngIf="showDetail">
+                            <label for="lastName">Estado</label>
+                            <select [(ngModel)]="selectedEstado"
+                                    class="form-control"
+                                    name="tipoD" #tipoD="ngModel">
+                                <option *ngFor="let e of estados"
+                                        [ngValue]="e">
+                                    {{ e.nombre }}
+                                </option>
+                            </select>
+                        </div>                       
+                        
+                        <div class="col-md-4 form-group mb-3 align-self-end" align="center" *ngIf="showDetail">
+                            <!-- <label for="sss">.</label> -->
+                            <btn-loading id="sss" (click)="filter()" btnClass="btn-primary btn-rounded justify-content-between align-items-center" [loading]="loading"> <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Filtrar</span></btn-loading>
+                            <btn-loading id="sss2" (click)="limpiarFiltros()" btnClass="btn-secondary btn-rounded justify-content-between align-items-center ml-3" [loading]="loading"><span>Limpiar</span></btn-loading>
+                        </div>
+                        
+                    </div>
+
+                    <div class="row mt-3" *ngIf="showDetail">
+                        <div class="col-md-12">
+
+                            <div class="card o-hidden mt-3" style="max-height: 400px; overflow-y: scroll;">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">
+                                                <label class="checkbox checkbox-outline-primary" style="margin-bottom: 20px;">
+                                                    <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll" (change)="onSelAll($event)">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </th>
+                                            <th scope="col">Folio</th>
+                                            <th scope="col">Documento</th>
+                                            <th scope="col">Fecha</th>
+                                            <th scope="col">Fecha Vcto.</th>
+                                            <th scope="col">Monto</th>
+                                            <th scope="col">Estado</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr *ngFor="let c of compras">
+                                            <th scope="row">
+                                                <label class="checkbox checkbox-outline-primary">
+                                                    <input type="checkbox" name="checkSel" [(ngModel)]="c.checked"  (change)="onSel($event, c)">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </th>
+                                            <td>{{ c.nro }}</td>
+                                            <td>{{ c.documento }}</td>
+                                            <td>{{ c.fechaEmision | date: 'dd/MM/yyyy' }}</td>
+                                            <td>{{ c.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                            <td>$ {{ c.debe | monto }}</td>
+                                            <td>{{ c.estado }}</td>
+                                          </tr>
+                                        </tbody>
+                                    </table>                                
+                                </div>
+                            </div>
+
+    
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row"  *ngIf="showDetail">
+                        <div class="col align-self-start">
+                          
+                        </div>
+                        <div class="col align-self-center">
+                          
+                        </div>
+                        <div class="col align-self-end" align="right">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-5 col-form-label"><strong>Total a Pagar</strong></label>
+                                <div class="col-sm-6 mr-0 pr-0">
+                                    <input type="text"  disabled class="form-control" name="totalpagar" placeholder="Total" value="$ {{totalPagar | monto}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row"  *ngIf="showDetail">
+                        <div class="col align-self-start">
+                          
+                        </div>
+                        <div class="col align-self-center">
+                          
+                        </div>
+                        <div class="col align-self-end" align="right">
+                            <button 
+                                class="btn btn-primary btn-rounded" 
+                                (click)="openModalSend(modalBasic)" 
+                                type="button"
+                                [disabled]="selectedDosc.length == 0"
+                                [style.cursor]="selectedDosc.length == 0 ? 'no-drop' : 'pointer'"
+                            >
+                                <span class="ml-3 mr-3">Enviar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Seleccionar contacto(s)</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                Seleccione los contactos a los que se les enviará la cobranza y/o ingrese un correo directamente.
+            </div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                              <th scope="col">Sel.</th>
+                              <th scope="col">Nombre</th>
+                              <th scope="col">Correo</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let contacto of contactosCliente">
+                              <th scope="row">
+                                  <!-- <input type="checkbox" class="checkbox checkbox-primary"> -->
+                                  <label class="checkbox checkbox-outline-primary">
+                                    <input type="checkbox" name="check" (change)="onChange(contacto)">
+                                    <span class="checkmark"></span>
+                                </label>
+                              </th>
+                              <td>{{ contacto.nombreContacto }}</td>
+                              <td>{{ contacto.correoContacto }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                  </div>
+            </div>
+            <div class="col-md-12">
+                <hr>
+            </div>
+            <div class="col-md-12 form-group" *ngIf="showDetail">
+                <label for="phone">Correo</label>
+                <input 
+                    type="email" 
+                    pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                    [ngClass]="correoo.errors && (correoo.dirty || correoo.touched) ? 'form-control is-invalid' : 'form-control'"
+                    [(ngModel)]="otroCorreo"
+                    maxlength="120"
+                    id="correoo" name="correoo"
+                    #correoo="ngModel"
+                    placeholder="Correo"
+                >
+                <p *ngIf="correoo.errors && (correoo.dirty || correoo.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="correoo.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Correo ingresado no es válido.
+                    </span>
+                </p>
+            </div>       
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="send()" class="btn btn-primary btn-rounded">Aceptar</button>
+    </div>
+</ng-template>
+
+
+
+
+
+  
+

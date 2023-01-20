@@ -1,0 +1,91 @@
+<div class="breadcrumb">
+  <h1>Permisos</h1>
+  <ul>
+    <li><a>Seguridad</a></li>
+    <li>Permisos</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row mb-4">
+  <div class="col-6">
+    <div class="form-group">
+      <label for="picker1">Seleccione un perfil</label>
+      <div class="input-group">
+        <select [(ngModel)]="selectedPerfil"
+                (change)="onChangePerfil()"
+                class="form-control form-control"
+                name="perfils" #perfils="ngModel" required>
+            <option *ngFor="let t of perfiles"
+                    [ngValue]="t">
+                {{ t.nombre }}
+            </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div class="form-group">
+      <label for="picker1"></label>
+      <div class="input-group">
+        <button *ngIf="accesos.length > 0" (click)="save()" class="btn btn-outline-primary mt-1">Guardar Cambios</button>
+      </div>      
+    </div>    
+  </div>
+  <div class="col-6" *ngIf="accesos.length > 0">
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-light btn-checkbox">
+        <label class="checkbox checkbox-outline-light">
+          <input type="checkbox" [(ngModel)]="allSelected" (change)="selectAll($event)">
+          <span></span>
+          <span class="checkmark"></span>
+          {{marcarText}}
+        </label>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- DATA LIST -->
+<div class="row" [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+  <!-- SINGLE LIST ITEM -->
+  <div *ngFor="let item of accesos | paginate: { itemsPerPage: pageSize, currentPage: page }; let i = index" 
+    class="list-item"
+    [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+    [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}"
+  >
+    <div class="card o-hidden mb-4 d-flex" [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+      <div class="list-thumb d-flex">
+        <!-- TUMBNAIL -->
+        <img src="https://img.icons8.com/bubbles/2x/lady-with-a-security-shield.png" alt="">
+      </div>
+      <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+        <div class="align-self-center pl-3 pb-2 pr-3 item-select" [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+          <label class="checkbox checkbox-outline-light">
+            <input type="checkbox" [(ngModel)]="item.checked">
+            <span></span>
+            <span class="checkmark"></span>
+          </label>
+        </div>
+
+        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+          [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+          <!-- OTHER DATA -->
+          <a href="" class="w-40 w-sm-100">
+            <div class="item-title"><strong>Acceso: </strong>{{item?.nombre}}</div>
+          </a>
+          <p class="m-0 text-muted w-15 w-sm-100">
+            <strong>Menu Padre: </strong> {{getMenuPadre(item)}}
+          </p>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <!-- PAGINATION CONTROL -->
+  <div class="col-md-12 mt-3" *ngIf="accesos?.length">
+    <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls>
+  </div>
+</div>

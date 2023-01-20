@@ -1,0 +1,903 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Dashboard Cliente</h1>
+        <ul>
+            <li *ngIf="tipoDoc == 0"><a href="">Portal Clientes</a></li>
+            <li *ngIf="tipoDoc == 1"><a href="">{{configDiseno.tituloPendientesDashboard}}</a></li>
+            <li *ngIf="tipoDoc == 2"><a href="">{{configDiseno.tituloVencidosDashboard}}</a></li>
+            <li *ngIf="tipoDoc == 3"><a href="">{{configDiseno.tituloPorVencerDashboard}}</a></li>
+            <li><a href="">Mi Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div *ngIf="!showDetail">
+        <div class="row">
+            <!-- ICON BG -->
+            <div class="col-lg-4 col-md-6 col-sm-6">
+                <div class="card-box" 
+                    [ngStyle]="{backgroundColor: tipoDoc == 1 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoDocumentos}">
+                    <div class="inner">
+                        <h3 [ngStyle]="{color: configDiseno.colorTextoPendientes}">${{ totalPendiente | monto }} </h3>
+                        <p [ngStyle]="{color: configDiseno.colorTextoPendientes}">{{cantidadPendiente}}
+                            {{configDiseno.tituloPendientesDashboard}}</p>
+                    </div>
+                    <!-- <div class="icon">
+                        <i class="i-Calendar-3" [ngStyle]="{color: configDiseno.colorIconoPendientes}"
+                            aria-hidden="true"></i>
+                    </div> -->
+                    <a (click)="obtenerDocumentos(1)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                            class="i-Arrow-Down"></i></a>
+                </div>
+            </div>
+
+
+            <!-- <div class="col-lg-4 col-md-6 col-sm-6" style="cursor: pointer; border-color: blue;"
+                (click)="obtenerDocumentos(1)">
+                <div class="card card-icon-bg card-icon-bg-info o-hidden mb-4"
+                    [ngStyle]="{backgroundColor: tipoDoc == 1 ? configDiseno.colorSeleccionDocumentos : ''}">
+                    <div class="card-body text-center">
+                        <i class="i-Calendar-3" [ngStyle]="{color: configDiseno.colorIconoPendientes}"></i>
+                        <div class="content" style="max-width: 100% !important;">
+                            <p class="mt-2 mb-0" [ngStyle]="{color: configDiseno.colorTextoPendientes}">{{
+                                cantidadPendiente }} Documentos Pendientes</p>
+                            <p class="text-24 line-height-1 mb-2"
+                                [ngStyle]="{color: configDiseno.colorTextoPendientes}">${{ totalPendiente | monto }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <div class="col-lg-4 col-md-6 col-sm-6">
+                <div class="card-box"
+                    [ngStyle]="{backgroundColor: tipoDoc == 2 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoVencidos}">
+                    <div class="inner">
+                        <h3 [ngStyle]="{color: configDiseno.colorTextoVencidos}">${{ totalVencidos | monto }} </h3>
+                        <p [ngStyle]="{color: configDiseno.colorTextoVencidos}">{{cantidadVencidos}}
+                            {{configDiseno.tituloVencidosDashboard}}
+                        </p>
+                    </div>
+                    <!-- <div class="icon">
+                        <i class="i-Danger" [ngStyle]="{color: configDiseno.colorIconoVencidos}" aria-hidden="true"></i>
+                    </div> -->
+                    <a (click)="obtenerDocumentos(2)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                            class="i-Arrow-Down"></i></a>
+                </div>
+            </div>
+
+            <!-- <div class="col-lg-4 col-md-6 col-sm-6" style="cursor: pointer;" (click)="obtenerDocumentos(2)">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4"
+                    [ngStyle]="{backgroundColor: tipoDoc == 2 ? configDiseno.colorSeleccionDocumentos : ''}">
+                    <div class="card-body text-center">
+                        <i class="i-Danger" [ngStyle]="{color: configDiseno.colorIconoVencidos}"></i>
+                        <div class="content" style="max-width: 100% !important;">
+                            <p class="mt-2 mb-0" [ngStyle]="{color: configDiseno.colorTextoVencidos}">{{
+                                cantidadVencidos}} Documentos Vencidos</p>
+                            <p class="text-24 line-height-1 mb-2" [ngStyle]="{color: configDiseno.colorTextoVencidos}">
+                                ${{ totalVencidos | monto }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <div class="col-lg-4 col-md-6 col-sm-6">
+                <div class="card-box"
+                    [ngStyle]="{backgroundColor: tipoDoc == 3 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoPorVencer}">
+                    <div class="inner">
+                        <h3 [ngStyle]="{color: configDiseno.colorTextoPorVencer}">${{ totalPorVencer | monto }} </h3>
+                        <p [ngStyle]="{color: configDiseno.colorTextoPorVencer}">{{cantidadPorVencer}}
+                            {{configDiseno.tituloPorVencerDashboard}}</p>
+                    </div>
+                    <!-- <div class="icon">
+                        <i class="i-Danger" [ngStyle]="{color: configDiseno.colorIconoPorVencer}"
+                            aria-hidden="true"></i>
+                    </div> -->
+                    <a (click)="obtenerDocumentos(3)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                            class="i-Arrow-Down"></i></a>
+                </div>
+            </div>
+
+            <!-- <div class="col-lg-4 col-md-6 col-sm-6" style="cursor: pointer;" (click)="obtenerDocumentos(3)">
+                <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4"
+                    [ngStyle]="{backgroundColor: tipoDoc == 3 ? configDiseno.colorSeleccionDocumentos : ''}">
+                    <div class="card-body text-center">
+                        <i class="i-Letter-Open" [ngStyle]="{color: configDiseno.colorIconoPorVencer}"></i>
+                        <div class="content" style="max-width: 100% !important;">
+                            <p class="mt-2 mb-0" [ngStyle]="{color: configDiseno.colorTextoPorVencer}">{{
+                                cantidadPorVencer}} Documentos por Vencer</p>
+                            <p class="text-24 line-height-1 mb-2" [ngStyle]="{color: configDiseno.colorTextoPorVencer}">
+                                ${{ totalPorVencer | monto }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+
+        <div class="row" *ngIf="tipoDoc == 0">
+            <div class="col-lg-12 col-md-12" *ngIf="configuracion.muestraUltimasCompras == 1 && existModuloInventario">
+                <!--FCA 01-07-2022-->
+                <div class="card mb-4">
+                    <div class="card-header" [ngStyle]="{backgroundColor: configDiseno.colorFondoUltimasCompras}">
+                        <h3 style="color: white;">{{configDiseno.tituloUltimasCompras}}</h3>
+                    </div>
+                    <div class="card-body desktop">
+
+                        <div class="desktop">
+                            <div *ngIf="topCompras?.length > 0 "
+                                class="material-datatables">
+                                <table id="dtDocumentos"
+                                    class="table table-striped table-no-bordered table-hover"
+                                    datatable="ng" width="100%">
+
+                                    <thead>
+                                        <tr>
+                                            <th ></th>
+                                            <th style="text-align: left;">Documento</th>
+                                            <th>Nro. Doc.</th>
+                                            <th>Fecha Emisión</th>
+                                            <th >Monto $</th>
+                                            <th >Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="let c of topCompras">
+                                            <td><img class="avatar-lg mb-3 mb-sm-0 rounded mr-sm-3"
+                                                [src]="configDiseno.imagenUltimasCompras" alt=""></td>
+                                            <td style="text-align: left;vertical-align:middle;">{{c.documento}}
+                                            </td>
+                                            <td style="vertical-align:middle;">{{c.folio}}</td>
+                                            <td style="vertical-align:middle;">{{c.fechaEmision | date:
+                                                'dd/MM/yyyy' }}</td>
+                                            <td style="vertical-align:middle;" >{{c.total | monto
+                                            }}</td>
+                                            <td style="vertical-align:middle;">
+                                                <button class="btn btn-outline-primary mt-3 mb-3 m-sm-0 btn-sm"
+                                                (mouseover)="hover='true' + c.folio"
+                                                [ngStyle]="{backgroundColor: hover == 'true' + c.folio  ? configDiseno.colorHoverBotonUltimasCompras : configDiseno.colorBotonUltimasCompras, color: configDiseno.colorTextoBotonUltimasCompras }"
+                                                (mouseleave)="hover='false'  + c.folio" [id]="c.folio"
+                                                (click)="verDetalle(c)">Ver
+                                                Detalle</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>                
+                    </div>
+
+                    <div class="card-body movil">
+
+                        <ngb-carousel style="text-align: center" interval="false">
+                            <ng-template ngbSlide *ngFor="let c of topCompras">
+                                <img class="avatar-lg mb-3 mb-sm-0 rounded mr-sm-3"
+                                    [src]="configDiseno.imagenUltimasCompras" alt="">
+                                <!--FCA 04-07-2022-->
+                                <div class="flex-grow-1">
+                                    <h5 class="textoAdaptable"><a href=""
+                                            [ngStyle]="{color: configDiseno.colorTextoUltimasCompras}">{{c.documento}}
+                                            #{{c.folio}}</a></h5>
+                                    <!--FCA 05-07-2022-->
+                                    <p class="m-0 text-small textoAdaptable"
+                                        [ngStyle]="{color: configDiseno.colorTextoFechaUltimasCompras}">Fecha Emisión:
+                                        {{c.fechaEmision | date:
+                                        'dd/MM/yyyy' }}</p>
+                                    <p class="text-smal m-0 textoAdaptable"
+                                        [ngStyle]="{color: configDiseno.colorTextoMontoUltimasCompras}">${{c.total |
+                                        monto
+                                        }}</p>
+                                    <!--FCA 05-07-2022-->
+                                </div>
+                                <div>
+                                    <!--fca 04-07-2022-->
+                                    <button class="btn btn-outline-primary mt-3 mb-3 m-sm-0 btn-sm"
+                                        (mouseover)="hover='true' + c.folio"
+                                        [ngStyle]="{backgroundColor: hover == 'true' + c.folio  ? configDiseno.colorHoverBotonUltimasCompras : configDiseno.colorBotonUltimasCompras, color: configDiseno.colorTextoBotonUltimasCompras }"
+                                        (mouseleave)="hover='false'  + c.folio" [id]="c.folio"
+                                        (click)="verDetalle(c)">Ver
+                                        Detalle</button>
+                                </div>
+                            </ng-template>
+                        </ngb-carousel>
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="col-lg-6 col-md-12" *ngIf="configuracion.muestraResumen == 1">
+                <div class="card mb-3">
+                    <div class="card-header" [ngStyle]="{backgroundColor: configDiseno.colorFondoResumenContable}">
+                        <h3 style="color: white;">{{configDiseno.tituloResumenContable}}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center border-bottom-dotted-dim">
+                            <div style="margin-left: auto;" *ngIf="configuracion.muestraEstadoSobregiro  == 1">
+                                <span ngbTooltip="Estado de Cuenta: Sobregirado" container="body"
+                                    *ngIf="resumenContable.estadoSobregiro  == 'SOBREGIRADO'"
+                                    class="badge badge-danger mr-1 text-12">Sobregirado</span>
+                            </div>
+                            <div style="margin-right: auto;" *ngIf="configuracion.muestraEstadoBloqueo   == 1">
+                                <span ngbTooltip="Estado Cliente: Bloqueado" container="body"
+                                    *ngIf="resumenContable.estadoBloqueo   == 'S'"
+                                    class="badge badge-danger mr-1 text-12">Bloqueado</span>
+                                <span ngbTooltip="Estado Cliente: Normal" container="body"
+                                    *ngIf="resumenContable.estadoBloqueo  != 'S'"
+                                    class="badge badge-secondary mr-1 text-12">Normal</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div echarts [options]="chartPie1" [autoResize]="true" style="height: 150px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-md-12">
+                                <table class="table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th class="textoAdaptable centrarTexto" scope="col">Item</th>
+                                            <th class="textoAdaptable centrarTexto" scope="col">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="textoAdaptable">Autorizado</td>
+                                            <td class="font-weight-bold textoAdaptable alinearTexto">
+                                                ${{resumenContable.montoAutorizado | monto}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="textoAdaptable">Utilizado</td>
+                                            <td class="text-danger font-weight-bold textoAdaptable alinearTexto">
+                                                ${{resumenContable.montoUtilizado |
+                                                monto}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="textoAdaptable">Disponible</td>
+                                            <td class="font-weight-bold text-success textoAdaptable alinearTexto">
+                                                ${{resumenContable.disponible |
+                                                monto}}
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+
+        <div class="row" style=" display: flex;
+        justify-content: center;
+        align-items: center;"  *ngIf="tipoDoc == 0">
+            <p  class="badge badge-danger mr-1 text-12" style="font-size: calc(0.5rem + 0.5vw) !important;" >{{configDiseno.textoNoConsideraTodaDeuda}}</p>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="tipoDoc != 0 && !showDetail">
+        <div class="col-md-12">
+            <!--FCA 01-07-2022-->
+            <div class="card">
+                <!--FCA 01-07-2022-->
+                <div class="card-body">
+                    <!--FCA 01-07-2022-->
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="firstName">Número Documento</label>
+                                <input type="number" min="0" class="form-control" id="folio" name="Numero Documento"
+                                    [(ngModel)]="folio" placeholder="0">
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="lastName">Fecha Emisión Desde</label>
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d2"
+                                        #c2="ngModel" style="background-color: #f8f9fa;" [(ngModel)]="dateDesde"
+                                        ngbDatepicker #d2="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="lastName">Fecha Emisión Hasta</label>
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d1"
+                                        #c1="ngModel" style="background-color: #f8f9fa;" [(ngModel)]="dateHasta"
+                                        ngbDatepicker #d1="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 form-group mb-4 align-self-end">
+                                <!-- <label for="sss">.</label> -->
+                                <button id="sss" (click)="filter()" style="margin-top: 20px;"
+                                    class="btn btn-primary justify-content-between align-items-center mr-3"
+                                    [loading]="loading"> <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span
+                                        class="mr-3">Buscar</span>
+                                </button>
+                                <button id="sss2" (click)="limpiarFiltros()" class="btn btn-secondary mr-3"
+                                    style="margin-top: 20px;" [loading]="loading"><span><i class="i-Paint-Brush"></i>
+                                        Limpiar</span></button>
+                                <button id="ss3" (click)="export()" style="margin-top: 20px;"
+                                    *ngIf="configuracion.permiteExportarExcel == 1 && documentosPorPagina?.length > 0 "
+                                    [disabled]="documentosPorPagina?.length == 0" class="btn btn-secondary mr-3"><i
+                                        class="i-File-Excel"></i> Exportar a Excel</button>
+                                <button style="margin-top: 20px;" (click)="volverDashboard()"
+                                    class="btn btn-secondary mr-3"><i class="i-To-Left"></i>
+                                    Volver</button>
+                            </div>
+                        </div>
+                    </form>
+                    <!--FCA 01-07-2022-->
+                    <div class="breadcrumb" style="margin-top: 20px;">
+                        <h1 *ngIf="tipoDoc == 1">Documentos Pendientes</h1>
+                        <h1 *ngIf="tipoDoc == 2">Documentos Vencidos</h1>
+                        <h1 *ngIf="tipoDoc == 3">Documentos por Vencer</h1>
+                    </div>
+
+                    <div class="separator-breadcrumb border-top"></div>
+                    <div class="col-md-12">
+
+                        <ngb-tabset #tabset="ngbTabset" class="p-0" (tabChange)="changeTabDocumentos($event)">
+                            <ngb-tab [id]="1" [title]="configDiseno.tituloMonedaPeso">
+                                <ng-template ngbTabContent>
+                                    <div class="row" *ngIf="documentosPorPagina?.length == 0 ">
+
+                                        <div class="col-md-12">
+                                            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                                {{noResultText}}
+                                            </ngb-alert>
+                                        </div>
+                                    </div>
+
+                                    <div class="card" *ngIf="documentosPorPagina?.length > 0 ">
+                                        <div class="card-content">
+
+                                            <div class="desktop">
+                                                <div *ngIf="documentosPorPagina?.length > 0 "
+                                                    class="material-datatables">
+                                                    <table id="dtDocumentos"
+                                                        class="table table-striped table-no-bordered table-hover"
+                                                        datatable="ng" width="100%">
+
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th style="text-align: left;">Documento</th>
+                                                                <th>Nro. Doc.</th>
+                                                                <th>Fecha Emisión</th>
+                                                                <th>Fecha Vcto.</th>
+                                                                <th class="alinearTexto">Monto $</th>
+                                                                <th class="alinearTexto">Saldo $</th>
+                                                                <th *ngIf="existModuloInventario">Detalle</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr
+                                                                *ngFor="let documento of documentosPorPagina | paginate: configDocumentos">
+                                                                <td style="text-align: left;">{{documento.documento}}
+                                                                </td>
+                                                                <td>{{documento.nro}}</td>
+                                                                <td>{{documento.fechaEmision | date: 'dd/MM/yyyy'}}</td>
+                                                                <td>{{documento.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                                                <td class="alinearTexto">{{documento.debe | monto}}</td>
+                                                                <td class="alinearTexto">{{documento.saldo | monto}}
+                                                                </td>
+                                                                <td *ngIf="existModuloInventario"
+                                                                    style="vertical-align:middle;">
+                                                                    <div ngbDropdown>
+                                                                        <button (click)="verDetalle(documento)"
+                                                                            ngbDropdownToggle aria-expanded="false"
+                                                                            type="button"
+                                                                            class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                            id="__BVID__735__BV_toggle_"><svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16px" height="16px"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                                <circle cx="12" cy="12" r="1"></circle>
+                                                                                <circle cx="12" cy="5" r="1"></circle>
+                                                                                <circle cx="12" cy="19" r="1"></circle>
+                                                                            </svg></button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <div class="movil">
+                                                <div *ngIf="documentosPorPagina?.length > 0 "
+                                                    class="material-datatables">
+                                                    <table id="dtDocumentos"
+                                                        class="table table-striped table-no-bordered table-hover"
+                                                        datatable="ng" width="100%">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <!-- <th class="TableIcon" scope="col"> </th> -->
+                                                                <th scope="col"> </th>
+                                                                <th scope="col" *ngIf="existModuloInventario">Detalle
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr
+                                                                *ngFor="let documento of documentosPorPagina | paginate: configDocumentos">
+                                                                <!-- <td class="TableIcon" style="vertical-align:middle;"> <img
+                                                                        style="min-width: 80px; min-height: 80px;" width="80px"
+                                                                        height="80px" src="./assets/images/icon/documento.png"></td> -->
+                                                                <td>
+                                                                    <strong>Tipo Documento:
+                                                                    </strong>{{documento.documento}}<br />
+                                                                    <strong>Nro. Documento:
+                                                                    </strong>{{documento.nro}}<br />
+                                                                    <strong>Fecha Emisión:
+                                                                    </strong>{{documento.fechaEmision | date:
+                                                                    'dd/MM/yyyy'}}<br />
+                                                                    <strong>Fecha Vencimiento:
+                                                                    </strong>{{documento.fechaVcto |
+                                                                    date: 'dd/MM/yyyy' }}<br />
+                                                                    <strong>Monto $: </strong>{{documento.debe |
+                                                                    monto}}<br />
+                                                                    <strong>Saldo $: </strong>{{documento.saldo |
+                                                                    monto}}<br />
+                                                                </td>
+                                                                <td style="vertical-align:middle;"
+                                                                    *ngIf="existModuloInventario">
+                                                                    <div ngbDropdown>
+                                                                        <button (click)="verDetalle(documento)"
+                                                                            ngbDropdownToggle aria-haspopup="true"
+                                                                            aria-expanded="false" type="button"
+                                                                            class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                            id="__BVID__735__BV_toggle_"><svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16px" height="16px"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                                <circle cx="12" cy="12" r="1"></circle>
+                                                                                <circle cx="12" cy="5" r="1"></circle>
+                                                                                <circle cx="12" cy="19" r="1"></circle>
+                                                                            </svg></button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-md-12 mt-3" *ngIf="documentosFiltro?.length > 0">
+                                                <pagination-controls (pageChange)="changePageDocumentos($event)"
+                                                    maxSize="6" responsive="true" previousLabel="" nextLabel="">
+                                                </pagination-controls>
+                                                <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ngb-tab>
+
+                            <ngb-tab [id]="2" [title]="configDiseno.tituloOtraMoneda" *ngIf="existComprasSegundaMoneda">
+                                <ng-template ngbTabContent>
+                                    <div class="row" *ngIf="documentosPorPagina?.length == 0 ">
+
+                                        <div class="col-md-12">
+                                            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                                {{noResultText}}
+                                            </ngb-alert>
+                                        </div>
+                                    </div>
+
+                                    <div class="movil">
+                                        Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date:
+                                            'dd/MM/yyyy' }}</b> correspondiente a
+                                        <b>${{valorUfActrual | monto}}</b>
+                                    </div>
+
+
+                                    <div class="card" *ngIf="documentosPorPagina?.length > 0">
+                                        <div class="card-content">
+
+                                            <div class="desktop">
+                                                <div *ngIf="documentosPorPagina?.length > 0 "
+                                                    class="material-datatables">
+                                                    <table id="dtDocumentos"
+                                                        class="table table-striped table-no-bordered table-hover"
+                                                        datatable="ng" width="100%">
+
+                                                        <thead>
+                                                            <tr>
+
+                                                                <th style="text-align: left;">Documento</th>
+                                                                <th>Nro. Doc.</th>
+                                                                <th>Fecha Emisión</th>
+                                                                <th>Fecha Vencimiento</th>
+                                                                <th>Moneda</th>
+                                                                <th class="centrarTexto">Monto en Moneda Origen</th>
+                                                                <th class="centrarTexto">Monto en Mda. Nacional a la
+                                                                    Fecha Emisión $</th>
+                                                                <th class="centrarTexto">Monto en Mda. Nacional
+                                                                    Actualizado $</th>
+                                                                <th class="centrarTexto">Saldo en Mda. Nacional
+                                                                    Actualizado $</th>
+                                                                <!-- <th>Detalle</th> -->
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr
+                                                                *ngFor="let documento of documentosPorPagina | paginate: configDocumentos">
+                                                                <td style="text-align: left;">{{documento.documento}}
+                                                                </td>
+                                                                <td>{{documento.nro}}</td>
+                                                                <td>{{documento.fechaEmision | date: 'dd/MM/yyyy'}}</td>
+                                                                <td>{{documento.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                                                <td>{{documento.desMon}}</td>
+                                                                <td class="alinearTexto">{{documento.debe | monto }}
+                                                                </td>
+                                                                <td class="alinearTexto" [ngbTooltip]="tipContentOrigen" (mouseover)="fechaEmision = documento.fechaEmision"
+                                                                    container="body" style="cursor: pointer;">{{documento.montoOriginalBase | monto}}
+                                                                </td>
+                                                                <td class="alinearTexto" [ngbTooltip]="tipContentActual"
+                                                                    container="body" style="cursor: pointer;">
+                                                                    {{documento.montoBase | monto}}
+                                                                </td>
+                                                                <td class="alinearTexto" [ngbTooltip]="tipContentActual"
+                                                                    container="body" style="cursor: pointer;">
+                                                                    {{documento.saldoBase | monto}}
+                                                                </td>
+                                                                <!-- <td style="vertical-align:middle;"
+                                                                    *ngIf="existModuloInventario">
+                                                                    <div ngbDropdown>
+                                                                        <button (click)="verDetalle(documento)"
+                                                                            ngbDropdownToggle aria-haspopup="true"
+                                                                            aria-expanded="false" type="button"
+                                                                            class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                            id="__BVID__735__BV_toggle_"><svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16px" height="16px"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                                <circle cx="12" cy="12" r="1"></circle>
+                                                                                <circle cx="12" cy="5" r="1"></circle>
+                                                                                <circle cx="12" cy="19" r="1"></circle>
+                                                                            </svg></button>
+                                                                    </div>
+                                                                </td> -->
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <div class="movil">
+
+                                                <div *ngIf="documentosPorPagina?.length > 0 "
+                                                    class="material-datatables">
+                                                    <table id="dtDocumentos"
+                                                        class="table table-striped table-no-bordered table-hover"
+                                                        datatable="ng" width="100%">
+
+                                                        <thead>
+                                                            <tr>
+                                                                <!-- <th class="TableIcon" scope="col"> </th> -->
+                                                                <th scope="col"> </th>
+                                                                <th scope="col">Detalle</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr
+                                                                *ngFor="let documento of documentosPorPagina | paginate: configDocumentos">
+                                                                <!-- <td class="TableIcon" style="vertical-align:middle;"> <img
+                                                                        style="min-width: 80px; min-height: 80px;" width="80px"
+                                                                        height="80px" src="./assets/images/icon/documento.png"></td> -->
+                                                                <td style="text-align: left;">
+                                                                    <strong>Documento:
+                                                                    </strong>{{documento.documento}}<br />
+                                                                    <strong>Nro. Doc.:
+                                                                    </strong>{{documento.nro}}<br />
+                                                                    <strong>Fecha Emisión:
+                                                                    </strong>{{documento.fechaEmision | date:
+                                                                    'dd/MM/yyyy'}}<br />
+                                                                    <strong>Fecha Vencimiento:
+                                                                    </strong>{{documento.fechaVcto |
+                                                                    date: 'dd/MM/yyyy' }}<br />
+                                                                    <strong>Moneda: </strong>{{documento.desMon}}<br />
+                                                                    <strong>Monto en Moneda Origen:
+                                                                    </strong>{{documento.debe | monto}}<br />
+                                                                    <strong>Monto en Mda. Nacional a la Fecha Emisión $:
+                                                                    </strong>{{documento.montoOriginalBase | monto}}<br />
+                                                                    <strong>Monto en Mda. Nacional Actualizado $:
+                                                                    </strong>{{documento.montoBase | monto}}<br />
+                                                                    <strong>Saldo en Mda. Nacional Actualizado $:
+                                                                    </strong>{{documento.saldoBase | monto}}<br />
+                                                                </td>
+                                                                <td style="vertical-align:middle;"
+                                                                    *ngIf="existModuloInventario">
+                                                                    <div ngbDropdown>
+                                                                        <button (click)="verDetalle(documento)"
+                                                                            ngbDropdownToggle aria-haspopup="true"
+                                                                            aria-expanded="false" type="button"
+                                                                            class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                            id="__BVID__735__BV_toggle_"><svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                width="16px" height="16px"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                                <circle cx="12" cy="12" r="1"></circle>
+                                                                                <circle cx="12" cy="5" r="1"></circle>
+                                                                                <circle cx="12" cy="19" r="1"></circle>
+                                                                            </svg></button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="col-md-12 mt-3" *ngIf="documentosFiltro?.length > 0">
+                                                <pagination-controls (pageChange)="changePageDocumentos($event)"
+                                                    maxSize="6" responsive="true" previousLabel="" nextLabel="">
+                                                </pagination-controls>
+                                                <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ngb-tab>
+                        </ngb-tabset>
+
+                    </div>
+                </div>
+                <!--FCA 01-07-2022-->
+            </div>
+            <!--FCA 01-07-2022-->
+        </div>
+        <!--FCA 01-07-2022-->
+
+    </div>
+
+    <div class="row" *ngIf="showDetail">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="d-sm-flex mb-5">
+                        <span class="m-auto"></span>
+                        <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3"
+                            (click)="volverDetalle()">Volver</button>
+                        <button *ngIf="configuracion.muestraBotonEnviarCorreo  == 1" [ngbTooltip]="tipDocumentos"  container="body"
+                            class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3"
+                            (click)="openModalSend(modalContactoEnvio, detalleCab)"><img
+                            src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button> 
+                        <button *ngIf="configuracion.muestraBotonImprimir == 1" class="btn btn-primary mb-sm-0 mb-3"
+                            (click)="print()">Imprimir</button>
+                        <!--FCA 05-07-2022-->
+                    </div>
+                    <!---===== Print Area =======-->
+                    <div id="print-area">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="font-weight-bold">{{tituloDetalle}}</h4>
+                                <p>#{{ detalleCab.folio }}</p>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <!-- <p><strong>Estado: </strong> {{estadoDoc}}</p> -->
+                                <p><strong>Fecha Emisión: </strong> {{ detalleCab.fechaEmision | date: 'dd/MM/yyyy' }}
+                                </p>
+                                <p *ngIf="detalleCab.fechaVencimiento != '' && detalleCab.fechaVencimiento != null">
+                                    <strong>Fecha Vencimiento: </strong> {{ detalleCab.fechaVencimiento | date:
+                                    'dd/MM/yyyy' }}
+                            </div>
+                        </div>
+                        <div class="mt-3 mb-4 border-top"></div>
+                        <div class="row mb-5">
+                            <div class="col-md-6 mb-3 mb-sm-0">
+                                <h5 class="font-weight-bold">Razón social / Nombre</h5>
+                                <p>{{detalleCab.razonSocial}}</p>
+                                <h5 class="font-weight-bold">Dirección</h5>
+                                <span style="white-space: pre-line">
+                                    {{detalleCab.direccion}}
+                                </span>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <h5 class="font-weight-bold">RUT</h5>
+                                <p>{{ detalleCab.rut }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="desktop">
+                                    <table class="table table-hover mb-4">
+                                        <thead class="bg-gray-300">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Código</th>
+                                                <th scope="col">Producto</th>
+                                                <th style="text-align: right;" scope="col">Cantidad</th>
+                                                <th style="text-align: right;" scope="col">Precio Unitario</th>
+                                                <th style="text-align: right;" scope="col">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let c of detalleDet; let i = index">
+                                                <th scope="row"> {{i + 1}} </th>
+                                                <td>{{ c.codigo }}</td>
+                                                <td>{{ c.desProd }}</td>
+                                                <td style="text-align: right;">{{ c.cantidad }}</td>
+                                                <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
+                                                <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="movil">
+                                    <table class="table table-hover mb-4">
+                                        <thead class="bg-gray-300">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let c of detalleDet; let i = index">
+                                                <td scope="row"> {{i + 1}} </td>
+                                                <td style="text-align: left;">
+                                                    <strong>Código: </strong>{{ c.codigo }}<br />
+                                                    <strong>Producto: </strong>{{ c.desProd }}<br />
+                                                    <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                                                    <strong>Precio Unitario: </strong>{{ c.precioUnitario |
+                                                    monto}}<br />
+                                                    <strong>Total: </strong>${{ c.total | monto }}<br />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="invoice-summary float-right">
+                                    <p>Sub total: <span>${{ detalleCab.neto | monto }}</span></p>
+                                    <p>IVA: <span>
+                                            ${{ detalleCab.iva | monto }}
+                                        </span></p>
+                                    <h5 class="font-weight-bold">Total: <span>
+                                            ${{ detalleCab.total | monto }}
+                                        </span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--==== / Print Area =====-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalContactoEnvio let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Documentos</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                Seleccione los documentos que desea enviar o descargar.
+            </div>
+            <div class="col-md-12 mb-2">
+                <ul>
+                    <li><input type="checkbox" id="cb1" [(ngModel)]="enviaPdf" />
+                        <label style="border: 1px solid #e0e0eb;" for="cb1"><img style="width:50px;height: 50px;"
+                                src="../../../../assets/images/icon/PdfImage.png" /></label>
+                    </li>
+                    <li ><input type="checkbox" id="cb2" [(ngModel)]="enviaXml" />
+                        <label style="border: 1px solid #e0e0eb;" for="cb2"><img style="width:50px;height: 50px;"
+                                src="../../../../assets/images/icon/xml.png" /></label>
+                    </li>
+                    <li>
+                        <button type="button" class="btn btn-primary" style="margin-left: 30px"
+                            (click)="descargarDocumentos(documentoAEnviar)"> <i class="i-File"></i><span
+                                class="mr-3">Descargar</span></button>
+                    </li>
+                </ul>
+            </div>
+            <br>
+            <br>
+            <div class="col-md-12 mb-3">
+                {{tituloEnvio}}
+            </div>
+            <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+                    <table class="table table-hover" style="display: block;height: 200px; overflow-y: scroll; margin:auto;">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sel.</th>
+                                <th style="width: 44%;" scope="col">Nombre</th>
+                                <th style="width: 45%;"  scope="col">Correo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let contacto of contactosCliente">
+                                <th scope="row">
+                                    <!-- <input type="checkbox" class="checkbox checkbox-primary"> -->
+                                    <label class="checkbox checkbox-outline-primary">
+                                        <input type="checkbox" name="check" (change)="onChange(contacto)">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </th>
+                                <td>{{ contacto.nombreContacto }}</td>
+                                <td>{{ contacto.correo }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </div>
+            <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+                <hr>
+            </div>
+            <div class="col-md-12 form-group">
+                <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='otrosCorreo'
+                    (onAdd)="onAdd($event, 1)" theme='primary' secondaryPlaceholder="Ingrese correo"
+                    [placeholder]="'Ingrese correo'"></tag-input>
+                <p>Puede ingresar los correos necesarios presionando enter</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="send()" class="btn btn-primary">Enviar</button>
+    </div>
+</ng-template>
+
+
+
+
+<ng-template #tipContentActual>Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
+        }}</b> correspondiente a
+    <b>${{valorUfActrual | monto}}</b>
+</ng-template>
+
+
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de la UF al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
+        }}</b> correspondiente a
+    <b>$0</b>
+</ng-template>
+
+
+<ng-template #tipDocumentos>Descargar o enviar archivos asociados al documento
+</ng-template>

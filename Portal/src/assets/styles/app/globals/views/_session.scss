@@ -1,0 +1,93 @@
+.auth-layout-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-size: cover;
+    .auth-content {
+        max-width: 660px;
+        margin: auto;
+    }
+}
+
+.auth-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.auth-logo {
+    img {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .auth-layout-wrap {
+        .auth-content {
+            min-width: 660px;
+        }
+    }
+}
+@media (max-width: 767px) {
+    .auth-layout-wrap {
+        .auth-content {
+            padding: 15px;
+        }
+    }
+    .auth-right {
+        padding: 80px 15px;
+    }
+}
+
+// PORTAL DE PAGOS
+.auth-pay-layout-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-size: cover;
+    .auth-pay-content {
+        max-width: 70%;
+        margin: auto;
+    }
+}
+
+.auth-pay-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.auth-pay-logo {
+    img {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .auth-pay-layout-wrap {
+        .auth-pay-content {
+            min-width: 960px;
+        }
+    }
+}
+@media (max-width: 767px) {
+    .auth-pay-layout-wrap {
+        .auth-pay-content {
+            max-width: 95%;
+            padding: 15px;
+        }
+    }
+    .auth-pay-right {
+        padding: 80px 15px;
+    }
+}

@@ -1,0 +1,186 @@
+<div class="breadcrumb">
+    <h1>Configuración Softland</h1>
+    <ul>
+        <li><a href="">Softland</a></li>
+        <li>Configuración Softland</li>
+    </ul>
+  </div>
+    
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-body">
+          <form #myFormSoftland="ngForm">
+            <div class="row">
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Lista de Precio <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="listasPrecios"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Lista de Precio"
+                        #lp="ngModel" name="lp"
+                        [(ngModel)]="selectedListaPrecio"
+                        bindValue="codListaSoftland"> 
+                    </ng-select>
+                    <p *ngIf="lp.errors && (lp.dirty || lp.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Lista de Precio es requerida
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Lista de Precio Oferta <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="listasPreciosOferta"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Lista de Precio Oferta"
+                        #lpo="ngModel" name="lpo"
+                        [(ngModel)]="selectedListaPrecioOferta"
+                        bindValue="codListaSoftland"> 
+                    </ng-select>
+                    <p *ngIf="lpo.errors && (lpo.dirty || lpo.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Lista de Precio Oferta es requerida
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Condición de Venta <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="condicionesVenta"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Condición de Venta"
+                        #condVenta="ngModel" name="condVenta"
+                        [(ngModel)]="selectedCondicionVenta"
+                        bindValue="codCondVtaSoftland"> 
+                    </ng-select>
+                    <p *ngIf="condVenta.errors && (condVenta.dirty || condVenta.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Condición de Venta es requerida
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Vendedor <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="vendedores"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Vendedor"
+                        #vend="ngModel" name="vend"
+                        [(ngModel)]="selectedVendedor"
+                        bindValue="codVendSoftland"> 
+                    </ng-select>
+                    <p *ngIf="vend.errors && (vend.dirty || vend.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Vendedor es requerido
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Canal de Venta <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="canalesVenta"
+                        bindLabel="canDes"
+                        required
+                        placeholder="Canal de Venta"
+                        #canalV="ngModel" name="canalV"
+                        [(ngModel)]="selectedCanalVenta"
+                        bindValue="canCod"> 
+                    </ng-select>
+                    <p *ngIf="canalV.errors && (canalV.dirty || canalV.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Canal de Venta es requerida
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Cargo Contacto <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="cargos"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Cargo Contacto"
+                        #carg="ngModel" name="carg"
+                        [(ngModel)]="selectedCargo"
+                        bindValue="codCargoSoftland"> 
+                    </ng-select>
+                    <p *ngIf="carg.errors && (carg.dirty || carg.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Cargo es requerido
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Categoría Cliente <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="categorias"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Categoría Cliente"
+                        #catex="ngModel" name="catex"
+                        [(ngModel)]="selectedCategoria"
+                        bindValue="codGrupoSoftland"> 
+                    </ng-select>
+                    <p *ngIf="catex.errors && (catex.dirty || catex.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Categoría Cliente es requerida
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Giro Particular <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="giros"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Giro Particular"
+                        #giroP="ngModel" name="giroP"
+                        [(ngModel)]="selectedGiro"
+                        bindValue="codGiroSoftland"> 
+                    </ng-select>
+                    <p *ngIf="giroP.errors && (giroP.dirty || giroP.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Giro Particular es requerido
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Stock Minimo <span class="camporequerido">*</span></label>
+                    <input type="number" min="0"
+                        [ngClass]="stockM.errors && (stockM.dirty || stockM.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                        placeholder="Stock Minimo " #stockM="ngModel" required
+                        name="stockM" [(ngModel)]="stockMinimo" />  
+                    <p *ngIf="stockM.errors && (stockM.dirty || stockM.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Stock Minimo  es requerido
+                    </p>
+                </div>
+
+                <div class="col-md-12 mt-3 text-center">
+                    <button class="btn btn-primary"
+                      [disabled]="!myFormSoftland.form.valid"
+                      [style.cursor]="!myFormSoftland.form.valid ? 'no-drop' : 'pointer'"
+                      (click)="save()">Guardar</button>
+                </div>
+            </div>
+        </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  

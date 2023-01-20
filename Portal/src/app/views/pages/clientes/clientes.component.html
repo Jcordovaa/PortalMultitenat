@@ -1,0 +1,339 @@
+<div class="breadcrumb">
+    <h1>Clientes</h1>
+    <ul>
+        <li><a href="">Administración</a></li>
+        <li>Clientes</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row mb-4">
+    <!-- <div class="col-md-4">
+        <button type="button" class="btn btn-success btn-rounded" (click)="openModal(modalBasic, null)">
+            <i class="i-Add mt-3 mr-1"></i> Nuevo Cliente</button>
+    </div> -->
+    <div class="col-md-12">
+        <input type="text" name="searcher" [(ngModel)]="paginador.search" class="form-control form-control-rounded"
+            (keydown.enter)="getClientes()" placeholder="Buscar cliente...">
+    </div>
+</div>
+
+<div class="row mb-4" *ngIf="totalItems > 0 && loaded">
+    <!-- GRID AND LIST BUTTONS -->
+    <div class="col-6">
+        <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2" [ngClass]="{active: viewMode === 'grid'}"
+            (click)="viewMode = 'grid'">
+            <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 369.946 369.946"
+                style="enable-background:new 0 0 369.946 369.946;" xml:space="preserve">
+                <path d="M250.609,0h-11.934H131.271h-11.934H0v119.337v11.934v107.404v11.934v119.337h119.337h11.934
+            h107.404h11.934h119.337V250.609v-11.934V131.271v-11.934V0H250.609z M238.675,11.934v107.404H131.271V11.934H238.675z
+             M238.675,131.271v107.404H131.271V131.271H238.675z M11.934,11.934h107.404v107.404H11.934V11.934z M11.934,131.271h107.404
+            v107.404H11.934V131.271z M11.934,358.012V250.609h107.404v107.404H11.934z M131.271,358.012V250.609h107.404v107.404H131.271z
+             M358.012,358.012H250.609V250.609h107.404V358.012z M358.012,238.675H250.609V131.271h107.404V238.675z M250.609,119.337V11.934
+            h107.404v107.404H250.609z" />
+            </svg>
+        </button>
+        <button class="btn btn-sm btn-rounded btn-outline-light btn-svg" [ngClass]="{active: viewMode === 'list'}"
+            (click)="viewMode = 'list'">
+            <svg version="1.1" id="list" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px" y="0px" width="16px" height="16px" viewBox="0 0 612 612"
+                style="enable-background:new 0 0 612 612;" xml:space="preserve">
+                <path d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- DATA LIST -->
+<div *ngIf="totalItems > 0 && loaded" class="row"
+    [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+    <!-- SINGLE LIST ITEM -->
+    <div *ngFor="let item of clientes | paginate: config; let i = index" class="list-item"
+        [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+        [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+        <div class="card o-hidden mb-2 d-flex"
+            [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+            <div class="list-thumb d-flex">
+                <!-- TUMBNAIL -->
+                <img style="cursor: pointer;" class="img-responsive" src="https://img.icons8.com/bubbles/2x/man-blue-shopping-basket.png"
+                    width="60" height="45" alt="" class="ml-2">
+            </div>
+            <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+                <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+                    [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+                    <!-- OTHER DATA -->
+                    <a class="w-20 w-sm-100" >
+                        <div class="item-title">
+                          <span style="font-weight: bold;" placement="bottom" container="body" ngbTooltip="{{item.nombre}}">{{item.nombre}}</span>
+                        </div>
+                        <div class="item-title text-muted">
+                          <span style="font-size: 12px;">{{item?.rut}}</span>
+                        </div>
+                      </a>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                        <strong>Correo: </strong> {{item?.email}}
+                    </p>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                        <strong>Lista Precios: </strong> {{item?.idListaPrecios}}
+                    </p>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                        <strong>Condición Vta: </strong> {{item?.idCondicionVenta}}
+                    </p>
+                    <p class="m-0 text-muted w-15 w-sm-100 d-none d-lg-block item-badges">
+                        <span *ngIf="item.estado == 1" class="badge badge-success">Activo</span>
+                        <span *ngIf="item.estado == 0" class="badge badge-danger">Inactivo</span>
+                    </p>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                        <img (click)="openModal(modalBasic, item)" container="body" ngbTooltip="Ver detalle"
+                            style="cursor: pointer;" src="https://img.icons8.com/cute-clipart/2x/details-pane.png" width="20"
+                            height="20" alt="">&nbsp;
+                            <img (click)="openModalChange(modalChangePass, item)" container="body" ngbTooltip="Cambiar contraseña"
+                            style="cursor: pointer;" src="https://img.icons8.com/cute-clipart/2x/forgot-password.png" width="20"
+                            height="20" alt="">&nbsp;
+                        <img (click)="openModalChange(modalChangeEmail, item)"  container="body" ngbTooltip="Cambiar correo" style="cursor: pointer;"
+                            src="https://img.icons8.com/cute-clipart/2x/upload-mail.png" width="20" height="20"
+                            alt="">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PAGINATION CONTROL -->
+    <div class="col-md-12 mt-3" *ngIf="clientes?.length && totalItems > 0">
+        <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true" previousLabel=""
+            nextLabel="">
+        </pagination-controls>
+        <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+    </div>
+</div>
+
+<div class="row" *ngIf="totalItems == 0 && loaded">
+    <div class="col-md-12">
+        <ngb-alert class="alert-card text-center" [dismissible]="false">
+            {{noResultsText}}
+        </ngb-alert>
+    </div>
+</div>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label for="picker1">Rut</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="rut" name="rut"
+                        [(ngModel)]="cliente.rut">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Nombre</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Nombre" name="nombre"
+                        [(ngModel)]="cliente.nombre">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Email</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Email" name="orden"
+                        [(ngModel)]="cliente.email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Giro</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Giro" name="giro"
+                        [(ngModel)]="cliente.giro.nombre">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Dirección</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Dirección" name="direccion"
+                        [(ngModel)]="cliente.direccion">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="picker1">Teléfono</label>
+                    <div class="input-group">
+                        <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Teléfono" name="telefono"
+                            [(ngModel)]="cliente.telefono">
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="picker1">Fecha Hora Registro</label>
+                    <div class="input-group">
+                        <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Email" name="orden"
+                            value="{{ cliente.fechaRegistro | date: 'dd/MM/yyyy' + ' ' + cliente.horaRegistro }}">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="picker1">Region</label>
+                <div class="input-group">
+                    <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="Region" name="region"
+                        [(ngModel)]="cliente.region.nombre">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="picker1">Ciudad</label>
+                    <div class="input-group">
+                        <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="ciudad" name="ciudad"
+                            [(ngModel)]="cliente.ciudad.nombre">
+                    </div>
+                </div>
+                <div class="form-group  col-md-6">
+                    <label for="picker1">Comuna</label>
+                    <div class="input-group">
+                        <input type="text" [disabled]="true" class="form-control form-control-rounded" placeholder="comuna" name="comuna"
+                            [(ngModel)]="cliente.comuna.nombre">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <div class="input-group">
+                    <label class="switch switch-success mr-3">
+                        <span>Activo</span>
+                        <input [(ngModel)]="cliente.estado" [disabled]="true" type="checkbox" id="exampleCheck2" name="exampleCheck2" />
+                        <span class="slider"></span>
+                    </label>
+                    <label class="switch switch-success mr-3">
+                        <span>Es Receptor DTE</span>
+                        <input [(ngModel)]="cliente.esReceptorDTE" [disabled]="true" type="checkbox" id="exampleCheck3" name="exampleCheck3" />
+                        <span class="slider"></span>
+                    </label>
+                    <label class="switch switch-success mr-3">
+                        <span>Es Softland</span>
+                        <input [(ngModel)]="cliente.esSoftland" [disabled]="true" type="checkbox" id="exampleCheck4" name="exampleCheck4" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark btn-rounded" (click)="close()">Cerrar</button>
+    </div>
+</ng-template>
+
+<ng-template #modalChangePass let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Cambiar Contraseña</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form #myForm="ngForm">
+            <div class="form-group">
+                <label for="picker1">Nueva contraseña</label>
+                <div class="input-group">
+                    <input type="password"
+                      [ngClass]="pass1.errors && (pass1.dirty || pass1.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                      placeholder="Nueva contraseña" #pass1="ngModel" minlength="6" required
+                      name="pass1" [(ngModel)]="newPassword1" >
+                </div>
+                <p *ngIf="pass1.errors && (pass1.dirty || pass1.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="pass1.errors.required">
+                        Nueva Contraseña es requerida.
+                    </span>
+                    <span *ngIf="pass1.errors?.minlength" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Nueva Contraseña debe tener al menos 6 caracteres.
+                    </span>
+                </p>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Repita nueva contraseña</label>
+                <div class="input-group">
+                    <input type="password"
+                      [ngClass]="pass2.errors && (pass2.dirty || pass2.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                      placeholder="Repita nueva contraseña" #pass2="ngModel" minlength="6" required
+                      name="pass2" [(ngModel)]="newPassword2" >
+                </div>
+                <p *ngIf="pass2.errors && (pass2.dirty || pass2.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="pass2.errors.required">
+                        Repita Contraseña es requerida.
+                    </span>
+                    <span *ngIf="pass2.errors?.minlength" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Repita Contraseña debe tener al menos 6 caracteres.
+                    </span>
+                </p>
+            </div>      
+            <div class="alert alert-card alert-info mt-5" role="alert">
+                Se enviará un correo electrónico al cliente con la nueva contraseña.
+            </div>   
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" [disabled]="!myForm.form.valid" 
+            [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'"
+            class="btn btn-outline-dark btn-rounded" (click)="onChangePassword()">Aceptar</button>
+    </div>
+</ng-template>
+
+<ng-template #modalChangeEmail let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Cambiar de Correo</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form #myFormCorreo="ngForm">
+            <div class="form-group">
+                <label for="picker1">Nueva correo</label>
+                <div class="input-group">
+                    <input type="email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                      [ngClass]="correo1.errors && (correo1.dirty || correo1.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                      placeholder="Nuevo correo" #correo1="ngModel" maxlength="50" required
+                      name="correo1" [(ngModel)]="newEmail1" >
+                </div>
+                <p *ngIf="correo1.errors && (correo1.dirty || correo1.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="correo1.errors.required">
+                        Nueva Correo es requerido.
+                    </span>
+                    <span *ngIf="correo1.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Correo ingresado no es válido.
+                    </span>
+                </p>
+            </div>
+            <div class="form-group">
+                <label for="picker1">Repita nuevo correo</label>
+                <div class="input-group">
+                    <input type="email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+                      [ngClass]="correo2.errors && (correo2.dirty || correo2.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                      placeholder="Repita nuevo correo" #correo2="ngModel" maxlength="50" required
+                      name="correo2" [(ngModel)]="newEmail2" >
+                </div>
+                <p *ngIf="correo2.errors && (correo2.dirty || correo2.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="correo2.errors.required">
+                        Repita Correo es requerido.
+                    </span>
+                    <span *ngIf="correo2.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Correo ingresado no es válido.
+                    </span>
+                </p>
+            </div>      
+            <div class="alert alert-card alert-info mt-5" role="alert">
+                Se enviará un correo electrónico al cliente informando el cambio de correo.
+            </div>   
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" [disabled]="!myFormCorreo.form.valid" 
+            [style.cursor]="!myFormCorreo.form.valid ? 'no-drop' : 'pointer'"
+            class="btn btn-outline-dark btn-rounded" (click)="onChangeEmail()">Aceptar</button>
+    </div>
+</ng-template>

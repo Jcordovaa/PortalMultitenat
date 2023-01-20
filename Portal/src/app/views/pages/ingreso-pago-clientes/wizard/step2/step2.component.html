@@ -1,0 +1,241 @@
+<div class="row">
+  <div class="form-group col-md-8 mt-3" style="margin: auto">
+    <div class="input-group mb-3">
+      <ng-select
+        class="customAC"
+        style="width: 1%; flex: 1 1 auto"
+        name="tipoPa"
+        #tipoPa="ngModel"
+        [(ngModel)]="selectedTipoPago"
+        [items]="tipoPagosCobranza"
+        bindLabel="nombre"
+        required
+        placeholder="Medios de Pago"
+        bindValue="idTipoPago"
+      >
+      </ng-select>
+
+      <div class="input-group-append">
+        <button
+          class="btn btn-primary"
+          type="button"
+          id="btnBuscar"
+          [disabled]="selectedTipoPago == null"
+          (click)="onChangeTipoPago(modalTipo)"
+        >
+          Agregar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col-md-12">
+    <ngx-datatable
+      style="height: 300px; box-shadow: none"
+      class="material"
+      [rows]="pagos"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="60"
+      [limit]="10"
+      [scrollbarV]="true"
+      [scrollbarH]="true"
+      [trackByProp]="'updated'"
+      [messages]="{
+        emptyMessage: 'Sin pagos ingresados.',
+        totalMessage: 'Registros',
+        selectedMessage: 'Seleccionados'
+      }"
+    >
+      <ngx-datatable-column name="nombre" [width]="170">
+        <ng-template ngx-datatable-header-template> Tipo </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="montoPago" [width]="110">
+        <ng-template ngx-datatable-header-template> Monto </ng-template>
+        <ng-template
+          ngx-datatable-cell-template
+          let-value="value"
+          let-row="row"
+        >
+          ${{ value | monto }}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="fecha" [width]="90">
+        <ng-template ngx-datatable-header-template> Fecha </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="serie" [width]="100">
+        <ng-template ngx-datatable-header-template> Serie </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="comprobante" [width]="100">
+        <ng-template ngx-datatable-header-template> Comprobante </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="banco" [width]="200">
+        <ng-template ngx-datatable-header-template> Banco </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="nnn" [width]="63">
+        <ng-template ngx-datatable-header-template> Eliminar </ng-template>
+        <ng-template
+          ngx-datatable-cell-template
+          let-value="value"
+          let-row="row"
+        >
+          <img
+            (click)="eliminarpago(row)"
+            container="body"
+            ngbTooltip="Eliminar pago"
+            style="cursor: pointer"
+            src="./assets/images/delete.png"
+            width="20"
+            height="20"
+            alt=""
+          />
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+
+<div class="row mt-2" style="justify-content: center">
+  <div class="form-group col-md-5">
+    <div class="card mb-2">
+      <div class="card-body">
+        <div class="align-items-center" style="display: flex">
+          <div class="text-align-left">
+            <i class="i-Coins text-danger" style="font-size: 40px"></i>
+          </div>
+          <div style="margin-left: 50px">
+            <p class="m-0">Total ingresado pago</p>
+            <h4 class="heading">${{ totalPagando | monto }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group col-md-5">
+    <div class="card mb-2">
+      <div class="card-body">
+        <div class="align-items-center" style="display: flex">
+          <div class="text-align-left">
+            <i class="i-Money-Bag text-primary" style="font-size: 40px"></i>
+          </div>
+          <div style="margin-left: 50px">
+            <p class="m-0">Total a pagar</p>
+            <h4 class="heading">${{ totalPagar | monto }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #modalTipo let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Agregar Pago</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="row">
+
+                <div class="input-group col-md-8" style="margin: auto;">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Monto a pagar</span>
+                    </div>
+                    <input class="form-control" currencyMask name="montoPago" [(ngModel)]="nuevoPago.montoPago" placeholder="Total a Pagar" 
+                        [options]="{ prefix: '$ ', thousands: '.', decimal: ',', precision: 0 }"/>
+
+                    <!-- <input type="number" class="form-control" max="9999999" style="text-align: right;"
+                        [(ngModel)]="nuevoPago.montoPago" name="montoPago" placeholder="Total a Pagar"
+                        aria-label="totalPago" aria-describedby="basic-addon1"> -->
+                </div>
+
+                <div class="form-group col-md-8 mt-3 mb-0" style="margin: auto;" *ngIf="muestraBanco == 1">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Banco</span>
+                        </div>
+
+                        <ng-select class="customAC" style="width: 1%; flex: 1 1 auto;" name="bancoN" #bancoN="ngModel"
+                            [(ngModel)]="selectedBanco" [items]="bancos" bindLabel="nombre" required
+                            placeholder="Seleccione Banco" bindValue="idBanco">
+                        </ng-select>
+                    </div>
+                </div>
+
+                <div class="input-group col-md-8 mt-3" style="margin: auto;" *ngIf="muestraComprobante == 1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Comprobante</span>
+                    </div>
+                    <input type="text" class="form-control" style="text-align: right;"
+                        [(ngModel)]="nuevoPago.comprobante" name="comprobante"
+                        placeholder="Numero documento o comprobante" aria-label="comprobante"
+                        aria-describedby="basic-addon1">
+                </div>
+
+                <div class="input-group col-md-8" style="margin: auto;"
+                    *ngIf="muestraCantidad == 1 && muestraSerie == 1">
+                    <div class="row">
+                        <div class="input-group col-sm-6 mt-3" *ngIf="muestraCantidad == 1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Cantidad</span>
+                            </div>
+                            <input type="number" class="form-control" style="text-align: right;"
+                                [(ngModel)]="nuevoPago.cantidad" name="cantidad" placeholder="Cant. Documentos"
+                                aria-label="cantidad" aria-describedby="basic-addon1">
+                        </div>
+                        <div class="input-group col-sm-6 mt-3" *ngIf="muestraSerie == 1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Serie</span>
+                            </div>
+                            <input type="text" class="form-control" style="text-align: right;"
+                                [(ngModel)]="nuevoPago.serie" name="serie" placeholder="Nro Doc o Serie"
+                                aria-label="serie" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group col-md-8 mt-3" style="margin: auto;"
+                    *ngIf="muestraCantidad == 1 && muestraSerie == 0">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Cantidad</span>
+                    </div>
+                    <input type="number" class="form-control" style="text-align: right;"
+                        [(ngModel)]="nuevoPago.cantidad" name="cantidad" placeholder="Cant. Documentos"
+                        aria-label="cantidad" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="input-group col-md-8 mt-3" style="margin: auto;"
+                    *ngIf="muestraCantidad == 0 && muestraSerie == 1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Serie</span>
+                    </div>
+                    <input type="text" class="form-control" style="text-align: right;" [(ngModel)]="nuevoPago.serie"
+                        name="serie" placeholder="Nro Doc o Serie" aria-label="serie" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="input-group col-md-8 mt-3" style="margin: auto;" *ngIf="muestraFecha == 1">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Primer Vencimiento</span>
+                    </div>
+                    <input class="form-control" placeholder="dd/mm/yyyy" readonly name="t2" #v2="ngModel"
+                        [(ngModel)]="fechaDocumento" ngbDatepicker #t2="ngbDatepicker">
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" (click)="t2.toggle()" type="button">
+                            <i class="icon-regular i-Calendar-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="agregarPago()">Agregar</button>
+    </div>
+</ng-template>

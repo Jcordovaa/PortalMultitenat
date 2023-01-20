@@ -1,0 +1,243 @@
+<div class="breadcrumb">
+    <h1>Cobranza automática</h1>
+    <ul>
+        <li><a href="">Cobranzas</a></li>
+        <li>Cobranza automática</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card mb-4">
+    <div class="card-body" style="min-height: 400px;">
+        <h6 class="mb-2">Seleccione los <strong>Tipos de documentos </strong>  para realizar cobranza automática</h6>
+        <div class="row mt-2">
+            
+            <div class="col-md-12 form-group mb-3">
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="tipoDocs"
+                    bindLabel="nombre"
+                    placeholder="Tipos de documento"
+                    #lpo="ngModel" name="lpo"
+                    [(ngModel)]="selectedTipoDcto"
+                    bindValue="idTipoDocumento"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>
+            </div>
+        </div>
+
+        <h6 class="mb-2 mt-2">Seleccione las <strong>Condiciones de venta  </strong>  de tipo crédito</h6>
+        <div class="row mt-2">
+            
+            <div class="col-md-12 form-group mb-3">
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="condVentas"
+                    bindLabel="nombre"
+                    placeholder="Condiciones de venta"
+                    #cv="ngModel" name="cv"
+                    [(ngModel)]="selectedCondVenta"
+                    bindValue="idCondicionDeVenta"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>
+            </div>
+        </div>
+
+        <h6 class="mb-2 mt-2">Seleccione los <strong>Clientes</strong> a los cuales <strong>no</strong> desea realizar cobranza</h6>
+
+        <div class="row mt-2">            
+            <div class="col-md-12 form-group mb-3">
+                <form #myFormCli="ngForm" name="cate-form" >
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="clientes"
+                        bindLabel="nombre"
+                        placeholder="Clientes"
+                        #cli="ngModel" name="cli"
+                        [(ngModel)]="selectedClientes"
+                        bindValue="idCliente"
+                        [multiple]="false"
+                        [closeOnSelect]="true"
+                        (change)="onSelectCliente($event)"
+                    > 
+                    </ng-select>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-2" style="overflow-y: scroll; max-height:300px;">
+            <div class="table-responsive col-md-12">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 40%;">Nombre</th>
+                            <th scope="col" style="width: 50%;">Rut</th>
+                            <th scope="col" style="width: 50%;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of clientesSelected">
+                            <td>{{ c.nombre }}</td>
+                            <td>{{ c.rut }}</td>
+                            <td>
+                                <button (click)="deleteCliente(c)" title="Eliminar" class="btn btn-icon bg-transparent" style="height: 24px">
+                                  <i class="i-Close text-16 text-primary"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h6 class="mb-2 mt-2">Seleccione los <strong>Cargos</strong> a los cuales desea realizar cobranza</h6>
+
+        <div class="row mt-2">            
+            <div class="col-md-12 form-group mb-3">
+                <form #myFormCar="ngForm" name="car-form" >
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="cargos"
+                        bindLabel="nombre"
+                        placeholder="Cargos"
+                        #car="ngModel" name="car"
+                        [(ngModel)]="selectedCargos"
+                        bindValue="idCargo"
+                        [multiple]="false"
+                        [closeOnSelect]="true"
+                        (change)="onSelectCargos($event)"
+                    > 
+                    </ng-select>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-2" style="overflow-y: scroll; max-height:300px;">
+            <div class="table-responsive col-md-12">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 40%;">Código</th>
+                            <th scope="col" style="width: 50%;">Nombre</th>
+                            <th scope="col" style="width: 50%;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of cargosSelected">
+                            <td>{{ c.idCargo }}</td>
+                            <td>{{ c.nombre }}</td>
+                            <td>
+                                <button (click)="deleteCargo(c)" title="Eliminar" class="btn btn-icon bg-transparent" style="height: 24px">
+                                  <i class="i-Close text-16 text-primary"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <label class="checkbox checkbox-outline-primary mt-2">
+                    <input type="checkbox" [(ngModel)]="enviaNotifContactosSinCargo" id="check1" name="check1" />
+                    <span>Enviar notificaciones a contactos sin cargo</span>
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="col-md-12">
+                <label class="checkbox checkbox-outline-primary mt-2">
+                    <input type="checkbox"  [(ngModel)]="enviaNotifClientesSinContactos" id="check2" name="check2">
+                    <span>Enviar notificaciones a clientes sin contactos</span>
+                    <span class="checkmark"></span>
+                </label>
+            </div>                    
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-4">
+                <label class="switch switch-primary mr-3 mt-2">
+                    <span>Enviar cobranza</span>
+                    <input type="checkbox"  [(ngModel)]="enviaCobranza" id="check3" name="check3">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="col-md-3 form-group" *ngIf="enviaCobranza">
+                <label for="firstName" style="font-size: 13px;">Cantidad días Vcto</label>
+                <input type="number" min="0" class="form-control form-control-rounded" [(ngModel)]="cantDiasVcto" id="diasVcto" name="diasVcto" placeholder="Cantidad días Vcto">
+            </div>
+            <div class="col-md-5 form-group" *ngIf="enviaCobranza">
+                <label for="firstName" style="font-size: 13px;">Días de envío cobranza</label>
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="diasCobro"
+                    bindLabel="nombre"
+                    placeholder="Días de envío cobranza"
+                    #car="ngModel" name="car"
+                    [(ngModel)]="selectedDiasCobro"
+                    bindValue="id"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <label class="switch switch-primary mr-3 mt-2">
+                    <span>Enviar pre-cobranza</span>
+                    <input type="checkbox"  [(ngModel)]="enviaPreCobranza" id="check4" name="check4">
+                    <span class="slider"></span>
+                </label>
+            </div>    
+            <div class="col-md-3 form-group" *ngIf="enviaPreCobranza">
+                <label for="firstName" style="font-size: 13px;">Cantidad días previo Vcto</label>
+                <input type="number" min="0" class="form-control form-control-rounded" [(ngModel)]="cantDiasPreVcto" id="diasPreVcto" name="diasPreVcto" placeholder="Cantidad días previo Vcto">
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <hr>
+            <div class="col-md-12 text-center">
+                <btn-loading 
+                    btnClass="btn btn-secondary btn-rounded m-1" 
+                    [loading]="btnLoading" 
+                    loadingText="Grabando..."
+                    (click)="save()">
+                    Guardar Cambios
+                </btn-loading>
+            </div>    
+        </div>
+
+        <!-- <h6 class="mb-2">Remueva los <strong>Clientes  </strong>a los cuales no desea realizar cobranza</h6>
+        <div class="row">
+            
+            <div class="col-md-12 form-group mb-3">
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="clientes"
+                    bindLabel="nombre"
+                    placeholder="Clientes"
+                    #cli="ngModel" name="cli"
+                    [(ngModel)]="selectedClientes"
+                    bindValue="rut"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>
+
+                <ng-select [(ngModel)]="selectedClientes" [multiple]="true" placeholder="Clientes">
+                    <ng-option *ngFor="let car of clientes" [value]="car.rut">{{car.nombre}}</ng-option>
+                 </ng-select>
+            </div>
+        </div> -->
+    </div>
+</div>

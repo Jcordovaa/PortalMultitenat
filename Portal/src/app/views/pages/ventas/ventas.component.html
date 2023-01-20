@@ -1,0 +1,348 @@
+<div class="breadcrumb">
+    <h1>Ventas</h1>
+    <ul>
+        <li><a href="">E-Commerce</a></li>
+        <li>Ventas</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div *ngIf="step == 1">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <input type="text" name="searcher" [(ngModel)]="paginador.search" class="form-control form-control-rounded"
+                (keydown.enter)="getVentas()" placeholder="Buscar ventas...">
+        </div>
+    </div>
+    
+    <div class="row mb-4" *ngIf="totalItems > 0 && loaded">
+        <!-- GRID AND LIST BUTTONS -->
+        <div class="col-6">
+            <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2" [ngClass]="{active: viewMode === 'grid'}"
+                (click)="viewMode = 'grid'">
+                <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 369.946 369.946"
+                    style="enable-background:new 0 0 369.946 369.946;" xml:space="preserve">
+                    <path d="M250.609,0h-11.934H131.271h-11.934H0v119.337v11.934v107.404v11.934v119.337h119.337h11.934
+                h107.404h11.934h119.337V250.609v-11.934V131.271v-11.934V0H250.609z M238.675,11.934v107.404H131.271V11.934H238.675z
+                 M238.675,131.271v107.404H131.271V131.271H238.675z M11.934,11.934h107.404v107.404H11.934V11.934z M11.934,131.271h107.404
+                v107.404H11.934V131.271z M11.934,358.012V250.609h107.404v107.404H11.934z M131.271,358.012V250.609h107.404v107.404H131.271z
+                 M358.012,358.012H250.609V250.609h107.404V358.012z M358.012,238.675H250.609V131.271h107.404V238.675z M250.609,119.337V11.934
+                h107.404v107.404H250.609z" />
+                </svg>
+            </button>
+            <button class="btn btn-sm btn-rounded btn-outline-light btn-svg" [ngClass]="{active: viewMode === 'list'}"
+                (click)="viewMode = 'list'">
+                <svg version="1.1" id="list" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    x="0px" y="0px" width="16px" height="16px" viewBox="0 0 612 612"
+                    style="enable-background:new 0 0 612 612;" xml:space="preserve">
+                    <path d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- DATA LIST -->
+    <div *ngIf="totalItems > 0 && loaded" class="row"
+        [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+        <!-- SINGLE LIST ITEM -->
+        <div *ngFor="let item of ventas | paginate: config; let i = index" class="list-item"
+            [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+            [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+            <div class="card o-hidden mb-2 d-flex"
+                [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+                <div class="list-thumb d-flex">
+                    <!-- TUMBNAIL -->
+                    <img style="cursor: pointer;" class="img-responsive" src="https://img.icons8.com/clouds/2x/buy.png"
+                        width="70" height="50" alt="">
+                </div>
+                <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+                    <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+                        [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+                        <!-- OTHER DATA -->
+                        <a class="w-15 w-sm-100" >
+                            <div class="item-title">
+                              <span style="font-weight: bold;" placement="bottom" container="body" ngbTooltip="{{item.nvNumero}}">Nota Venta: {{ item.nvNumero }}</span>
+                            </div>
+                          </a>
+                          <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Cliente: </strong> {{ item?.cliente?.nombre }}
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Fecha Venta: </strong> {{ item?.fechaVenta | date: 'dd/MM/yyyy' }}
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Estado: </strong>
+                            <span class="badge badge-success">{{ item?.estadoVenta.nombre }}</span>
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Facturada: </strong>
+                            <span *ngIf="item?.facturada == -1" class="badge badge-success">Facturada</span>
+                            <span *ngIf="item?.facturada == 0"class="badge badge-success">Pendiente</span>
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Despacho: </strong>
+                            <span *ngIf="item?.despachada == -1" class="badge badge-success">Despachada</span>
+                            <span *ngIf="item?.despachada == 0"class="badge badge-success">Pendiente</span>
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <strong>Total: </strong> ${{ item?.total | monto }}
+                        </p>
+                        <p class="m-0 text-muted w-15 w-sm-100">
+                            <img (click)="ventaDetalle(item)" container="body" ngbTooltip="Ver detalle"
+                                style="cursor: pointer;" src="https://img.icons8.com/cute-clipart/2x/details-pane.png" width="20"
+                                height="20" alt="">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- PAGINATION CONTROL -->
+        <div class="col-md-12 mt-3" *ngIf="ventas?.length && totalItems > 0">
+            <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true" previousLabel=""
+                nextLabel="">
+            </pagination-controls>
+            <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+        </div>
+    </div>
+    
+    <div class="row" *ngIf="totalItems == 0 && loaded">
+        <div class="col-md-12">
+            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                {{noResultsText}}
+            </ngb-alert>
+        </div>
+    </div>
+</div>
+
+
+<div class="card" *ngIf="step == 2"  [@animate]="{value:'*',params:{delay: (1*100)+'ms', y:'50px'}}">
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="invoice" role="tabpanel" aria-labelledby="invoice-tab">
+            <div class="d-sm-flex mb-5" data-view="print">
+                <button (click)="step = 1" class="btn btn-secondary mb-sm-0 mb-3 print-invoice"><i class="i-Arrow-Left mt-2"></i><span class="mr-2"> Volver</span></button>
+                <span class="m-auto"></span>
+                <div ngbDropdown>
+                    <button ngbDropdownToggle class="btn btn-primary">Factura</button>
+                    <div ngbDropdownMenu class="p-3" style="width: 320px">
+                        <div class="d-flex flex-column">
+                            <button class="btn btn-secondary pd-x-20 mb-2"><img src="https://img.icons8.com/material-outlined/2x/pdf-2.png" alt="" width="20" height="20"> Descargar en PDF</button>
+                            <button class="btn btn-secondary pd-x-20"><img src="https://img.icons8.com/material/2x/xml-file.png" alt="" width="20" height="20"> Descargar en XML</button>
+                        </div>
+                    </div>
+        
+                </div>
+            </div>
+            <!---===== Print Area =======-->
+            <div id="print-area">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="font-weight-bold">Detalle de la Venta</h4>
+                        <p>#{{venta.nvNumero}}</p>
+                    </div>
+                    <div class="col-md-6 text-sm-right">
+                        <p><strong>Facturada:</strong> {{ item?.facturada == -1 ? 'Facturada' : 'Pendiente' }}</p>
+                        <p><strong>Despacho:</strong> {{ item?.despachada == -1 ? 'Despachada' : 'Pendiente' }}</p>
+                        <p><strong>Fecha Venta: </strong> {{venta.fechaVenta | date: 'dd/MM/yyyy'}}</p>
+                    </div>
+                </div>
+                <div class="mt-3 mb-4 border-top"></div>
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-3 mb-sm-0">
+                        <h5 class="font-weight-bold">Cliente</h5>
+                        <p><i class="i-Male mr-2"></i>{{venta.cliente.nombre}} ({{venta.cliente.rut}})</p>
+                        <span style="white-space: pre-line">
+                            <i class="i-Email mr-2"></i>{{venta.cliente.email}}
+                            <br>
+                            <i class="i-Telephone mr-2"></i>{{venta.cliente.telefono}}
+                        </span>
+                    </div>
+                    <!-- <div class="col-md-6 text-sm-right">
+                        <h5 class="font-weight-bold">Bill To</h5>
+                        <p>UI Lib</p>
+                        <span style="white-space: pre-line">
+                            sales@ui-lib.com
+                            8254 S. Garfield Street. Villa Rica, GA 30180.
+
+                            +1-202-555-0170
+                        </span>
+                    </div> -->
+                </div>
+                <div class="row">
+                    <div class="col-md-12 table-responsive">
+                        <table class="table table-hover mb-4">
+                            <thead class="bg-gray-300">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">Cantidad</th>
+                                    <th scope="col">Precio</th>
+                                    <th scope="col">Subtotal</th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let d of venta.ventaDetalle">
+                                    <th scope="row">{{d.correlativo}}</th>
+                                    <td>{{d.productos.codProducto}} - {{d.productos.nombre}}</td>
+                                    <td>{{d.cantidad}}</td>
+                                    <td>${{d.precio | monto}}</td>
+                                    <td>${{d.subTotal | monto}}</td>
+                                    <td>${{d.total | monto}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-12" align="right">
+                        <div class="invoice-summary">
+                            <p>Sub total: <span>${{venta.subTotal | monto}}</span></p>
+                            <p>Despacho: <span>${{venta.despacho | monto}}</span></p>
+                            <p>Descuento: <span>${{venta.descuento | monto}}</span></p>
+                            <h5 class="font-weight-bold">Total: <span> ${{venta.total | monto}}</span></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--==== / Print Area =====-->
+        </div>
+        <div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+            <!--==== Edit Area =====-->
+            <div class="d-flex mb-5">
+                <span class="m-auto"></span>
+                <button class="btn btn-primary">Save</button>
+            </div>
+            <form>
+                <div class="row justify-content-between">
+                    <div class="col-md-6">
+                        <h4 class="font-weight-bold">Order Info</h4>
+                        <div class="col-sm-4 form-group mb-3 pl-0">
+                            <label for="orderNo">Order Number</label>
+                            <input type="text" class="form-control" id="orderNo" placeholder="Enter order number">
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <label class="d-block text-12 text-muted">Order Status</label>
+                        <div class="pr-0 mb-4">
+                            <label class="radio radio-reverse radio-danger">
+                                <input type="radio" name="orderStatus" value="Pending">
+                                <span>Pending</span>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="radio radio-reverse radio-warning">
+                                <input type="radio" name="orderStatus" value="Processing">
+                                <span>Processing</span>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="radio radio-reverse radio-success">
+                                <input type="radio" name="orderStatus" value="Delivered">
+                                <span>Delivered</span>
+                                <span class="checkmark"></span>
+                            </label>
+
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="order-datepicker">Order Date</label>
+                            <input id="order-datepicker" class="form-control text-right" placeholder="yyyy-mm-dd" name="dp">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 mb-4 border-top"></div>
+                <div class="row mb-5">
+                    <div class="col-md-6">
+                        <h5 class="font-weight-bold">Bill From</h5>
+                        <div class="col-md-10 form-group mb-3 pl-0">
+                            <input type="text" class="form-control" id="billFrom3" placeholder="Bill From">
+                        </div>
+                        <div class="col-md-10 form-group mb-3 pl-0">
+                            <textarea class="form-control" placeholder="Bill From Address"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 text-right">
+                        <h5 class="font-weight-bold">Bill To</h5>
+                        <div class="col-md-10 offset-md-2 form-group mb-3 pr-0">
+                            <input type="text" class="form-control text-right" id="billFrom2" placeholder="Bill From">
+                        </div>
+                        <div class="col-md-10 offset-md-2 form-group mb-3 pr-0">
+                            <textarea class="form-control text-right" placeholder="Bill From Address"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 table-responsive">
+                        <table class="table table-hover mb-3">
+                            <thead class="bg-gray-300">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Item Name</th>
+                                    <th scope="col">Unit Price</th>
+                                    <th scope="col">Unit</th>
+                                    <th scope="col">Cost</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>
+                                        <input value="Product 1" type="text" class="form-control" placeholder="Item Name">
+                                    </td>
+                                    <td>
+                                        <input value="300" type="number" class="form-control" placeholder="Unit Price">
+                                    </td>
+                                    <td>
+                                        <input value="2" type="number" class="form-control" placeholder="Unit">
+                                    </td>
+                                    <td>600</td>
+                                    <td>
+                                        <button class="btn btn-outline-secondary float-right">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">2</th>
+                                    <td>
+                                        <input value="Product 1" type="text" class="form-control" placeholder="Item Name">
+                                    </td>
+                                    <td>
+                                        <input value="300" type="number" class="form-control" placeholder="Unit Price">
+                                    </td>
+                                    <td>
+                                        <input value="2" type="number" class="form-control" placeholder="Unit">
+                                    </td>
+                                    <td>600</td>
+                                    <td>
+                                        <button class="btn btn-outline-secondary float-right">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-primary float-right mb-4">Add Item</button>
+                    </div>
+
+                    <div class="col-md-12">
+
+                        <div class="invoice-summary invoice-summary-input float-right">
+                            <p>Sub total: <span>$1200</span></p>
+                            <p class="d-flex align-items-center">Vat(%):<span>
+                                    <input type="text" class="form-control small-input" value="10">$120</span>
+                            </p>
+                            <h5 class="font-weight-bold d-flex align-items-center">Grand Total:
+                                <span>
+                                    <input type="text" class="form-control small-input" value="$">
+                                    $1320
+                                </span>
+                            </h5>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+            <!--==== / Edit Area =====-->
+        </div>
+    </div>
+
+</div>

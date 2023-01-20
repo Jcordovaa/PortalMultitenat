@@ -1,0 +1,167 @@
+<div class="breadcrumb">
+  <h1>Mi Perfil</h1>
+  <ul>
+    <li>Portal de pagos</li>
+    <li>Mi Perfil</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card user-profile o-hidden mb-4">
+  <div class="header-cover" style="background-image: url('assets/images/SlideDetail.jpg')"></div>
+  <div class="user-info">
+    <img class="profile-picture avatar-lg mb-2" src="./assets/images/profile.png" alt="">
+    <p class="m-0 text-24">{{nombreEmpresa}}</p>
+  </div>
+
+  <div class="card-body">
+    <div class="row" style="justify-content: center;">
+
+      <div class="col-md-4">
+        <div class="card card-profile-1 mb-4">
+          <div class="card-body text-center">
+            <div class="avatar mb-3">
+              <img src="./assets/images/icon/edit.png" alt="">
+            </div>
+            <button class="btn btn-primary" style="width:140px;"
+              (click)="openmodalCambioCorreo(modalCambioCorreo)">Cambio de Correo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card card-profile-1 mb-4">
+          <div class="card-body text-center">
+            <div class="avatar mb-3">
+              <img src="./assets/images/icon/user.png" alt="">
+            </div>
+            <button class="btn btn-primary" style="width:140px;" (click)="openModalChangePass(modalCambioClave)">Cambio
+              de clave</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <hr>
+    <div class="row" *ngIf="usuario != null">
+      <div class="col-md-3 col-6">
+        <div class="mb-3">
+          <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> Correo</p>
+          <span>{{usuario.email}}</span>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="mb-3">
+          <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i>Nombres</p>
+          <span>{{usuario.nombres}}</span>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="mb-3">
+          <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i> Apellidos</p>
+          <span>{{usuario.apellidos}}</span>
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="mb-3">
+          <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i> Tipo perfil</p>
+          <span>{{usuario.nombrePerfil}}</span>
+        </div>
+      </div>
+    </div>
+    <hr>
+  </div>
+</div>
+
+<ng-template #modalCambioClave let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Cambiar Clave</h4>
+    <button [disabled]="loadingChangePass" type="button" class="close" aria-label="Close"
+      (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #myForm="ngForm" name="cate-form">
+
+      <div class="form-group">
+        <label for="picker1">Nueva Clave <span class="camporequerido">*</span></label>
+        <div class="input-group">
+          <input type="password"
+            [ngClass]="newPass11.errors && (newPass11.dirty || newPass11.touched) ? 'form-control is-invalid' : 'form-control'"
+            placeholder="Nueva Clave" #newPass11="ngModel" required minlength="6" name="newPass11"
+            [(ngModel)]="changePass.newPass1" />
+        </div>
+        <p *ngIf="newPass11.errors && (newPass11.dirty || newPass11.touched)" class="text-danger"
+          style="margin-top: 2px; font-size: 12px">
+          <span *ngIf="newPass11.errors.required">
+            Nueva Clave es requerido
+          </span>
+          <span *ngIf="newPass11.errors.minlength">
+            Nueva Clave debe tener al menos 6 caracteres
+          </span>
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="picker1">Repita Nueva Clave <span class="camporequerido">*</span></label>
+        <div class="input-group">
+          <input type="password"
+            [ngClass]="newPass22.errors && (newPass22.dirty || newPass22.touched) ? 'form-control is-invalid' : 'form-control'"
+            placeholder="Repita Nueva Clave" #newPass22="ngModel" required minlength="6" name="newPass22"
+            [(ngModel)]="changePass.newPass2" />
+        </div>
+        <p *ngIf="newPass22.errors && (newPass22.dirty || newPass22.touched)" class="text-danger"
+          style="margin-top: 2px; font-size: 12px">
+          <span *ngIf="newPass22.errors.required">
+            Repita Nueva Clave es requerido
+          </span>
+          <span *ngIf="newPass22.errors.minlength">
+            Repita Nueva Clave debe tener al menos 6 caracteres
+          </span>
+        </p>
+      </div>
+
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'"
+      class="btn btn-outline-dark" (click)="onChangePass()">Guardar</button>
+  </div>
+</ng-template>
+
+
+
+<ng-template #modalCambioCorreo let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Cambiar Correo</h4>
+    <button [disabled]="loadingChangePass" type="button" class="close" aria-label="Close"
+      (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #myForm="ngForm" name="cate-form">
+
+      <div class="form-group">
+        <label for="picker1">Nuevo Correo <span class="camporequerido">*</span></label>
+        <div class="input-group">
+          <input type="text" (blur)="onBlurEmail()"
+            [ngClass]="newCorreo.errors && (newCorreo.dirty || newCorreo.touched) ? 'form-control is-invalid' : 'form-control'"
+            placeholder="Nuevo Correo" #newCorreo="ngModel" required name="newCorreo" [(ngModel)]="nuevoCorreo" />
+        </div>
+        <p *ngIf="newCorreo.errors && (newCorreo.dirty || newCorreo.touched)" class="text-danger"
+          style="margin-top: 2px; font-size: 12px">
+          <span *ngIf="newCorreo.errors.required">
+            Nuevo Correo es requerido
+          </span>
+        </p>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'"
+      class="btn btn-outline-dark" (click)="changeCorreo()">Guardar</button>
+  </div>
+</ng-template>

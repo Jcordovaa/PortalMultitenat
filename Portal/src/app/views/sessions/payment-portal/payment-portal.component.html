@@ -1,0 +1,729 @@
+<div class="card o-hidden" [@animate]="{value:'*',params:{y:'120px',opacity:'0',delay:'100ms', duration: '400ms'}}">
+    <div class="row">
+
+      <!-- <div class="col-md-12">
+        <div class="text-center mb-1">
+          <img src="assets/images/logo.png" width="250" alt="">
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="text-center mb-0">
+          <h2>Portal de Pagos</h2>
+          <hr class="ml-3 mr-3 mb-0 pb-0">
+        </div>
+      </div> -->
+
+      <div class="col-md-3">
+        <img src="assets/images/logo.png" width="250" alt="">
+      </div>
+      <div class="col-md-6" align="center">
+        <h2 class="mt-4"><strong>Portal de Pagos</strong></h2>
+      </div>
+      <div class="col-md-3 mt-2 mb-3" align="center" *ngIf="!esCobranza">
+        <a style="cursor: pointer;" (click)="openRegistro()"><strong>Registro</strong></a> <span class="ml-2 mr-2">|</span> <a style="cursor: pointer;" (click)="goToHome()" ><strong>Iniciar Sesión</strong></a>
+      </div>
+
+      <div class="col-md-12">
+        <ngb-tabset class="nav-center" style="margin-bottom: 0px !important;">
+          <ngb-tab title="Inicio">
+            <ng-template ngbTabContent>
+
+              <div class="row justify-content-md-center" *ngIf="showRegistro">
+                <div class="col-md-8">
+                    <h4>Registro Cliente</h4>
+
+                    <div class="card mb-5">
+                        <div class="card-body">
+                            <form [formGroup]="registerForm" (ngSubmit)="register()">
+                                <div class="form-group row">
+                                    <label for="inputEmail3" class="col-sm-3 col-form-label">Rut</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" (focusout)="validaClienteSoftland()"
+                                        [ngClass]="rutReg.errors && (rutReg.dirty || rutReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="rutReg" id="rutReg" placeholder="Rut">
+                                        <p *ngIf="rutReg.errors && (rutReg.dirty || rutReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="rutReg.errors.required">
+                                            Rut es requerido.
+                                          </span>
+                                          <span *ngIf="rutReg.errors.rutPayment">Rut inválido</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Razón Social / Nombre</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" disabled [ngClass]="razonSocialReg.errors && (razonSocialReg.dirty || razonSocialReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="razonSocialReg" id="razonSocialReg" placeholder="Razón Social / Nombre">
+                                        <p *ngIf="razonSocialReg.errors && (razonSocialReg.dirty || razonSocialReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="razonSocialReg.errors.required">
+                                            Razón Social es requerida.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div> 
+                                
+                                <hr>
+                                <p>Datos de contacto</p>
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Nombre Contacto</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" [ngClass]="nombreConReg.errors && (nombreConReg.dirty || nombreConReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="nombreConReg" id="nombreConReg" placeholder="Nombre Contacto">
+                                        <p *ngIf="nombreConReg.errors && (nombreConReg.dirty || nombreConReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="nombreConReg.errors.required">
+                                            Nombre Contacto es requerido.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Apellido Contacto</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" [ngClass]="apellidoConReg.errors && (apellidoConReg.dirty || apellidoConReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="apellidoConReg"id="apellidoConReg" placeholder="Apellido Contacto">
+                                        <p *ngIf="apellidoConReg.errors && (apellidoConReg.dirty || apellidoConReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="apellidoConReg.errors.required">
+                                            Apellido Contacto es requerido.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Teléfono Contacto</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" [ngClass]="telefonoConReg.errors && (telefonoConReg.dirty || telefonoConReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="telefonoConReg" id="telefonoConReg" placeholder="Teléfono Contacto">
+                                        <p *ngIf="telefonoConReg.errors && (telefonoConReg.dirty || telefonoConReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="telefonoConReg.errors.required">
+                                            Teléfono Contacto es requerido.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                  <label for="inputPassword3" class="col-sm-3 col-form-label">Correo Contacto</label>
+                                  <div class="col-sm-9">
+                                      <input type="email" [ngClass]="correoConReg.errors && (correoConReg.dirty || correoConReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                      formControlName="correoConReg" id="correoConReg" placeholder="Correo Contacto">
+                                      <p *ngIf="correoConReg.errors && (correoConReg.dirty || correoConReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                        <span *ngIf="correoConReg.errors.required">
+                                          Correo Contacto es requerido.
+                                        </span>
+                                        <span *ngIf="correoConReg.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          Correo ingresado no es válido.
+                                        </span>
+                                      </p>
+                                  </div>
+                              </div>
+
+                              <hr>
+                                <p>Datos para iniciar sesión</p>
+
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Correo</label>
+                                    <div class="col-sm-9">
+                                        <input type="email" [ngClass]="correoReg.errors && (correoReg.dirty || correoReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="correoReg" id="correoReg" placeholder="Correo">
+                                        <p *ngIf="correoReg.errors && (correoReg.dirty || correoReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="correoReg.errors.required">
+                                            Correo es requerido.
+                                          </span>
+                                          <span *ngIf="correoReg.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                            Correo ingresado no es válido.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputPassword3" class="col-sm-3 col-form-label">Clave</label>
+                                    <div class="col-sm-9">
+                                        <input type="password" [ngClass]="claveReg.errors && (claveReg.dirty || claveReg.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        formControlName="claveReg" id="claveReg" placeholder="Clave">
+                                        <p *ngIf="claveReg.errors && (claveReg.dirty || claveReg.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                          <span *ngIf="claveReg.errors.required">
+                                            Clave es requerida.
+                                          </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                
+    
+                              <div class="row justify-content-md-center">
+                                  <div class="col-md-6">
+                                    <btn-loading btnClass="btn-primary mr-3" [loadingText]="'Grabando...'" [loading]="loadingRegister">
+                                      Registrar
+                                    </btn-loading>
+                                    <button type="button" (click)="cancelRegister(true)" class="btn btn-secondary">Cancelar</button>
+                                  </div>
+            
+                              </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="!showRegistro">
+
+                  <div class="col-md-6" *ngIf="!showTable">
+                      <div class="card card-profile-1 mb-4">
+                          <div class="card-body text-center">
+                            <div class="p-4">          
+                              <h1 class="mb-3 text-18">Iniciar sesión</h1>
+                              <form [formGroup]="signinForm" (ngSubmit)="signin()">
+                                <div class="form-group">
+                                  <label for="rutLogin">Rut</label>
+                                  <input id="rutLogin" (blur)="formatRut(1)"
+                                      [ngClass]="rutLogin.errors && (rutLogin.dirty || rutLogin.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                        formControlName="rutLogin" required placeholder="Rut">
+                    
+                                  <p *ngIf="rutLogin.errors && (rutLogin.dirty || rutLogin.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    <span *ngIf="rutLogin.errors.required">
+                                      Rut es requerido.
+                                    </span>
+                                    <span *ngIf="rutLogin.errors?.rutPayment" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      Rut ingresado no es válido.
+                                    </span>
+                                  </p>
+                                </div>
+
+                                <div class="form-group">
+                                  <label for="correo">Email</label>
+                                  <input id="correo"
+                                      [ngClass]="correo.errors && (correo.dirty || correo.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                        formControlName="correo" required placeholder="Email">
+                    
+                                  <p *ngIf="correo.errors && (correo.dirty || correo.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    <span *ngIf="correo.errors.required">
+                                      Email es requerido.
+                                    </span>
+                                    <span *ngIf="correo.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      Email ingresado no es válido.
+                                    </span>
+                                  </p>
+                                </div>
+                                <div class="form-group">
+                                  <label for="password">Contraseña</label>
+                                  <input id="pass" type="password"
+                                      [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                        formControlName="pass" required placeholder="Contraseña">
+                    
+                                  <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    <span *ngIf="pass.errors.required">
+                                      Contraseña es requerido.
+                                    </span>
+                                    <span *ngIf="pass.errors?.minlength" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      Contraseña debe tener al menos 6 caracteres.
+                                    </span>
+                                  </p>
+                                </div>
+                                <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+                                <btn-loading btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="loadingText" [loading]="loading">
+                                  Iniciar Sesión
+                                </btn-loading>
+                              </form>
+                    
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="col-md-6" *ngIf="!showTable">
+                    <div class="card card-profile-1 mb-4">
+                        <div class="card-body text-center">
+                          <div class="p-4">          
+                            <h1 class="mb-3 text-18">Pago Express</h1>
+                            <form [formGroup]="paymentForm" (ngSubmit)="pagoExpress(false, '')">
+                              <div class="form-group" style="margin-bottom: 83px;">
+                                <label for="rut">Rut</label>
+                                <input id="rut" (blur)="formatRut(2)"
+                                    [ngClass]="rut.errors && (rut.dirty || rut.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                      formControlName="rut" required placeholder="Rut">
+                  
+                                <p *ngIf="rut.errors && (rut.dirty || rut.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                  <span *ngIf="rut.errors.required">
+                                    Rut es requerido.
+                                  </span>
+                                  <span *ngIf="rut.errors.rutPayment">Rut inválido</span>
+                                </p>
+                                
+                              </div>
+
+                              <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+                              <btn-loading btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="loadingPRText" [loading]="loadingPR">
+                                Pagar
+                              </btn-loading>
+                            </form>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12" *ngIf="showTable">
+                      
+
+                      <!-- <div class="card  o-hidden mb-2"> -->
+                        <div class="row justify-content-md-center mt-2">
+                          <div class="col-md-3 ml-2 mr-2">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-4 col-form-label justify-content-sm-end">Folio</label>
+                                <div class="col-sm-8">
+                                    <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio" placeholder="0">
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3 ml-2 mr-2">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-4 col-form-label">Desde</label>
+                                <div class="col-sm-8">
+                                  <div class="input-group">
+                                    <input class="form-control" placeholder="dd/mm/yyyy" readonly
+                                            name="d2" #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker">
+                                    <div class="input-group-append">
+                                      <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                          <i class="icon-regular i-Calendar-4"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3 ml-2 mr-2">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-4 col-form-label">Estado</label>
+                                <div class="col-sm-8">        
+                                  <select [(ngModel)]="selectedEstado"
+                                          class="form-control"
+                                          name="tipoD" #tipoD="ngModel">
+                                      <option *ngFor="let e of estados"
+                                              [ngValue]="e">
+                                          {{ e.nombre }}
+                                      </option>
+                                  </select>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row  justify-content-md-center mt-2">
+                          <div class="col-md-3 ml-2 mr-2">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-4 col-form-label">Tipo Doc</label>
+                                <div class="col-sm-8">
+                                  <select [(ngModel)]="selectedTipoDoc"
+                                        class="form-control"
+                                        name="tipoD2" #tipoD2="ngModel">
+                                    <option *ngFor="let td of tiposDocs"
+                                            [ngValue]="td">
+                                        {{ td.nombre }}
+                                    </option>
+                                </select>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3 ml-2 mr-2">
+                            <div class="form-group row">
+                                <label for="inputEmail3" class="col-sm-4 col-form-label">Hasta</label>
+                                <div class="col-sm-8">
+                                  <div class="input-group">
+                                    <input class="form-control" placeholder="dd/mm/yyyy" readonly
+                                            name="d3" #c3="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d3="ngbDatepicker">
+                                    <div class="input-group-append">
+                                      <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
+                                          <i class="icon-regular i-Calendar-4"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="col-md-3 justify-content-md-center justify-content-sm-center ml-2 mr-2 mb-1">
+                            <button (click)="filter()" type="button" class="btn btn-primary btn-sm m-1"> <i class="i-Filter-2"></i> Filtrar</button>
+                            <button (click)="clearFilters()" type="button" class="btn btn-primary btn-sm m-1"> <i class="i-Repeat-3"></i> Limpiar</button>
+                            <button *ngIf="!esCobranza" (click)="volver()" type="button" class="btn btn-secondary btn-sm m-1">Volver</button>
+                            <!-- <btn-loading (click)="filter()" btnClass="btn-primary btn-sm btn-rounded btn-block" [loadingText]="loadingFilterText" [loading]="loadingFilter">
+                              Buscar
+                            </btn-loading>
+                            <btn-loading (click)="filter()" btnClass="btn-primary btn-sm btn-rounded btn-block" [loadingText]="loadingFilterText" [loading]="loadingFilter">
+                              Buscar
+                            </btn-loading> -->
+                          </div>
+                        </div>
+                      <!-- </div> -->
+
+                      <!-- <hr> -->
+
+                      <div class="card o-hidden mt-3" style="max-height: 600px; overflow-y: scroll;">
+
+                        <div class="table-responsive">
+                          <table class="table table-hover table-bordered">
+                              <thead>
+                                <tr>
+                                  <th scope="col">
+                                      <label class="checkbox checkbox-outline-primary" style="margin-bottom: 20px;">
+                                          <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll" (change)="onSelAll($event)">
+                                          <span class="checkmark"></span>
+                                      </label>
+                                  </th>
+                                  <th scope="col">Folio</th>
+                                  <th scope="col">Documento</th>
+                                  <th scope="col">Fecha</th>
+                                  <th scope="col">Fecha Vcto.</th>
+                                  <th scope="col">Monto</th>
+                                  <th scope="col">Estado</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let c of compras">
+                                  <th scope="row">
+                                      <label class="checkbox checkbox-outline-primary">
+                                          <input type="checkbox" name="checkSel" [(ngModel)]="c.checked"  (change)="onSel($event, c)">
+                                          <span class="checkmark"></span>
+                                      </label>
+                                  </th>
+                                  <td>{{ c.nro }}</td>
+                                  <td>{{ c.documento }}</td>
+                                  <td>{{ c.fechaEmision | date: 'dd/MM/yyyy' }}</td>
+                                  <td>{{ c.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                  <td>$ {{ c.debe | monto }}</td>
+                                  <td>{{ c.estado }}</td>
+                                </tr>
+                              </tbody>
+                          </table>                                
+                        </div>   
+
+                        <hr>
+
+                        <form [formGroup]="paymentDataForm" (ngSubmit)="pagar()">
+                          <div class="row ml-1 mr-1">
+                            <div class="input-group col-md-4 mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><strong>Total Pagar</strong></span>
+                                </div>
+                                <input type="text"  disabled class="form-control" name="totalpagar" placeholder="Correo" aria-label="Correo"
+                                    aria-describedby="basic-addon1" value="$ {{totalPagar | monto}}">
+                            </div>
+                            <div class="input-group col-md-3  mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i class="i-Mail"></i></span>
+                                </div>
+                                <input type="text" id="correoPay"
+                                  [ngClass]="correoPay.errors && (correoPay.dirty || correoPay.touched) ? 'form-control is-invalid' : 'form-control'" 
+                                  name="correoPay" formControlName="correoPay" required placeholder="Correo">
+                            </div>
+                            <div class="input-group col-md-3  mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1"><i class="i-Telephone"></i></span>
+                                </div>
+                                <input type="text" id="telefonoPay" required
+                                  [ngClass]="telefonoPay.errors && (telefonoPay.dirty || telefonoPay.touched) ? 'form-control is-invalid' : 'form-control'"
+                                  name="telefonoPay" formControlName="telefonoPay" placeholder="Teléfono">
+                            </div>
+                            <div class="input-group col-md-2  mb-3">
+                                  <button (click)="pagar()" [disabled]="totalPagar <= 0" type="button" class="btn btn-primary btn-rounded btn-block">Pagar WebPay</button>
+                            </div>
+                          </div>
+                        </form>
+
+                      </div>
+                  </div>
+
+              </div>
+
+            </ng-template>
+          </ngb-tab>
+          
+          <ngb-tab title="Tienda online">
+              <ng-template ngbTabContent>
+                  <div class="row">
+                    <div class="col-md-6">
+                        <div class="card card-profile-1 mb-4">
+                            <div class="card-body text-center">
+                              <div class="p-4">          
+                                <h1 class="mb-3 text-18">Iniciar sesión</h1>
+                                <form [formGroup]="signinForm" (ngSubmit)="signin()">
+                                  <div class="form-group">
+                                    <label for="correo">Email</label>
+                                    <input id="correo"
+                                       [ngClass]="correo.errors && (correo.dirty || correo.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                          formControlName="correo" required >
+                      
+                                    <p *ngIf="correo.errors && (correo.dirty || correo.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      <span *ngIf="correo.errors.required">
+                                        Email es requerido.
+                                      </span>
+                                      <span *ngIf="correo.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                        Email ingresado no es válido.
+                                      </span>
+                                    </p>
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="password">Contraseña</label>
+                                    <input id="pass" type="password"
+                                       [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                          formControlName="pass" required >
+                      
+                                    <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      <span *ngIf="pass.errors.required">
+                                        Contraseña es requerido.
+                                      </span>
+                                      <span *ngIf="pass.errors?.minlength" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                        Contraseña debe tener al menos 6 caracteres.
+                                      </span>
+                                    </p>
+                                  </div>
+                                  <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+                                  <btn-loading btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="loadingText" [loading]="loading">
+                                    Iniciar Sesión
+                                  </btn-loading>
+                                </form>
+
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="card card-profile-1 mb-4">
+                          <div class="card-body text-center">
+                            <div class="p-4">          
+                              <h1 class="mb-3 text-18">Iniciar sesión</h1>
+                              <form [formGroup]="signinForm" (ngSubmit)="signin()">
+                                <div class="form-group">
+                                  <label for="correo">Email</label>
+                                  <input id="correo"
+                                     [ngClass]="correo.errors && (correo.dirty || correo.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                        formControlName="correo" required >
+                    
+                                  <p *ngIf="correo.errors && (correo.dirty || correo.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    <span *ngIf="correo.errors.required">
+                                      Email es requerido.
+                                    </span>
+                                    <span *ngIf="correo.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      Email ingresado no es válido.
+                                    </span>
+                                  </p>
+                                </div>
+                                <div class="form-group">
+                                  <label for="password">Contraseña</label>
+                                  <input id="pass" type="password"
+                                     [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                        formControlName="pass" required >
+                    
+                                  <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    <span *ngIf="pass.errors.required">
+                                      Contraseña es requerido.
+                                    </span>
+                                    <span *ngIf="pass.errors?.minlength" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                      Contraseña debe tener al menos 6 caracteres.
+                                    </span>
+                                  </p>
+                                </div>
+                                <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+                                <btn-loading btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="loadingText" [loading]="loading">
+                                  Iniciar Sesión
+                                </btn-loading>
+                              </form>
+
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  </div>
+              </ng-template>
+          </ngb-tab>
+          
+          <ngb-tab title="Términos y condiciones">
+              <ng-template ngbTabContent>
+                <div class="row">
+                  <div class="col-md-12">
+                      <div class="card mb-4">
+                          <div class="card-body text-center">
+                            <div class="p-4">      
+                              <p>
+                                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the <br>
+                                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and <br>
+                                scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap <br>
+                                into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the <br>
+                                release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing <br>
+                                software like Aldus PageMaker including versions of Lorem Ipsum.
+                              </p>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+
+                </div>
+              </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Contacto">
+            <ng-template ngbTabContent>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-profile-1 mb-4">
+                        <div class="card-body text-center">
+                          <div class="p-4">          
+                            <h1 class="mb-3 text-18">Contacto</h1>
+                            <form [formGroup]="contactForm" (ngSubmit)="enviar()">
+                              <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input id="nombre" type="text"
+                                   [ngClass]="nombre.errors && (nombre.dirty || nombre.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                      formControlName="nombre" required placeholder="Nombre">
+                  
+                                <p *ngIf="nombre.errors && (nombre.dirty || nombre.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                  <span *ngIf="pass.errors.required">
+                                    Nombre es requerido.
+                                  </span>
+                                </p>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="mail">Email</label>
+                                <input id="mail"
+                                   [ngClass]="mail.errors && (mail.dirty || mail.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                      formControlName="mail" required placeholder="Email">
+                  
+                                <p *ngIf="mail.errors && (mail.dirty || mail.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                  <span *ngIf="mail.errors.required">
+                                    Email es requerido.
+                                  </span>
+                                  <span *ngIf="mail.errors?.pattern" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                    Email ingresado no es válido.
+                                  </span>
+                                </p>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="mensaje">Mensaje</label>
+                                <textarea
+                                  id="mensaje"
+                                  [ngClass]="mensaje.errors && (mensaje.dirty || mensaje.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                                  formControlName="mensaje"
+                                  placeholder="Mensaje"
+                                  required
+                                  max-rows="4">
+                                </textarea>
+                                <p *ngIf="mensaje.errors && (mail.dirty || mensaje.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                  <span *ngIf="mensaje.errors.required">
+                                    Mensaje es requerido.
+                                  </span>
+                                </p>
+                              </div>
+                              
+                              <!-- <button class="btn btn-rounded btn-primary btn-block mt-2">Sign In</button> -->
+                              <btn-loading (click)="sendContact()" btnClass="btn-primary btn-rounded btn-block mt-3" [loadingText]="'Enviando...'" [loading]="loading">
+                                Enviar
+                              </btn-loading>
+                            </form>
+
+                          </div>
+                        </div>
+                    </div>
+                </div>
+
+              </div>
+            </ng-template>
+          </ngb-tab>
+
+          <ngb-tab title="Ubicación">
+            <ng-template ngbTabContent>
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-profile-1 mb-4">
+                        <div class="card-body text-center" style="max-height: 500px;">
+                          <div class="p-4">          
+                            <h1 class="mb-3 text-18">Ubicación</h1>
+                            <p class="max-width-830-xl text-gray-90">Nuestras oficinas se encuentran ubicadas en: El retiro parcela 18, Valdivia - Chile.</p>
+                            <div class="mt-2">
+                              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d382.88853063135537!2d-73.2002086!3d-39.8494072!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9615e8b5f4b26f83%3A0x826abb3220febe64!2sBerrylion%20Chile%20SpA!5e0!3m2!1ses!2scl!4v1591582226853!5m2!1ses!2scl" width="100%" height="300" frameborder="0" style="border:0;" allowfullscreen></iframe>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </ng-template>
+          </ngb-tab>
+        </ngb-tabset>
+      </div>
+
+      <div class="col-md-12 mb-3" align="center">
+        <a title="Facebook" href="https://www.facebook.com/BerryLionChile/" style="cursor: pointer;"><img src="https://img.icons8.com/fluent/2x/facebook-new.png" alt="Facebook" width="25" height="25" class="mr-3"></a>     
+      </div>
+
+    </div>
+</div>
+
+<button id="btnModalPortal" style="display: none;" (click)="openModal(modalBasic)">Modal</button>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Pago de cuentas</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-ecommerce-1 mb-4">
+                    <div class="card-body text-center" *ngIf="paymentResultState != 0">
+                        <div *ngIf="paymentResultState == 1">
+                            <img src="../../../../assets/images/Success_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">Pago realizado correctamente.</h3>
+                            <p>Las cuentas selecciondas fueron pagadas exitosamente.</p>
+                        </div>
+                        <div *ngIf="paymentResultState == 2">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">El pago fue rechazado por Transbank.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.</p>
+                        </div>
+                        <div *ngIf="paymentResultState == 3">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">El pago fue anulado.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.</p>
+                        </div>
+                        <div *ngIf="paymentResultState != 1 && paymentResultState != 2 && paymentResultState != 3">
+                            <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
+
+                            <h3 class="text-primary mt-4">Ocurrio un error al realizar el pago.</h3>
+                            <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.</p>
+                        </div>
+
+                        <div class="table-responsive mt-5" *ngIf="logTbk != null && paymentResultState == 1">
+                          <table class="table ">
+                              <thead>
+                                  <tr>
+                                      <th scope="col">Orden de Compra</th>
+                                      <th scope="col">Código Autorización</th>
+                                      <th scope="col">Cuotas</th>
+                                      <th scope="col">Monto</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr>
+                                      <td><span class="text-13">{{logTbk.ordenCompra}}</span></td>
+                                      <td><span class="text-13">{{logTbk.codigoTbk}}</span></td>
+                                      <td><span class="text-13">{{logTbk.cuotas}}</span></td>
+                                      <td><span class="text-13">${{logTbk.monto | monto}}</span></td>
+                                  </tr>
+
+                              </tbody>
+                          </table>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>        
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn btn-primary btn-rounded">Aceptar</button>
+    </div>
+</ng-template>

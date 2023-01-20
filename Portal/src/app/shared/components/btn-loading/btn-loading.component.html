@@ -1,0 +1,9 @@
+<button class="btn {{btnClass}}" [type]="type" [disabled]="loading || disabled" 
+  [style.pointer-events]="disabled ? 'none' : 'auto'"
+  [style.cursor]="disabled ? 'no-drop' : 'pointer'" [ngClass]="{loading: loading}">
+  <div class="btn-spinner float-left" *ngIf="loading"></div>
+  <span *ngIf="!loading">  
+    <ng-content></ng-content>
+  </span>
+  <span *ngIf="loading">{{loadingText}}</span>
+</button>

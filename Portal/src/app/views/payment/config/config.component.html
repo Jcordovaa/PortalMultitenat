@@ -1,0 +1,358 @@
+<div class="breadcrumb">
+    <h1>Configuración</h1>
+    <ul>
+        <li>Portal</li>
+        <li>Configuración</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="">
+    <ngb-tabset class="p-0">
+        <ngb-tab title="Pagos">
+            <ng-template ngbTabContent>
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong> desde donde se obtendrán
+                                los documentos pendientes. <img [container]="'body'"
+                                    ngbTooltip="Dejar en blanco para considerar todas las cuentas contables en la búsqueda."
+                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
+                                    width="22" height="22"></h6>
+                            <div class="row mt-2">
+                                <div class="col-md-12 form-group mb-3">
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="cuentasContables" bindLabel="nombre" placeholder="Cuentas Contables"
+                                        #cc="ngModel" name="cc" [(ngModel)]="selectedCuen" bindValue="codigo"
+                                        [multiple]="true" [closeOnSelect]="false">
+                                    </ng-select>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-2">Seleccione los <strong>Tipos de documentos </strong> desde donde se
+                                obtendrán los documentos pendientes. <img [container]="'body'"
+                                    ngbTooltip="Dejar en blanco para considerar todos los tipos de documentos en la búsqueda."
+                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
+                                    width="22" height="22"></h6>
+                            <div class="row mt-2">
+                                <div class="col-md-12 form-group mb-3">
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="tipoDocs" bindLabel="desDoc" placeholder="Tipos de documentos"
+                                        #td="ngModel" name="td" [(ngModel)]="tiposDctosSelected" bindValue="codDoc"
+                                        [multiple]="true" [closeOnSelect]="false">
+                                    </ng-select>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-2">Ingrese la glosa para el <strong>Comprobante Contable </strong><img
+                                    [container]="'body'"
+                                    ngbTooltip="Dejar en blanco para no agregar ningun texto a la glosa ya predefinida."
+                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
+                                    width="22" height="22"></h6>
+                            <div class="row mt-2">
+                                <div class="col-md-12 form-group mb-3"
+                                    style="display: flex; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" aria-describedby="basic-addon2" class="form-control"
+                                        placeholder="Glosa Comprobante Contable" #gComprobante="ngModel"
+                                        name="gComprobante" [(ngModel)]="configPagoClientes.glosaComprobante" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="basic-addon2">
+                                            [Tipo de documento] [Folio]
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 
+                            <h6 class="mb-2">Ingrese la glosa para el <strong>Detalle</strong> del Comprobante
+                                Contable<img [container]="'body'"
+                                    ngbTooltip="Dejar en blanco para no agregar ningun texto a la glosa ya predefinida."
+                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
+                                    width="22" height="22"></h6>
+                            <div class="row mt-2">
+                                <div class="col-md-12 form-group mb-3"
+                                    style="display: flex; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" aria-describedby="basic-addon2" class="form-control"
+                                        placeholder="Glosa Comprobante Contable" #gDetalle="ngModel" name="gDetalle"
+                                        [(ngModel)]="configPagoClientes.glosaDetalle" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="basic-addon2">
+                                            [Tipo de documento] [Folio]
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-2">Ingrese la glosa para el <strong>Pago</strong><img [container]="'body'"
+                                    ngbTooltip="Dejar en blanco para no agregar ningun texto a la glosa ya predefinida."
+                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
+                                    width="22" height="22"></h6>
+                            <div class="row mt-2">
+                                <div class="col-md-12 form-group mb-3"
+                                    style="display: flex; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" aria-describedby="basic-addon2" class="form-control"
+                                        placeholder="Glosa Comprobante Contable" #gPago="ngModel" name="gPago"
+                                        [(ngModel)]="configPagoClientes.glosaPago" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="basic-addon2">
+                                            [Tipo de documento] [Folio]
+                                        </span>
+                                    </div>
+                                </div>
+                            </div> -->
+
+
+                            <div class="row mt-2">
+                                <div class="col-md-3 form-group mb-3">
+                                    <label for="firstName2">Año tributario<span class="camporequerido">*</span></label>
+                                    <input type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                        [ngClass]="anio.errors && (anio.dirty || anio.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        placeholder="Año tributario" #anio="ngModel" required name="anio"
+                                        [(ngModel)]="configPagoClientes.anioTributario" />
+                                    <p *ngIf="anio.errors && (anio.dirty || anio.touched)" class="text-danger"
+                                        style="margin-top: 2px; font-size: 12px">
+                                        Año tributario es requerido
+                                    </p>
+                                </div>
+
+                                <div class="col-md-3 form-group mb-3">
+                                    <label for="moneda">Moneda Nacional</label>
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="monedas" bindLabel="desMon" placeholder="Monedas" #moneda="ngModel"
+                                        name="moneda" [(ngModel)]="configPagoClientes.monedaUtilizada"
+                                        bindValue="codMon"> </ng-select>
+                                </div>
+
+
+                                <div class="col-md-3 form-group mb-3">
+                                    <label for="moneda">Segunda Moneda</label>
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="monedas" bindLabel="desMon" placeholder="Monedas" #moneda="ngModel"
+                                        name="moneda" [(ngModel)]="configPagoClientes.segundaMonedaUtilizada"
+                                        bindValue="codMon"> </ng-select>
+                                </div>
+
+                                <div class="col-md-3 form-group mb-3">
+                                    <label for="moneda">Centro de Costo</label>
+                                    <input type="text"
+                                        [ngClass]="centroCosto.errors && (centroCosto.dirty || centroCosto.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        placeholder="Año tributario" #centroCosto="ngModel" required name="centroCosto"
+                                        [(ngModel)]="configPagoClientes.centroCosto" />
+                                    <p *ngIf="centroCosto.errors && (centroCosto.dirty || centroCosto.touched)" class="text-danger"
+                                        style="margin-top: 2px; font-size: 12px">
+                                        Centro de costo es requerido
+                                    </p>
+                                    <!-- <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="centrosCostos" bindLabel="descCC" placeholder="Centro de Costo"
+                                        #cc="ngModel" name="cc" [(ngModel)]="configPagoClientes.centroCosto"
+                                        bindValue="codiCC"> </ng-select> -->
+                                </div>
+
+                                <div class="col-md-3 form-group mb-3" *ngIf="areasNegocio.length > 0">
+                                    <label for="moneda">Area de Negocio</label>
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="areasNegocio" bindLabel="desArn" placeholder="Area de Negocio"
+                                        #arn="ngModel" name="arn" [(ngModel)]="configPagoClientes.areaNegocio"
+                                        bindValue="codArn"> </ng-select>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="col-md-12 mt-3 text-center">
+                                <button class="btn btn-primary" (click)="savePagos()">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+
+        </ngb-tab>
+        <ngb-tab title="Parametros">
+            <ng-template ngbTabContent>
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group row col-md-12 mb-3">
+
+                                    <label for="firstName2" class="col-sm-4 col-form-label">Cantidad Compras Dashboard
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 4)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22"></label>
+                                    <div class="col-sm-5">
+                                        <input type="number" class="form-control" placeholder="Cantidad compras"
+                                            #cantidad="ngModel" name="cantidad"
+                                            [(ngModel)]="configPortal.cantidadUltimasCompras" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row col-md-12 mb-3">
+
+                                    <label for="firstName2" class="col-sm-4 col-form-label">Cantidad Días Documentos Por Vencer
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 9)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22"></label>
+                                    <div class="col-sm-5">
+                                        <input type="number" class="form-control" placeholder="Cantidad Días"
+                                            #cantidadDias="ngModel" name="cantidadDias"
+                                            [(ngModel)]="cantidadDiasPorVencer" />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span>Mostrar Estado Cliente </span>
+                                            <input [(ngModel)]="configPortal.muestraEstadoBloqueo" type="checkbox"
+                                                id="exampleCheck1" name="exampleCheck1" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 1)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span>Mostrar Estado Sobregiro </span>
+                                            <input [(ngModel)]="configPortal.muestraEstadoSobregiro" type="checkbox"
+                                                id="exampleCheck2" name="exampleCheck2" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 5)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span>Mostrar Contactos en Perfil </span>
+                                            <input [(ngModel)]="configPortal.muestraContactosPerfil" type="checkbox"
+                                                id="exampleCheck4" name="exampleCheck4" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 2)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span>Permite Exportar a Excel </span>
+                                            <input [(ngModel)]="configPortal.permiteExportarExcel" type="checkbox"
+                                                id="exampleCheck6" name="exampleCheck6" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 3)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span>Habilitar Pago Rapido</span>
+                                            <input [(ngModel)]="configPortal.habilitaPagoRapido" type="checkbox"
+                                                id="exampleCheck5" name="exampleCheck5" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" id="img6" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 6)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;" >
+                                    <div class="input-group" >
+                                        <label  class="switch switch-success mr-3">
+                                            <span style="color: grey;" *ngIf="!configPortal.habilitaPagoRapido">Habilitar Busqueda por Documento Pago Rapido</span>
+                                            <span  *ngIf="configPortal.habilitaPagoRapido">Habilitar Busqueda por Documento Pago Rapido</span>
+                                            <input [(ngModel)]="configPortal.utilizaDocumentoPagoRapido" type="checkbox" [disabled]="!configPortal.habilitaPagoRapido"
+                                                id="exampleCheck50" name="exampleCheck50" />
+                                                <span class="slider" style="background-color: grey;" *ngIf="!configPortal.habilitaPagoRapido"></span>
+                                            <span *ngIf="configPortal.habilitaPagoRapido" class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 8)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span style="width: 20px;">Permite abono parcial </span>
+                                            <input [(ngModel)]="configPortal.permiteAbonoParcial" type="checkbox"
+                                                id="exampleCheck7" name="exampleCheck7" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            (click)="openInfoModal(modalBasic, 7)"
+                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                            height="22">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 mt-3 text-center">
+                                    <button class="btn btn-primary" (click)="saveParametros()">Guardar</button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </ngb-tab>
+    </ngb-tabset>
+</div>
+
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <p>{{modalContent}}</p>
+            <div class="text-center">
+                <img style="cursor: pointer;" (click)="openImage()" class="img-fluid" [src]="modalImage | sinimagen"
+                    alt="">
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+</ng-template>

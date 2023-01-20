@@ -1,0 +1,75 @@
+<div class="breadcrumb">
+  <h1>Ingreso pago clientes</h1>
+  <ul>
+    <li><a href="">Cobranzas</a></li>
+    <li>Ingreso pago clientes</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+  <div class="col-md-12">
+
+    <form-wizard #wz (onStepChanged)="onStepChangedl(wz, step1, step2, step3)">
+      <wizard-step #step1 [title]="'Preparar Pago'" [isValid]="wzData && wzData.totalPagar > 0" (onNext)="onStep1Next($event)">
+
+        <form #basicForm="ngForm">
+
+          <div class="row col-md-12">
+            <p>Datos Cliente</p>
+          </div>
+
+
+          <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-2 col-form-label">Rut</label>
+            <div class="col-sm-4">
+              <input type="text" name="rutt" [(ngModel)]="rut" class="form-control" id="inputEmail3" placeholder="Rut">
+            </div>
+            <div class="col-sm-2">
+              <button (click)="search()" type="submit" class="btn btn-primary ml-3 mr-3">Buscar</button>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="inputPassword3" class="col-sm-2 col-form-label">Razón Social</label>
+            <div class="col-sm-5">
+              <input type="text" name="rz" [(ngModel)]="razonSocial" disabled class="form-control" id="inputPassword3" placeholder="Razón Social">
+            </div>
+          </div>
+
+          <div class="form-group row" *ngIf="showDetail">
+            <div class="col-sm-2">Estado</div>
+            <div class="col-sm-10">
+              <i *ngIf="bloqueado" class="i-Lock-2 mr-2" style="font-size: 20px;"></i>
+              <a *ngIf="bloqueado" style="cursor: pointer;" (click)="desbloquearCliente()" >Desbloquear</a>
+              <i *ngIf="!bloqueado" class="i-Checked-User mr-2" style="font-size: 20px;"></i>
+              <a *ngIf="!bloqueado">Activo</a>
+            </div>
+
+          </div>
+
+        </form>
+
+        <app-step1 [compras]="compras" [comprasResp]="compras" [tipoDocumentos]="tipoDocumentos" (propagar)="procesaPropagarDocs($event)" *ngIf="showDetail"></app-step1>        
+
+      </wizard-step>
+
+      <wizard-step #step2 [title]="'Medios de pago'" [isValid]="totalPagar == totalPagando" (onNext)="onStep2Next($event)">
+        <app-step2 [totalPagar]="totalPagar" (propagar)="procesaPropagar($event)"></app-step2>
+      </wizard-step>
+
+      <wizard-step #step3 [title]="'Confirmar Pago'" (onNext)="onStep3Next($event)">
+        <app-step3 *ngIf="wzData" [resume]="wzData"></app-step3>
+      </wizard-step>
+
+      <wizard-step #step4 [title]="'Final'" (onComplete)="onComplete($event)">
+        <div class="text-center mt-4 mb-4">
+          <i class="i-Checked-User text-32 mb-3 text-success d-inline-block"></i>
+          <h5 class="font-weight-light">Ingreso de pagos generado correctamente.</h5>
+        </div>
+      </wizard-step>
+
+    </form-wizard>
+
+  </div>
+</div>

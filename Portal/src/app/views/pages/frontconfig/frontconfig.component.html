@@ -1,0 +1,240 @@
+<div class="breadcrumb">
+    <h1>Configuración</h1>
+    <ul>
+        <li><a href="">E-Commerce</a></li>
+        <li>Configuración</li>
+    </ul>
+  </div>
+    
+  <div class="separator-breadcrumb border-top"></div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-body">
+          <form #myFormConfig="ngForm">
+            <div class="row">
+                <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Tipo Banner <span class="camporequerido">*</span></label>
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="tipoBanners"
+                        bindLabel="nombre"
+                        required
+                        placeholder="Tipo Banner"
+                        #tb="ngModel" name="tb"
+                        [(ngModel)]="selectedTipoBanner"
+                        bindValue="idTipoBanner"> 
+                    </ng-select>
+                    <p *ngIf="tb.errors && (tb.dirty || tb.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Tipo Banner es requerido
+                    </p>
+                </div>
+
+                <div class="col-md-12 form-group" style="padding-bottom: 20px;">
+                    <label for="firstName2">Mensaje Bienvenida <span class="camporequerido">*</span></label>
+                    <input type="text"
+                        [ngClass]="msg.errors && (msg.dirty || msg.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                        placeholder="Mensaje Bienvenida" #msg="ngModel" required
+                        name="msg" [(ngModel)]="config.mensajeBienvenida" />  
+                    <p *ngIf="msg.errors && (msg.dirty || msg.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Mensaje Bienvenida es requerido
+                    </p>
+                </div>                
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Categorías destacadas</span>
+                            <input 
+                                [(ngModel)]="config.categoriasDestacadas" 
+                                type="checkbox"  
+                                id="exampleCheck1" 
+                                name="exampleCheck1"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;" (click)="openInfoModal(modalBasic, 1)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>        
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Caraterísticas empresa</span>
+                            <input 
+                                [(ngModel)]="config.caracteristicasEmpresa" 
+                                type="checkbox"  
+                                id="exampleCheck2" 
+                                name="exampleCheck2"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 2)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Recomendar producto</span>
+                            <input 
+                                [(ngModel)]="config.recomendarProducto" 
+                                type="checkbox"  
+                                id="exampleCheck3" 
+                                name="exampleCheck3"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 3)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>        
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar unidad de medida</span>
+                            <input 
+                                [(ngModel)]="config.mostrarUnidadMedida" 
+                                type="checkbox"  
+                                id="exampleCheck4" 
+                                name="exampleCheck4"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 4)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar precio a pedido</span>
+                            <input 
+                                [(ngModel)]="config.muestraPrecioPedido" 
+                                type="checkbox"  
+                                id="exampleCheck5" 
+                                name="exampleCheck5"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 5)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>        
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar cupones</span>
+                            <input 
+                                [(ngModel)]="config.muestraCupones" 
+                                type="checkbox"  
+                                id="exampleCheck6" 
+                                name="exampleCheck6"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 6)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar términos</span>
+                            <input 
+                                [(ngModel)]="config.muestraTerminos" 
+                                type="checkbox"  
+                                id="exampleCheck7" 
+                                name="exampleCheck7"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 7)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>        
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar documentos de venta</span>
+                            <input 
+                                [(ngModel)]="config.muestraDocVenta" 
+                                type="checkbox"  
+                                id="exampleCheck8" 
+                                name="exampleCheck8"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 8)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Mostrar observaciones</span>
+                            <input 
+                                [(ngModel)]="config.muestraObservaciones" 
+                                type="checkbox"  
+                                id="exampleCheck9" 
+                                name="exampleCheck9"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 9)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <div class="input-group">        
+                        <label class="switch switch-success mr-3">
+                            <span>Generar venta</span>
+                            <input 
+                                [(ngModel)]="config.generaVenta" 
+                                type="checkbox"  
+                                id="exampleCheck10" 
+                                name="exampleCheck10"
+                            />
+                            <span class="slider"></span>
+                        </label>
+                        <img container="body" ngbTooltip="Saber más"  style="cursor: pointer;" (click)="openInfoModal(modalBasic, 10)" src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
+                    </div>  
+                </div>
+
+                <div class="col-md-12 mt-3 text-center">
+                    <button class="btn btn-primary"
+                      [disabled]="!myFormConfig.form.valid"
+                      [style.cursor]="!myFormConfig.form.valid ? 'no-drop' : 'pointer'"
+                      (click)="save()">Guardar</button>
+                </div>
+
+            </div>
+        </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <p>{{modalContent}}</p>
+        <div class="text-center">
+            <img style="cursor: pointer;" (click)="openImage()" class="img-fluid" [src]="modalImage | sinimagen" alt="">
+        </div>       
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark btn-rounded" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+  </ng-template>

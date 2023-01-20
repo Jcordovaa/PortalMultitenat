@@ -1,0 +1,176 @@
+<div class="breadcrumb">
+    <h1>Accesos</h1>
+    <ul>
+        <li><a href="">Seguridad</a></li>
+        <li>Accesos</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <button type="button" class="btn btn-success btn-rounded" (click)="openModal(modalBasic, null)">
+      <i class="i-Add mt-3 mr-1"></i> Nuevo Acceso</button>
+  </div>
+  <div class="col-md-8">
+    <input type="text" name="searcher" [(ngModel)]="paginador.search" class="form-control form-control-rounded" 
+      (keydown.enter)="getAccesos()"
+      placeholder="Buscar acceso...">
+  </div>
+</div>
+
+<div class="row mb-4" *ngIf="totalItems > 0 && loaded">
+  <!-- GRID AND LIST BUTTONS -->
+  <div class="col-6">
+    <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2" [ngClass]="{active: viewMode === 'grid'}" (click)="viewMode = 'grid'">
+      <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+        x="0px" y="0px" viewBox="0 0 369.946 369.946" style="enable-background:new 0 0 369.946 369.946;" xml:space="preserve">
+        <path d="M250.609,0h-11.934H131.271h-11.934H0v119.337v11.934v107.404v11.934v119.337h119.337h11.934
+            h107.404h11.934h119.337V250.609v-11.934V131.271v-11.934V0H250.609z M238.675,11.934v107.404H131.271V11.934H238.675z
+             M238.675,131.271v107.404H131.271V131.271H238.675z M11.934,11.934h107.404v107.404H11.934V11.934z M11.934,131.271h107.404
+            v107.404H11.934V131.271z M11.934,358.012V250.609h107.404v107.404H11.934z M131.271,358.012V250.609h107.404v107.404H131.271z
+             M358.012,358.012H250.609V250.609h107.404V358.012z M358.012,238.675H250.609V131.271h107.404V238.675z M250.609,119.337V11.934
+            h107.404v107.404H250.609z" />
+      </svg>
+    </button>
+    <button class="btn btn-sm btn-rounded btn-outline-light btn-svg" [ngClass]="{active: viewMode === 'list'}" (click)="viewMode = 'list'">
+      <svg version="1.1" id="list" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+        y="0px" width="16px" height="16px" viewBox="0 0 612 612" style="enable-background:new 0 0 612 612;" xml:space="preserve">
+        <path d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
+      </svg>
+    </button>
+  </div>
+  <!-- SELECT CEHECKBOX -->
+  <!-- <div class="col-6">
+    <div class="btn-group float-right">
+      <button type="button" class="btn btn-outline-light btn-rounded btn-checkbox">
+        <label class="checkbox checkbox-outline-light">
+          <input type="checkbox" [(ngModel)]="allSelected" (change)="selectAll($event)">
+          <span></span>
+          <span class="checkmark"></span>
+        </label>
+      </button>
+      <div class="btn-group" ngbDropdown role="group" aria-label="Select all" placement="left">
+        <button class="btn btn-outline-light btn-rounded" ngbDropdownToggle></button>
+        <div class="dropdown-menu" ngbDropdownMenu>
+          <button class="dropdown-item">Delete</button>
+          <button class="dropdown-item">Move to</button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</div>
+
+<!-- DATA LIST -->
+<div *ngIf="totalItems > 0 && loaded" class="row" [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+  <!-- SINGLE LIST ITEM -->
+  <div *ngFor="let item of accesos | paginate: config; let i = index" 
+    class="list-item"
+    [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+    [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}"
+  >
+    <div class="card o-hidden mb-2 d-flex" [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+      <div class="list-thumb d-flex">
+        <!-- TUMBNAIL -->
+        <img src="https://img.icons8.com/clouds/2x/menu.png" width="80" height="60" alt="">
+      </div>
+      <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+          [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+          <!-- OTHER DATA -->
+          <a href="" class="w-40 w-sm-100">
+            <div class="item-title">{{item.nombre}}</div>
+          </a>
+          <p class="m-0 text-muted w-15 w-sm-100">
+            <strong>Menu Padre: </strong> {{getMenuPadre(item)}}
+          </p>
+          <p class="m-0 text-muted w-15 w-sm-100 d-none d-lg-block item-badges">
+            <span *ngIf="item.activo == 1" class="badge badge-success">Activo</span>
+            <span *ngIf="item.activo == 0" class="badge badge-danger">Inactivo</span>
+          </p>
+          <p class="m-0 text-muted w-15 w-sm-100">   
+            <img (click)="openModal(modalBasic, item)" container="body" ngbTooltip="Editar" style="cursor: pointer;" src="https://img.icons8.com/cute-clipart/2x/edit.png" width="20" height="20" alt="">&nbsp;
+            <img (click)="delete(item)" container="body" ngbTooltip="Eliminar" style="cursor: pointer;" src="https://img.icons8.com/cute-clipart/2x/delete-forever.png" width="20" height="20" alt="">
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- PAGINATION CONTROL -->
+  <div class="col-md-12 mt-3" *ngIf="accesos?.length && totalItems > 0">
+    <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true"
+      previousLabel="" nextLabel="">
+    </pagination-controls>
+    <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+  </div>
+</div>
+
+<div class="row" *ngIf="totalItems == 0 && loaded">
+  <div class="col-md-12" >
+    <ngb-alert class="alert-card text-center" [dismissible]="false">
+      {{noResultsText}}
+    </ngb-alert>
+  </div>
+</div>
+
+<ng-template #modalBasic let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #myFormAccess="ngForm">
+      <div class="form-group">
+        <label for="picker1">Nombre <span class="camporequerido">*</span></label>
+        <div class="input-group">
+          <input type="text"
+            [ngClass]="name.errors && (name.dirty || name.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+            placeholder="Nombre" #name="ngModel" required
+            name="name" [(ngModel)]="acceso.nombre" >
+        </div>
+        <p *ngIf="name.errors && (name.dirty || name.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
+          <span *ngIf="name.errors.required">
+              Nombre es requerido.
+          </span>
+        </p>
+      </div>
+      <div class="form-group">
+        <label for="picker1">Menu Padre</label>
+        <div class="input-group">
+          <select [(ngModel)]="selectedMenuPadre"
+                  class="form-control form-control-rounded"
+                  name="tipoBanner" #tipoBanner="ngModel" required>
+              <option *ngFor="let t of menusPadre"
+                      [ngValue]="t">
+                  {{ t.nombre }}
+              </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group mt-4">
+        <div class="input-group">
+          <label class="switch switch-success mr-3">
+            <span>Activo</span>
+            <input 
+              [(ngModel)]="acceso.activo" 
+              type="checkbox"  
+              id="exampleCheck2" 
+              name="exampleCheck2"
+               />
+            <!-- <input type="checkbox" checked> -->
+            <span class="slider"></span>
+        </label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark btn-rounded" (click)="save(modalConfirmEdit)"
+      [disabled]="!myFormAccess.form.valid" 
+      [style.cursor]="!myFormAccess.form.valid ? 'no-drop' : 'pointer'"
+    >Guardar</button>
+  </div>
+</ng-template>

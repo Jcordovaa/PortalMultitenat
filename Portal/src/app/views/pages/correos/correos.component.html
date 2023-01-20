@@ -1,0 +1,121 @@
+<div class="breadcrumb">
+  <h1>Configuración Correo</h1>
+  <ul>
+    <li><a href="">Administración</a></li>
+    <li>Configuración Correo</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <form #myFormCorreos="ngForm">
+          <div class="row">
+            <div class="col-md-12 form-group mb-3">
+              <label for="firstName2">Servidor SMTP <span class="camporequerido">*</span></label>
+              <!-- <input type="email" class="form-control form-control-rounded" id="firstName2" placeholder="Servidor SMTP"> -->
+              <input type="text"
+                [ngClass]="smtp.errors && (smtp.dirty || smtp.touched) ? 'form-control is-invalid' : 'form-control'"
+                placeholder="Servidor SMTP" #smtp="ngModel" required maxlength="50" name="smtp"
+                [(ngModel)]="config.smtpServer" />
+              <p *ngIf="smtp.errors && (smtp.dirty || smtp.touched)" class="text-danger"
+                style="margin-top: 2px; font-size: 12px">
+                Servidor SMTP es requerido
+              </p>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="user">Usuario <span class="camporequerido">*</span></label>
+              <input type="text"
+                [ngClass]="user.errors && (user.dirty || user.touched) ? 'form-control is-invalid' : 'form-control'"
+                placeholder="Usuario" #user="ngModel" required maxlength="50" name="user"
+                [(ngModel)]="config.usuario" />
+              <p *ngIf="user.errors && (user.dirty || user.touched)" class="text-danger"
+                style="margin-top: 2px; font-size: 12px">
+                Usuario es requerido
+              </p>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="pass">Clave <span class="camporequerido">*</span></label>
+              <input type="password"
+                [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control is-invalid' : 'form-control'"
+                placeholder="Clave" #pass="ngModel" required maxlength="150" name="pass" [(ngModel)]="config.clave" />
+              <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger"
+                style="margin-top: 2px; font-size: 12px">
+                Clave es requerida
+              </p>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="correoOrigen">Correo Origen <span class="camporequerido">*</span></label>
+              <input type="text"
+                [ngClass]="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched) ? 'form-control is-invalid' : 'form-control'"
+                placeholder="Correo Origen" #correoOrigen="ngModel" required maxlength="100" name="correoOrigen" (blur)="validaEmail()"
+                [(ngModel)]="config.correoOrigen" />
+              <p *ngIf="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched)" class="text-danger"
+                style="margin-top: 2px; font-size: 12px">
+                Correo Origen es requerido
+              </p>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="port">Puerto <span class="camporequerido">*</span></label>
+              <input type="number"
+                [ngClass]="port.errors && (port.dirty || port.touched) ? 'form-control is-invalid' : 'form-control'"
+                placeholder="Puerto" #port="ngModel" required maxlength="150" name="port" [(ngModel)]="config.puerto" />
+              <p *ngIf="port.errors && (port.dirty || port.touched)" class="text-danger"
+                style="margin-top: 2px; font-size: 12px">
+                Puerto es requerido
+              </p>
+            </div>
+
+            <div class="col-md-12 form-group mb-3 mt-2">
+              <label class="switch switch-success mr-3">
+                <span>SSL</span>
+                <input [(ngModel)]="config.ssl" type="checkbox" id="exampleCheckSSL" name="exampleCheckSSL" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="correos1">Notificación Pago</label>
+              <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
+                (onAdd)="onAdd($event, 1)" theme='primary' [placeholder]="'Inserte correo'"></tag-input>
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="asunto">Asunto Correo Pago Cliente</label>
+              <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
+                name="asuntoPago" [(ngModel)]="config.asuntoPagoCliente" />
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="asunto">Correos diarios de acceso</label>
+              <input type="text" class="form-control" placeholder="acceso" #acceso="ngModel"
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="acceso"
+                [(ngModel)]="cantidadCorreosAccesos" />
+            </div>
+
+            <div class="col-md-12 form-group mb-3">
+              <label for="asunto">Correos diarios de notificación</label>
+              <input type="text" class="form-control" placeholder="notificacion" #notificacion="ngModel"
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="notificacion"
+                [(ngModel)]="cantidadCorreosNotificacion" />
+            </div>
+
+
+            <div class="col-md-12 mt-3 text-center">
+              <button class="btn btn-primary" [disabled]="!myFormCorreos.form.valid"
+                [style.cursor]="!myFormCorreos.form.valid ? 'no-drop' : 'pointer'" (click)="save()">Guardar</button>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<hr />
+
+<form #basicForm2="ngForm">
+  <div class="row col-md-12">
+    <strong>Documentos con saldo pendiente</strong>
+    <br><br>
+  </div>
+
+  <div class="row">
+    <div class="form-group col-md-3">
+      <label for="firstName" style="font-size: 13px;">Tipo Documento</label>
+      <ng-select
+        class="customAC"
+        style="border-radius: 40px !important"
+        [items]="tipoDocumentos"
+        bindLabel="nombre"
+        required
+        placeholder="Tipo Documento"
+        #cates="ngModel"
+        name="cates"
+        [disabled]="compras.length === 0"
+        [(ngModel)]="selectedTipoDcto"
+        bindValue="id"
+      >
+      </ng-select>
+    </div>
+
+    <div class="form-group col-md-3">
+      <label for="exampleInputEmail1" style="font-size: 13px;">Folio Documento</label>
+      <input
+        type="number"
+        class="form-control"
+        id="exampleInputEmail1"
+        name="exampleInputEmail1"
+        aria-describedby="emailHelp"
+        placeholder="0"
+        [(ngModel)]="folio"
+      />
+    </div>
+
+    <div class="form-group col-md-3">
+      <label for="firstName" style="font-size: 13px;">Fecha Vcto.</label>
+      <div class="input-group">
+        <input
+          class="form-control"
+          placeholder="dd/mm/yyyy"
+          readonly
+          name="d2"
+          #c2="ngModel"
+          [(ngModel)]="dateFilter"
+          ngbDatepicker
+          #d2="ngbDatepicker"
+        />
+        <div class="input-group-append">
+          <button
+            [disabled]="compras.length === 0"
+            class="btn btn-secondary"
+            (click)="d2.toggle()"
+            type="button"
+          >
+            <i class="icon-regular i-Calendar-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="text-right mt-4">
+        <button (click)="filter()" class="btn btn-primary"><i class="search-icon i-Magnifi-Glass1 mt-3 mr-2"></i>Filtrar</button>
+        <button (click)="cleanFilters()" class="btn btn-secondary ml-2">Limpiar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row mt-3">
+    <div class="table-responsive col-md-12">
+      <div class="card mb-4">
+        <div class="card-body">
+          <ngx-datatable
+            style="height: 500px; box-shadow: none"
+            class="material"
+            [rows]="compras"
+            [columnMode]="'force'"
+            [headerHeight]="50"
+            [footerHeight]="50"
+            [rowHeight]="50"
+            [limit]="10"
+            [selected]="selected"
+            [scrollbarV]="true"
+            [scrollbarH]="true"
+            [selectionType]="'checkbox'"
+            [selectAllRowsOnPage]="false"
+            (select)="onSelect($event)"
+            [messages]="{
+              emptyMessage: 'No se encontraron resultados.',
+              totalMessage: 'Registros',
+              selectedMessage: 'Seleccionados'
+            }"
+          >
+            <ngx-datatable-column
+              [width]="30"
+              [sortable]="false"
+              [canAutoResize]="false"
+              [draggable]="false"
+              [resizeable]="false"
+              [headerCheckboxable]="true"
+              [checkboxable]="true"
+            >
+            </ngx-datatable-column>
+            <ngx-datatable-column name="nro" [width]="80" [maxWidth]="100">
+              <ng-template ngx-datatable-header-template> Folio </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="documento" [width]="150">
+              <ng-template ngx-datatable-header-template>
+                Documento
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="femision" [width]="100">
+              <ng-template ngx-datatable-header-template> Fecha </ng-template>
+              <ng-template
+                ngx-datatable-cell-template
+                let-value="value"
+                let-row="row"
+              >
+                {{ value | date: "dd/MM/yyyy" }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="fvencimiento">
+              <ng-template ngx-datatable-header-template>
+                Fecha Vencimiento
+              </ng-template>
+              <ng-template
+                ngx-datatable-cell-template
+                let-value="value"
+                let-row="row"
+              >
+                {{ value | date: "dd/MM/yyyy" }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="monto">
+              <ng-template ngx-datatable-header-template> Total </ng-template>
+              <ng-template
+                ngx-datatable-cell-template
+                let-value="value"
+                let-row="row"
+              >
+                ${{ value | monto }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="saldo">
+              <ng-template ngx-datatable-header-template> Saldo </ng-template>
+              <ng-template
+                ngx-datatable-cell-template
+                let-value="value"
+                let-row="row"
+              >
+                ${{ value | monto }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="aPagar">
+              <ng-template ngx-datatable-header-template> A Pagar </ng-template>
+              <ng-template
+                ngx-datatable-cell-template
+                let-value="value"
+                let-row="row"
+              >
+                <input
+                  type="number"
+                  min="0"
+                  maxlength="3"
+                  class="form-control form-control-sm"
+                  name="asd"
+                  [value]="value"
+                  (change)="onChangeAPagar($event.target.value, row)"
+                />
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="col align-self-start"></div>
+      <div class="col align-self-center"></div>
+      <div class="col align-self-end" align="right">
+        <div class="form-group row">
+          <label for="inputEmail3" class="col-sm-9 col-form-label"
+            ><strong>Total a Pagar</strong></label
+          >
+          <div class="col-sm-3 mr-0 pr-0">
+            <input
+              type="text"
+              disabled
+              class="form-control"
+              name="totalpagar"
+              placeholder="Total"
+              value="$ {{ totalPagar | monto }}"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

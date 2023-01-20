@@ -1,0 +1,1097 @@
+<div class="">
+    <div class="breadcrumb">
+        <h1>Dashboard Administrador</h1>
+        <ul>
+            <li><a href="">Portal Clientes</a></li>
+            <li><a href="">Mi Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="separator-breadcrumb border-top"></div>
+    <div *ngIf="!showDetail && tipoDoc == 0">
+
+
+        <div class="">
+            <div *ngIf="showDashboard == 1" class="row" style="justify-content: center;">
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="card-box" style="background-color: rgb(61, 81, 185);">
+                        <div class="inner">
+                            <h3>${{ totalPendiente | monto }} </h3>
+                            <p>{{cantidadPendiente}} Documentos Pendientes</p>
+                        </div>
+                        <a (click)="obtenerDocumentos(1)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                                class="i-Arrow-Down"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="card-box" style="background-color: rgb(61, 81, 185);">
+                        <div class="inner">
+                            <h3>${{ totalVencidos | monto }} </h3>
+                            <p>{{cantidadVencidos}} Documentos Vencidos</p>
+                        </div>
+                        <a (click)="obtenerDocumentos(2)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                                class="i-Arrow-Down"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="card-box" style="background-color: rgb(61, 81, 185);">
+                        <div class="inner">
+                            <h3>${{ totalPorVencer | monto }} </h3>
+                            <p>{{cantidadPorVencer}} Documentos Por Vencer</p>
+                        </div>
+                        <a (click)="obtenerDocumentos(3)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                                class="i-Arrow-Down"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="card-box" style="background-color: rgb(61, 81, 185);">
+                        <div class="inner">
+                            <h3>${{ totalPagados | monto }} </h3>
+                            <p>{{cantidadPagados}} Pagos mes en curso</p>
+                        </div>
+                        <a (click)="obtenerDocumentos(4)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
+                                class="i-Arrow-Down"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                </div>
+
+            </div>
+
+            <!-- <div *ngIf="showDashboard == 1" class="row">
+                <div class="col-lg-6 col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 style="color: #fff;">Ultimos pagos recibidos</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-3"
+                                *ngFor="let c of ultimosPagos">
+                                <img class="avatar-lg mb-3 mb-sm-0 rounded mr-sm-3" src="./assets/images/icon/Venta.png"
+                                    alt="">
+                                <div class="flex-grow-1">
+                                    <h5 class=""><a href="">{{c.comprobanteContable}} #{{c.folio}}</a></h5>
+                                    <p class="m-0 text-small text-muted">Fecha Pago: {{c.fechaPago | date: 'dd/MM/yyyy'
+                                        }}</p>
+                                    <p class="text-small text-danger m-0">${{c.montoPago | monto }}</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline-primary mt-3 mb-3 m-sm-0 btn-sm"
+                                        (click)="verDetalle(c)">Ver Detalle</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 style="color: #fff;">Ultimas pagos anulados o rechazados</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-3"
+                                *ngFor="let c of ultimosRechazados">
+                                <img class="avatar-lg mb-3 mb-sm-0 rounded mr-sm-3" src="./assets/images/icon/Venta.png"
+                                    alt="">
+                                <div class="flex-grow-1">
+                                    <h5 class=""><a href="">{{c.comprobanteContable}} #{{c.folio}}</a></h5>
+                                    <p class="m-0 text-small text-muted">Fecha Pago: {{c.fechaPago | date: 'dd/MM/yyyy'
+                                        }}</p>
+                                    <p class="text-small text-danger m-0">${{c.montoPago | monto }}</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-outline-primary mt-3 mb-3 m-sm-0 btn-sm"
+                                        (click)="verDetalle(c)">Ver Detalle</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+    <div class="row" *ngIf="!showDetail && tipoDoc == 0">
+        <div class="col-lg-12 col-md-12">
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(61, 81, 185);">
+                    <h3 style="color: #fff;">TOP 10 DEUDORES</h3>
+                </div>
+                <div class="card-body">
+                    <div echarts [options]="salesChartBar" [autoResize]="true" style="height: 600px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" *ngIf="!showDetail && tipoDoc == 0">
+        <div class="col-lg-12 col-md-12">
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: rgb(61, 81, 185);">
+                    <h3 style="color: #fff;">RESUMEN ULTIMOS 13 MESES</h3>
+                </div>
+                <div class="card-body">
+                    <div echarts [options]="salesChartBar2" [autoResize]="true" style="height: 600px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" *ngIf=" tipoDoc != 0 && tipoDoc != 4  && !showDetail">
+        <div class="col-md-12">
+            <!--FCA 01-07-2022-->
+            <div class="card">
+                <!--FCA 01-07-2022-->
+                <div class="card-body">
+                    <!--FCA 01-07-2022-->
+                    <form>
+                        <div class="row">
+                            <div class="col-md-2 form-group mb-3">
+                                <label for="firstName">Rut Cliente</label>
+                                <input type="text" autocomplete="off" (blur)="validaRut()" required maxlength="12"
+                                    class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut"
+                                    placeholder="Rut">
+                            </div>
+
+                            <div class="col-md-2 form-group mb-3">
+                                <label for="firstName">Número Documento</label>
+                                <input type="number" min="0" class="form-control" id="folio" name="folio"
+                                    [(ngModel)]="folio" placeholder="0">
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="lastName">Fecha Emisión</label>
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="DESDE" readonly name="d2" #c2="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
+                                        #d2="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 form-group mb-3" style="margin-top: 27px;">
+                                <!-- <label for="lastName">Fecha Emisión Hasta</label> -->
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="HASTA" readonly name="d1" #c1="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
+                                        #d1="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 form-group mb-4 align-self-end">
+                                <!-- <label for="sss">.</label> -->
+                                <button id="sss" (click)="filterDocs()" style="margin-top: 20px;"
+                                    class="btn btn-primary justify-content-between align-items-center mr-3"
+                                    [loading]="loading"> <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span
+                                        class="mr-3">Buscar</span>
+                                </button>
+                                <button id="sss2" (click)="limpiarFiltros()" class="btn btn-secondary mr-3"
+                                    style="margin-top: 20px;" [loading]="loading"><span><i class="i-Paint-Brush"></i>
+                                        Limpiar</span></button>
+                                <button id="ss3" (click)="export()" style="margin-top: 20px;"
+                                    *ngIf="documentosPorPagina?.length > 0 "
+                                    [disabled]="documentosPorPagina?.length == 0" class="btn btn-secondary mr-3"><i
+                                        class="i-File-Excel"></i> Exportar a Excel</button>
+                                <button style="margin-top: 20px;" (click)="volverDashboard()"
+                                    class="btn btn-secondary mr-3"><i class="i-To-Left"></i>
+                                    Volver</button>
+                            </div>
+                        </div>
+                    </form>
+                    <!--FCA 01-07-2022-->
+                    <div class="breadcrumb" style="margin-top: 20px;">
+                        <h1 *ngIf="tipoDoc == 1">Documentos Pendientes</h1>
+                        <h1 *ngIf="tipoDoc == 2">Documentos Vencidos</h1>
+                        <h1 *ngIf="tipoDoc == 3">Documentos Por Vencer</h1>
+                    </div>
+
+                    <div class="separator-breadcrumb border-top"></div>
+                    <div class="col-md-12">
+                        <!-- <div class="card"> -->
+
+
+                        <div class="row list-horizontal" *ngIf="documentosPorPagina?.length > 0">
+                            <div *ngFor="let cliente of documentosPorPagina | paginate: configDocumentos; let i = index"
+                                class="list-item col-md-12"
+                                [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+                                <div class="card o-hidden mb-2">
+
+                                    <div class="flex-grow-1 pl-2 d-flex">
+                                        <div
+                                            class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
+                                            <div class="form-group mb-3" style="flex-basis:150px">
+                                                <label for="lastName" style="font-size: 13px;"><strong>RUT
+                                                    </strong></label>
+                                                <div class="input-group">
+                                                    <p class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.rut}}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mb-3" style="flex-basis:150px">
+                                                <label for="lastName" style="font-size: 13px;"><strong>Nombre
+                                                    </strong></label>
+                                                <div class="input-group">
+                                                    <p class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.nombre}}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: center;">
+                                                <label for="lastName" style="font-size: 13px;"><strong>Cantidad
+                                                        Documentos </strong></label>
+                                                    <p class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.cantidadDocumentos}}
+                                                    </p>
+                                            </div>
+
+                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
+                                                <label for="lastName" style="font-size: 13px;"><strong>Total $
+                                                    </strong></label>
+                                                    <p class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.totalDocumentos | monto}}
+                                                    </p>
+                                            </div>
+
+                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
+                                                <label for="lastName" style="font-size: 13px;"><strong>Saldo $
+                                                    </strong></label>
+                                                    <p class="m-0 text-muted">
+                                                        {{cliente.totalSaldo | monto}}
+                                                    </p>
+
+                                            </div>
+
+                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
+                                                <a (click)="desplegarDetallesDocumentos(cliente)" style="cursor: pointer;"
+                                                *ngIf="!cliente.muestraDocumentos" class="card-box-footer">Ver Más
+                                                <i class="i-Arrow-Down"></i></a>
+                                            <a (click)="desplegarDetallesDocumentos(cliente)" style="cursor: pointer;"
+                                                *ngIf="cliente.muestraDocumentos" class="card-box-footer">Ver Menos
+                                                <i class="i-Arrow-Up"></i></a>
+                                            </div>
+                                     
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="desktop" *ngIf="cliente.muestraDocumentos">
+                                        <div *ngIf="cliente?.documentosPorPagina?.length > 0 "
+                                            class="material-datatables">
+                                            <table id="dtDocumentos"
+                                                class="table table-striped table-no-bordered table-hover" datatable="ng"
+                                                width="100%">
+
+                                                <thead>
+                                                    <tr>
+                                                        <!-- <th>Cliente</th> -->
+                                                        <th>Tipo de documento</th>
+                                                        <th>Nro. Doc.</th>
+                                                        <th>Fecha Emisión</th>
+                                                        <th>Fecha Vcto.</th>
+                                                        <th style="text-align: right;">Monto $</th>
+                                                        <th *ngIf="existModuloInventario">Detalle</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr
+                                                        *ngFor="let documento of cliente?.documentosPorPagina | paginate: cliente?.configDocumentosCliente">
+                                                        <!-- <td>{{documento.razonSocial}}</td> -->
+                                                        <td>{{documento.documento}}</td>
+                                                        <td>{{documento.nro}}</td>
+                                                        <td>{{documento.fechaEmision | date: 'dd/MM/yyyy'}}</td>
+                                                        <td>{{documento.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+                                                        <td style="text-align: right;">{{documento.saldoBase |
+                                                            monto}}
+                                                        </td>
+                                                        <td style="vertical-align:middle;"
+                                                            *ngIf="existModuloInventario">
+                                                            <div ngbDropdown (click)="verDetalleDocumento(documento)">
+                                                                <button ngbDropdownToggle aria-haspopup="true"
+                                                                    aria-expanded="false" type="button"
+                                                                    class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                    id="__BVID__735__BV_toggle_"><svg
+                                                                        xmlns="http://www.w3.org/2000/svg" width="16px"
+                                                                        height="16px" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2"
+                                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                        <circle cx="12" cy="12" r="1"></circle>
+                                                                        <circle cx="12" cy="5" r="1"></circle>
+                                                                        <circle cx="12" cy="19" r="1"></circle>
+                                                                    </svg></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="movil" *ngIf="cliente.muestraDocumentos">
+                                        <div *ngIf="cliente.documentosPorPagina?.length > 0 "
+                                            class="material-datatables">
+                                            <table id="dtDocumentos"
+                                                class="table table-striped table-no-bordered table-hover" datatable="ng"
+                                                width="100%">
+
+                                                <thead>
+                                                    <tr>
+                                                        <!-- <th class="TableIcon" scope="col"> </th> -->
+                                                        <th scope="col"> </th>
+                                                        <th *ngIf="existModuloInventario" scope="col">Detalle
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr
+                                                        *ngFor="let documento of cliente?.documentosPorPagina | paginate: cliente.configDocumentosCliente">
+                                                        <!-- <td class="TableIcon" style="vertical-align:middle;"> <img
+                                                            style="min-width: 80px; min-height: 80px;" width="80px"
+                                                            height="80px" src="./assets/images/icon/documento.png"></td> -->
+                                                        <td>
+                                                            <!-- <strong>Cliente: </strong>{{documento.razonSocial}}<br /> -->
+                                                            <strong>Tipo Documento:
+                                                            </strong>{{documento.documento}}<br />
+                                                            <strong>Nro. Documento:
+                                                            </strong>{{documento.nro}}<br />
+                                                            <strong>Fecha Emisión:
+                                                            </strong>{{documento.fechaEmision
+                                                            |
+                                                            date:
+                                                            'dd/MM/yyyy'}}<br />
+                                                            <strong>Fecha Vencimiento:
+                                                            </strong>{{documento.fechaVcto |
+                                                            date: 'dd/MM/yyyy' }}<br />
+                                                            <strong>Monto: </strong>${{documento.saldoBase |
+                                                            monto}}<br />
+                                                        </td>
+                                                        <td style="vertical-align:middle;"
+                                                            *ngIf="existModuloInventario">
+                                                            <div ngbDropdown (click)="verDetalleDocumento(documento)">
+                                                                <button ngbDropdownToggle aria-haspopup="true"
+                                                                    aria-expanded="false" type="button"
+                                                                    class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                    id="__BVID__735__BV_toggle_"><svg
+                                                                        xmlns="http://www.w3.org/2000/svg" width="16px"
+                                                                        height="16px" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2"
+                                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                        <circle cx="12" cy="12" r="1"></circle>
+                                                                        <circle cx="12" cy="5" r="1"></circle>
+                                                                        <circle cx="12" cy="19" r="1"></circle>
+                                                                    </svg></button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="row"
+                                        *ngIf="cliente.documentosPorPagina?.length == 0 && cliente.muestraDocumentos">
+
+                                        <div class="col-md-12">
+                                            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                                {{noResultText}}
+                                            </ngb-alert>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-12 mt-3"
+                                        *ngIf="cliente.documentosFiltro?.length > 0 && cliente.muestraDocumentos">
+                                        <pagination-controls [id]='cliente.codAux'
+                                            (pageChange)="changePageDocumentosCliente(cliente,$event)" maxSize="6"
+                                            responsive="true" previousLabel="" nextLabel="">
+                                        </pagination-controls>
+                                        <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-md-12 mt-3" *ngIf="documentosFiltro?.length > 0">
+                                <pagination-controls (pageChange)="changePageDocumentos($event)" maxSize="6"
+                                    responsive="true" previousLabel="" nextLabel="">
+                                </pagination-controls>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row" *ngIf="documentosPorPagina?.length == 0">
+
+                            <div class="col-md-12">
+                                <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                    No se encontraron resultados
+                                </ngb-alert>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <div class="row" *ngIf=" tipoDoc == 4  && !showDetail">
+        <div class="col-md-12">
+            <!--FCA 01-07-2022-->
+            <div class="card">
+                <!--FCA 01-07-2022-->
+                <div class="card-body">
+                    <!--FCA 01-07-2022-->
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="firstName">Rut Cliente</label>
+                                <input type="text" autocomplete="off" (blur)="validaRut()" maxlength="12"
+                                    class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut"
+                                    placeholder="Rut">
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="picker1">Estado Pago</label>
+                                <ng-select class="customAC" style="border-radius: 40px !important;"
+                                    [items]="estadosPagos" appendTo="body" bindLabel="nombre"
+                                    (change)="changeEstadoPagos()" placeholder="Estado" #estadoP="ngModel"
+                                    name="estadoP" [(ngModel)]="selectedEstadoPagos" bindValue="id">
+                                </ng-select>
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label *ngIf="selectedEstadoPagos != 3" for="firstName">Número
+                                    Comprobante</label>
+                                <input *ngIf="selectedEstadoPagos != 3" type="number" min="0" class="form-control"
+                                    id="folio" name="folio" [(ngModel)]="folio" placeholder="0">
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
+                                <label for="lastName">Fecha de Pago</label>
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="DESDE" readonly name="d2" #c2="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
+                                        #d2="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 form-group mb-3" style="margin-top: 27px;">
+                                <!-- <label for="lastName">Fecha Emisión Hasta</label> -->
+                                <div class="input-group">
+                                    <input class="form-control" placeholder="HASTA" readonly name="d1" #c1="ngModel"
+                                        style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
+                                        #d1="ngbDatepicker">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
+                                            <i class="icon-regular i-Calendar-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 form-group mb-4 align-self-end">
+                                <!-- <label for="sss">.</label> -->
+                                <button id="sss" (click)="filterDocsPagados()" style="margin-top: 20px;"
+                                    class="btn btn-primary justify-content-between align-items-center mr-3"
+                                    [loading]="loading"> <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span
+                                        class="mr-3">Buscar</span>
+                                </button>
+                                <button id="sss2" (click)="limpiarFiltrosPagados()" class="btn btn-secondary mr-3"
+                                    style="margin-top: 20px;" [loading]="loading"><span><i class="i-Paint-Brush"></i>
+                                        Limpiar</span></button>
+                                <button id="ss3" (click)="exportPagados()" style="margin-top: 20px;"
+                                    *ngIf="documentosPagadosPorPagina?.length > 0 "
+                                    [disabled]="documentosPagadosPorPagina?.length == 0"
+                                    class="btn btn-secondary mr-3"><i class="i-File-Excel"></i> Exportar a
+                                    Excel</button>
+                                <button style="margin-top: 20px;" (click)="volverDashboard()"
+                                    class="btn btn-secondary mr-3"><i class="i-To-Left"></i>
+                                    Volver</button>
+                            </div>
+                        </div>
+                    </form>
+                    <!--FCA 01-07-2022-->
+                    <div class="breadcrumb" style="margin-top: 20px;">
+                        <h1>Pagos Recibidos</h1>
+                    </div>
+
+                    <div class="separator-breadcrumb border-top"></div>
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="desktop">
+                                    <div *ngIf="documentosPagadosPorPagina?.length > 0 " class="material-datatables">
+                                        <table id="dtDocumentos"
+                                            class="table table-striped table-no-bordered table-hover" datatable="ng"
+                                            width="100%">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>RUT Cliente</th>
+                                                    <th>Nombre Cliente</th>
+                                                    <th>Nro. Comprobante</th>
+                                                    <th>Fecha Pago</th>
+                                                    <th>Hora Pago</th>
+                                                    <th style="text-align: right;">Monto $</th>
+                                                    <th>Estado</th>
+                                                    <th>Detalle</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="let documento of documentosPagadosPorPagina | paginate: configDocumentos">
+                                                    <td>{{documento.clientesPortal.rut}}</td>
+                                                    <td>{{documento.clientesPortal.nombre}}</td>
+                                                    <td
+                                                        *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null">
+                                                        {{documento.comprobanteContable}}</td>
+                                                    <td
+                                                        *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null">
+                                                        Sin Comprobante</td>
+                                                    <td>{{documento.fechaPago | date: 'dd/MM/yyyy'}}</td>
+                                                    <td>{{documento.horaPago}}</td>
+                                                
+                                                    <td style="text-align: right;">{{documento.montoPago |
+                                                        monto}}
+                                                    </td>
+                                                    <td> <span
+                                                        *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null"
+                                                        class="badge badge-danger mr-1">Finalizado sin
+                                                        comprobante</span>
+                                                    <span
+                                                        *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null"
+                                                        class="badge badge-success mr-1">Finalizado</span>
+                                                </td>
+                                                    <td style="vertical-align:middle;">
+                                                        <div ngbDropdown>
+                                                            <button ngbDropdownToggle aria-haspopup="true"
+                                                                aria-expanded="false" type="button"
+                                                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                id="__BVID__735__BV_toggle_"><svg
+                                                                    xmlns="http://www.w3.org/2000/svg" width="16px"
+                                                                    height="16px" viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                                    class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                    <circle cx="12" cy="12" r="1"></circle>
+                                                                    <circle cx="12" cy="5" r="1"></circle>
+                                                                    <circle cx="12" cy="19" r="1"></circle>
+                                                                </svg></button>
+                                                            <div ngbDropdownMenu>
+                                                                <button (click)="verDetalleDocumentoPagado(documento)"
+                                                                    style="cursor: pointer;" ngbDropdownItem><i
+                                                                        class="i-Receipt"
+                                                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                                                <button *ngIf="documento.idPagoEstado == 4"
+                                                                    (click)="openModalComprobanteContable(modalComprobante,documento)"
+                                                                    style="cursor: pointer;" ngbDropdownItem><i
+                                                                        class="i-Download1"
+                                                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Regularizar
+                                                                    Comprobante</button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="movil">
+                                    <div *ngIf="documentosPagadosPorPagina?.length > 0 " class="material-datatables">
+                                        <table id="dtDocumentos"
+                                            class="table table-striped table-no-bordered table-hover" datatable="ng"
+                                            width="100%">
+
+                                            <thead>
+                                                <tr>
+                                                    <!-- <th class="TableIcon" scope="col"> </th> -->
+                                                    <th scope="col"> </th>
+                                                    <th scope="col">Detalle</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="let documento of documentosPagadosPorPagina | paginate: configDocumentos">
+                                                    <!-- <td class="TableIcon" style="vertical-align:middle;"> <img
+                                                        style="min-width: 80px; min-height: 80px;" width="80px"
+                                                        height="80px" src="./assets/images/icon/documento.png"></td> -->
+                                                    <td>
+                                                        <strong>RUT Cliente:
+                                                        </strong>{{documento.clientesPortal.rut}}<br />
+                                                        <strong>Nombre Cliente:
+                                                        </strong>{{documento.clientesPortal.nombre}}<br />
+                                                        <strong>Nro. Comprobante: </strong>
+                                                        <p
+                                                            *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null">
+                                                            {{documento.comprobanteContable}}</p>
+                                                        <p
+                                                            *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null">
+                                                            Error al generar comprobante</p><br />
+                                                        <strong>Fecha Pago: </strong>{{documento.fechaPago |
+                                                        date:
+                                                        'dd/MM/yyyy'}}<br />
+                                                        <strong>Hora Pago: </strong>{{documento.horaPago}}<br />
+                                                        <strong>Monto $: </strong>{{documento.montoPago |
+                                                        monto}}<br />
+                                                        <strong>Estado: </strong><span
+                                                            *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null"
+                                                            class="badge badge-danger mr-1">Finalizado sin
+                                                            comprobante</span>
+                                                        <span
+                                                            *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null"
+                                                            class="badge badge-success mr-1">Finalizado</span><br />
+                                                    </td>
+                                                    <td style="vertical-align:middle;">
+                                                        <div ngbDropdown>
+                                                            <button ngbDropdownToggle aria-haspopup="true"
+                                                                aria-expanded="false" type="button"
+                                                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                                                id="__BVID__735__BV_toggle_"><svg
+                                                                    xmlns="http://www.w3.org/2000/svg" width="16px"
+                                                                    height="16px" viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                                    class="text-body align-middle mr-25 feather feather-more-vertical">
+                                                                    <circle cx="12" cy="12" r="1"></circle>
+                                                                    <circle cx="12" cy="5" r="1"></circle>
+                                                                    <circle cx="12" cy="19" r="1"></circle>
+                                                                </svg></button>
+                                                            <div ngbDropdownMenu>
+                                                                <button (click)="verDetalleDocumentoPagado(documento)"
+                                                                    style="cursor: pointer;" ngbDropdownItem><i
+                                                                        class="i-Receipt"
+                                                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Detalle</button>
+                                                                <button *ngIf="documento.idPagoEstado == 4"
+                                                                    (click)="openModalComprobanteContable(modalComprobante,documento)"
+                                                                    style="cursor: pointer;" ngbDropdownItem><i
+                                                                        class="i-Download1"
+                                                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Reguralizar
+                                                                    comprobante</button>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="row" *ngIf="documentosPagadosPorPagina?.length == 0 ">
+
+                                    <div class="col-md-12">
+                                        <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                            {{noResultText}}
+                                        </ngb-alert>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-12 mt-3" *ngIf="documentosPagadosFiltro?.length > 0">
+                                    <pagination-controls (pageChange)="changePageDocumentosPagados($event)" maxSize="6"
+                                        responsive="true" previousLabel="" nextLabel="">
+                                    </pagination-controls>
+                                    <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--FCA 01-07-2022-->
+            </div>
+            <!--FCA 01-07-2022-->
+        </div>
+        <!--FCA 01-07-2022-->
+
+    </div>
+
+
+    <div class="row" *ngIf="showDetail && tipoDoc == 4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="d-sm-flex mb-5">
+                        <span class="m-auto"></span>
+                        <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
+                        <button class="btn btn-primary mb-sm-0 mb-3" *ngIf="configuracion.muestraBotonImprimir == 1"
+                            (click)="print()">Imprimir</button>
+                    </div>
+                    <!---===== Print Area =======-->
+                    <div id="print-area">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="font-weight-bold">NÚMERO COMPROBANTE </h4>
+                                <p *ngIf="docPagado.comprobanteContable != null && docPagado.comprobanteContable != ''">
+                                    #{{ docPagado.comprobanteContable }}</p>
+                                <p *ngIf="docPagado.comprobanteContable == null || docPagado.comprobanteContable == ''">
+                                    Error al generar Comprobante</p>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <p><strong>Fecha Pago: </strong> {{ docPagado.fechaPago | date: 'dd/MM/yyyy' }}
+                                </p>
+                                <p><strong>Hora: </strong> {{docPagado.horaPago}}</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 mb-4 border-top"></div>
+                        <div class="row mb-5">
+                            <div class="col-md-6 mb-3 mb-sm-0">
+                                <h5 class="font-weight-bold">Razón social / Nombre</h5>
+                                <p>{{docPagado.clientesPortal.nombre}}</p>
+                                <h5 class="font-weight-bold">RUT</h5>
+                                <span style="white-space: pre-line">
+                                    {{docPagado.clientesPortal.rut }}
+                                </span>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <h5 class="font-weight-bold">Metodo de Pago</h5>
+                                <p>{{docPagado.pasarelaPagoLog[0].medioPago}}</p>
+                                <h5 class="font-weight-bold">Codigo Autorización</h5>
+                                <p>{{docPagado.pasarelaPagoLog[0].token}}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 desktop">
+                                <table class="table table-hover mb-4">
+                                    <thead class="bg-gray-300">
+                                        <tr>
+                                            <th scope="col">Tipo Documento</th>
+                                            <th style="text-align: center;" scope="col">Número Documento</th>
+                                            <th style="text-align: right;" scope="col">Pago $</th>
+                                            <th style="text-align: right;" scope="col">Saldo $</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let detalle of docPagado.pagosDetalle">
+                                            <td>{{detalle.desDoc}}</td>
+                                            <td style="text-align: center;">{{detalle.folio}}</td>
+                                            <td style="text-align: right;">{{ detalle.aPagar | monto}}</td>
+                                            <td style="text-align: right;">{{ detalle.saldo | monto}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                            <div class="col-md-12 movil">
+                                <table class="table table-hover mb-4">
+                                    <thead class="bg-gray-300">
+                                        <tr>
+                                            <th scope="col"></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let detalle of docPagado.pagosDetalle">
+                                            <td>
+                                                <strong>Tipo Documento: </strong> {{detalle.desDoc}}<br />
+                                                <strong>Número Documento: </strong> {{detalle.folio}}<br />
+                                                <strong>Pago $: </strong> {{ detalle.aPagar | monto}}<br />
+                                                <strong>Saldo $: </strong> {{ detalle.saldo | monto}}<br />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="invoice-summary float-right">
+                                    <h5 class="font-weight-bold">Total $: <span>
+                                            {{ docPagado.montoPago| monto }}
+                                        </span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--==== / Print Area =====-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row" *ngIf="showDetail && tipoDoc != 0 && tipoDoc != 4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="d-sm-flex mb-5">
+                        <span class="m-auto"></span>
+                        <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
+                        <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" [ngbTooltip]="tipDocumentos"
+                            container="body" *ngIf="configuracion.muestraBotonEnviarCorreo  == 1"
+                            (click)="openModalSend(modalContactoEnvio, detalleCab)"><img
+                                src="./assets/images/icon/enviar_correo.png" width="25px" height="25px"></button>
+                        <button class="btn btn-primary mb-sm-0 mb-3" *ngIf="configuracion.muestraBotonImprimir == 1"
+                            (click)="print()">Imprimir</button>
+                        <!--FCA 05-07-2022-->
+                    </div>
+                    <!---===== Print Area =======-->
+                    <div id="print-area">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="font-weight-bold">{{tituloDetalle}}</h4>
+                                <p>#{{ detalleCab.folio }}</p>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <!-- <p><strong>Estado: </strong> {{estadoDoc}}</p> -->
+                                <p><strong>Fecha Emisión: </strong> {{ detalleCab.fechaEmision | date:
+                                    'dd/MM/yyyy'
+                                    }}
+                                </p>
+                                <p *ngIf="detalleCab.fechaVencimiento != '' && detalleCab.fechaVencimiento != null">
+                                    <strong>Fecha Vencimiento: </strong> {{ detalleCab.fechaVencimiento | date:
+                                    'dd/MM/yyyy' }}
+                            </div>
+                        </div>
+                        <div class="mt-3 mb-4 border-top"></div>
+                        <div class="row mb-5">
+                            <div class="col-md-6 mb-3 mb-sm-0">
+                                <h5 class="font-weight-bold">Razón social / Nombre</h5>
+                                <p>{{detalleCab.razonSocial}}</p>
+                                <h5 class="font-weight-bold">Dirección</h5>
+                                <span style="white-space: pre-line">
+                                    {{detalleCab.direccion}}
+                                </span>
+                            </div>
+                            <div class="col-md-6 text-sm-right">
+                                <h5 class="font-weight-bold">RUT</h5>
+                                <p>{{ detalleCab.rut }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="desktop">
+                                    <table class="table table-hover mb-4">
+                                        <thead class="bg-gray-300">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Código</th>
+                                                <th scope="col">Producto</th>
+                                                <th style="text-align: right;" scope="col">Cantidad</th>
+                                                <th style="text-align: right;" scope="col">Precio Unitario</th>
+                                                <th style="text-align: right;" scope="col">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let c of detalleDet; let i = index">
+                                                <th scope="row"> {{i + 1}} </th>
+                                                <td>{{ c.codigo }}</td>
+                                                <td>{{ c.desProd }}</td>
+                                                <td style="text-align: right;">{{ c.cantidad }}</td>
+                                                <td style="text-align: right;">{{ c.precioUnitario | monto }}
+                                                </td>
+                                                <td style="text-align: right;">$ {{ c.total | monto }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="movil">
+                                    <table class="table table-hover mb-4">
+                                        <thead class="bg-gray-300">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let c of detalleDet; let i = index">
+                                                <td scope="row"> {{i + 1}} </td>
+                                                <td style="text-align: left;">
+                                                    <strong>Código: </strong>{{ c.codigo }}<br />
+                                                    <strong>Producto: </strong>{{ c.desProd }}<br />
+                                                    <strong>Cantidad: </strong>{{ c.cantidad }}<br />
+                                                    <strong>Precio Unitario: </strong>{{ c.precioUnitario |
+                                                    monto}}<br />
+                                                    <strong>Total: </strong>${{ c.total | monto }}<br />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="invoice-summary float-right">
+                                    <p>Sub total: <span>${{ detalleCab.neto | monto }}</span></p>
+                                    <p>IVA: <span>
+                                            ${{ detalleCab.iva | monto }}
+                                        </span></p>
+                                    <h5 class="font-weight-bold">Total: <span>
+                                            ${{ detalleCab.total | monto }}
+                                        </span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--==== / Print Area =====-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<ng-template #modalContactoEnvio let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Documentos</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                Seleccione los documentos que desea enviar o descargar.
+            </div>
+            <div class="col-md-12 mb-2">
+                <ul>
+                    <li><input type="checkbox" id="cb1" [(ngModel)]="enviaPdf" />
+                        <label style="border: 1px solid #e0e0eb;" for="cb1"><img style="width:50px;height: 50px;"
+                                src="../../../../assets/images/icon/PdfImage.png" /></label>
+                    </li>
+                    <li><input type="checkbox" id="cb2" [(ngModel)]="enviaXml" />
+                        <label style="border: 1px solid #e0e0eb;" for="cb2"><img style="width:50px;height: 50px;"
+                                src="../../../../assets/images/icon/xml.png" /></label>
+                    </li>
+                    <li>
+                        <button type="button" class="btn btn-primary" style="margin-left: 30px"
+                            (click)="descargarDocumentos(documentoAEnviar)"> <i class="i-File"></i><span
+                                class="mr-3">Descargar</span></button>
+                    </li>
+                </ul>
+            </div>
+            <br>
+            <br>
+            <div class="col-md-12 mb-3">
+                {{tituloEnvio}}
+            </div>
+            <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+                <table class="table table-hover" style="display: block;height: 200px; overflow-y: scroll; margin:auto;">
+                    <thead>
+                        <tr>
+                            <th scope="col">Sel.</th>
+                            <th style="width: 44%;" scope="col">Nombre</th>
+                            <th style="width: 45%;" scope="col">Correo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let contacto of contactosCliente">
+                            <th scope="row">
+                                <!-- <input type="checkbox" class="checkbox checkbox-primary"> -->
+                                <label class="checkbox checkbox-outline-primary">
+                                    <input type="checkbox" name="check" (change)="onChange(contacto)">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </th>
+                            <td>{{ contacto.nombreContacto }}</td>
+                            <td>{{ contacto.correo }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-12" *ngIf="configuracion.muestraContactosEnvio == 1">
+                <hr>
+            </div>
+            <div class="col-md-12 form-group">
+                <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='otrosCorreo'
+                    (onAdd)="onAdd($event, 1)" theme='primary' secondaryPlaceholder="Ingrese correo"
+                    [placeholder]="'Ingrese correo'"></tag-input>
+                <p>Puede ingresar los correos necesarios presionando enter</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="send()" class="btn btn-primary">Enviar</button>
+    </div>
+</ng-template>
+
+
+
+
+<ng-template #modalComprobante let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Comprobante Contable</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                A continuación podra ejecutar el proceso automatico para la generacion del comprobante contable;
+            </div>
+            <div class="col-md-12" style="text-align: center;">
+                <button type="button" (click)="generarComprobante()" class="btn btn-primary">Generar
+                    Automaticamente</button>
+            </div>
+        </div>
+        <div class="separator-breadcrumb"></div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                o podra indicar un número de comprobante previamente creado:
+            </div>
+            <div class="col-md-12" style="text-align: center;">
+                <div class="input-group">
+                    <input class="form-control" placeholder="Número de Comprobante"
+                        onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                        style="background-color: #f8f9fa;" [(ngModel)]="pagoComprobante">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" (click)="actualizaComprobante()" type="button"> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="modal.dismiss()" class="btn btn-primary">Cerrar</button>
+    </div>
+</ng-template>
+
+
+<ng-template #tipDocumentos>Descargar o enviar archivos asociados al documento
+</ng-template>

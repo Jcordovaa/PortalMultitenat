@@ -1,0 +1,22 @@
+.contenedortaita{ 
+    
+    background-image:url("/assets/images/login/fondo2.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: absolute;    
+    width: 100%; 
+    height: 100%;    
+    display: flex;
+    justify-content: flex-end;
+    border: solid 20px rgba(16,28,173,1);
+}
+
+.place{
+    border: none;
+    height: 35px;
+    width: 100%;
+    padding: 10px;
+    margin: 10px auto;
+    font-size: 15px;
+    border-radius: 10px;
+}

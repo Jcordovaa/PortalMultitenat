@@ -1,0 +1,520 @@
+<div class="breadcrumb">
+    <h1>Mi Perfil</h1>
+    <ul>
+        <li>Portal de pagos</li>
+        <li>Mi Perfil</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card user-profile o-hidden mb-4">
+    <div class="header-cover" [ngStyle]="{'background-image': 'url(' + configDiseno.bannerPortal + ')'}"></div>
+    <!--FCA 06-07-2022-->
+    <div class="user-info">
+        <img class="profile-picture avatar-lg mb-2" [src]="configDiseno.imagenUsuario" alt="">
+        <!--FCA 06-07-2022-->
+        <p class="m-0 text-24">{{nombreCliente}}</p>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card card-profile-1 mb-4">
+                    <div class="card-body text-center">
+                        <div class="avatar mb-3">
+                            <img [src]="configDiseno.iconoEditarPerfil" alt="">
+                            <!--FCA 07-07-2022-->
+                        </div>
+                        <!--FCA 06-07-2022-->
+                        <button class="btn btn-primary" (mouseover)="hoverBtnEdit = true"
+                            [ngStyle]="{backgroundColor: hoverBtnEdit == true ? configDiseno.colorHoverBotonesPerfil : configDiseno.colorBotonModificarPerfil, color: configDiseno.colorTextoBotonUltimasCompras }"
+                            (mouseleave)="hoverBtnEdit = false" style="width:140px;"
+                            (click)="openModalModificarDatos(modalModificarDatos)">Modificar Datos</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-profile-1 mb-4">
+                    <div class="card-body text-center">
+                        <div class="avatar mb-3">
+                            <img [src]="configDiseno.iconoClavePerfil" alt="">
+                            <!--FCA 07-07-2022-->
+                        </div>
+                        <!--FCA 06-07-2022-->
+                        <button class="btn btn-primary" (mouseover)="hoverBtnClave = true"
+                            [ngStyle]="{backgroundColor: hoverBtnClave == true ? configDiseno.colorHoverBotonesPerfil : configDiseno.colorBotonClavePerfil , color: configDiseno.colorTextoBotonUltimasCompras }"
+                            (mouseleave)="hoverBtnClave = false" style="width:140px;"
+                            (click)="openModalChangePass(modalCambioClave)">Cambio de clave</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card card-profile-1 mb-4">
+                    <div class="card-body text-center">
+                        <div class="avatar mb-3">
+                            <img [src]="configDiseno.iconoEstadoPerfil" alt="">
+                            <!--FCA 07-07-2022-->
+                        </div>
+                        <button class="btn btn-primary" (mouseover)="hoverBtnEstado = true"
+                            [ngStyle]="{backgroundColor: hoverBtnEstado == true ? configDiseno.colorHoverBotonesPerfil : configDiseno.colorBotonEstadoPerfil , color: configDiseno.colorTextoBotonUltimasCompras }"
+                            (mouseleave)="hoverBtnEstado = false" style="width:140px;" (click)="irEstadoCuenta()">Estado
+                            de Cuenta</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <hr>
+
+        <ngb-tabset class="p-0">
+            <ngb-tab title="Datos Perfil">
+                <ng-template ngbTabContent>
+                    <div class="desktop">
+                        <div class="row">
+                            <!--VERSION ESCRITORIO-->
+                            <div class="col-md-4 col-6">
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-ID-Card text-16 mr-1"></i> Rut</p>
+                                    <span *ngIf="cliente.rut != null && cliente.rut != ''">{{cliente.rut}}</span>
+                                    <span *ngIf="cliente.rut == null || cliente.rut == ''">Sin Información</span>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> Correo</p>
+                                    <span
+                                        *ngIf="cliente.correo != null && cliente.correo != ''">{{cliente.correo}}</span>
+                                    <span *ngIf="cliente.correo == null || cliente.correo == ''">Sin Información</span>
+                                </div>
+
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Edit-Map text-16 mr-1"></i> Dirección</p>
+                                    <span
+                                        *ngIf="cliente.dirAux != null && cliente.dirAux != ''">{{cliente.dirAux}}</span>
+                                    <span *ngIf="cliente.dirAux == null || cliente.dirAux == ''">Sin Información</span>
+                                </div>
+
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i> Razón Social /
+                                        Nombre</p>
+                                    <span
+                                        *ngIf="cliente.nombre != null && cliente.nombre != ''">{{cliente.nombre}}</span>
+                                    <span *ngIf="cliente.nombre == null || cliente.nombre == ''">Sin Información</span>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Telephone text-16 mr-1"></i> Teléfono</p>
+                                    <span
+                                        *ngIf="cliente.telefono != null && cliente.telefono != ''">{{cliente.telefono}}</span>
+                                    <span *ngIf="cliente.telefono == null || cliente.telefono == ''">Sin
+                                        Información</span>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Post-Sign text-16 mr-1"></i> Región</p>
+                                    <span
+                                        *ngIf="cliente.regionNombre != null && cliente.regionNombre != ''">{{cliente.regionNombre}}</span>
+                                    <span *ngIf="cliente.regionNombre == null || cliente.regionNombre == ''">Sin
+                                        Información</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-6">
+
+
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i> Giro</p>
+                                    <span
+                                        *ngIf="cliente.nomGiro != null && cliente.nomGiro != ''">{{cliente.nomGiro}}</span>
+                                    <span *ngIf="cliente.nomGiro == null || cliente.nomGiro == ''">Sin
+                                        Información</span>
+                                </div>
+
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Mail-Send text-16 mr-1"></i> Correo DTE</p>
+                                    <span
+                                        *ngIf="cliente.emailDTE != null && cliente.emailDTE != ''">{{cliente.emailDTE}}</span>
+                                    <span *ngIf="cliente.emailDTE == null || cliente.emailDTE == ''">Sin
+                                        Información</span>
+                                </div>
+                                <div class="mb-4">
+                                    <p class="text-primary mb-1"><i class="i-Post-Sign-2-ways text-16 mr-1"></i> Comuna
+                                    </p>
+                                    <span
+                                        *ngIf="cliente.comunaNombre != null && cliente.comunaNombre != ''">{{cliente.comunaNombre}}</span>
+                                    <span *ngIf="cliente.comunaNombre == null || cliente.comunaNombre == ''">Sin
+                                        Información</span>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--VERSION MOVIL-->
+                    <div class="movil">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-ID-Card text-16 mr-1"></i> Rut :
+                                    <span *ngIf="cliente.rut != null && cliente.rut != ''">{{cliente.rut}}</span>
+                                    <span *ngIf="cliente.rut == null || cliente.rut == ''">Sin Información</span>
+                                </p>
+                            </div>
+
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> Correo :
+                                    <span
+                                        *ngIf="cliente.correo != null && cliente.correo != ''">{{cliente.correo}}</span>
+                                    <span *ngIf="cliente.correo == null || cliente.correo == ''">Sin Información</span>
+                                </p>
+                            </div>
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Edit-Map text-16 mr-1"></i> Dirección :
+                                    <span
+                                        *ngIf="cliente.dirAux != null && cliente.dirAux != ''">{{cliente.dirAux}}</span>
+                                    <span *ngIf="cliente.dirAux == null || cliente.dirAux == ''">Sin Información</span>
+                                </p>
+
+                            </div>
+
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i> Razón Social /
+                                    Nombre : <span
+                                        *ngIf="cliente.nombre != null && cliente.nombre != ''">{{cliente.nombre}}</span>
+                                    <span *ngIf="cliente.nombre == null || cliente.nombre == ''">Sin Información</span>
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Telephone text-16 mr-1"></i> Teléfono :
+                                    <span
+                                        *ngIf="cliente.telefono != null && cliente.telefono != ''">{{cliente.telefono}}</span>
+                                    <span *ngIf="cliente.telefono == null || cliente.telefono == ''">Sin
+                                        Información</span>
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Post-Sign text-16 mr-1"></i> Región :
+                                    <span
+                                        *ngIf="cliente.regionNombre != null && cliente.regionNombre != ''">{{cliente.regionNombre}}</span>
+                                    <span *ngIf="cliente.regionNombre == null || cliente.regionNombre == ''">Sin
+                                        Información</span>
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i> Giro :
+                                    <span
+                                        *ngIf="cliente.nomGiro != null && cliente.nomGiro != ''">{{cliente.nomGiro}}</span>
+                                    <span *ngIf="cliente.nomGiro == null || cliente.nomGiro == ''">Sin
+                                        Información</span>
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Mail-Send text-16 mr-1"></i> Correo DTE :
+                                    <span
+                                        *ngIf="cliente.emailDTE != null && cliente.emailDTE != ''">{{cliente.emailDTE}}</span>
+                                    <span *ngIf="cliente.emailDTE == null || cliente.emailDTE == ''">Sin
+                                        Información</span>
+                                </p>
+
+                            </div>
+                            <div class="col-md-12">
+                                <p class="text-primary mb-1"><i class="i-Post-Sign-2-ways text-16 mr-1"></i> Comuna :
+                                    <span
+                                        *ngIf="cliente.comunaNombre != null && cliente.comunaNombre != ''">{{cliente.comunaNombre}}</span>
+                                    <span *ngIf="cliente.comunaNombre == null || cliente.comunaNombre == ''">Sin
+                                        Información</span>
+                                </p>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </ng-template>
+            </ngb-tab>
+
+
+
+
+
+            <ngb-tab title="Contactos" *ngIf="configuracion.muestraContactosPerfil == 1">
+                <ng-template ngbTabContent>
+                    <div class="row desktop">
+                        <div *ngFor="let contacto of cliente.contactos" class="col-md-4">
+                            <div class="card card-profile-1 mb-3">
+                                <div class="card-body text-center">
+                                    <div class="avatar mb-3">
+                                        <img [src]="configDiseno.imagenUsuario" alt="">
+                                        <!--FCA 06-07-2022-->
+                                    </div>
+                                    <div class="mb-4">
+                                        <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i>Nombre</p>
+                                        <span
+                                            *ngIf="contacto.nombreContacto != null && contacto.nombreContacto != ''">{{contacto.nombreContacto}}</span>
+                                        <span
+                                            *ngIf="contacto.nombreContacto == null || contacto.nombreContacto == ''">Sin
+                                            Información</span>
+                                    </div>
+                                    <div class="mb-4">
+                                        <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> Correo</p>
+                                        <span
+                                            *ngIf="contacto.correo != null && contacto.correo != ''">{{contacto.correo}}</span>
+                                        <span *ngIf="contacto.correo == null || contacto.correo == ''">Sin
+                                            Información</span>
+                                    </div>
+                                    <!-- <div class="mb-4">
+                                            <p class="text-primary mb-1"><i class="i-Telephone text-16 mr-1"></i> Teléfono</p>
+                                            <span>{{contacto.telefono}}</span>
+                                        </div>      -->
+                                    <div class="mb-4">
+                                        <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i> Cargo</p>
+                                        <span
+                                            *ngIf="contacto.cargoContacto != null && contacto.cargoContacto != ''">{{contacto.cargoContacto}}</span>
+                                        <span *ngIf="contacto.cargoContacto == null || contacto.cargoContacto == ''">Sin
+                                            Información</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row movil">
+                        <div class="col-md-12">
+                            <ngb-carousel style="text-align: center" interval="false">
+                                <ng-template ngbSlide *ngFor="let contacto of cliente.contactos">
+                                    <div class="card card-profile-1 mb-3" style="min-height: 500px;">
+                                        <div class="card-body text-center">
+                                            <div class="avatar mb-3">
+                                                <img [src]="configDiseno.iconoContactos" alt="">
+                                                <!--FCA 06-07-2022-->
+                                            </div>
+                                            <div class="mb-4">
+                                                <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i>Nombre
+                                                </p>
+                                                <span
+                                                    *ngIf="contacto.nombreContacto != null && contacto.nombreContacto != ''">{{contacto.nombreContacto}}</span>
+                                                <span
+                                                    *ngIf="contacto.nombreContacto == null || contacto.nombreContacto == ''">Sin
+                                                    Información</span>
+                                            </div>
+                                            <div class="mb-4">
+                                                <p class="text-primary mb-1"><i class="i-Email text-16 mr-1"></i> Correo
+                                                </p>
+                                                <span
+                                                    *ngIf="contacto.correo != null && contacto.correo != ''">{{contacto.correo}}</span>
+                                                <span *ngIf="contacto.correo == null || contacto.correo == ''">Sin
+                                                    Información</span>
+                                            </div>
+                                            <!-- <div class="mb-4">
+                                                    <p class="text-primary mb-1"><i class="i-Telephone text-16 mr-1"></i> Teléfono</p>
+                                                    <span>{{contacto.telefono}}</span>
+                                                </div>      -->
+                                            <div class="mb-4">
+                                                <p class="text-primary mb-1"><i class="i-Receipt-3 text-16 mr-1"></i>
+                                                    Cargo</p>
+                                                <span
+                                                    *ngIf="contacto.cargoContacto != null && contacto.cargoContacto != ''">{{contacto.cargoContacto}}</span>
+                                                <span
+                                                    *ngIf="contacto.cargoContacto == null || contacto.cargoContacto == ''">Sin
+                                                    Información</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </ngb-carousel>
+                        </div>
+
+                    </div>
+                </ng-template>
+            </ngb-tab>
+
+
+        </ngb-tabset>
+
+        <hr>
+    </div>
+</div>
+
+<ng-template #modalCambioClave let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Cambiar Clave</h4>
+        <button [disabled]="loadingChangePass" type="button" class="close" aria-label="Close"
+            (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form #myForm="ngForm" name="cate-form">
+
+            <div class="form-group">
+                <label for="picker1">Nueva Clave <span class="camporequerido">*</span></label>
+                <div class="input-group">
+                    <input type="password"
+                        [ngClass]="newPass11.errors && (newPass11.dirty || newPass11.touched) ? 'form-control is-invalid' : 'form-control'"
+                        placeholder="Nueva Clave" #newPass11="ngModel" required minlength="6" name="newPass11"
+                        [(ngModel)]="changePass.newPass1" />
+                </div>
+                <p *ngIf="newPass11.errors && (newPass11.dirty || newPass11.touched)" class="text-danger"
+                    style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="newPass11.errors.required">
+                        Nueva Clave es requerido
+                    </span>
+                    <span *ngIf="newPass11.errors.minlength">
+                        Nueva Clave debe tener al menos 6 caracteres
+                    </span>
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="picker1">Repita Nueva Clave <span class="camporequerido">*</span></label>
+                <div class="input-group">
+                    <input type="password"
+                        [ngClass]="newPass22.errors && (newPass22.dirty || newPass22.touched) ? 'form-control is-invalid' : 'form-control'"
+                        placeholder="Repita Nueva Clave" #newPass22="ngModel" required minlength="6" name="newPass22"
+                        [(ngModel)]="changePass.newPass2" />
+                </div>
+                <p *ngIf="newPass22.errors && (newPass22.dirty || newPass22.touched)" class="text-danger"
+                    style="margin-top: 2px; font-size: 12px">
+                    <span *ngIf="newPass22.errors.required">
+                        Repita Nueva Clave es requerido
+                    </span>
+                    <span *ngIf="newPass22.errors.minlength">
+                        Repita Nueva Clave debe tener al menos 6 caracteres
+                    </span>
+                </p>
+            </div>
+
+        </form>
+    </div>
+    <div class="modal-footer">
+        <!--FCA 06-07-2022-->
+        <button type="button" [disabled]="!myForm.form.valid"
+            [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'" class="btn btn-primary"
+            [ngStyle]="{backgroundColor: configDiseno.colorBotonGuardarModalPerfil}"
+            (click)="onChangePass()">Guardar</button>
+    </div>
+</ng-template>
+
+<ng-template #modalModificarDatos let-modal>
+    <div class="modal-header">
+        <div class="row">
+            <h4 class="modal-title mr-3 ml-3" id="modal-basic-title"> <i
+                    class="i-Add-User i-Magnifi-Glass1 mr-3"></i>Modificar Datos</h4>
+            <br>
+        </div>
+
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="row">
+                <div class="col-md-4 form-group mb-3">
+                    <label for="picker1"><i class="i-ID-Card"></i> Rut</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="selectedRut" placeholder="Rut"
+                            name="rut" disabled>
+                    </div>
+                </div>
+                <div class="col-md-8 form-group mb-3">
+                    <label for="picker1"> <i class="i-Tag-5"> </i> Razón Social / Nombre</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="selectedRazonSocial"
+                            placeholder="Nombre" autocomplete="off" name="nombre">
+                    </div>
+                </div>
+
+                <div class="col-md-8 form-group mb-3">
+                    <label for="lastName"> <i class="i-Post-Sign"></i> Giro</label>
+                    <ng-select class="customAC" name="giroSl" #giroSl="ngModel" [(ngModel)]="selectedGiro"
+                        [items]="giros" bindLabel="nombre" required placeholder="Giro" bindValue="idGiro">
+                    </ng-select>
+                </div>
+
+                <!-- <div class="col-md-4 form-group mb-3">
+                    <label for="picker1"><i class="i-Email"></i> Correo</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="clienteChangeDatos.correo"
+                            placeholder="Correo" autocomplete="off" name="correo">
+                    </div>
+                </div> -->
+
+                <div class="col-md-4 form-group mb-3">
+                    <label for="picker1"><i class="i-Telephone"></i> Teléfono</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="selectedTelefono"
+                            placeholder="Teléfono" autocomplete="off" name="telefono">
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group mb-3">
+                    <label for="picker1"><i class="i-Email"></i> Correo DTE</label>
+                    <div class="input-group" *ngIf="correosDTE.length == 0">
+                        <input type="text" class="form-control" [(ngModel)]="selectedCorreoDTE"
+                            placeholder="Correo Dte" autocomplete="off" name="CorreoDte">
+                    </div>
+
+                    <ng-select class="customAC" *ngIf="correosDTE.length > 0" name="cEMailDTE" #cEMailDTE="ngModel"
+                        [(ngModel)]="selectedCorreoDTE" [items]="correosDTE" bindLabel="mail" required
+                        placeholder="Correo DTE" bindValue="mail">
+                    </ng-select>
+                </div>
+
+
+
+                <div class="col-md-4 form-group mb-3">
+                    <label for="lastName"> <i class="i-Post-Sign"></i> Región</label>
+                    <ng-select class="customAC" (change)="onChangeRegion($event)" name="regionAl" #regionAl="ngModel"
+                        [(ngModel)]="selectedRegion" [items]="regiones" bindLabel="nombre" required placeholder="Región"
+                        bindValue="idRegion">
+                    </ng-select>
+                </div>
+
+
+                <div class="col-md-4 form-group mb-3">
+                    <label for="lastName"> <i class="i-Post-Sign-2-ways"></i> Comuna</label>
+                    <ng-select class="customAC" name="comuna" #comuna="ngModel" [(ngModel)]="selectedComuna"
+                        [items]="comunas" bindLabel="nombre" required placeholder="Comuna"
+                        bindValue="codComunaSoftland">
+                    </ng-select>
+                </div>
+
+
+                <div class="col-md-4 form-group mb-3">
+                    <label for="picker1"><i class="i-Edit-Map"></i> Dirección</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="selectedDireccion"
+                            placeholder="Dirección" autocomplete="off" name="direccion">
+                    </div>
+                </div>
+
+                <div class="col-md-4 form-group mb-3" *ngIf="configuracion.utilizaNumeroDireccion == 1">
+                    <label for="picker1"><i class="i-Edit-Map"></i> Numero</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="selectedNumDir"
+                            placeholder="Numero" autocomplete="off" name="numero">
+                    </div>
+                </div>
+
+
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <!--FCA 06-07-2022-->
+        <button type="button" class="btn btn-outline-secondary"
+            [ngStyle]="{backgroundColor: configDiseno.colorBotonCancelarModalPerfil}"
+            (click)="modal.dismiss('cancel')">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="ActualizaCliente()"
+            [ngStyle]="{backgroundColor: configDiseno.colorBotonGuardarModalPerfil}">Guardar</button>
+    </div>
+</ng-template>

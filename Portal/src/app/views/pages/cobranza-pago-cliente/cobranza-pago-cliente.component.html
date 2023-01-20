@@ -1,0 +1,178 @@
+<div class="breadcrumb">
+    <h1>Configuración Pago Clientes</h1>
+    <ul>
+        <li><a href="">Cobranzas</a></li>
+        <li>Configuración Pago Clientes</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card mb-4">
+    <div class="card-body" style="min-height: 400px;">
+        <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong>  donde se obtendrán los documentos pendientes de cada cliente.</h6>
+        <div class="row mt-2">
+            
+            <div class="col-md-12 form-group mb-3">
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="cuentasContables"
+                    bindLabel="nombre"
+                    placeholder="Cuentas Contables"
+                    #cc="ngModel" name="cc"
+                    [(ngModel)]="selectedCuen"
+                    bindValue="codigo"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>
+            </div>
+        </div>
+
+        <h6 class="mb-2 mt-2">Seleccione los <strong>Tipos de documentos</strong> con los que se podrán ingresar pagos.</h6>
+
+        <div class="row mt-2">            
+            <div class="col-md-12 form-group mb-3">
+                <form #myFormDctos="ngForm" name="cate-form" >
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="tipoDocs"
+                        bindLabel="desDoc"
+                        placeholder="Tipo de documento"
+                        #td="ngModel" name="td"
+                        [(ngModel)]="selectedDosc"
+                        bindValue="codDoc"
+                        [multiple]="false"
+                        [closeOnSelect]="true"
+                        (change)="onSelectTipoDoc($event)"
+                    > 
+                    </ng-select>                    
+                </form> 
+            </div>
+        </div>
+
+        <div class="row mt-2" style="overflow-y: scroll; max-height:300px;">
+            <div class="table-responsive col-md-12">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 40%;">Código</th>
+                            <th scope="col" style="width: 50%;">Nombre</th>
+                            <th scope="col" style="width: 50%;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of tiposDctosSelected">
+                            <td>{{ c.codDoc }}</td>
+                            <td>{{ c.desDoc }}</td>
+                            <td>
+                                <button (click)="deleteTipoDoc(c)" title="Eliminar" class="btn btn-icon bg-transparent" style="height: 24px">
+                                  <i class="i-Close text-16 text-primary"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h6 class="mb-2">Seleccione la <strong>Cuenta Contable Contrapartida </strong>  para el pago ingresado.</h6>
+        <div class="row mt-2">
+            
+            <div class="col-md-12 form-group mb-3">
+                <ng-select class="customAC"
+                    style="border-radius: 40px !important;"
+                    [items]="cuentasContablesCP"
+                    bindLabel="nombre"
+                    placeholder="Cuenta Contable Contrapartida"
+                    #ccc="ngModel" name="ccc"
+                    [(ngModel)]="selectedCuenContrapartida"
+                    bindValue="codigo"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                > 
+                </ng-select>           
+            </div>
+        </div>
+
+        <!-- <h6 class="mb-2 mt-2">Seleccione los <strong>Cargos</strong> a los cuales desea realizar cobranza</h6>
+
+        <div class="row mt-2">            
+            <div class="col-md-12 form-group mb-3">
+                <form #myFormCar="ngForm" name="cate-form" >
+                    <ng-select class="customAC"
+                        style="border-radius: 40px !important;"
+                        [items]="cargos"
+                        bindLabel="nombre"
+                        placeholder="Cargos"
+                        #car="ngModel" name="car"
+                        [(ngModel)]="selectedCargos"
+                        bindValue="idCargo"
+                        [multiple]="false"
+                        [closeOnSelect]="true"
+                        (change)="onSelectCargos($event)"
+                    > 
+                    </ng-select>                   
+                </form>                
+            </div>
+        </div>
+
+        <div class="row mt-2" style="overflow-y: scroll; max-height:300px;">
+            <div class="table-responsive col-md-12">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 40%;">Código</th>
+                            <th scope="col" style="width: 50%;">Nombre</th>
+                            <th scope="col" style="width: 50%;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let c of cargosSelected">
+                            <td>{{ c.idCargo }}</td>
+                            <td>{{ c.nombre }}</td>
+                            <td>
+                                <button (click)="deleteCargo(c)" title="Eliminar" class="btn btn-icon bg-transparent" style="height: 24px">
+                                  <i class="i-Close text-16 text-primary"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div> -->
+
+        <!-- <div class="row">
+            <div class="col-md-12">
+                <label class="checkbox checkbox-outline-primary mt-2">
+                    <input type="checkbox" [(ngModel)]="enviaNotifContactosSinCargo" id="check1" name="check1" />
+                    <span>Enviar notificaciones a contactos sin cargo</span>
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="col-md-12">
+                <label class="checkbox checkbox-outline-primary mt-2">
+                    <input type="checkbox"  [(ngModel)]="enviaNotifClientesSinContactos" id="check2" name="check2">
+                    <span>Enviar notificaciones a clientes sin contactos</span>
+                    <span class="checkmark"></span>
+                </label>
+            </div>                    
+        </div> -->
+
+        <hr>
+
+        <div class="row">
+            <hr>
+            <div class="col-md-12 text-center">
+                <btn-loading 
+                    btnClass="btn btn-secondary btn-rounded m-1" 
+                    [loading]="btnLoading" 
+                    loadingText="Grabando..."
+                    (click)="save()">
+                    Guardar Cambios
+                </btn-loading>
+            </div>    
+        </div>
+
+    </div>
+</div>

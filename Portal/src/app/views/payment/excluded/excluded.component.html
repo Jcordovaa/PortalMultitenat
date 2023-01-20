@@ -1,0 +1,209 @@
+<div class="breadcrumb">
+    <h1>Cliente Excluidos</h1>
+    <ul>
+        <li><a href="">Portal</a></li>
+        <li>Clientes Excluidos</li>
+    </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="card user-profile o-hidden mb-4">
+  <div class="header-cover" style="background-image: url('assets/images/photo-wide-4.jpg')"></div>
+  <div class="user-info">
+      <img class="profile-picture avatar-lg mb-2" src="{{img}}" alt="">
+  </div>    
+  <div class="col-md-12">
+    <div class="row">              
+      <div class="col-md-12 form-group mb-3 mt-3">
+          <div class="card mb-4 ">
+              <div class="card-header">
+                A continuación se listaran los clientes que se excluirán de las cobranzas , si desea agregar un nuevo cliente presione el siguiente botón y complete los datos.
+              </div>
+              <div class="card-body">                        
+                  <btn-loading id="sss3" (click)="openModal(modalBasic)" btnClass="btn-success justify-content-between align-items-center mr-3"> <i class="i-Add mt-3 mr-1"></i> <span class="mr-3">Excluir Cliente</span></btn-loading>
+              </div>                   
+          </div>    
+          <div class="row mb-4" *ngIf="totalItems > 0">
+            <!-- GRID AND LIST BUTTONS -->
+            <div class="col-6">
+              <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2" [ngClass]="{active: viewMode === 'grid'}" (click)="viewMode = 'grid'">
+                <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                  x="0px" y="0px" viewBox="0 0 369.946 369.946" style="enable-background:new 0 0 369.946 369.946;" xml:space="preserve">
+                  <path d="M250.609,0h-11.934H131.271h-11.934H0v119.337v11.934v107.404v11.934v119.337h119.337h11.934
+                      h107.404h11.934h119.337V250.609v-11.934V131.271v-11.934V0H250.609z M238.675,11.934v107.404H131.271V11.934H238.675z
+                        M238.675,131.271v107.404H131.271V131.271H238.675z M11.934,11.934h107.404v107.404H11.934V11.934z M11.934,131.271h107.404
+                      v107.404H11.934V131.271z M11.934,358.012V250.609h107.404v107.404H11.934z M131.271,358.012V250.609h107.404v107.404H131.271z
+                        M358.012,358.012H250.609V250.609h107.404V358.012z M358.012,238.675H250.609V131.271h107.404V238.675z M250.609,119.337V11.934
+                      h107.404v107.404H250.609z" />
+                </svg>
+              </button>
+              <button class="btn btn-sm btn-rounded btn-outline-light btn-svg" [ngClass]="{active: viewMode === 'list'}" (click)="viewMode = 'list'">
+                <svg version="1.1" id="list" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+                  y="0px" width="16px" height="16px" viewBox="0 0 612 612" style="enable-background:new 0 0 612 612;" xml:space="preserve">
+                  <path d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+            
+
+          <!-- DATA LIST -->
+          <div *ngIf="totalItems > 0" class="row"
+            [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+            <!-- SINGLE LIST ITEM -->
+            <div *ngFor="let item of ClientesExcludios | paginate: config; let i = index" class="list-item"
+              [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+              [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+              <div class="card o-hidden mb-2 d-flex"
+                [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+                <div class="list-thumb d-flex ml-2">
+                  <!-- TUMBNAIL -->
+                  <img style="cursor: pointer;" src="https://img.icons8.com/bubbles/2x/user.png" width="60" height="60"
+                    alt="">
+                </div>
+                <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+                  <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+                    [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+                    <!-- OTHER DATA -->
+                    <a href="" class="w-15 w-sm-100" style="width: 20%;">
+                      <div class="item-title"> <span placement="bottom" container="body"
+                          ngbTooltip="{{item.rutCliente}}">{{item.rutCliente}}</span> </div>
+                    </a>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                      <strong>Nombre: </strong> {{item.nombreCliente}}
+                    </p>
+                    <p class="m-0 text-muted w-15 w-sm-100">
+                      <img (click)="delete(item)" container="body" ngbTooltip="Eliminar" style="cursor: pointer;"
+                        src="https://img.icons8.com/cute-clipart/2x/delete-forever.png" width="20" height="20" alt="">
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- PAGINATION CONTROL -->
+            <div class="col-md-12 mt-3" *ngIf="ClientesExcludios?.length && totalItems > 0">
+              <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true" previousLabel=""
+                nextLabel="">
+              </pagination-controls>
+              <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+            </div>
+          </div>
+
+          <div class="row" *ngIf="totalItems == 0">
+            <div class="col-md-12">
+              <ngb-alert class="alert-card text-center" [dismissible]="false">
+                {{noResultsText}}
+              </ngb-alert>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Excluir cliente</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="row">
+            <div class="col-md-4 form-group mb-3">
+                <label for="firstName">Rut Cliente</label>
+                <input type="text" (blur)="validaRutCliente()" required maxlength="12" class="form-control" id="rut" name="rut" [(ngModel)]="searchRut" placeholder="Rut Cliente">
+            </div>
+            <div class="col-md-4 form-group mb-3">
+                <label for="firstName">Nombre Cliente</label>
+                <input type="text" autocomplete="off" required maxlength="60" class="form-control" id="nombreCliente" name="nombreCliente" [(ngModel)]="searchNombreCliente" placeholder="Nombre Cliente">
+            </div>               
+
+            <div class="form-group col-md-4 mb-3">
+                <label for="picker1" class="text-lbl">Condición de venta</label>
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
+                    bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel" name="condicionesVentas"
+                    [(ngModel)]="selectedCondicionVenta" bindValue="cveCod">
+                </ng-select>
+            </div>
+
+            <div class="form-group col-md-4 mb-3">
+                <label for="picker1" class="text-lbl">Lista de precios</label>
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
+                    bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel" name="listasPrecios"
+                    [(ngModel)]="selectedListaPrecio" bindValue="codLista">
+                </ng-select>
+            </div>
+            <div class="form-group col-md-4 mb-3">
+                <label for="picker1" class="text-lbl">Categoría cliente</label>
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
+                    bindLabel="catDes" placeholder="Categoría cliente" #categoriasClientes="ngModel" name="categoriasClientes"
+                    [(ngModel)]="selectedCatCliente" bindValue="catCod">
+                </ng-select>
+            </div>
+            <div class="form-group col-md-4 mb-3">
+                <label for="picker1" class="text-lbl">Vendedor</label>
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
+                    bindLabel="venDes" placeholder="Vendedor" #vendedoress="ngModel" name="vendedoress"
+                    [(ngModel)]="selectedVendedor" bindValue="venCod">
+                </ng-select>
+            </div>
+           
+            
+            <div class="col-md-12 form-group mb-3 align-self-end" align="center">
+                <btn-loading id="sss" (click)="search()" btnClass="btn-primary justify-content-between align-items-center mr-3" [loading]="loading" > <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></btn-loading>              
+            </div>
+            
+        </div>
+
+        <div class="row mt-3" *ngIf="showDetail">
+            <div class="col-md-12">
+                <ngx-datatable style="height: 280px; box-shadow: none" class="material" [rows]="clientesResp"
+                    [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="60" [limit]="10"
+                    [scrollbarV]="true" [scrollbarH]="true"
+                    [messages]="{emptyMessage:'No se encontraron resultados.', totalMessage: 'Registros', selectedMessage: 'Seleccionados'}">
+
+             
+                    <ngx-datatable-column name="rut" [width]="90" [maxWidth]="150">
+                    <ng-template ngx-datatable-header-template>
+                        Rut Cliente
+                    </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="nombre" [width]="300" [maxWidth]="400">
+                    <ng-template ngx-datatable-header-template>
+                        Nombre
+                    </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="nnn" [width]="63">
+                        <ng-template ngx-datatable-header-template>
+                            Acciones
+                        </ng-template>
+                        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                            <img  (click)="excluir(row)" container="body" ngbTooltip="Excluir" style="cursor: pointer;"
+                            src="assets/images/icon/1891032_add_append_circle_create_green_icon.png" width="27" height="27" alt="">
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+
+            </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" 
+        class="btn btn-outline-dark btn-rounded" 
+        (click)="modal.dismiss('Cross click')"      
+      >Cerrar</button>
+    </div>
+  </ng-template>
+  
+
+
+
+
+
+
+  
+

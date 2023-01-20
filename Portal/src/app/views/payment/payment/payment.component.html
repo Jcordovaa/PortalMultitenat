@@ -1,0 +1,52 @@
+<div class="breadcrumb">
+  <h1>Inicio</h1>
+  <ul>
+    <li><a href="">Portal de pagos</a></li>
+    <li>Inicio</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="mb-1">Taffic in last 24h</h6>
+        <p class="text-22 text-success font-weight-light mb-1">13000</p>
+        <div echarts [options]="chartLine1" [autoResize]="true" style="height: 65px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="mb-1">Taffic in last week</h6>
+        <p class="text-22 text-danger font-weight-light mb-1">65058</p>
+        <div echarts [options]="chartLine2" [autoResize]="true" style="height: 65px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="mb-1">Taffic in last month</h6>
+        <p class="text-22 font-weight-light mb-1">165058</p>
+        <div echarts [options]="chartLine3" [autoResize]="true" style="height: 65px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="mb-1">Taffic in last 3 months</h6>
+        <p class="text-22 font-weight-light mb-1">1065058</p>
+        <div echarts [options]="chartLine4" [autoResize]="true" style="height: 65px;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>

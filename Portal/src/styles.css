@@ -1,0 +1,16 @@
+/* You can add global styles to this file, and also import other style files */
+.camporequerido {
+    color: #a94442;
+}
+
+.ng-select .ng-select-container{
+    border-radius: 5px !important;
+}
+
+.ng-dropdown-panel.ng-select-bottom {
+    border-radius: 10px !important;
+}
+
+.ng-dropdown-panel .scroll-host {
+    border-radius: 10px;
+}
