@@ -9,8 +9,9 @@ import { ITipoApi } from '../shared/enums/TipoApi';
     providedIn: 'root'
 })
 export class Utils {
-    // public Server: string = 'https://localhost:7043';
+    //public Server: string = 'https://localhost:7043';
     public Server: string = 'https://apitenat.intgra.cl';
+    //public Server: string = 'https://apiportalcliente.softlandcloud.cl';
     public ApiUrl: string = 'api/';
     public ServerWithApiUrl = this.Server + '/' + this.ApiUrl;
 
@@ -65,7 +66,7 @@ export class Utils {
             const httpOptions = {
                 headers: new HttpHeaders({
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin' : '*'
+              
                 })
             };
             return httpOptions;

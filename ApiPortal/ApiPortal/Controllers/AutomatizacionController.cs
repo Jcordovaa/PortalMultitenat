@@ -12,7 +12,7 @@ using System.Text;
 
 namespace ApiPortal.Controllers
 {
-    //[EnableCors()]
+    [EnableCors()]
     [Route("api/[controller]")]
     [ApiController]
     public class AutomatizacionController : ControllerBase

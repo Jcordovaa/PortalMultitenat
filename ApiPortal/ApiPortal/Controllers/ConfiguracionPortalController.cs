@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiPortal.Controllers
 {
-    //[EnableCors]
+    [EnableCors]
     [Route("api/[controller]")]
 
     [ApiController]

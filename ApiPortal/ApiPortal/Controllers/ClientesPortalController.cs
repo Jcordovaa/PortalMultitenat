@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Cors;
 
 namespace ApiPortal.Controllers
 {
-    //[EnableCors()]
+    [EnableCors()]
     [Route("api/[controller]")]
     [ApiController]
     public class ClientesPortalController : ControllerBase

@@ -1,30 +1,20 @@
 global using ApiPortal.Security.UserService;
+using ApiPortal;
 using ApiPortal.Dal.Models_Admin;
 using ApiPortal.Dal.Models_Portal;
 using ApiPortal.Security.Extensions;
 using ApiPortal.Security.TenantService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//JCA CORS
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("MyAllowedOrigins",
-//        builder =>
-//        {
-//            builder.AllowAnyOrigin()
-//            .AllowAnyMethod()
-//            .AllowAnyHeader();
-//        });
-//});
-
-//builder.Services.AddCors();
 
 
 // Add services to the container.
@@ -35,6 +25,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMemoryCache, MemoryCache>();
 
 builder.Services.AddHttpContextAccessor();
+
+
 
 
 
@@ -96,7 +88,7 @@ builder.Services.AddMultiTenancy()
 
 var app = builder.Build();
 
-//app.UseCors("MyAllowedOrigins");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
@@ -104,30 +96,37 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+app.Use(async (context, next) =>
+{
+ 
+    {
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.Response.Headers.Add("Access-Control-Allow-Methods", "*");
+        context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
+        context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
+        context.Response.Headers.Add("Access-Control-Max-Age", "3600");
+        if (context.Request.Method == "OPTIONS")
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return;
+    }
+    await next();
+});
 
+app.UseCors(options => options
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
+app.UseCors();
+app.UseAuthentication();
+app.MapControllers();
+app.UseMultiTenancy();
+app.UseAuthorization();
 app.UseHttpsRedirection();
 
 
-//JCA CORS
-//app.UseRouting();
-//app.UseCors(builder =>
-//{
-//    builder.WithOrigins("https://tenat1.intgra.cl")
-//           .AllowAnyMethod()
-//           .AllowAnyHeader();
-//});
-
-app.UseMultiTenancy();
-app.UseAuthentication();
-app.UseAuthorization();
 
 
-app.MapControllers();
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Home}/{action=Index}/{id?}"
-//    );
 
 AppDomain.CurrentDomain.SetData("ContentRootPath", app.Environment.ContentRootPath);
 AppDomain.CurrentDomain.SetData("WebRootPath", app.Environment.WebRootPath);
