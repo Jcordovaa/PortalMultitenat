@@ -15,7 +15,9 @@
                 return string.Empty;
             }
 
-            return await Task.FromResult(_httpContext.Request.Host.Host);
+            //return await Task.FromResult(_httpContext.Request.Host.Host);
+            var uri = new Uri(_httpContext.Request.Headers.Origin);
+            return await Task.FromResult(uri.Host);
         }
     }
 }

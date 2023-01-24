@@ -63,6 +63,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<PortalAdministracionSoftlandContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("TenantAdmin")));
 builder.Services.AddDbContext<PortalClientesSoftlandContext>();
+//builder.Services.AddDbContext<PortalClientesSoftlandContext>(options =>
+//        options.UseSqlServer(Tenant.Items["ConnectionString"]));
 builder.Services.AddTransient<ITenantAccessor<ApiPortal.Security.Tenant>, TenantAccessor>();
 
 //JWT
@@ -98,15 +100,16 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 app.Use(async (context, next) =>
 {
- 
+
+    if (context.Request.Method == "OPTIONS")
     {
+        var host = context.Request.Host.Host;
         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         context.Response.Headers.Add("Access-Control-Allow-Methods", "*");
         context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
         context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
         context.Response.Headers.Add("Access-Control-Max-Age", "3600");
-        if (context.Request.Method == "OPTIONS")
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
         return;
     }
     await next();
@@ -117,7 +120,15 @@ app.UseCors(options => options
     .AllowAnyMethod()
     .AllowAnyHeader());
 
-app.UseCors();
+//Orden obligatorio
+//UseCors
+//UseAuthentication
+//MapControllers
+//UseMultiTenancy
+//UseAuthorization
+//UseHttpsRedirection
+
+//app.UseCors();
 app.UseAuthentication();
 app.MapControllers();
 app.UseMultiTenancy();

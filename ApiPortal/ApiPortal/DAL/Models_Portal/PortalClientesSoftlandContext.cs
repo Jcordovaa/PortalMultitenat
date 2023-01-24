@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ApiPortal.Security.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -7,14 +8,17 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class PortalClientesSoftlandContext : DbContext
     {
+        private readonly IHttpContextAccessor _contextAccessor;
         public PortalClientesSoftlandContext()
         {
         }
 
-        public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options)
+        public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options, IHttpContextAccessor contextAccessor)
             : base(options)
         {
+            _contextAccessor = contextAccessor;
         }
+
 
         public virtual DbSet<Acceso> Accesos { get; set; } = null!;
         public virtual DbSet<ApiSoftland> ApiSoftlands { get; set; } = null!;
@@ -60,8 +64,9 @@ namespace ApiPortal.Dal.Models_Portal
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalClientesSoftland;User Id=sa;Password=204709cejA;");
+                var currentTenant = _contextAccessor.HttpContext?.GetTenant();
+                optionsBuilder.UseSqlServer(currentTenant.Items["ConnectionString"].ToString());
+                //optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalClientesSoftland2;User Id=sa;Password=204709cejA;");
             }
         }
 

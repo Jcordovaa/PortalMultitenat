@@ -1,25 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {}
+    "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {}
   },
   "projects": {
-    "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {
+    "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
+        "projectUniqueName": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
         "projectName": "ApiPortal",
-        "projectPath": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
-        "packagesPath": "C:\\Users\\Felipe\\.nuget\\packages\\",
-        "outputPath": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\obj\\",
+        "projectPath": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
+        "packagesPath": "C:\\Users\\javie\\.nuget\\packages\\",
+        "outputPath": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\Felipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\javie\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -91,8 +89,7 @@
             "net47",
             "net471",
             "net472",
-            "net48",
-            "net481"
+            "net48"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -104,7 +101,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     }
