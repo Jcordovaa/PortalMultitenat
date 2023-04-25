@@ -22,7 +22,7 @@ export class PasarelaPagoService {
   }
   
   getAllPasarelasPago(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/GetAllPasarelas`,this.utils.getHeaders(true));
+    return this.http.get<any[]>(`${this.apiUrl}/getAllPasarelas`);
   }
   
   // edit (pasarela: PasarelaPago): Observable<PasarelaPago> {
@@ -36,11 +36,11 @@ export class PasarelaPagoService {
   }
   
   getLogPasarela(idPago: number) {
-    return this.http.get(`${this.apiUrl}/getLog/${idPago}`,this.utils.getHeaders(false));
+    return this.http.get(`${this.apiUrl}/getLog/${idPago}`);
   }
 
-  generaPagoElectronico(idPago:number, idPasarela:number, rutCliente:string, idCobranza:number, datosPago:string, redirectTo: number ): Observable<PasarelaPago> {
-    return this.http.post<PasarelaPago>(`${this.apiPago}/GeneraPagoElectronico?idPago=${idPago}&idPasarela=${idPasarela}&rutCliente=${rutCliente}&idCobranza=${idCobranza}&datosPago=${datosPago}&redirectTo=${redirectTo}`, this.utils.getHeaders(true));
+  generaPagoElectronico(idPago:number, idPasarela:number, rutCliente:string, idCobranza:number, datosPago:string, redirectTo: number, tenant: string ): Observable<PasarelaPago> {
+    return this.http.post<PasarelaPago>(`${this.apiPago}/GeneraPagoElectronico?idPago=${idPago}&idPasarela=${idPasarela}&rutCliente=${rutCliente}&idCobranza=${idCobranza}&datosPago=${datosPago}&redirectTo=${redirectTo}&tenant=${tenant}`, this.utils.getHeaders(false));
   }
 
 }

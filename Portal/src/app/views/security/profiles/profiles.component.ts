@@ -63,7 +63,7 @@ export class ProfilesComponent implements OnInit {
 
       this.spinner.hide();
       
-    }, err => {var error = err; this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener los perfiles', '', true); });
+    }, err => {debugger; var error = err; this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener los perfiles', '', true); });
   }
 
   openModal(content, perfil: Perfil) {    

@@ -63,6 +63,7 @@ export class ConfiguracionDiseno {
      bannerPagoRapido?: string;
      logoMinimalistaSidebar?: string;
      logoSidebar?: string;
+     favicon?: string;
     
     constructor() {
      this.idConfiguracionTextosColores = 0;
@@ -129,6 +130,7 @@ export class ConfiguracionDiseno {
      this.bannerPagoRapido = '';
      this.logoMinimalistaSidebar = '';
      this.logoSidebar = '';
+     this.favicon = '';
     }
   
 }

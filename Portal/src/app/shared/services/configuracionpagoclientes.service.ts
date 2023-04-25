@@ -20,13 +20,32 @@ export class ConfiguracionPagoClientesService {
     }
 
     getConfigPagoClientes() {
-        return this.http.get(`${this.apiUrl}/GetConfiguracion`, this.utils.getHeaders(false));
+        return this.http.get(`${this.apiUrl}/getConfiguracion`, this.utils.getHeaders(false));
     }
 
     save(data: ConfiguracionPagoCliente) {
         const body = JSON.stringify(data);
         return this.http.post(`${this.apiUrl}`, body, this.utils.getHeaders(true));
     }
+
+    getAllConfigPortal() {
+        return this.http.get(`${this.apiUrlPortal}/GetAllConfiguracionPortal`, this.utils.getHeaders(false));
+    }
+
+    getAllConfiguracionPortalLs() {
+        var config = localStorage.getItem('configuracionCompletaPortal');
+        if (config != null) {
+
+            return JSON.parse(config);
+        }
+        return null
+    }
+
+
+    // edit(data: ConfiguracionPagoCliente) {
+    //     const body = JSON.stringify(data);
+    //     return this.http.put(`${this.apiUrl}/${data.idConfiguracionPago}`, body, this.utils.getHeaders(false));
+    // }
 
 
     edit(data: ConfiguracionPagoCliente) {
@@ -35,7 +54,7 @@ export class ConfiguracionPagoClientesService {
     }
 
     actualizaDiasPorVencer(dias: number) {
-        return this.http.post(`${this.apiUrl}/ActualizaDiasPorVencer/${dias}`,null, this.utils.getHeaders(true));
+        return this.http.post(`${this.apiUrl}/ActualizaDiasPorVencer/${dias}`, null, this.utils.getHeaders(true));
     }
 
     saveConfigTiposDocs(data: ConfiguracionTiposDocumentos[]) {
@@ -53,7 +72,7 @@ export class ConfiguracionPagoClientesService {
     //     return this.http.put(`${this.apiUrlPortal}/${data.idConfiguracionPortal}`, body, this.utils.getHeaders(false));
     // }
 
-    editPortal(data: ConfiguracionPortal, dias : number) {
+    editPortal(data: ConfiguracionPortal, dias: number) {
         const body = JSON.stringify(data);
         return this.http.post(`${this.apiUrlPortal}/actualizaConfiguracion/${dias}`, body, this.utils.getHeaders(true));
     }

@@ -8,6 +8,8 @@ using ApiPortal.ViewModelsPortal;
 using System.Web;
 using System.Net.Mail;
 using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
 namespace ApiPortal.Services
 {
@@ -16,7 +18,7 @@ namespace ApiPortal.Services
         private readonly SqlConnection conSoftland;
         private readonly PortalClientesSoftlandContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        string utilizaApiSoftland = "1"; /*ConfigurationManager.AppSettings["UtilizaApiSoftland"];*/
+        string utilizaApiSoftland = "true"; /*ConfigurationManager.AppSettings["UtilizaApiSoftland"];*/
         public SoftlandService(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment)
         {
             conSoftland = new SqlConnection("");
@@ -62,7 +64,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
@@ -86,7 +88,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetAllTipoDocSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -111,12 +123,12 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesSoftlandAsync() 
+        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesSoftlandAsync()
         {
             List<CuentasContablesSoftlandDTO> retorno = new List<CuentasContablesSoftlandDTO>();
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -138,7 +150,7 @@ namespace ApiPortal.Services
                     reader.Close();
                     conSoftland.Close();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -149,7 +161,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -170,7 +182,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetAllCuentasContablesSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -231,10 +253,11 @@ namespace ApiPortal.Services
                     reader.Close();
                     conSoftland.Close();
                 }
-                else 
+                else
                 {
-                    
-                    using (var client = new HttpClient())                    {
+
+                    using (var client = new HttpClient())
+                    {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
                         string url = api.Url + api.ContactosXauxiliar.Replace("{CODAUX}", codAux).Replace("{AREADATOS}", api.AreaDatos);
@@ -244,7 +267,7 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -262,7 +285,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetAllContactosAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -288,12 +321,12 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ClienteDTO>> BuscarClienteSoftlandAsync(string codAux, string rut, string nombre) 
+        public async Task<List<ClienteDTO>> BuscarClienteSoftlandAsync(string codAux, string rut, string nombre)
         {
             List<ClienteDTO> retorno = new List<ClienteDTO>();
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -347,7 +380,7 @@ namespace ApiPortal.Services
                     reader.Close();
                     conSoftland.Close();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -385,7 +418,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                         if (response.IsSuccessStatusCode)
@@ -405,7 +438,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/BuscarClienteSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -423,7 +466,7 @@ namespace ApiPortal.Services
                 };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Close();
                 }
@@ -431,13 +474,13 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<RegionDTO>> GetRegionesSoftland() 
+        public async Task<List<RegionDTO>> GetRegionesSoftland()
         {
             List<RegionDTO> retorno = new List<RegionDTO>();
 
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -489,7 +532,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetRegionesSoftland"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -509,7 +562,7 @@ namespace ApiPortal.Services
             }
             finally
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 { conSoftland.Close(); }
             }
 
@@ -522,7 +575,7 @@ namespace ApiPortal.Services
 
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -554,7 +607,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -575,7 +628,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetComunasSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -658,7 +721,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetGirosSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -690,7 +763,7 @@ namespace ApiPortal.Services
             List<CargoDTO> retorno = new List<CargoDTO>();
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -714,7 +787,7 @@ namespace ApiPortal.Services
                     reader.Close();
                     conSoftland.Close();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -725,7 +798,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
                         {
@@ -741,7 +814,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetCargosAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -764,7 +847,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public List<CentroCostoDTO> GetCentrosCostoActivos() 
+        public List<CentroCostoDTO> GetCentrosCostoActivos()
         {
             List<CentroCostoDTO> retorno = new List<CentroCostoDTO>();
             try
@@ -862,13 +945,13 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<ClienteDTO> GetClienteSoftlandAsync(string codAux)
+        public async Task<ClienteDTO> GetClienteSoftlandAsync(string codAux, string rut)
         {
             ClienteDTO retorno = new ClienteDTO();
 
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
@@ -913,28 +996,19 @@ namespace ApiPortal.Services
                     }
                     result.Close();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        string url = api.Url + api.ConsultaCliente.Replace("{AREADATOS}", api.AreaDatos).Replace("rut={RUT}&", "").Replace("nombre={NOMBRE}&", "").Replace("{PAGINA}", "1").Replace("{CANTIDAD}", "");
-
-                        if (!string.IsNullOrEmpty(codAux))
-                        {
-                            url = url.Replace("{CODAUX}", codAux);
-                        }
-                        else
-                        {
-                            url = url.Replace("codaux={CODAUX}&", "");
-                        }
-
+                        string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", codAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                           .Replace("{NOMBRE}", "").Replace("{RUT}", rut);
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -967,7 +1041,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetClienteSoftland"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -1026,7 +1110,7 @@ namespace ApiPortal.Services
 
                     cmd.ExecuteNonQuery();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -1042,7 +1126,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -1051,7 +1135,18 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/UpdateAuxiliarPortalPagoAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                            return false;
                         }
                     }
                 }
@@ -1134,7 +1229,7 @@ namespace ApiPortal.Services
                         item.Fvencimiento = (reader["FechaVenc"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["FechaVenc"]);
                         item.Monto = (reader["Total"] == DBNull.Value) ? 0 : Convert.ToDecimal(reader["Total"]);
                         item.NotaVenta = (reader["nvnumero"] == DBNull.Value) ? "" : reader["nvnumero"].ToString();
-                        
+
                         retorno.Add(item);
                     }
                     reader.Close();
@@ -1157,14 +1252,14 @@ namespace ApiPortal.Services
                             client.BaseAddress = new Uri(url);
                             client.DefaultRequestHeaders.Accept.Clear();
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                            client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                             HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                             if (response.IsSuccessStatusCode)
                             {
                                 var content = await response.Content.ReadAsStringAsync();
                                 List<List<DocumentosFacturadosAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentosFacturadosAPIDTO>>>(content);
-                                documentos[0] = documentos[0].Where(x => x.Folio != null && x.Folio != 0 && x.Tipo_Documento != "S").OrderByDescending(x => x.Fecha).ToList();
+                                documentos[0] = documentos[0].Where(x => x.Folio != null && x.Folio != 0 && x.Tipo_Documento.Substring(0, 1) != "S").OrderByDescending(x => x.Fecha).ToList();
                                 foreach (var doc in documentos[0])
                                 {
                                     DocumentosFacturadosDTO item = new DocumentosFacturadosDTO();
@@ -1176,15 +1271,25 @@ namespace ApiPortal.Services
                                     item.Monto = (decimal)doc.Monto;
                                     item.CodMon = doc.CodMon;
                                     item.DesMon = doc.DesMon;
-                                    item.MontoMonedaOriginal = doc.monto_moneda_original;                                    
+                                    item.MontoMonedaOriginal = doc.monto_moneda_original;
                                     item.NotaVenta = doc.Nvnumero.ToString();
-                                    
+
                                     retorno.Add(item);
                                 }
                             }
                             else
                             {
-                                response.EnsureSuccessStatusCode();
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/GetClientesComprasSoftlandAsync"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
                             }
                         }
                     }
@@ -1202,7 +1307,7 @@ namespace ApiPortal.Services
                 };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Close();
                 }
@@ -1216,13 +1321,13 @@ namespace ApiPortal.Services
             List<NotaVentaClienteDTO> retorno = new List<NotaVentaClienteDTO>();
             try
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
 
                     SqlCommand cmd = new SqlCommand();
                     SqlDataReader reader;
-                   
+
                     cmd.CommandText = "select * from (SELECT NV.nvnumero,                          " + "\n" +
                                        " NV.nvFem,                                         " + "\n" +
                                        " nv.nvFeEnt,                                                " + "\n" +
@@ -1256,7 +1361,7 @@ namespace ApiPortal.Services
                     reader.Close();
                     conSoftland.Close();
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -1267,7 +1372,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -1291,7 +1396,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetNotasVentasPendientesAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -1400,13 +1515,23 @@ namespace ApiPortal.Services
                                 item.Documento = producto.DesDoc;
                                 item.Folio = producto.Folio;
                                 item.Fecha = producto.Fecha;
-                                item.TipoDoc = producto.Tipo;
+                                item.TipoDoc = producto.Tipo_Documento;
                                 retorno.Add(item);
                             }
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetProductosCompradosAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -1664,11 +1789,12 @@ namespace ApiPortal.Services
 
         public async Task<DocumentosVm> obtenerXMLDTEAsync(int folio, string codAux, string tipoDoc)
         {
-            conSoftland.Open();
+
             DocumentosVm dtResultado = new DocumentosVm();
 
             try
             {
+
                 if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Open();
@@ -1706,11 +1832,11 @@ namespace ApiPortal.Services
                     {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        string url = api.Url + api.DetalleDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{TIPODOC}", tipoDoc).Replace("{CODAUX}", codAux).Replace("{AREADATOS}", api.AreaDatos);
+                        string url = api.Url + api.DetalleDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{SUBTIPO}", tipoDoc.Substring(1, 1)).Replace("{TIPODOC}", tipoDoc.Substring(0, 1)).Replace("{CODAUX}", codAux).Replace("{AREADATOS}", api.AreaDatos);
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -1719,6 +1845,7 @@ namespace ApiPortal.Services
                             DocumentoAPIDTO doc = JsonConvert.DeserializeObject<DocumentoAPIDTO>(content);
                             if (doc.dte != null)
                             {
+
                                 dtResultado.Base64 = doc.dte.archivo;
                                 dtResultado.NombreArchivo = doc.dte.nombre_archivo;
                             }
@@ -1726,7 +1853,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/obtenerXMLDTE"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -1833,18 +1970,17 @@ namespace ApiPortal.Services
                 {
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
-                    string url = api.Url + api.DespachoDeDocumento.Replace("{TIPO}", tipoDoc).Replace("{FOLIO}", folio.ToString()).Replace("{CODAUX}", codaux).Replace("{AREADATOS}", api.AreaDatos);
+                    string url = api.Url + api.DespachoDeDocumento.Replace("{TIPO}", tipoDoc.Substring(0,1)).Replace("{FOLIO}", folio.ToString()).Replace("{CODAUX}", codaux).Replace("{AREADATOS}", api.AreaDatos);
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                    client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         List<List<DespachoAPIDTO>> listaDespachos = JsonConvert.DeserializeObject<List<List<DespachoAPIDTO>>>(content);
-                        listaDespachos[1] = listaDespachos[1].Where(x => x.Folio != null && x.Folio != 0).ToList();
 
 
                         var documentoOriginal = await this.obtenerDocumentoAPI(folio, tipoDoc, codaux);
@@ -1880,6 +2016,20 @@ namespace ApiPortal.Services
 
                             retorno.Add(item);
                         }
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetDepachoDocumentoAPIAsync"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
             }
@@ -1990,7 +2140,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                         if (response.IsSuccessStatusCode)
@@ -2009,7 +2159,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetContactosCliente"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -2029,7 +2189,7 @@ namespace ApiPortal.Services
                 if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Close();
-                    
+
                 }
             }
             finally { conSoftland.Close(); }
@@ -2037,7 +2197,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<NotaVentaClienteDTO> GetNotaVentaAsync(int nvNumero, string codAux) 
+        public async Task<NotaVentaClienteDTO> GetNotaVentaAsync(int nvNumero, string codAux)
         {
             NotaVentaClienteDTO item = new NotaVentaClienteDTO();
             try
@@ -2099,7 +2259,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                         if (response.IsSuccessStatusCode)
@@ -2129,7 +2289,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetNotaVentaAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -2221,7 +2391,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetNotaVentaDetalleAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -2234,7 +2414,7 @@ namespace ApiPortal.Services
                     Fecha = DateTime.Now.Date,
                     Hora = DateTime.Now.ToString("HH:mm:ss"),
                     Mensaje = e.Message,
-                    Ruta = "SoftlandService/GetNotaVentaDetalle"
+                    Ruta = "SoftlandService/GetNotaVentaDetalleAsync"
                 };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
@@ -2408,119 +2588,128 @@ namespace ApiPortal.Services
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         string accesToken = api.Token;
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{SOLOSALDO}", "1").Replace("{DESDE}", fecha).Replace("{AREADATOS}", api.AreaDatos);
-                        if (!string.IsNullOrEmpty(codaux))
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        int cantidad = 100;
+                        int pagina = 1;
+                        if (string.IsNullOrEmpty(codaux))
                         {
-                            url = url.Replace("{CODAUX}", codaux);
+                            codaux = string.Empty;
                         }
-                        else
-                        {
-                            url = url.Replace("codaux={CODAUX}&", "");
-                        }
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
+
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
                         {
-                            var configPagos = _context.ConfiguracionPagoClientes.FirstOrDefault();
-
-                            var documentosContablesDeuda = configPagos.TiposDocumentosDeuda;
-                            var cuentasContablesDeuda = configPagos.CuentasContablesDeuda;
 
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
-                            var AbonosDocumentos = documentos[0].Where(x => x.MovNumDocRef != x.Numdoc).ToList();
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0 && x.Numdoc == x.MovNumDocRef).ToList();
-                            foreach (var doc in documentos[0])
+
+                            if (documentos[0].Count > 0)
                             {
-                                bool esValidoDocumento = false;
-                                bool esValidoCuenta = false;
+                                pagina = pagina + 1;
 
-                                var existDocumentoDeuda = documentosContablesDeuda.Split(';').Where(x => x == doc.Ttdcod).FirstOrDefault();
-                                if (existDocumentoDeuda != null)
+                                while (documentos[0].Count < documentos[0][0].total)
                                 {
-                                    esValidoDocumento = true;
+                                    using (var client2 = new HttpClient())
+                                    {
+
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1");
+
+
+                                        client2.BaseAddress = new Uri(url2);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                        if (response.IsSuccessStatusCode)
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                            documentos[0].AddRange(documentos2[0]);
+                                            pagina = pagina + 1;
+                                        }
+                                        else
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response2.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content2,
+                                                Ruta = "SoftlandService/GetClienteEstadoCuenta"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                        }
+
+                                    }
                                 }
 
-                                var existCuentaDeuda = cuentasContablesDeuda.Split(';').Where(x => x == doc.Pctcod).FirstOrDefault();
-                                if (existCuentaDeuda != null)
+                                //var AbonosDocumentos = documentos[0].Where(x => x.MovNumDocRef != x.Numdoc).ToList();
+                                documentos[0] = documentos[0].Where(x => x.Saldobase >= 0 && x.Numdoc == x.MovNumDocRef).ToList();
+
+                                retorno = documentos[0].ConvertAll(doc => new ClienteSaldosDTO
                                 {
-                                    esValidoCuenta = true;
-                                }
 
-                                if (!esValidoDocumento || !esValidoCuenta)
-                                {
-                                    continue;
-                                }
-
-                                ClienteSaldosDTO item = new ClienteSaldosDTO();
-                               
-                                item.Documento = doc.DesDoc;
-                                item.Nro = (double)doc.Numdoc;
-                                item.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                item.FechaVcto = Convert.ToDateTime(doc.Movfv);
-                                item.Debe = (double)doc.MovMontoMa;
-                                item.Haber = doc.Saldoadic;
-                                item.Saldo = (double)doc.Saldoadic;
-                                item.Detalle = ""; // reader["Detalle"].ToString();
-                                item.Estado = doc.Estado;
-                                item.Pago = ""; // reader["Pago"].ToString();
-                                item.TipoDoc = doc.Ttdcod;
-                                item.RazonSocial = "";
-                                item.CodigoMoneda = doc.MonCod;
-                                item.CodAux = doc.CodAux;
-                                item.MontoBase = doc.MovMonto;
-                                item.SaldoBase = doc.Saldobase;
-                                item.EquivalenciaMoneda = doc.Equivalencia;
-                                item.APagar = doc.Saldobase;
-                                item.MontoOriginalBase = doc.MontoOriginalBase;
-                                var moneda = monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault();
-                                if (moneda != null) { item.DesMon = moneda.DesMon; }
-
-
-                                List<ClienteSaldosDTO> abonos = new List<ClienteSaldosDTO>();
-                                var abonosDoc = AbonosDocumentos.Where(x => x.MovNumDocRef == doc.Numdoc).OrderBy(x => x.Movfe).ToList();
-                                foreach (var abonoDetalle in abonosDoc)
-                                {
-                                    ClienteSaldosDTO abono = new ClienteSaldosDTO();
-                                    abono.Documento = abonoDetalle.DesDoc;
-                                    abono.Nro = (double)abonoDetalle.Numdoc;
-                                    abono.FechaEmision = Convert.ToDateTime(abonoDetalle.Movfe);
-                                    abono.FechaVcto = Convert.ToDateTime(abonoDetalle.Movfv);
-                                    abono.Debe = 0 - (double)abonoDetalle.MovMonto;
-                                    abono.Haber = abonoDetalle.Saldoadic;
-                                    abono.Saldo = (double)abonoDetalle.Saldoadic;
-                                    abono.Detalle = ""; // reader["Detalle"].ToString();
-                                    abono.Estado = abonoDetalle.Estado;
-                                    abono.Pago = ""; // reader["Pago"].ToString();
-                                    abono.TipoDoc = abonoDetalle.Ttdcod;
-                                    abono.RazonSocial = "";
-                                    abono.CodigoMoneda = abonoDetalle.MonCod;
-                                    var mon = monedas.Where(x => x.CodMon == abonoDetalle.MonCod).FirstOrDefault();
-                                    if (mon != null) { abono.DesMon = mon.DesMon; }
-                                    abono.MontoBase = abonoDetalle.MovMontoMa;
-                                    abono.SaldoBase = abonoDetalle.Saldobase;
-                                    abono.EquivalenciaMoneda = abonoDetalle.Equivalencia;
-                                    abono.APagar = abonoDetalle.Saldoadic;
-                                    abonos.Add(abono);
-                                }
-                                item.Abonos = abonos;
-                                retorno.Add(item);
+                                    //item.comprobanteContable = reader["Comprobante"].ToString();
+                                    Documento = doc.DesDoc,
+                                    Nro = (double)doc.Numdoc,
+                                    FechaEmision = Convert.ToDateTime(doc.Movfe),
+                                    FechaVcto = Convert.ToDateTime(doc.Movfv),
+                                    Debe = (double)doc.MovMontoMa,
+                                    Haber = doc.Saldoadic,
+                                    Saldo = (double)doc.Saldoadic,
+                                    Detalle = "", // reader["Detalle"].ToString();
+                                    Estado = doc.Estado,
+                                    Pago = "", // reader["Pago"].ToString();
+                                    TipoDoc = doc.Ttdcod,
+                                    RazonSocial = "",
+                                    CodigoMoneda = doc.MonCod,
+                                    CodAux = doc.CodAux,
+                                    MontoBase = doc.MovMonto,
+                                    SaldoBase = doc.Saldobase,
+                                    EquivalenciaMoneda = doc.Equivalencia,
+                                    APagar = doc.Saldobase,
+                                    MontoOriginalBase = doc.MontoOriginalBase,
+                                    MovEqui = doc.MovEquiv,
+                                    DesMon = monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault().DesMon : ""
+                                });
                             }
+
+
+
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetClienteEstadoCuenta"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
                     conSoftland.Close();
 
@@ -2569,12 +2758,26 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                         if (response.IsSuccessStatusCode)
                         {
                             conexionExitosa = true;
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/verificaEstadoConexionSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -2664,7 +2867,7 @@ namespace ApiPortal.Services
                             string fecha = DateTime.Now.Day.ToString() + "/" + DateTime.Now.Month.ToString() + "/" + DateTime.Now.Year.ToString();
                             string hora = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString();
                             string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
-                            
+
                             string comprobanteHtml = System.IO.File.ReadAllText(Path.Combine((string)AppDomain.CurrentDomain.GetData("ContentRootPath"), "~/Uploads/MailTemplates/compraMailToPDF.component.html"));
                             comprobanteHtml = comprobanteHtml.Replace("{LOGO}", logo).Replace("{EMPRESA}", configEmpresa.NombreEmpresa).Replace("{RUT}", configEmpresa.RutEmpresa).Replace("{DIRECCION}", configEmpresa.Direccion)
                                 .Replace("{CORREO}", configEmpresa.CorreoContacto).Replace("{EMISION}", fecha).Replace("{HORA}", hora);
@@ -2672,7 +2875,7 @@ namespace ApiPortal.Services
                             string[] partes = comprobanteHtml.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);
                             string reemplazoDetalle = string.Empty;
 
-                            SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
+                            SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
                             var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
                             foreach (var det in item.PagosDetalles)
                             {
@@ -2715,12 +2918,12 @@ namespace ApiPortal.Services
                             vm.tipo = 5;
                             vm.nombre = item.Nombre;
                             vm.email_destinatario = item.Correo;
-                            MailService mail = new MailService(_context,_webHostEnvironment);
+                            MailService mail = new MailService(_context, _webHostEnvironment);
                             await mail.EnviarCorreosAsync(vm);
 
 
 
-                            
+
                             ////Envia correo a empresa notificando pago
                             ///
                             var cliente = _context.ClientesPortals.Where(x => x.CodAux == item.CodAux).FirstOrDefault();
@@ -2795,7 +2998,7 @@ namespace ApiPortal.Services
                             client.BaseAddress = new Uri(url);
                             client.DefaultRequestHeaders.Accept.Clear();
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
-                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                            client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
                             var multipart = new MultipartFormDataContent();
@@ -2870,7 +3073,17 @@ namespace ApiPortal.Services
                             }
                             else
                             {
-                                response.EnsureSuccessStatusCode();
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/GeneraComprobantesContables"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
                             }
                         }
                     }
@@ -2899,7 +3112,7 @@ namespace ApiPortal.Services
                 var pago = _context.PagosCabeceras.Where(x => x.IdPago == idPago).FirstOrDefault();
                 if (pago != null)
                 {
-                    MailService mail = new MailService(_context,_webHostEnvironment);
+                    MailService mail = new MailService(_context, _webHostEnvironment);
                     var cliente = _context.ClientesPortals.Where(x => x.CodAux == pago.CodAux).FirstOrDefault();
                     var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
                     MailViewModel vm2 = new MailViewModel();
@@ -2908,262 +3121,86 @@ namespace ApiPortal.Services
                     vm2.asunto = "";
                     vm2.mensaje = pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0") + "|" + cliente.Nombre + "|" + cliente.Rut;
                     vm2.email_destinatario = configCorreo.CorreoAvisoPago;
-                    mail.EnviarCorreosAsync(vm2);
+                    if (!string.IsNullOrEmpty(configCorreo.CorreoAvisoPago))
+                    {
+                        mail.EnviarCorreosAsync(vm2);
+                    }
+                    
                 }
 
             }
             return numeroComprobante;
         }
 
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosVencidosAsync(string codAux)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosVencidosAsync(FilterVm filter)
         {
-            List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             string tablaTemporal = string.Empty;
             try
             {
                 if (utilizaApiSoftland == "false")
                 {
-                    //OBTIENE INICIO AÑO CONTABLE SOFTLAND
-                    //string añoContableEmpresa = this.GetAñoTributarioSoftland();
-                    string añoContableEmpresa = "2017";
-
-                    //string docs = string.Empty;
-
-                    //foreach (var item in documentos.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(docs))
-                    //    {
-                    //        docs = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        docs = docs + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    //string cuentasContables = string.Empty;
-                    //foreach (var item in cuentas.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(cuentasContables))
-                    //    {
-                    //        cuentasContables = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        cuentasContables = cuentasContables + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    string fechaTabla = ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString()) +
-                                   ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) +
-                                    DateTime.Now.Year.ToString() +
-                                   ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) +
-                                   ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString()) +
-                                   ((DateTime.Now.Second < 10) ? "0" + DateTime.Now.Second.ToString() : DateTime.Now.Second.ToString());
-
-                    tablaTemporal = "CW" + codAux + fechaTabla + "_";
-
-                    string fecha = DateTime.Now.Year.ToString() + "/" + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + "/" + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-
-
-                    SqlCommand cmd = new SqlCommand("softland.cw_psnpConsultaDetalleCtaConDoc05", conSoftland);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-
-                    cmd.Parameters.AddWithValue("xblnSoloSaldo", 0);
-                    cmd.Parameters.AddWithValue("xstrMoneda ", "01"); //Obtener desde configuración portal
-                    cmd.Parameters.AddWithValue("xstrFecha", fecha);
-                    cmd.Parameters.AddWithValue("xvarAuxiliar", codAux);
-                    cmd.Parameters.AddWithValue("xvarCuenta", "1-01-12");  //SE DEBE CAMBIAR POSTERIORMENTE
-                    cmd.Parameters.AddWithValue("xvarTipoDocto", ""); //TIPO DOCUMENTO, DEJAR EN BLANCO PARA QUE OBTENGA TODOS Y LUEGO FILTRAMOS EN SIGUIETNE QUERY
-                    cmd.Parameters.AddWithValue("xvarAreaNegocio", "");
-                    cmd.Parameters.AddWithValue("xIncluyePagos", "");
-                    cmd.Parameters.AddWithValue("opt_NroOper", 0);
-                    cmd.Parameters.AddWithValue("ctlType_NroOper", "");
-                    cmd.Parameters.AddWithValue("mstrAnoPrimerPeriodoFull", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("AnoIni", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("mfExistenMovAperturaPeriodo1", 0);
-                    cmd.Parameters.AddWithValue("optAuxiliares", 0);
-                    cmd.Parameters.AddWithValue("pstrCpbNumTemp", tablaTemporal + "1"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_1 (CW + usuario + fecha + minutos + segundos + _ + 1)
-                    cmd.Parameters.AddWithValue("pstrQTemp ", tablaTemporal + "0"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_0 (CW + usuario + fecha + minutos + segundos + _ + 0) Esta tabla sera usada para la consulta final
-                    cmd.Parameters.AddWithValue("pstrMontoTemp", tablaTemporal + "2"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_2 (CW + usuario + fecha + minutos + segundos + _ + 2)
-                    cmd.Parameters.AddWithValue("pstrSaldoTemp", tablaTemporal + "3"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_3 (CW + usuario + fecha + minutos + segundos + _ + 3)
-                    cmd.Parameters.AddWithValue("pstrMovFe", tablaTemporal + "4"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_4 (CW + usuario + fecha + minutos + segundos + _ + 4)
-                    cmd.Parameters.AddWithValue("pstrMovFv", tablaTemporal + "5"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_5 (CW + usuario + fecha + minutos + segundos + _ + 5)
-                    cmd.Parameters.AddWithValue("pstrCpbFec", tablaTemporal + "6"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_6 (CW + usuario + fecha + minutos + segundos + _ + 6)
-                    cmd.Parameters.AddWithValue("mstrPais", "CL");
-                    cmd.Parameters.AddWithValue("pstrManejaCC", "N");
-                    cmd.Parameters.AddWithValue("pstrCCosto", "");
-                    cmd.Parameters.AddWithValue("pintNivelCC", 1);
-                    cmd.Parameters.AddWithValue("pstrPagoOtraArea", "N");
-
-                    conSoftland.Open();
-                    DataTable dt = new DataTable();
-                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                    {
-                        conSoftland.Close();
-                        da.Fill(dt);
-                    }
-
-                    //Validamos si ejecuciòn fue exitos
-                    if (dt.Rows.Count > 0)
-                    {
-                        conSoftland.Open();
-                        SqlDataReader reader;
-                        cmd.CommandText = "select " +
-                                            " CpbNum as Comprobante, cta.PCDESC as Cuenta, movtipdocref as TipoDoc, " +
-                                            " (Select top 1 tdoc.DesDoc from softland.cwttdoc as tdoc where tdoc.CodDoc = portal.MovTipDocRef) as Documento,  " +
-                                            " portal.MovNumDocRef as Nro, " +
-                                            " (select top 1 cmovi.MovFe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux  and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Femision, " +
-                                            " (select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Fvencimiento, " +
-                                            " (select top 1 cmovi.MovDebe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Debe, " +
-                                            " (select top 1 cwtauxi.NomAux from softland.cwtauxi where codaux = portal.CodAux) as RazonSocial, " +
-                                            " portal.Saldo, " +
-                                            " CASE WHEN(select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) <= GETDATE() THEN 'Vencido' else 'Por Vencer' end as estado " +
-                                            " from SOFTLAND." + tablaTemporal + "0" + " as portal inner join[softland].[cwpctas] as cta on portal.pctcod = cta.PCCODI " +
-                                            " where Saldo > 0 AND(select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            "where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            " (cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            " (cmovi.CpbNum = portal.CpbNum)) <= GETDATE()";
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Connection = conSoftland;
-
-                        reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            ClienteSaldosDTO item = new ClienteSaldosDTO();
-                            //item.comprobanteContable = reader["Comprobante"].ToString();
-                            item.Documento = reader["Documento"].ToString();
-                            item.Nro = (reader["Nro"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Nro"]);
-                            item.FechaEmision = (reader["Femision"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Femision"]);
-                            item.FechaVcto = (reader["Fvencimiento"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Fvencimiento"]);
-                            item.Debe = (reader["Debe"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Debe"]);
-                            //item.Haber = (reader["Haber"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Haber"]);
-                            item.Saldo = (reader["Saldo"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Saldo"]);
-                            item.Detalle = ""; // reader["Detalle"].ToString();
-                            item.Estado = reader["Estado"].ToString();
-                            item.Pago = ""; // reader["Pago"].ToString();
-                            item.TipoDoc = reader["TipoDoc"].ToString();
-                            item.RazonSocial = (reader["RazonSocial"] == DBNull.Value) ? "" : reader["RazonSocial"].ToString();
-                            retorno.Add(item);
-                        }
-                        reader.Close();
-                        conSoftland.Close();
-                    }
-
-                    conSoftland.Open();
-                    SqlCommand cmdElimina = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmdElimina.CommandType = CommandType.Text;
-                    cmdElimina.Connection = conSoftland;
-                    cmdElimina.ExecuteNonQuery();
-                    conSoftland.Close();
+                   
                 }
                 else //FCA 16-06-2022
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string diasPorVencer = "";
+                        int cantidad = 100;
+                        int pagina = filter.Pagina;
+                        string folio = "";
+                        string rutAux = "";
+                        string estadoDocs = "V";
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", rutAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
-                            documentos[0] = documentos[0].Where(x => x.Estado == "V").ToList();
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            var configPagos = _context.ConfiguracionPagoClientes.FirstOrDefault();
-
-                            var documentosContablesDeuda = configPagos.TiposDocumentosDeuda;
-                            var cuentasContablesDeuda = configPagos.CuentasContablesDeuda;
-                            foreach (var doc in documentos[0])
+                            if (documentos[0].Count > 0)
                             {
 
-                                bool esValidoDocumento = false;
-                                bool esValidoCuenta = false;
-
-                                var existDocumentoDeuda = documentosContablesDeuda.Split(';').Where(x => x == doc.Ttdcod).FirstOrDefault();
-                                if (existDocumentoDeuda != null)
-                                {
-                                    esValidoDocumento = true;
-                                }
-
-                                var existCuentaDeuda = cuentasContablesDeuda.Split(';').Where(x => x == doc.Pctcod).FirstOrDefault();
-                                if (existCuentaDeuda != null)
-                                {
-                                    esValidoCuenta = true;
-                                }
-
-                                if (!esValidoDocumento || !esValidoCuenta)
-                                {
-                                    continue;
-                                }
-                                ClienteSaldosDTO item = new ClienteSaldosDTO();
-                                item.Documento = doc.DesDoc;
-                                item.Nro = (double)doc.Numdoc;
-                                item.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                item.FechaVcto = Convert.ToDateTime(doc.Movfv);
-                                item.Debe = (double)doc.MovMontoMa;
-                                item.Haber = doc.Saldoadic;
-                                item.Saldo = (double)doc.Saldoadic;
-                                item.Detalle = ""; 
-                                item.Estado = doc.Estado;
-                                item.Pago = ""; 
-                                item.TipoDoc = doc.Ttdcod;
-                                item.RazonSocial = "";
-                                item.CodigoMoneda = doc.MonCod;
-                                item.MontoOriginalBase = doc.MontoOriginalBase;
-                                var mon = monedas.Where(x => x.CodMon == item.CodigoMoneda).FirstOrDefault();
-                                if (mon != null) { item.DesMon = mon.DesMon; }
-                                item.MontoBase = doc.MovMonto;
-                                item.SaldoBase = doc.Saldobase;
-                                item.EquivalenciaMoneda = doc.Equivalencia;
-                                retorno.Add(item);
+                                retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
                             }
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosVencidos"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
+
                     }
                 }
 
             }
             catch (Exception e)
             {
-                if (utilizaApiSoftland == "false") 
+                if (utilizaApiSoftland == "false")
                 {
-                    conSoftland.Close();
 
-                    //Elimina tabla temporal
-                    conSoftland.Open();
-                    SqlCommand cmd = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Connection = conSoftland;
-                    cmd.ExecuteNonQuery();
-                    conSoftland.Close();
                 }
                 LogProceso log = new LogProceso
                 {
@@ -3180,245 +3217,66 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosPorVencerAsync(string codAux)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPorVencerAsync(FilterVm filter)
         {
-            List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             string tablaTemporal = string.Empty;
             try
             {
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
-                {
-                    //OBTIENE INICIO AÑO CONTABLE SOFTLAND
-                    //string añoContableEmpresa = this.GetAñoTributarioSoftland();
-                    string añoContableEmpresa = "2017";
+                { 
 
-
-                    //string docs = string.Empty;
-
-                    //foreach (var item in documentos.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(docs))
-                    //    {
-                    //        docs = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        docs = docs + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    //string cuentasContables = string.Empty;
-                    //foreach (var item in cuentas.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(cuentasContables))
-                    //    {
-                    //        cuentasContables = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        cuentasContables = cuentasContables + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    string fechaTabla = ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString()) +
-                                   ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) +
-                                    DateTime.Now.Year.ToString() +
-                                   ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) +
-                                   ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString()) +
-                                   ((DateTime.Now.Second < 10) ? "0" + DateTime.Now.Second.ToString() : DateTime.Now.Second.ToString());
-
-                    tablaTemporal = "CW" + codAux + fechaTabla + "_";
-
-                    string fecha = DateTime.Now.Year.ToString() + "/" + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + "/" + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-
-
-                    SqlCommand cmd = new SqlCommand("softland.cw_psnpConsultaDetalleCtaConDoc05", conSoftland);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-
-                    cmd.Parameters.AddWithValue("xblnSoloSaldo", 0);
-                    cmd.Parameters.AddWithValue("xstrMoneda ", "01"); //Obtener desde configuración portal
-                    cmd.Parameters.AddWithValue("xstrFecha", fecha);
-                    cmd.Parameters.AddWithValue("xvarAuxiliar", codAux);
-                    cmd.Parameters.AddWithValue("xvarCuenta", "1-01-12");  //SE DEBE CAMBIAR POSTERIORMENTE
-                    cmd.Parameters.AddWithValue("xvarTipoDocto", ""); //TIPO DOCUMENTO, DEJAR EN BLANCO PARA QUE OBTENGA TODOS Y LUEGO FILTRAMOS EN SIGUIETNE QUERY
-                    cmd.Parameters.AddWithValue("xvarAreaNegocio", "");
-                    cmd.Parameters.AddWithValue("xIncluyePagos", "");
-                    cmd.Parameters.AddWithValue("opt_NroOper", 0);
-                    cmd.Parameters.AddWithValue("ctlType_NroOper", "");
-                    cmd.Parameters.AddWithValue("mstrAnoPrimerPeriodoFull", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("AnoIni", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("mfExistenMovAperturaPeriodo1", 0);
-                    cmd.Parameters.AddWithValue("optAuxiliares", 0);
-                    cmd.Parameters.AddWithValue("pstrCpbNumTemp", tablaTemporal + "1"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_1 (CW + usuario + fecha + minutos + segundos + _ + 1)
-                    cmd.Parameters.AddWithValue("pstrQTemp ", tablaTemporal + "0"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_0 (CW + usuario + fecha + minutos + segundos + _ + 0) Esta tabla sera usada para la consulta final
-                    cmd.Parameters.AddWithValue("pstrMontoTemp", tablaTemporal + "2"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_2 (CW + usuario + fecha + minutos + segundos + _ + 2)
-                    cmd.Parameters.AddWithValue("pstrSaldoTemp", tablaTemporal + "3"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_3 (CW + usuario + fecha + minutos + segundos + _ + 3)
-                    cmd.Parameters.AddWithValue("pstrMovFe", tablaTemporal + "4"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_4 (CW + usuario + fecha + minutos + segundos + _ + 4)
-                    cmd.Parameters.AddWithValue("pstrMovFv", tablaTemporal + "5"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_5 (CW + usuario + fecha + minutos + segundos + _ + 5)
-                    cmd.Parameters.AddWithValue("pstrCpbFec", tablaTemporal + "6"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_6 (CW + usuario + fecha + minutos + segundos + _ + 6)
-                    cmd.Parameters.AddWithValue("mstrPais", "CL");
-                    cmd.Parameters.AddWithValue("pstrManejaCC", "N");
-                    cmd.Parameters.AddWithValue("pstrCCosto", "");
-                    cmd.Parameters.AddWithValue("pintNivelCC", 1);
-                    cmd.Parameters.AddWithValue("pstrPagoOtraArea", "N");
-
-                    conSoftland.Open();
-                    DataTable dt = new DataTable();
-                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                    {
-                        conSoftland.Close();
-                        da.Fill(dt);
-                    }
-
-                    //Validamos si ejecuciòn fue exitos
-                    if (dt.Rows.Count > 0)
-                    {
-                        conSoftland.Open();
-                        SqlDataReader reader;
-                        cmd.CommandText = "select " +
-                                            " CpbNum as Comprobante, cta.PCDESC as Cuenta, movtipdocref as TipoDoc, " +
-                                            " (Select top 1 tdoc.DesDoc from softland.cwttdoc as tdoc where tdoc.CodDoc = portal.MovTipDocRef) as Documento,  " +
-                                            " portal.MovNumDocRef as Nro, " +
-                                            " (select top 1 cmovi.MovFe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux  and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Femision, " +
-                                            " (select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Fvencimiento, " +
-                                            " (select top 1 cmovi.MovDebe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Debe, " +
-                                            " (select top 1 cwtauxi.NomAux from softland.cwtauxi where codaux = portal.CodAux) as RazonSocial, " +
-                                            " portal.Saldo, " +
-                                            " CASE WHEN(select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) <= GETDATE() THEN 'Vencido' else 'Por Vencer' end as estado " +
-                                            " from SOFTLAND." + tablaTemporal + "0" + " as portal inner join[softland].[cwpctas] as cta on portal.pctcod = cta.PCCODI " +
-                                            " where Saldo > 0 AND(select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            "where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            " (cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            " (cmovi.CpbNum = portal.CpbNum)) >= GETDATE()";
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Connection = conSoftland;
-
-                        reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            ClienteSaldosDTO item = new ClienteSaldosDTO();
-                            //item.comprobanteContable = reader["Comprobante"].ToString();
-                            item.Documento = reader["Documento"].ToString();
-                            item.Nro = (reader["Nro"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Nro"]);
-                            item.FechaEmision = (reader["Femision"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Femision"]);
-                            item.FechaVcto = (reader["Fvencimiento"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Fvencimiento"]);
-                            item.Debe = (reader["Debe"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Debe"]);
-                            //item.Haber = (reader["Haber"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Haber"]);
-                            item.Saldo = (reader["Saldo"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Saldo"]);
-                            item.Detalle = ""; // reader["Detalle"].ToString();
-                            item.Estado = reader["Estado"].ToString();
-                            item.Pago = ""; // reader["Pago"].ToString();
-                            item.TipoDoc = reader["TipoDoc"].ToString();
-                            item.RazonSocial = (reader["RazonSocial"] == DBNull.Value) ? "" : reader["RazonSocial"].ToString();
-                            retorno.Add(item);
-                        }
-                        reader.Close();
-                        conSoftland.Close();
-                    }
-
-                    conSoftland.Open();
-                    SqlCommand cmdElimina = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmdElimina.CommandType = CommandType.Text;
-                    cmdElimina.Connection = conSoftland;
-                    cmdElimina.ExecuteNonQuery();
-                    conSoftland.Close();
                 }
                 else //FCA 16-06-2022
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
-                        var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", DateTime.Now.Year.ToString()).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string diasPorVencer = configPortal.DiasPorVencer != null ? configPortal.DiasPorVencer.ToString() : "";
+                        int cantidad = 100;
+                        int pagina = filter.Pagina;
+                        string folio = "";
+                        string rutAux = "";
+                        string estadoDocs = "";
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
+
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Add("SApiKey", accesToken);
-
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
                         {
-                            var configPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
-
-                            var documentosContablesDeuda = configPago.TiposDocumentosDeuda;
-                            var cuentasContablesDeuda = configPago.CuentasContablesDeuda;
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            configPago.DiasPorVencer = configPago.DiasPorVencer == null ? 0 : configPago.DiasPorVencer;
-                            foreach (var doc in documentos[0])
+                            if (documentos[0].Count > 0)
                             {
-                                bool esValidoDocumento = false;
-                                bool esValidoCuenta = false;
 
-                                var existDocumentoDeuda = documentosContablesDeuda.Split(';').Where(x => x == doc.Ttdcod).FirstOrDefault();
-                                if (existDocumentoDeuda != null)
-                                {
-                                    esValidoDocumento = true;
-                                }
-
-                                var existCuentaDeuda = cuentasContablesDeuda.Split(';').Where(x => x == doc.Pctcod).FirstOrDefault();
-                                if (existCuentaDeuda != null)
-                                {
-                                    esValidoCuenta = true;
-                                }
-
-                                if (!esValidoDocumento || !esValidoCuenta)
-                                {
-                                    continue;
-                                }
-
-                                int diasParaVencer = (int)(Convert.ToDateTime(doc.Movfv).Date - DateTime.Now.Date).TotalDays;
-                                if (Convert.ToDateTime(doc.Movfv).Date >= DateTime.Now.Date && diasParaVencer <= configPago.DiasPorVencer)
-                                {
-                                    ClienteSaldosDTO item = new ClienteSaldosDTO();
-                                    item.Documento = doc.DesDoc;
-                                    item.Nro = (double)doc.Numdoc;
-                                    item.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                    item.FechaVcto = Convert.ToDateTime(doc.Movfv);
-                                    item.Debe = (double)doc.MovMontoMa;
-                                    item.Haber = doc.Saldoadic;
-                                    item.Saldo = (double)doc.Saldoadic;
-                                    item.Detalle = ""; 
-                                    item.Estado = doc.Estado;
-                                    item.Pago = "";
-                                    item.TipoDoc = doc.Ttdcod;
-                                    item.RazonSocial = "";
-                                    item.CodigoMoneda = doc.MonCod;
-                                    var mon = monedas.Where(x => x.CodMon == item.CodigoMoneda).FirstOrDefault();
-                                    if (mon != null) { item.DesMon = mon.DesMon; }
-                                    item.MontoBase = doc.MovMonto;
-                                    item.SaldoBase = doc.Saldobase;
-                                    item.EquivalenciaMoneda = doc.Equivalencia;
-                                    item.MontoOriginalBase = doc.MontoOriginalBase;
-                                    retorno.Add(item);
-                                }
-
+                                retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
                             }
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosPorVencer"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
+
                     }
                 }
             }
@@ -3426,15 +3284,7 @@ namespace ApiPortal.Services
             {
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
                 {
-                    conSoftland.Close();
 
-                    //Elimina tabla temporal
-                    conSoftland.Open();
-                    SqlCommand cmd = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Connection = conSoftland;
-                    cmd.ExecuteNonQuery();
-                    conSoftland.Close();
                 }
                 LogProceso log = new LogProceso
                 {
@@ -3451,256 +3301,61 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosPendientesAsync(string codAux)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPendientesAsync(FilterVm filter)
         {
-            List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
-            string tablaTemporal = string.Empty;
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             try
             {
-                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+
+                using (var client = new HttpClient())
                 {
-                    //OBTIENE INICIO AÑO CONTABLE SOFTLAND
-                    //string añoContableEmpresa = this.GetAñoTributarioSoftland();
-                    string añoContableEmpresa = "2017";
+                    var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    string accesToken = api.Token;
+                    string diasPorVencer = "";
+                    int cantidad = 100;
+                    int pagina = filter.Pagina;
+                    string estadoDocs = "";
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
 
-
-                    //string docs = string.Empty;
-
-                    //foreach (var item in documentos.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(docs))
-                    //    {
-                    //        docs = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        docs = docs + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    //string cuentasContables = string.Empty;
-                    //foreach (var item in cuentas.Split(';'))
-                    //{
-                    //    if (string.IsNullOrEmpty(cuentasContables))
-                    //    {
-                    //        cuentasContables = "'" + item + "'";
-                    //    }
-                    //    else
-                    //    {
-                    //        cuentasContables = cuentasContables + ",'" + item + "'";
-                    //    }
-                    //}
-
-                    string fechaTabla = ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString()) +
-                                   ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) +
-                                    DateTime.Now.Year.ToString() +
-                                   ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) +
-                                   ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString()) +
-                                   ((DateTime.Now.Second < 10) ? "0" + DateTime.Now.Second.ToString() : DateTime.Now.Second.ToString());
-
-                    tablaTemporal = "CW" + codAux + fechaTabla + "_";
-
-                    string fecha = DateTime.Now.Year.ToString() + "/" + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + "/" + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-
-
-                    SqlCommand cmd = new SqlCommand("softland.cw_psnpConsultaDetalleCtaConDoc05", conSoftland);
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-
-                    cmd.Parameters.AddWithValue("xblnSoloSaldo", 0);
-                    cmd.Parameters.AddWithValue("xstrMoneda ", "01"); //Obtener desde configuración portal
-                    cmd.Parameters.AddWithValue("xstrFecha", fecha);
-                    cmd.Parameters.AddWithValue("xvarAuxiliar", codAux);
-                    cmd.Parameters.AddWithValue("xvarCuenta", "1-01-12");  //SE DEBE CAMBIAR POSTERIORMENTE
-                    cmd.Parameters.AddWithValue("xvarTipoDocto", ""); //TIPO DOCUMENTO, DEJAR EN BLANCO PARA QUE OBTENGA TODOS Y LUEGO FILTRAMOS EN SIGUIETNE QUERY
-                    cmd.Parameters.AddWithValue("xvarAreaNegocio", "");
-                    cmd.Parameters.AddWithValue("xIncluyePagos", "");
-                    cmd.Parameters.AddWithValue("opt_NroOper", 0);
-                    cmd.Parameters.AddWithValue("ctlType_NroOper", "");
-                    cmd.Parameters.AddWithValue("mstrAnoPrimerPeriodoFull", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("AnoIni", añoContableEmpresa);
-                    cmd.Parameters.AddWithValue("mfExistenMovAperturaPeriodo1", 0);
-                    cmd.Parameters.AddWithValue("optAuxiliares", 0);
-                    cmd.Parameters.AddWithValue("pstrCpbNumTemp", tablaTemporal + "1"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_1 (CW + usuario + fecha + minutos + segundos + _ + 1)
-                    cmd.Parameters.AddWithValue("pstrQTemp ", tablaTemporal + "0"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_0 (CW + usuario + fecha + minutos + segundos + _ + 0) Esta tabla sera usada para la consulta final
-                    cmd.Parameters.AddWithValue("pstrMontoTemp", tablaTemporal + "2"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_2 (CW + usuario + fecha + minutos + segundos + _ + 2)
-                    cmd.Parameters.AddWithValue("pstrSaldoTemp", tablaTemporal + "3"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_3 (CW + usuario + fecha + minutos + segundos + _ + 3)
-                    cmd.Parameters.AddWithValue("pstrMovFe", tablaTemporal + "4"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_4 (CW + usuario + fecha + minutos + segundos + _ + 4)
-                    cmd.Parameters.AddWithValue("pstrMovFv", tablaTemporal + "5"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_5 (CW + usuario + fecha + minutos + segundos + _ + 5)
-                    cmd.Parameters.AddWithValue("pstrCpbFec", tablaTemporal + "6"); //Crear nombre tabla temporal CWJCORDOVA14032021195805_6 (CW + usuario + fecha + minutos + segundos + _ + 6)
-                    cmd.Parameters.AddWithValue("mstrPais", "CL");
-                    cmd.Parameters.AddWithValue("pstrManejaCC", "N");
-                    cmd.Parameters.AddWithValue("pstrCCosto", "");
-                    cmd.Parameters.AddWithValue("pintNivelCC", 1);
-                    cmd.Parameters.AddWithValue("pstrPagoOtraArea", "N");
-
-                    conSoftland.Open();
-                    DataTable dt = new DataTable();
-                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
                     {
-                        conSoftland.Close();
-                        da.Fill(dt);
-                    }
-
-                    //Validamos si ejecuciòn fue exitos
-                    if (dt.Rows.Count > 0)
-                    {
-                        conSoftland.Open();
-                        SqlDataReader reader;
-                        cmd.CommandText = "select " +
-                                            " CpbNum as Comprobante, cta.PCDESC as Cuenta, movtipdocref as TipoDoc, " +
-                                            " (Select top 1 tdoc.DesDoc from softland.cwttdoc as tdoc where tdoc.CodDoc = portal.MovTipDocRef) as Documento,  " +
-                                            " portal.MovNumDocRef as Nro, " +
-                                            " (select top 1 cmovi.MovFe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux  and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Femision, " +
-                                            " (select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Fvencimiento, " +
-                                            " (select top 1 cmovi.MovDebe from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) as Debe, " +
-                                            " (select top 1 cwtauxi.NomAux from softland.cwtauxi where codaux = portal.CodAux) as RazonSocial, " +
-                                            " portal.Saldo, " +
-                                            " CASE WHEN(select top 1 cmovi.MovFv from softland.cwmovim as cmovi " +
-                                            " where CodAux = portal.CodAux and(cmovi.MovTipDocRef = portal.MovTipDocRef) and " +
-                                            "(cmovi.MovNumDocRef = portal.MovNumDocRef) and(cmovi.CpbNum = portal.CpbNum) and " +
-                                            "(cmovi.CpbNum = portal.CpbNum)) <= GETDATE() THEN 'Vencido' else 'Por Vencer' end as estado " +
-                                            " from SOFTLAND." + tablaTemporal + "0" + " as portal inner join[softland].[cwpctas] as cta on portal.pctcod = cta.PCCODI " +
-                                            " where Saldo > 0";
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Connection = conSoftland;
-
-                        reader = cmd.ExecuteReader();
-
-                        while (reader.Read())
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+                        if (documentos[0].Count > 0)
                         {
-                            ClienteSaldosDTO item = new ClienteSaldosDTO();
-                            //item.comprobanteContable = reader["Comprobante"].ToString();
-                            item.Documento = reader["Documento"].ToString();
-                            item.Nro = (reader["Nro"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Nro"]);
-                            item.FechaEmision = (reader["Femision"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Femision"]);
-                            item.FechaVcto = (reader["Fvencimiento"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Fvencimiento"]);
-                            item.Debe = (reader["Debe"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Debe"]);
-                            //item.Haber = (reader["Haber"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Haber"]);
-                            item.Saldo = (reader["Saldo"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Saldo"]);
-                            item.Detalle = ""; // reader["Detalle"].ToString();
-                            item.Estado = reader["Estado"].ToString();
-                            item.Pago = ""; // reader["Pago"].ToString();
-                            item.TipoDoc = reader["TipoDoc"].ToString();
-                            item.RazonSocial = (reader["RazonSocial"] == DBNull.Value) ? "" : reader["RazonSocial"].ToString();
-                            retorno.Add(item);
-                        }
-                        reader.Close();
-                        conSoftland.Close();
-                    }
-
-                    conSoftland.Open();
-                    SqlCommand cmdElimina = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmdElimina.CommandType = CommandType.Text;
-                    cmdElimina.Connection = conSoftland;
-                    cmdElimina.ExecuteNonQuery();
-                    conSoftland.Close();
-                }
-                else //FCA 16-06-2022
-                {
-                    using (var client = new HttpClient())
-                    {
-                        var monedas = await this.GetMonedasAsync();
-                        var api = _context.ApiSoftlands.FirstOrDefault();
-                        var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                        var fecha = configPortal.AnioTributario.ToString() + "-01-01";
-                        string accesToken = api.Token;
-                        //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", DateTime.Now.Year.ToString()).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        client.BaseAddress = new Uri(url);
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var configPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
-
-                            var documentosContablesDeuda = configPago.TiposDocumentosDeuda;
-                            var cuentasContablesDeuda = configPago.CuentasContablesDeuda;
-                            var content = await response.Content.ReadAsStringAsync();
-                            List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
-                            //documentos[0] = documentos[0].Where(x => x.Estado == "P").ToList();
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            foreach (var doc in documentos[0])
-                            {
-                                bool esValidoDocumento = false;
-                                bool esValidoCuenta = false;
-
-                                var existDocumentoDeuda = documentosContablesDeuda.Split(';').Where(x => x == doc.Ttdcod).FirstOrDefault();
-                                if (existDocumentoDeuda != null)
-                                {
-                                    esValidoDocumento = true;
-                                }
-
-                                var existCuentaDeuda = cuentasContablesDeuda.Split(';').Where(x => x == doc.Pctcod).FirstOrDefault();
-                                if (existCuentaDeuda != null)
-                                {
-                                    esValidoCuenta = true;
-                                }
-
-                                if (!esValidoDocumento || !esValidoCuenta)
-                                {
-                                    continue;
-                                }
-
-
-                                ClienteSaldosDTO item = new ClienteSaldosDTO();
-                                //item.comprobanteContable = reader["Comprobante"].ToString();
-                                item.Documento = doc.DesDoc;
-                                item.Nro = (double)doc.Numdoc;
-                                item.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                item.FechaVcto = Convert.ToDateTime(doc.Movfv);
-                                item.Debe = (double)doc.MovMontoMa;
-                                item.Haber = doc.Saldoadic;
-                                item.Saldo = (double)doc.Saldoadic;
-                                item.Detalle = ""; // reader["Detalle"].ToString();
-                                item.Estado = doc.Estado;
-                                item.Pago = ""; // reader["Pago"].ToString();
-                                item.TipoDoc = doc.Ttdcod;
-                                item.RazonSocial = "";
-                                item.CodigoMoneda = doc.MonCod;
-                                //item.CodigoMoneda = "03";
-                                var mon = monedas.Where(x => x.CodMon == item.CodigoMoneda).FirstOrDefault();
-                                if (mon != null) { item.DesMon = mon.DesMon; }
-                                item.MontoBase = doc.MovMonto;
-                                item.SaldoBase = doc.Saldobase;
-                                item.EquivalenciaMoneda = doc.Equivalencia;
-                                item.MontoOriginalBase = doc.MontoOriginalBase;
-                                retorno.Add(item);
-                            }
-                        }
-                        else
-                        {
-                            response.EnsureSuccessStatusCode();
+                            retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
                         }
                     }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetDocumentosPendientes"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
+                    }
+
                 }
             }
             catch (Exception e)
-            {
-                if (utilizaApiSoftland == "false") //FCA 16-06-2022
-                {
-                    conSoftland.Close();
-
-                    //Elimina tabla temporal
-                    conSoftland.Open();
-                    SqlCommand cmd = new SqlCommand("DROP TABLE IF EXISTS SOFTLAND." + tablaTemporal + "0;");
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Connection = conSoftland;
-                    cmd.ExecuteNonQuery();
-                    conSoftland.Close();
-                }
+            {              
                 LogProceso log = new LogProceso
                 {
                     Excepcion = e.ToString(),
@@ -3944,7 +3599,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetAllDocumentosContabilizadosAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4057,7 +3722,17 @@ namespace ApiPortal.Services
                             }
                             else
                             {
-                                response.EnsureSuccessStatusCode();
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/GetTopCompras"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
                             }
                         }
                     }
@@ -4144,7 +3819,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetEstadoBloqueoClienteAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4229,7 +3914,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetVenedoresSoftlandAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4310,7 +4005,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetCategoriasClienteAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4394,7 +4099,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetCondVentaAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4475,7 +4190,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetListPrecioAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4556,7 +4281,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetMonedasAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -4663,142 +4398,192 @@ namespace ApiPortal.Services
             return item;
         }
 
-        //FCA 19-08-2021 Obtiene clientes softland con vendedor, lista de precio, condicion de venta y categoria cliente
-        public async Task<List<ClienteDTO>> BuscarClienteSoftland2Async(string codAux, string rut, string nombre)
+        public async Task<List<ClienteAPIDTO>> BuscarClienteSoftlandAccesosAsync(string codAux, string rut, string nombre, string vendedor, string condicionVenta, string categoriaCliente, string listaPrecio, int cantidad, Nullable<int> pagina)
         {
-            List<ClienteDTO> retorno = new List<ClienteDTO>();
+            List<ClienteAPIDTO> retorno = new List<ClienteAPIDTO>();
             try
             {
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
                 {
-                    conSoftland.Open();
+                    //conSoftland.Open();
 
-                    string sqlWhere = string.Empty;
-                    if (!string.IsNullOrEmpty(codAux))
-                    {
-                        sqlWhere = sqlWhere + " WHERE c.CodAux='" + codAux + "' ";
-                    }
+                    //string sqlWhere = string.Empty;
+                    //if (!string.IsNullOrEmpty(codAux))
+                    //{
+                    //    sqlWhere = sqlWhere + " WHERE c.CodAux='" + codAux + "' ";
+                    //}
 
-                    if (!string.IsNullOrEmpty(rut))
-                    {
-                        if (string.IsNullOrEmpty(sqlWhere))
-                        {
-                            sqlWhere = sqlWhere + " WHERE c.RutAux='" + rut + "' ";
-                        }
-                        else
-                        {
-                            sqlWhere = sqlWhere + " AND c.RutAux='" + rut + "' ";
-                        }
-                    }
+                    //if (!string.IsNullOrEmpty(rut))
+                    //{
+                    //    if (string.IsNullOrEmpty(sqlWhere))
+                    //    {
+                    //        sqlWhere = sqlWhere + " WHERE c.RutAux='" + rut + "' ";
+                    //    }
+                    //    else
+                    //    {
+                    //        sqlWhere = sqlWhere + " AND c.RutAux='" + rut + "' ";
+                    //    }
+                    //}
 
-                    if (!string.IsNullOrEmpty(nombre))
-                    {
-                        if (string.IsNullOrEmpty(sqlWhere))
-                        {
-                            sqlWhere = sqlWhere + " WHERE c.NomAux like '%" + nombre + "%' ";
-                        }
-                        else
-                        {
-                            sqlWhere = sqlWhere + " AND c.NomAux like '%" + nombre + "%' ";
-                        }
-                    }
+                    //if (!string.IsNullOrEmpty(nombre))
+                    //{
+                    //    if (string.IsNullOrEmpty(sqlWhere))
+                    //    {
+                    //        sqlWhere = sqlWhere + " WHERE c.NomAux like '%" + nombre + "%' ";
+                    //    }
+                    //    else
+                    //    {
+                    //        sqlWhere = sqlWhere + " AND c.NomAux like '%" + nombre + "%' ";
+                    //    }
+                    //}
 
-                    SqlCommand cmd = new SqlCommand();
-                    SqlDataReader reader;
-                    cmd.CommandText = "select c.RutAux, c.CodAux, c.NomAux, c.EMail, c.DirAux, c.DirNum, d.VenCod, b.convta, b.CatCli, b.CodLista from softland.Cwtauxi c left join softland.cwtcvcl b on c.CodAux = b.CodAux left join softland.cwtauxven d on d.CodAux = c.CodAux " + sqlWhere;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Connection = conSoftland;
-                    reader = cmd.ExecuteReader();
+                    //SqlCommand cmd = new SqlCommand();
+                    //SqlDataReader reader;
+                    //cmd.CommandText = "select c.RutAux, c.CodAux, c.NomAux, c.EMail, c.DirAux, c.DirNum, d.VenCod, b.convta, b.CatCli, b.CodLista from softland.Cwtauxi c left join softland.cwtcvcl b on c.CodAux = b.CodAux left join softland.cwtauxven d on d.CodAux = c.CodAux " + sqlWhere;
+                    //cmd.CommandType = CommandType.Text;
+                    //cmd.Connection = conSoftland;
+                    //reader = cmd.ExecuteReader();
 
 
-                    while (reader.Read())
-                    {
-                        ClienteDTO aux = new ClienteDTO();
-                        aux.Rut = reader["RutAux"].ToString();
-                        aux.CodAux = reader["CodAux"].ToString();
-                        aux.Correo = reader["EMail"].ToString();
-                        aux.Nombre = reader["NomAux"].ToString();
-                        aux.CodVendedor = reader["VenCod"].ToString();
-                        aux.CodCondVenta = reader["convta"].ToString();
-                        aux.CodCatCliente = reader["CatCli"].ToString();
-                        aux.CodLista = reader["CodLista"].ToString();
-                        aux.DirAux = reader["DirAux"].ToString();
-                        aux.DirNum = reader["DirNum"].ToString();
-                        retorno.Add(aux);
-                    }
-                    reader.Close();
-                    conSoftland.Close();
+                    //while (reader.Read())
+                    //{
+                    //    ClienteVm aux = new ClienteVm();
+                    //    aux.Rut = reader["RutAux"].ToString();
+                    //    aux.CodAux = reader["CodAux"].ToString();
+                    //    aux.Correo = reader["EMail"].ToString();
+                    //    aux.Nombre = reader["NomAux"].ToString();
+                    //    aux.CodVendedor = reader["VenCod"].ToString();
+                    //    aux.CodCondVenta = reader["convta"].ToString();
+                    //    aux.CodCatCliente = reader["CatCli"].ToString();
+                    //    aux.CodLista = reader["CodLista"].ToString();
+                    //    aux.DirAux = reader["DirAux"].ToString();
+                    //    aux.DirNum = reader["DirNum"].ToString();
+                    //    retorno.Add(aux);
+                    //}
+                    //reader.Close();
+                    //conSoftland.Close();
                 }
                 else
                 {
                     using (var client = new HttpClient())
                     {
-                        var api = _context.ApiSoftlands.FirstOrDefault();
-                        string accesToken = api.Token;
-                        string url = api.Url + api.ConsultaCliente.Replace("{AREADATOS}", api.AreaDatos).Replace("{PAGINA}", "1").Replace("{CANTIDAD}", "");
-
-                        if (!string.IsNullOrEmpty(codAux))
+                        if (pagina != null)
                         {
-                            url = url.Replace("{CODAUX}", codAux);
-                        }
-                        else
-                        {
-                            url = url.Replace("codaux={CODAUX}&", "");
-                        }
-
-                        if (!string.IsNullOrEmpty(rut))
-                        {
-                            url = url.Replace("{RUT}", rut);
-                        }
-                        else
-                        {
-                            url = url.Replace("rut={RUT}&", "");
-                        }
-
-                        if (!string.IsNullOrEmpty(nombre))
-                        {
-                            url = url.Replace("{NOMBRE}", nombre);
-                        }
-                        else
-                        {
-                            url = url.Replace("nombre={NOMBRE}&", "");
-                        }
-
-                        client.BaseAddress = new Uri(url);
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var content = await response.Content.ReadAsStringAsync();
-                            List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
-                            clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
-                            foreach (var c in clientes[0])
+                            var api = _context.ApiSoftlands.FirstOrDefault();
+                            string accesToken = api.Token;
+                            string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", categoriaCliente).Replace("{CODAUX}", codAux).Replace("{CODLISTA}", listaPrecio).Replace("{CODVEN}", vendedor).Replace("{CONVTA}", condicionVenta)
+                                .Replace("{NOMBRE}", nombre).Replace("{RUT}", rut);
+                            client.BaseAddress = new Uri(url);
+                            client.DefaultRequestHeaders.Accept.Clear();
+                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                            HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+                            if (response.IsSuccessStatusCode)
                             {
+                                var content = await response.Content.ReadAsStringAsync();
+                                List<List<ClienteAPIDTO>> clientesApi = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
+                                clientesApi[0] = clientesApi[0].Where(x => x.CodAux != null).ToList();
+                                if (clientesApi.Count > 0)
+                                {
+                                    retorno = clientesApi[0];
+                                }
 
-                                ClienteDTO aux = new ClienteDTO();
-                                aux.Rut = c.RutAux;
-                                aux.CodAux = c.CodAux;
-                                aux.Correo = c.EMail;
-                                aux.Nombre = c.NomAux;
-                                aux.DirAux = c.DirAux;
-                                aux.DirNum = c.DirNum;
-                                aux.CodVendedor = c.CodVen;
-                                aux.CodLista = c.CodLista;
-                                aux.CodCondVenta = c.ConVta;
-                                aux.CodCatCliente = c.catcli;
-                                aux.CodCobrador = c.Codcob;
-                                //aux.CodCanalVenta = c.CodVen;
-                                retorno.Add(aux);
                             }
-
+                            else
+                            {
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/BuscarClienteSoftland2"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
+                            }
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            pagina = 1;
+                            var api = _context.ApiSoftlands.FirstOrDefault();
+                            string accesToken = api.Token;
+                            string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", categoriaCliente).Replace("{CODAUX}", codAux).Replace("{CODLISTA}", listaPrecio).Replace("{CODVEN}", vendedor).Replace("{CONVTA}", condicionVenta)
+                                .Replace("{NOMBRE}", nombre).Replace("{RUT}", rut);
+                            client.BaseAddress = new Uri(url);
+                            client.DefaultRequestHeaders.Accept.Clear();
+                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                            HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var content = await response.Content.ReadAsStringAsync();
+                                List<List<ClienteAPIDTO>> clientesApi = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
+                                clientesApi[0] = clientesApi[0].Where(x => x.CodAux != null).ToList();
+                                if (clientesApi.Count > 0)
+                                {
+                                    retorno = clientesApi[0];
+
+                                    while (retorno.Count < int.Parse(clientesApi[0][0].Total))
+                                    {
+                                        using (var client2 = new HttpClient())
+                                        {
+                                            pagina = pagina + 1;
+                                            string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", categoriaCliente).Replace("{CODAUX}", codAux).Replace("{CODLISTA}", listaPrecio).Replace("{CODVEN}", vendedor).Replace("{CONVTA}", condicionVenta)
+                                  .Replace("{NOMBRE}", nombre).Replace("{RUT}", rut);
+                                            client2.BaseAddress = new Uri(url2);
+                                            client2.DefaultRequestHeaders.Accept.Clear();
+                                            client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                            client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                            HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+                                            if (response2.IsSuccessStatusCode)
+                                            {
+                                                var content2 = await response2.Content.ReadAsStringAsync();
+                                                List<List<ClienteAPIDTO>> clientesApi2 = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
+                                                clientesApi2[0] = clientesApi2[0].Where(x => x.CodAux != null).ToList();
+                                                if (clientesApi2.Count > 0)
+                                                {
+                                                    retorno.AddRange(clientesApi2[0]);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var content2 = await response2.Content.ReadAsStringAsync();
+                                                LogProceso log = new LogProceso
+                                                {
+                                                    Excepcion = response.StatusCode.ToString(),
+                                                    Fecha = DateTime.Now.Date,
+                                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                    Mensaje = content2,
+                                                    Ruta = "SoftlandService/BuscarClienteSoftland2"
+                                                };
+                                                _context.LogProcesos.Add(log);
+                                                _context.SaveChanges();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/BuscarClienteSoftland2"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
+                            }
                         }
+
                     }
                 }
 
@@ -5046,7 +4831,7 @@ namespace ApiPortal.Services
                 {
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
-                    string url = api.Url + api.DetalleDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{TIPODOC}", tipoDoc.Substring(0, 1)).Replace("{CODAUX}", codAux).Replace("{AREADATOS}", api.AreaDatos);
+                    string url = api.Url + api.DetalleDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{SUBTIPO}", tipoDoc.Substring(1, 1)).Replace("{TIPODOC}", tipoDoc.Substring(0, 1)).Replace("{CODAUX}", codAux).Replace("{AREADATOS}", api.AreaDatos);
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -5111,7 +4896,17 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/obtenerDocumentoAPI"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
                 doc.cabecera = cab;
@@ -5138,7 +4933,7 @@ namespace ApiPortal.Services
             return doc;
         }
 
-        public async System.Threading.Tasks.Task<string> obtenerPDFDocumento(int folio, string tipoDoc, string subTipoDoc) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<string> obtenerPDFDocumento(int folio, string tipoDoc) //FCA 16-06-2022
         {
             string base64 = string.Empty;
             try
@@ -5148,7 +4943,7 @@ namespace ApiPortal.Services
                 {
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
-                    string url = api.Url + api.ObtenerPdfDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{TIPO}", tipoDoc).Replace("{SUBTIPO}", subTipoDoc).Replace("{AREADATOS}", api.AreaDatos);
+                    string url = api.Url + api.ObtenerPdfDocumento.Replace("{FOLIO}", folio.ToString()).Replace("{TIPO}", tipoDoc.Substring(0, 1)).Replace("{SUBTIPO}", tipoDoc.Substring(1, 1)).Replace("{AREADATOS}", api.AreaDatos);
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -5157,12 +4952,23 @@ namespace ApiPortal.Services
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                     if (response.IsSuccessStatusCode)
                     {
-
+                        var content = await response.Content.ReadAsStringAsync();
+                        base64 = JsonConvert.DeserializeObject<string>(content);
                     }
                     else
                     {
 
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/obtenerPDFDocumento"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
 
                     }
                 }
@@ -5211,7 +5017,17 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/obtenerResumenContable"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
 
@@ -5259,7 +5075,17 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetDocumentosDashboard"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
 
@@ -5306,7 +5132,17 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/obtenerPDFDocumentoNv"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
 
@@ -5360,7 +5196,7 @@ namespace ApiPortal.Services
                             foreach (var doc in guias[0])
                             {
                                 GuiaDespachoDTO item = new GuiaDespachoDTO();
-                                item.Movtipdocref = doc.tipo;
+                                item.Movtipdocref = doc.tipo + doc.subtipo;
                                 item.Nro = (int)doc.folio;
                                 item.Fecha = doc.Fecha;
                                 item.Total = (int)doc.total;
@@ -5371,7 +5207,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetGuiasPendientes"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
 
@@ -5762,8 +5608,14 @@ namespace ApiPortal.Services
                             fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         }
 
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        int cantidad = 100;
+                        int pagina = 1;
                         string accesToken = api.Token;
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
+                        //string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -5776,49 +5628,122 @@ namespace ApiPortal.Services
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
 
-                            if (excluyeClientes == 1)
+                            if (documentos[0].Count > 0)
                             {
-                                var clientesExcluidos = _context.ClientesExcluidos.ToList();
-                                foreach (var clienteExcluido in clientesExcluidos)
+                                pagina = pagina + 1;
+
+                                while (documentos[0].Count < documentos[0][0].total)
                                 {
-                                    documentos[0].RemoveAll(x => x.CodAux == clienteExcluido.CodAuxCliente);
-                                }
-                            }
-                            if (año != 0)
-                            {
-                                documentos[0] = documentos[0].Where(x => x.Movfe.Year == año).ToList();
-                            }
-
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            if (fechaHasta != null)
-                            {
-                                documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                            }
-
-                            documentos[0] = documentos[0].Where(x => configPortal.TiposDocumentosDeuda.Contains(x.Ttdcod)).ToList();
-                            documentos[0] = documentos[0].Where(x => configPortal.CuentasContablesDeuda.Contains(x.Pctcod)).ToList();
-                            documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
-                            documentos[0] = documentos[0].Where(x => (fechaActual.Date - x.Movfv.Date).TotalDays >= diasVencimiento).ToList();
-
-
-                            string url2 = api.Url + api.ConsultaCliente.Replace("{AREADATOS}", api.AreaDatos).Replace("pagina={PAGINA}&", "").Replace("cantidad={CANTIDAD}&", "").Replace("codaux={CODAUX}&", "").Replace("rut={RUT}&", "").Replace("nombre={NOMBRE}&", "");
-
-                            using (var client2 = new HttpClient())
-                            {
-                                client2.BaseAddress = new Uri(url2);
-                                client2.DefaultRequestHeaders.Accept.Clear();
-                                client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                                client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                                HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
-                                if (response2.IsSuccessStatusCode)
-                                {
-                                    var content2 = await response2.Content.ReadAsStringAsync();
-                                    List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
-                                    clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
-                                    List<ClienteAPIDTO> clientesAux = new List<ClienteAPIDTO>();
-                                    foreach (var cliente in clientes[0])
+                                    using (var client2 = new HttpClient())
                                     {
+
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+
+                                        client2.BaseAddress = new Uri(url2);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                        if (response2.IsSuccessStatusCode)
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                            documentos[0].AddRange(documentos2[0]);
+                                            pagina = pagina + 1;
+                                        }
+                                        else
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response2.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content2,
+                                                Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                        }
+
+                                    }
+                                }
+
+                                if (excluyeClientes == 1)
+                                {
+                                    var clientesExcluidos = _context.ClientesExcluidos.ToList();
+                                    foreach (var clienteExcluido in clientesExcluidos)
+                                    {
+                                        documentos[0].RemoveAll(x => x.CodAux == clienteExcluido.CodAuxCliente);
+                                    }
+                                }
+
+                                if (año != 0)
+                                {
+                                    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                                }
+
+                                documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                                if (fechaHasta != null)
+                                {
+                                    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                                }
+
+                                documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+
+
+                                if (estadoTipoCobranza == "VENCIDO")
+                                {
+                                    if (diasVencimiento > 0)
+                                    {
+                                        documentos[0] = documentos[0].Where(x => (fechaActual.Date - x.Movfv.Value.Date).TotalDays >= diasVencimiento).ToList();
+                                    }
+                                    else
+                                    {
+                                        documentos[0] = documentos[0].Where(x => x.Estado == "V").ToList();
+                                    }
+
+                                }
+                                else if (estadoTipoCobranza == "PENDIENTE")
+                                {
+                                    if (diasVencimiento > 0)
+                                    {
+                                        documentos[0] = documentos[0].Where(x => (x.Movfv.Value.Date - fechaActual.Date).TotalDays <= diasVencimiento && x.Estado == "P").ToList();
+                                    }
+                                    else
+                                    {
+                                        documentos[0] = documentos[0].Where(x => x.Estado == "P").ToList();
+
+                                    }
+
+                                }
+
+                            }
+
+                            foreach (var doc in documentos[0])
+                            {
+                                string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", doc.CodAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                            .Replace("{NOMBRE}", "").Replace("{RUT}", "");
+
+                                using (var client3 = new HttpClient())
+                                {
+                                    client3.BaseAddress = new Uri(url2);
+                                    client3.DefaultRequestHeaders.Accept.Clear();
+                                    client3.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                    client3.DefaultRequestHeaders.Add("SApiKey", accesToken); //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                    HttpResponseMessage response3 = await client3.GetAsync(client3.BaseAddress);
+                                    if (response3.IsSuccessStatusCode)
+                                    {
+                                        var content3 = await response3.Content.ReadAsStringAsync();
+                                        List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content3);
+                                        clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
+                                        List<ClienteAPIDTO> clientesAux = new List<ClienteAPIDTO>();
+                                        var cliente = clientes[0].FirstOrDefault();
+
                                         var esValido = true;
                                         if (!String.IsNullOrEmpty(listasPrecio))
                                         {
@@ -5868,62 +5793,64 @@ namespace ApiPortal.Services
                                             }
                                         }
 
-                                        //if (!String.IsNullOrEmpty(canalesVenta))
-                                        //{
-                                        //    var exist = cobradores.Split(';').Where(x => x == cliente.Codcob).FirstOrDefault();
-                                        //    if (exist == null)
-                                        //    {
-                                        //        esValido = false;
-                                        //    }
-                                        //}
-
                                         if (esValido)
                                         {
-                                            clientesAux.Add(cliente);
+                                            DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
+                                            aux.FolioDocumento = (int)doc.Numdoc;
+                                            aux.TipoDocumento = doc.DesDoc;
+                                            aux.CodTipoDocumento = doc.Ttdcod;
+                                            aux.FechaEmision = Convert.ToDateTime(doc.Movfe);
+                                            aux.FechaVencimiento = Convert.ToDateTime(doc.Movfv);
+                                            aux.RutCliente = cliente.RutAux;
+                                            aux.Bloqueado = cliente.Bloqueado;
+                                            aux.NombreCliente = cliente.NomAux;
+                                            aux.DiasAtraso = (int)(fechaActual.Date - doc.Movfv.Value.Date).TotalDays;
+                                            aux.Estado = doc.Estado == "V" ? "VENCIDO" : doc.Estado == "P" ? "PENDIENTE" : "";
+                                            aux.CuentaContable = doc.Pctcod;
+                                            var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
+                                            if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
+                                            aux.MontoDocumento = (float)doc.MovMonto;
+                                            aux.SaldoDocumento = (float)doc.Saldobase;
+
+                                            retorno.Add(aux);
                                         }
                                     }
-
-                                    if (clientesAux.Count > 0)
+                                    else
                                     {
-                                        foreach (var doc in documentos[0])
+                                        var content3 = await response3.Content.ReadAsStringAsync();
+                                        LogProceso log = new LogProceso
                                         {
-                                            var valido = clientesAux.Where(x => x.CodAux == doc.CodAux).FirstOrDefault();
-                                            if (valido != null)
-                                            {
-                                                DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
-                                                aux.FolioDocumento = (int)doc.Numdoc;
-                                                aux.TipoDocumento = doc.DesDoc;
-                                                aux.CodTipoDocumento = doc.Ttdcod;
-                                                aux.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                                aux.FechaVencimiento = Convert.ToDateTime(doc.Movfv);
-                                                aux.RutCliente = valido.RutAux;
-                                                aux.Bloqueado = valido.Bloqueado;
-                                                aux.NombreCliente = valido.NomAux;
-                                                aux.DiasAtraso = (int)(fechaActual.Date - doc.Movfv.Date).TotalDays;
-                                                aux.Estado = doc.Estado == "V" ? "VENCIDO" : doc.Estado == "P" ? "PENDIENTE" : "";
-                                                aux.CuentaContable = doc.Pctcod;
-                                                var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
-                                                if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
-                                                aux.MontoDocumento = (float)doc.MovMonto;
-                                                aux.SaldoDocumento = (float)doc.Saldobase;
-
-                                                retorno.Add(aux);
-                                            }
-
-                                        }
+                                            Excepcion = response3.StatusCode.ToString(),
+                                            Fecha = DateTime.Now.Date,
+                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                            Mensaje = content3,
+                                            Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
+                                        };
+                                        _context.LogProcesos.Add(log);
+                                        _context.SaveChanges();
                                     }
+                                }
 
-                                }
-                                else
-                                {
-                                    response2.EnsureSuccessStatusCode();
-                                }
+
+
                             }
+
+
 
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -6095,7 +6022,13 @@ namespace ApiPortal.Services
                         }
 
                         string accesToken = api.Token;
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
+                        // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        int cantidad = 100;
+                        int pagina = 1;
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "");
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -6108,40 +6041,89 @@ namespace ApiPortal.Services
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
 
-                            if (año != 0)
+                            if (documentos[0].Count > 0)
                             {
-                                documentos[0] = documentos[0].Where(x => x.Movfe.Year == año).ToList();
-                            }
+                                pagina = pagina + 1;
 
-                            documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            if (fechaHasta != null)
-                            {
-                                documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                            }
-                            documentos[0] = documentos[0].Where(x => configPortal.TiposDocumentosDeuda.Contains(x.Ttdcod)).ToList();
-                            documentos[0] = documentos[0].Where(x => configPortal.CuentasContablesDeuda.Contains(x.Pctcod)).ToList();
-                            documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
-
-
-                            string url2 = api.Url + api.ConsultaCliente.Replace("{AREADATOS}", api.AreaDatos).Replace("pagina={PAGINA}&", "").Replace("cantidad={CANTIDAD}", "").Replace("codaux={CODAUX}&", "").Replace("rut={RUT}&", "").Replace("nombre={NOMBRE}&", "").Replace("?", "");
-
-                            using (var client2 = new HttpClient())
-                            {
-                                client2.BaseAddress = new Uri(url2);
-                                client2.DefaultRequestHeaders.Accept.Clear();
-                                client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                                //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                                client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
-                                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                                HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
-                                if (response2.IsSuccessStatusCode)
+                                while (documentos[0].Count < documentos[0][0].total)
                                 {
-                                    var content2 = await response2.Content.ReadAsStringAsync();
-                                    List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
-                                    clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
-
-                                    foreach (var doc in documentos[0])
+                                    using (var client2 = new HttpClient())
                                     {
+
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+
+                                        client2.BaseAddress = new Uri(url2);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                        if (response2.IsSuccessStatusCode)
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                            documentos[0].AddRange(documentos2[0]);
+                                            pagina = pagina + 1;
+                                        }
+                                        else
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response2.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content2,
+                                                Ruta = "SoftlandService/GetDocumentosPendientes"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                        }
+
+                                    }
+                                }
+
+
+                                if (año != 0)
+                                {
+                                    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                                }
+
+                                documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                                if (fechaHasta != null)
+                                {
+                                    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                                }
+
+                                documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+
+                            }
+
+
+
+                            foreach (var doc in documentos[0])
+                            {
+                                string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", doc.CodAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                            .Replace("{NOMBRE}", "").Replace("{RUT}", "");
+
+                                using (var client2 = new HttpClient())
+                                {
+                                    client2.BaseAddress = new Uri(url2);
+                                    client2.DefaultRequestHeaders.Accept.Clear();
+                                    client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                    //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                    client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                    HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+                                    if (response2.IsSuccessStatusCode)
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
+                                        clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
+
+
                                         var valido = clientes[0].Where(x => x.CodAux == doc.CodAux).FirstOrDefault();
                                         if (valido != null)
                                         {
@@ -6154,29 +6136,52 @@ namespace ApiPortal.Services
                                             aux.RutCliente = valido.RutAux;
                                             aux.Bloqueado = valido.Bloqueado;
                                             aux.NombreCliente = valido.NomAux;
-                                            aux.DiasAtraso = (int)(fechaActual.Date - doc.Movfv.Date).TotalDays;
+                                            aux.DiasAtraso = (int)(fechaActual.Date - doc.Movfv.Value.Date).TotalDays;
                                             aux.Estado = doc.Estado == "V" ? "VENCIDO" : doc.Estado == "P" ? "PENDIENTE" : "";
                                             aux.CuentaContable = doc.Pctcod;
                                             var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
                                             if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
                                             aux.MontoDocumento = (float)doc.MovMonto;
                                             aux.SaldoDocumento = (float)doc.Saldobase;
-
                                             retorno.Add(aux);
                                         }
 
+
+                                    }
+                                    else
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        LogProceso log = new LogProceso
+                                        {
+                                            Excepcion = response2.StatusCode.ToString(),
+                                            Fecha = DateTime.Now.Date,
+                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                            Mensaje = content2,
+                                            Ruta = "SoftlandService/GetDocumentosPendientes"
+                                        };
+                                        _context.LogProcesos.Add(log);
+                                        _context.SaveChanges();
                                     }
                                 }
-                                else
-                                {
-                                    response2.EnsureSuccessStatusCode();
-                                }
                             }
+
+
+
 
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosPendientes"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -6199,406 +6204,224 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public int GetCantidadDocumentosFiltro(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, int diasVencimiento, string estadoCobranza, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes)
-        {
-            int cantidadDocumentos = 0;
-
-            try
-            {
-                var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                string documentos = string.Empty;
-                if (string.IsNullOrEmpty(tipoDocumento))
-                {
-                    foreach (var doc in configuracionPortal.TiposDocumentosDeuda.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(documentos))
-                        {
-                            documentos = "'" + doc + "'";
-                        }
-                        else
-                        {
-                            documentos = documentos + ",'" + doc + "'";
-                        }
-                    }
-                }
-                else
-                {
-                    var tiposDocs = tipoDocumento.Split(';');
-                    foreach (var doc in tiposDocs)
-                    {
-                        if (string.IsNullOrEmpty(documentos))
-                        {
-                            documentos = "'" + doc + "'";
-                        }
-                        else
-                        {
-                            documentos = documentos + ",'" + doc + "'";
-                        }
-                    }
-                }
 
 
 
-                string cuentas = string.Empty;
-                foreach (var c in configuracionPortal.CuentasContablesDeuda.Split(';'))
-                {
-                    if (string.IsNullOrEmpty(cuentas))
-                    {
-                        cuentas = "'" + c + "'";
-                    }
-                    else
-                    {
-                        cuentas = cuentas + ",'" + c + "'";
-                    }
-                }
-
-
-
-                string sqlWhere = string.Empty;
-
-
-                if (fechaDesde == null && fechaHasta == null)
-                {
-                    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-                    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
-                }
-
-                if (fechaDesde != null && fechaHasta != null)
-                {
-                    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
-                    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
-                    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
-                }
-
-                bool esJoin = false;
-
-                if (listasPrecio != "" && listasPrecio != null)
-                {
-                    string lp = string.Empty;
-                    foreach (var item in listasPrecio.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(lp))
-                        {
-                            lp = "'" + item + "'";
-                        }
-                        else
-                        {
-                            lp += ",'" + item + "'";
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(lp))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista in (" + lp + ")";
-                        esJoin = true;
-                    }
-                }
-
-                if (condicionesVenta != "" && condicionesVenta != null)
-                {
-                    string condV = string.Empty;
-                    foreach (var item in condicionesVenta.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(condV))
-                        {
-                            condV = "'" + item + "'";
-                        }
-                        else
-                        {
-                            condV += ",'" + item + "'";
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(condV))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta in (" + condV + ")";
-                        esJoin = true;
-                    }
-                }
-
-                if (vendedores != "" && vendedores != null)
-                {
-                    string vend = string.Empty;
-                    foreach (var item in vendedores.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(vend))
-                        {
-                            vend = "'" + item + "'";
-                        }
-                        else
-                        {
-                            vend += ",'" + item + "'";
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(vend))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen in (" + vend + ")";
-                        esJoin = true;
-                    }
-                }
-
-                if (categoriasClientes != "" && categoriasClientes != null)
-                {
-                    string catcli = string.Empty;
-                    foreach (var item in categoriasClientes.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(catcli))
-                        {
-                            catcli = "'" + item + "'";
-                        }
-                        else
-                        {
-                            catcli += ",'" + item + "'";
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(catcli))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli in (" + catcli + ")";
-                        esJoin = true;
-                    }
-                }
-
-                string join = string.Empty;
-                if (esJoin)
-                {
-                    join = " inner join softland.cwtcvcl on cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
-                }
-
-                //Excluye alumnos del listado
-                if (excluyeClientes == 1)
-                {
-                    var clientes = _context.ClientesExcluidos.ToList();
-                    string rutClientes = string.Empty;
-                    foreach (var item in clientes)
-                    {
-                        if (string.IsNullOrEmpty(rutClientes))
-                        {
-                            rutClientes = "'" + item.RutCliente + "'";
-                        }
-                        else
-                        {
-                            rutClientes = ",'" + item.RutCliente + "'";
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(rutClientes))
-                    {
-                        sqlWhere = sqlWhere + " AND cwtauxi.RutAux not in (" + rutClientes + ") ";
-                    }
-
-                }
-
-                string sqlDias = string.Empty;
-
-                if (diasVencimiento > 0 && estadoCobranza == "VENCIDO")
-                {
-                    sqlDias = " WHERE Atrasado >=" + diasVencimiento;
-                }
-                else if (diasVencimiento > 0 && estadoCobranza == "PENDIENTE")
-                {
-                    sqlDias = " WHERE (Atrasado*-1) <=" + diasVencimiento;
-                }
-
-                if (!string.IsNullOrEmpty(estadoCobranza))
-                {
-                    if (string.IsNullOrEmpty(sqlDias))
-                    {
-                        sqlDias = " WHERE Estado = '" + estadoCobranza + "'";
-                    }
-                    else
-                    {
-                        sqlDias = sqlDias + " AND Estado = '" + estadoCobranza + "'";
-                    }
-                }
-
-                if (año != 0)
-                {
-                    sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
-                }
-                else
-                {
-                    sqlDias = sqlDias + " AND YEAR(Emision) = " + configuracionPortal.AnioTributario;
-                }
-
-                conSoftland.Open();
-
-                SqlCommand cmd = new SqlCommand();
-                SqlDataReader result;
-                cmd.CommandText = "Select count(*) as cantidadDocumentos from (select " +
-                                    "cwpctas.pccodi, " +
-                                    "cwpctas.pcdesc, " +
-                                    "cwtauxi.codaux, " +
-                                    "cwtauxi.RutAux, " +
-                                    "cwtauxi.nomaux, " +
-                                    "min(cwmovim.movfe) as Emision, " +
-                                    "min(cwmovim.MovFv) as Vencimiento, " +
-                                    "DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) AS Atrasado," +
-                                    "CASE " +
-                                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) > 0 THEN 'VENCIDO' " +
-                                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) <= 0 THEN 'PENDIENTE' " +
-                                    "END AS Estado, " +
-                                    "cwttdoc.CodDoc as TipoDoc, " +
-                                    "cwttdoc.desdoc as Documento, " +
-                                    "cwmovim.movnumdocref as Nro, " +
-                                    "sum(cwmovim.movdebe - cwmovim.movhaber) as Saldo, " +
-                                    "sum(cwmovim.movdebe) as Debe " +
-                                    "From softland.cwcpbte inner join softland.cwmovim on cwcpbte.cpbano = cwmovim.cpbano and cwcpbte.cpbnum = cwmovim.cpbnum inner join softland.cwtauxi on " +
-                                    "cwtauxi.codaux = cwmovim.codaux inner join softland.cwpctas on cwmovim.pctcod = cwpctas.pccodi left join softland.cwttdoc on " +
-                                    "cwmovim.movtipdocref = cwttdoc.coddoc left join softland.cwtaren on cwmovim.AreaCod = cwTAren.CodArn " + join +
-                                    "Where(((cwmovim.cpbNum <> '00000000')  or(cwmovim.cpbano = '2017' AND cwmovim.cpbNum = '00000000'))) and " +
-                                    "(cwcpbte.cpbest = 'V') " +
-                                    "and cwmovim.PctCod in (" + cuentas + ") " +
-                                    "and cwmovim.MovTipDocRef in (" + documentos + ") " + sqlWhere + " " +
-                                    "Group By cwpctas.pccodi , cwpctas.pcdesc, cwtauxi.codaux, cwtauxi.RutAux, cwmovim.movnumdocref, cwtauxi.nomaux, cwttdoc.desdoc, cwmovim.AreaCod,  " +
-                                    "cwTAren.DesArn, cwpctas.PCAUXI, cwpctas.PCCDOC,  cwttdoc.coddoc " +
-                                    "Having(Sum((cwmovim.movdebe - cwmovim.movhaber)) > 0)) as tabla " + sqlDias;
-                cmd.CommandType = CommandType.Text;
-                cmd.Connection = conSoftland;
-                result = cmd.ExecuteReader();
-
-                while (result.Read())
-                {
-                    cantidadDocumentos = Convert.ToInt32(result["cantidadDocumentos"]);
-                }
-                result.Close();
-            }
-            catch (Exception ex)
-            {
-                LogProceso log = new LogProceso();
-                log.IdTipoProceso = -1;
-                log.Fecha = DateTime.Now;
-                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                log.Ruta = @"Softland\GetCantidadDocumentosFiltro";
-                log.Mensaje = ex.Message;
-                log.Excepcion = ex.ToString();
-                _context.LogProcesos.Add(log);
-                _context.SaveChanges();
-                return cantidadDocumentos;
-            }
-            finally { conSoftland.Close(); }
-
-            return cantidadDocumentos;
-        }
-
-
-        public List<ClientesPortal> GetClientesSoftlandCobranza(FilterVm filtros)
+        public async Task<List<ClientesPortal>> GetClientesSoftlandFiltrosAsync(FilterVm filtros)
         {
             List<ClientesPortal> retorno = new List<ClientesPortal>();
             try
             {
-                string innerJoin = string.Empty;
-                string sqlWhere = string.Empty;
-
-                if (!string.IsNullOrEmpty(filtros.ListaPrecio) || !string.IsNullOrEmpty(filtros.CondicionVenta) || !string.IsNullOrEmpty(filtros.Vendedor) || !string.IsNullOrEmpty(filtros.CategoriaCliente))
+                if (utilizaApiSoftland == "false")
                 {
-                    innerJoin = "inner join softland.cwtcvcl on softland.cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
+                    string innerJoin = string.Empty;
+                    string sqlWhere = string.Empty;
+
+                    if (!string.IsNullOrEmpty(filtros.ListaPrecio) || !string.IsNullOrEmpty(filtros.CondicionVenta) || !string.IsNullOrEmpty(filtros.Vendedor) || !string.IsNullOrEmpty(filtros.CategoriaCliente))
+                    {
+                        innerJoin = "inner join softland.cwtcvcl on softland.cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
+                    }
+
+                    if (!string.IsNullOrEmpty(filtros.ListaPrecio))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista = '" + filtros.ListaPrecio + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtcvcl.CodLista = '" + filtros.ListaPrecio + "' ";
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(filtros.CondicionVenta))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta = '" + filtros.CondicionVenta + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtcvcl.ConVta = '" + filtros.CondicionVenta + "' ";
+                        }
+                    }
+
+
+                    if (!string.IsNullOrEmpty(filtros.Vendedor))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen = '" + filtros.Vendedor + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtcvcl.CodVen = '" + filtros.Vendedor + "' ";
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(filtros.CategoriaCliente))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli = '" + filtros.CategoriaCliente + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtcvcl.CatCli = '" + filtros.CategoriaCliente + "' ";
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(filtros.Nombre))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtauxi.NomAux = '" + filtros.Nombre + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtauxi.NomAux = '" + filtros.Nombre + "' ";
+                        }
+                    }
+
+
+                    if (!string.IsNullOrEmpty(filtros.CodAux))
+                    {
+                        if (!string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + "AND softland.cwtauxi.CodAux = '" + filtros.CodAux + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = "WHERE softland.cwtauxi.CodAux = '" + filtros.CodAux + "' ";
+                        }
+                    }
+
+
+                    conSoftland.Open();
+                    SqlCommand cmd = new SqlCommand();
+                    SqlDataReader reader;
+
+                    cmd.CommandText = "select softland.cwtauxi.CodAux, softland.cwtauxi.NomAux, softland.cwtauxi.RutAux from softland.cwtauxi " + innerJoin + sqlWhere;
+
+
+
+
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Connection = conSoftland;
+                    reader = cmd.ExecuteReader();
+
+
+                    while (reader.Read())
+                    {
+                        ClientesPortal item = new ClientesPortal();
+                        item.CodAux = (reader["CodAux"] == DBNull.Value) ? "" : reader["CodAux"].ToString();
+                        item.Rut = (reader["RutAux"] == DBNull.Value) ? "" : reader["RutAux"].ToString();
+                        item.Nombre = (reader["NomAux"] == DBNull.Value) ? "" : reader["NomAux"].ToString().ToUpper();
+                        retorno.Add(item);
+                    }
+                    reader.Close();
+                    conSoftland.Close();
+                }
+                else
+                {
+                    using (var client = new HttpClient())
+                    {
+                        int pagina = 1;
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        string accesToken = api.Token;
+                        string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", pagina.ToString()).Replace("{PAGINA}", "").Replace("{CATCLI}", filtros.CategoriaCliente).Replace("{CODAUX}", filtros.CodAux).Replace("{CODLISTA}", filtros.ListaPrecio).Replace("{CODVEN}", filtros.Vendedor).Replace("{CONVTA}", filtros.CondicionVenta)
+                           .Replace("{NOMBRE}", filtros.Nombre).Replace("{RUT}", filtros.Rut);
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
+
+                            if (clientes[0].Count() > 0)
+                            {
+                                while (int.Parse(clientes[0][0].Total) > clientes[0].Count())
+                                {
+                                    using (var client2 = new HttpClient())
+                                    {
+                                        pagina = pagina + 1;
+                                        url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", filtros.CategoriaCliente).Replace("{CODAUX}", filtros.CodAux).Replace("{CODLISTA}", filtros.ListaPrecio).Replace("{CODVEN}", filtros.Vendedor).Replace("{CONVTA}", filtros.CondicionVenta)
+                          .Replace("{NOMBRE}", filtros.Nombre).Replace("{RUT}", filtros.Rut);
+                                        client2.BaseAddress = new Uri(url);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        if (response2.IsSuccessStatusCode)
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<ClienteAPIDTO>> clientes2 = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
+                                            if (clientes2[0].Count() > 0)
+                                            {
+                                                clientes[0].AddRange(clientes2[0]);
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            var content2 = await response.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content,
+                                                Ruta = "SoftlandService/GetClientesSoftlandFiltrosAsync"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                        }
+                                    }
+                                }
+                            }
+
+                            retorno = clientes[0].ConvertAll(c => new ClientesPortal
+                            {
+                                Rut = c.RutAux,
+                                Nombre = c.NomAux,
+                                Correo = c.EMail,
+                                CodAux = c.CodAux
+                            });
+
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetClientesSoftlandFiltrosAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
                 }
 
-                if (!string.IsNullOrEmpty(filtros.ListaPrecio))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista = '" + filtros.ListaPrecio + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtcvcl.CodLista = '" + filtros.ListaPrecio + "' ";
-                    }
-                }
 
-                if (!string.IsNullOrEmpty(filtros.CondicionVenta))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta = '" + filtros.CondicionVenta + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtcvcl.ConVta = '" + filtros.CondicionVenta + "' ";
-                    }
-                }
-
-
-                if (!string.IsNullOrEmpty(filtros.Vendedor))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen = '" + filtros.Vendedor + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtcvcl.CodVen = '" + filtros.Vendedor + "' ";
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(filtros.CategoriaCliente))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli = '" + filtros.CategoriaCliente + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtcvcl.CatCli = '" + filtros.CategoriaCliente + "' ";
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(filtros.Nombre))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtauxi.NomAux = '" + filtros.Nombre + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtauxi.NomAux = '" + filtros.Nombre + "' ";
-                    }
-                }
-
-
-                if (!string.IsNullOrEmpty(filtros.CodAux))
-                {
-                    if (!string.IsNullOrEmpty(sqlWhere))
-                    {
-                        sqlWhere = sqlWhere + "AND softland.cwtauxi.CodAux = '" + filtros.CodAux + "' ";
-                    }
-                    else
-                    {
-                        sqlWhere = "WHERE softland.cwtauxi.CodAux = '" + filtros.CodAux + "' ";
-                    }
-                }
-
-
-                conSoftland.Open();
-                SqlCommand cmd = new SqlCommand();
-                SqlDataReader reader;
-
-                cmd.CommandText = "select softland.cwtauxi.CodAux, softland.cwtauxi.NomAux, softland.cwtauxi.RutAux from softland.cwtauxi " + innerJoin + sqlWhere;
-
-
-
-
-                cmd.CommandType = CommandType.Text;
-                cmd.Connection = conSoftland;
-                reader = cmd.ExecuteReader();
-
-
-                while (reader.Read())
-                {
-                    ClientesPortal item = new ClientesPortal();
-                    item.CodAux = (reader["CodAux"] == DBNull.Value) ? "" : reader["CodAux"].ToString();
-                    item.Rut = (reader["RutAux"] == DBNull.Value) ? "" : reader["RutAux"].ToString();
-                    item.Nombre = (reader["NomAux"] == DBNull.Value) ? "" : reader["NomAux"].ToString().ToUpper();
-                    retorno.Add(item);
-                }
-                reader.Close();
-                conSoftland.Close();
             }
             catch (Exception ex)
             {
-                conSoftland.Close();
+                if (utilizaApiSoftland == "fasle")
+                {
+                    conSoftland.Close();
+                }
+
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
                 log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
@@ -6704,7 +6527,7 @@ namespace ApiPortal.Services
 
                     }
                 }
-                else 
+                else
                 {
                     using (var client = new HttpClient())
                     {
@@ -6713,7 +6536,7 @@ namespace ApiPortal.Services
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        
+
                         string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
                         if (!string.IsNullOrEmpty(codAux))
                         {
@@ -6727,7 +6550,7 @@ namespace ApiPortal.Services
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); 
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
                         if (response.IsSuccessStatusCode)
@@ -6801,7 +6624,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosDashboardAdminAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -6837,7 +6670,15 @@ namespace ApiPortal.Services
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
                     //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                    //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    int cantidad = 100;
+                    int pagina = 1;
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -6848,11 +6689,68 @@ namespace ApiPortal.Services
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+
+                        if (documentos[0].Count > 0)
+                        {
+
+                            retorno = documentos[0];
+                            pagina = pagina + 1;
+                            while (retorno.Count < retorno[0].total)
+                            {
+                                using (var client2 = new HttpClient())
+                                {
+
+                                    string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
+
+                                    client2.BaseAddress = new Uri(url2);
+                                    client2.DefaultRequestHeaders.Accept.Clear();
+                                    client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                    client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                    HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                    if (response2.IsSuccessStatusCode)
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                        retorno.AddRange(documentos2[0]);
+                                        pagina = pagina + 1;
+                                    }
+                                    else
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        LogProceso log = new LogProceso
+                                        {
+                                            Excepcion = response2.StatusCode.ToString(),
+                                            Fecha = DateTime.Now.Date,
+                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                            Mensaje = content2,
+                                            Ruta = "SoftlandService/GetAllDocumentosContabilizadosCliente"
+                                        };
+                                        _context.LogProcesos.Add(log);
+                                        _context.SaveChanges();
+                                    }
+
+                                }
+                            }
+                        }
                         retorno = documentos[0];
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetAllDocumentosContabilizadosCliente"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
                 }
             }
@@ -7060,7 +6958,17 @@ namespace ApiPortal.Services
                         }
                         else
                         {
-                            response.EnsureSuccessStatusCode();
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosDeudores"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
                         }
                     }
                 }
@@ -7109,7 +7017,17 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetModulosSoftlandAsync"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
                     }
 
                 }
@@ -7227,7 +7145,7 @@ namespace ApiPortal.Services
                                         string hora = pago.HoraPago;
                                         string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
                                         string comprobanteHtml = string.Empty;
-                                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath,  "~/Uploads/MailTemplates/invoice.html")))
+                                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/invoice.html")))
                                         {
                                             comprobanteHtml = reader.ReadToEnd();
                                         }
@@ -7238,7 +7156,7 @@ namespace ApiPortal.Services
                                         string[] partes = comprobanteHtml.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);
                                         string reemplazoDetalle = string.Empty;
 
-                                        SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
+                                        SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
                                         var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
                                         foreach (var det in pago.PagosDetalles)
                                         {
@@ -7356,7 +7274,17 @@ namespace ApiPortal.Services
                             }
                             else
                             {
-                                response.EnsureSuccessStatusCode();
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/ReprocesaPago"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
                             }
                         }
                     }
@@ -7386,6 +7314,1160 @@ namespace ApiPortal.Services
             }
 
             return numComprobante;
+        }
+
+
+        public async Task<DashboardDocumentosVm> GetMontosDashboardAdmin(string codAux)
+        {
+            DashboardDocumentosVm retorno = new DashboardDocumentosVm();
+            try
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+
+                }
+                else //FCA 16-06-2022
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var monedas = await this.GetMonedasAsync();
+                        var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                        var fecha = configPortal.AnioTributario.ToString() + "0101";
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        string accesToken = api.Token;
+                        //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string listadocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : string.Empty;
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : string.Empty;
+                        string url = api.Url + api.DocumentosContabilizadosResumen.Replace("{DESDE}", fecha).Replace("{CODAUX}", codAux).Replace("{LISTADOCUMENTOS}", listadocumentos).Replace("{LISTACUENTAS}", listacuentas).Replace("{DIASXVENCER}", configPortal.DiasPorVencer.ToString());
+
+                        //url = url.Replace("codaux={CODAUX}&", "");
+
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<DashboardDocumentosVm>> documentos = JsonConvert.DeserializeObject<List<List<DashboardDocumentosVm>>>(content);
+                            retorno = documentos[0][0];
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetMontosDashboardAdmin"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetMontosDashboardAdmin"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+            finally { conSoftland.Close(); }
+
+            return retorno;
+        }
+
+
+        public async Task<List<DeudorApiDTO>> GetTopDeudores()
+        {
+            List<DeudorApiDTO> retorno = new List<DeudorApiDTO>();
+            try
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+
+
+                }
+                else //FCA 16-06-2022
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var monedas = await this.GetMonedasAsync();
+                        var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                        var fecha = configPortal.AnioTributario.ToString() + "0101";
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        string accesToken = api.Token;
+                        //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string listaCuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : string.Empty;
+                        string listaTipoDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : string.Empty;
+                        string url = api.Url + api.TopDeudores.Replace("{CANTIDADTOPE}", "10").Replace("{DESDE}", fecha).Replace("{LISTACUENTAS}", listaCuentas).Replace("{LISTATIPODOCUMENTOS}", listaTipoDocumentos);
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<DeudorApiDTO>> deudores = JsonConvert.DeserializeObject<List<List<DeudorApiDTO>>>(content);
+                            retorno = deudores[0];
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetTopDeudores"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetTopDeudores"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+            finally { conSoftland.Close(); }
+
+            return retorno;
+        }
+
+        public async Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosDeudaVsPago()
+        {
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
+            try
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+                    //var configuracionPago = db.ConfiguracionPagoCliente.FirstOrDefault();
+
+                    //string docs = string.Empty;
+
+                    //foreach (var item in configuracionPago.TiposDocumentosDeuda.Split(';'))
+                    //{
+                    //    if (string.IsNullOrEmpty(docs))
+                    //    {
+                    //        docs = "'" + item + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        docs = docs + ",'" + item + "'";
+                    //    }
+                    //}
+
+                    //string cuentasContables = string.Empty;
+                    //foreach (var item in configuracionPago.CuentasContablesDeuda.Split(';'))
+                    //{
+                    //    if (string.IsNullOrEmpty(cuentasContables))
+                    //    {
+                    //        cuentasContables = "'" + item + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        cuentasContables = cuentasContables + ",'" + item + "'";
+                    //    }
+                    //}
+
+                    //string sqlWhere = string.Empty;
+
+                    //conSoftland.Open();
+                    //SqlCommand cmd = new SqlCommand();
+                    //SqlDataReader reader;
+                    //cmd.CommandText = "SELECT ISNULL((SELECT ctdoc.DesDoc FROM softland.cwttdoc as ctdoc WHERE ctdoc.CodDoc = CWDoctosPeriodo.Ttdcod),'Sin Documento') as Documento, TtdCod, " +
+                    //                  " NumDOC as Folio,MovFe as Fecha, MovFv as [Fecha Vcto.], isnull(sum(MovDebe) + Sum(MovHaber), 0) as Monto, isnull(sum(Debe) - Sum(Haber), 0) as Saldo,  " +
+                    //                  " CASE WHEN(MovFv <= GETDATE()) THEN 'Vencido' else 'Pendiente' end as Estado, softland.cwtauxi.RutAux, softland.cwtauxi.NomAux  " +
+                    //                  " FROM softland.CWDoctosPeriodoFull AS CWDoctosPeriodo left join softland.cwtauxi on softland.cwtauxi.CodAux = CWDoctosPeriodo.CodAux " +
+                    //                  " WHERE TtdCod in (" + docs + ") AND " + sqlWhere +
+                    //                  " (PctCod IN(" + cuentasContables + ")) AND " +
+                    //                  " (CpbAno >= " + configuracionPago.AnioTributario + ") " +
+                    //                  " GROUP BY  TtdCod,NumDOC, MovFe, MovFv, softland.cwtauxi.RutAux, softland.cwtauxi.NomAux  " +
+                    //                  " HAVING(sum(Debe) - Sum(Haber)) <> 0 ORDER BY  MovFe DESC ";
+                    //cmd.CommandType = CommandType.Text;
+                    //cmd.Connection = conSoftland;
+
+                    //reader = cmd.ExecuteReader();
+
+                    //while (reader.Read())
+                    //{
+                    //    ClienteSaldosDTO item = new ClienteSaldosDTO();
+                    //    item.Documento = reader["Documento"].ToString();
+                    //    item.RazonSocial = reader["NomAux"].ToString();
+                    //    item.Nro = (reader["Folio"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Folio"]);
+                    //    item.FechaEmision = (reader["Fecha"] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Fecha"]);
+                    //    item.FechaVcto = (reader["Fecha Vcto."] == DBNull.Value) ? DateTime.Now : Convert.ToDateTime(reader["Fecha Vcto."]);
+                    //    item.Debe = (reader["Monto"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Monto"]);
+                    //    item.Saldo = (reader["Saldo"] == DBNull.Value) ? 0 : Convert.ToDouble(reader["Saldo"]);
+                    //    item.Estado = reader["Estado"].ToString();
+                    //    item.TipoDoc = reader["TtdCod"].ToString();
+                    //    retorno.Add(item);
+                    //}
+                    //reader.Close();
+                    //conSoftland.Close();
+
+
+                }
+                else //FCA 16-06-2022
+                {
+
+                    var monedas = await this.GetMonedasAsync();
+                    var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    int anio = DateTime.Now.Date.Year - 2;
+
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    string accesToken = api.Token;
+                    //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                    // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+
+                    //url = url.Replace("codaux={CODAUX}&", "");
+
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    int cantidad = 100;
+                    int pagina = 1;
+                    while (anio <= DateTime.Now.Date.Year)
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            var fecha = anio.ToString() + "-01-01";
+                            string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                           .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
+
+                            client.BaseAddress = new Uri(url);
+                            client.DefaultRequestHeaders.Accept.Clear();
+                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                            HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var content = await response.Content.ReadAsStringAsync();
+                                List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+
+                                if (documentos[0].Count > 0)
+                                {
+                                    pagina = pagina + 1;
+
+                                    while (documentos[0].Count < documentos[0][0].total)
+                                    {
+                                        using (var client2 = new HttpClient())
+                                        {
+
+                                            string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
+                                            client2.BaseAddress = new Uri(url3);
+                                            client2.DefaultRequestHeaders.Accept.Clear();
+                                            client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                            client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                            HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                            if (response2.IsSuccessStatusCode)
+                                            {
+                                                var content2 = await response2.Content.ReadAsStringAsync();
+                                                List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                                documentos[0].AddRange(documentos2[0]);
+                                                pagina = pagina + 1;
+                                            }
+                                            else
+                                            {
+                                                var content2 = await response2.Content.ReadAsStringAsync();
+                                                LogProceso log = new LogProceso
+                                                {
+                                                    Excepcion = response.StatusCode.ToString(),
+                                                    Fecha = DateTime.Now.Date,
+                                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                    Mensaje = content2,
+                                                    Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
+                                                };
+                                                _context.LogProcesos.Add(log);
+                                                _context.SaveChanges();
+                                                break;
+                                            }
+
+                                        }
+                                    }
+                                    documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                                    retorno.AddRange(documentos[0]);
+                                    anio = anio + 1;
+                                }
+                                else
+                                {
+                                    anio = anio + 1;
+                                }
+                            }
+                            else
+                            {
+                                var content = await response.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+            finally { conSoftland.Close(); }
+
+            return retorno;
+        }
+
+
+        public async System.Threading.Tasks.Task<List<ResumenDocumentosClienteApiDTO>> GetResumenDocumentosXClienteAsync(FilterVm filter)
+        {
+
+            List<ResumenDocumentosClienteApiDTO> retorno = new List<ResumenDocumentosClienteApiDTO>();
+            try
+            {
+
+                using (var client = new HttpClient())
+                {
+                    var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    string accesToken = api.Token;
+                    string diasPorVencer = "";
+                    int cantidad = 10;
+                    string estadoDocs = "";
+
+                    if (filter.TipoBusqueda == 3)
+                    {
+                        diasPorVencer = configPortal.DiasPorVencer != null ? configPortal.DiasPorVencer.ToString() : "";
+                    }
+
+                    if (filter.TipoBusqueda == 2)
+                    {
+                        estadoDocs = "V";
+                    }
+
+                    string emisionDesde = filter.fechaDesde != null ? filter.fechaDesde.Value.ToString("yyyyMMdd") : string.Empty;
+                    string emisionHasta = filter.fechaHasta != null ? filter.fechaHasta.Value.ToString("yyyyMMdd") : string.Empty;
+                    string codAux = filter.CodAux != null ? filter.CodAux : string.Empty;
+                    string folio = filter.Folio != null && filter.Folio != 0 ? filter.Folio.ToString() : string.Empty;
+
+
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASXVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", "").Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", codAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<ResumenDocumentosClienteApiDTO>> documentos = JsonConvert.DeserializeObject<List<List<ResumenDocumentosClienteApiDTO>>>(content);
+                        if (documentos[0].Count > 0)
+                        {
+                            retorno = documentos[0].Where(x => x.codaux != null).ToList();
+                        }
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetResumenDocumentosPendientesXClienteAsync"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetResumenDocumentosPendientesXClienteAsync"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+
+            return retorno;
+        }
+
+        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosClienteAdministrador(FilterVm filter)
+        {
+            List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
+            try
+            {
+
+                using (var client = new HttpClient())
+                {
+                    var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    string accesToken = api.Token;
+                    string diasPorVencer = "";
+                    int cantidad = 10;
+                    string estadoDocs = "";
+
+                    if (filter.TipoBusqueda == 3)
+                    {
+                        diasPorVencer = configPortal.DiasPorVencer != null ? configPortal.DiasPorVencer.ToString() : "";
+                    }
+
+                    if (filter.TipoBusqueda == 2)
+                    {
+                        estadoDocs = "V";
+                    }
+
+                    string emisionDesde = filter.fechaDesde != null ? filter.fechaDesde.Value.ToString("yyyyMMdd") : string.Empty;
+                    string emisionHasta = filter.fechaHasta != null ? filter.fechaHasta.Value.ToString("yyyyMMdd") : string.Empty;
+                    string codAux = filter.CodAux != null ? filter.CodAux : string.Empty;
+                    string folio = filter.Folio != 0 ? filter.Folio.ToString() : string.Empty;
+
+
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", "").Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+                        if (documentos[0].Count > 0)
+                        {
+                            if (filter.TipoBusqueda == 2)
+                            {
+                                documentos[0] = documentos[0].Where(x => x.Movfv.Value.Date < DateTime.Now.Date).ToList();
+                            }
+
+                            retorno = documentos[0].ConvertAll(d =>
+                            new ClienteSaldosDTO
+                            {
+                                //item.comprobanteContable = reader["Comprobante"].ToString();
+                                Documento = d.DesDoc,
+                                Nro = (double)d.Numdoc,
+                                FechaEmision = Convert.ToDateTime(d.Movfe),
+                                FechaVcto = Convert.ToDateTime(d.Movfv),
+                                Debe = (double)d.MovMontoMa,
+                                Haber = d.Saldoadic,
+                                Saldo = (double)d.Saldoadic,
+                                Detalle = "", // reader["Detalle"].ToString();
+                                Estado = d.Estado,
+                                Pago = "", // reader["Pago"].ToString();
+                                TipoDoc = d.Ttdcod,
+                                RazonSocial = "",
+                                CodigoMoneda = d.MonCod,
+                                MontoOriginalBase = d.MontoOriginalBase,
+                                CodAux = d.CodAux,
+                                MontoBase = d.MovMonto,
+                                SaldoBase = d.Saldobase,
+                                EquivalenciaMoneda = d.Equivalencia,
+                                MovEqui = d.MovEquiv,
+                                TotalFilas = d.total
+                            }
+                        );
+                        }
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/GetResumenDocumentosPendientesXClienteAsync"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
+                    }
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetResumenDocumentosPendientesXClienteAsync"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+
+            return retorno;
+        }
+
+
+
+        public async Task<List<ClienteDTO>> BuscarClienteSoftland2Async(string codAux, string rut, string nombre)
+        {
+            List<ClienteDTO> retorno = new List<ClienteDTO>();
+            try
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+                    conSoftland.Open();
+
+                    string sqlWhere = string.Empty;
+                    if (!string.IsNullOrEmpty(codAux))
+                    {
+                        sqlWhere = sqlWhere + " WHERE c.CodAux='" + codAux + "' ";
+                    }
+
+                    if (!string.IsNullOrEmpty(rut))
+                    {
+                        if (string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + " WHERE c.RutAux='" + rut + "' ";
+                        }
+                        else
+                        {
+                            sqlWhere = sqlWhere + " AND c.RutAux='" + rut + "' ";
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(nombre))
+                    {
+                        if (string.IsNullOrEmpty(sqlWhere))
+                        {
+                            sqlWhere = sqlWhere + " WHERE c.NomAux like '%" + nombre + "%' ";
+                        }
+                        else
+                        {
+                            sqlWhere = sqlWhere + " AND c.NomAux like '%" + nombre + "%' ";
+                        }
+                    }
+
+                    SqlCommand cmd = new SqlCommand();
+                    SqlDataReader reader;
+                    cmd.CommandText = "select c.RutAux, c.CodAux, c.NomAux, c.EMail, c.DirAux, c.DirNum, d.VenCod, b.convta, b.CatCli, b.CodLista from softland.Cwtauxi c left join softland.cwtcvcl b on c.CodAux = b.CodAux left join softland.cwtauxven d on d.CodAux = c.CodAux " + sqlWhere;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Connection = conSoftland;
+                    reader = cmd.ExecuteReader();
+
+
+                    while (reader.Read())
+                    {
+                        ClienteDTO aux = new ClienteDTO();
+                        aux.Rut = reader["RutAux"].ToString();
+                        aux.CodAux = reader["CodAux"].ToString();
+                        aux.Correo = reader["EMail"].ToString();
+                        aux.Nombre = reader["NomAux"].ToString();
+                        aux.CodVendedor = reader["VenCod"].ToString();
+                        aux.CodCondVenta = reader["convta"].ToString();
+                        aux.CodCatCliente = reader["CatCli"].ToString();
+                        aux.CodLista = reader["CodLista"].ToString();
+                        aux.DirAux = reader["DirAux"].ToString();
+                        aux.DirNum = reader["DirNum"].ToString();
+                        retorno.Add(aux);
+                    }
+                    reader.Close();
+                    conSoftland.Close();
+                }
+                else
+                {
+                    int pagina = 1;
+                    int cantClientes = 0;
+                    using (var client = new HttpClient())
+                    {
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        string accesToken = api.Token;
+                        //string url = api.Url + api.ConsultaCliente.Replace("{AREADATOS}", api.AreaDatos).Replace("{PAGINA}", pagina.ToString()).Replace("{CANTIDAD}", "");
+
+                        //if (!string.IsNullOrEmpty(codAux))
+                        //{
+                        //    url = url.Replace("{CODAUX}", codAux);
+                        //}
+                        //else
+                        //{
+                        //    url = url.Replace("codaux={CODAUX}&", "");
+                        //}
+
+                        //if (!string.IsNullOrEmpty(rut))
+                        //{
+                        //    url = url.Replace("{RUT}", rut);
+                        //}
+                        //else
+                        //{
+                        //    url = url.Replace("rut={RUT}&", "");
+                        //}
+
+                        //if (!string.IsNullOrEmpty(nombre))
+                        //{
+                        //    url = url.Replace("{NOMBRE}", nombre);
+                        //}
+                        //else
+                        //{
+                        //    url = url.Replace("nombre={NOMBRE}&", "");
+                        //}
+
+                        string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", "").Replace("{CODAUX}", codAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                            .Replace("{NOMBRE}", nombre).Replace("{RUT}", rut);
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<ClienteAPIDTO>> clientesApi = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
+                            cantClientes = clientesApi[0].Count();
+
+                            clientesApi[0] = clientesApi[0].Where(x => x.CodAux != null).ToList();
+
+                            var clientes = clientesApi[0].ConvertAll(d =>
+                                new ClienteDTO
+                                {
+                                    Rut = d.RutAux,
+                                    CodAux = d.CodAux,
+                                    Correo = d.EMail,
+                                    Nombre = d.NomAux,
+                                    DirAux = d.DirAux,
+                                    DirNum = d.DirNum,
+                                    CodVendedor = d.CodVen,
+                                    CodLista = d.CodLista,
+                                    CodCondVenta = d.ConVta,
+                                    CodCatCliente = d.catcli,
+                                    CodCobrador = d.Codcob
+                                }
+                            );
+
+                            retorno.AddRange(clientes);
+
+                            while (cantClientes < int.Parse(clientesApi[0][0].Total))
+                            {
+                                using (var clientWhile = new HttpClient())
+                                {
+                                    pagina = pagina + 1;
+                                    url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", pagina.ToString()).Replace("{CATCLI}", "").Replace("{CODAUX}", codAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                            .Replace("{NOMBRE}", nombre).Replace("{RUT}", rut);
+
+                                    clientWhile.BaseAddress = new Uri(url);
+                                    clientWhile.DefaultRequestHeaders.Accept.Clear();
+                                    clientWhile.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                    clientWhile.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                    HttpResponseMessage responseWhile = await clientWhile.GetAsync(clientWhile.BaseAddress);
+                                    if (responseWhile.IsSuccessStatusCode)
+                                    {
+                                        var contentWhile = await responseWhile.Content.ReadAsStringAsync();
+                                        List<List<ClienteAPIDTO>> clientesApiWhile = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(contentWhile);
+                                        cantClientes = cantClientes + clientesApiWhile[0].Count();
+                                        //var clientesWhile = clientesApiWhile[0];
+                                        clientesApi[0] = clientesApi[0].Where(x => x.CodAux != null).ToList();
+                                        var clientesWhile = clientesApiWhile[0].ConvertAll(d =>
+                                                new ClienteDTO
+                                                {
+                                                    Rut = d.RutAux,
+                                                    CodAux = d.CodAux,
+                                                    Correo = d.EMail,
+                                                    Nombre = d.NomAux,
+                                                    DirAux = d.DirAux,
+                                                    DirNum = d.DirNum,
+                                                    CodVendedor = d.CodVen,
+                                                    CodLista = d.CodLista,
+                                                    CodCondVenta = d.ConVta,
+                                                    CodCatCliente = d.catcli,
+                                                    CodCobrador = d.Codcob
+                                                });
+
+                                        retorno.AddRange(clientesWhile);
+                                    }
+                                    else
+                                    {
+                                        var contentWhile = await responseWhile.Content.ReadAsStringAsync();
+                                        LogProceso log = new LogProceso
+                                        {
+                                            Excepcion = responseWhile.StatusCode.ToString(),
+                                            Fecha = DateTime.Now.Date,
+                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                            Mensaje = contentWhile,
+                                            Ruta = "SoftlandService/GetMonedas"
+                                        };
+                                        _context.LogProcesos.Add(log);
+                                        _context.SaveChanges();
+                                    }
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetMonedas"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/BuscarClienteSoftland2"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+                    conSoftland.Close();
+                }
+
+            }
+            return retorno;
+
+        }
+
+
+        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string codAux, Nullable<int> numDoc)
+        {
+            List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
+            try
+            {
+
+                using (var client = new HttpClient())
+                {
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    var monedas = await this.GetMonedasAsync();
+                    var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync();
+                    //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    var fechaActual = new DateTime();
+                    string fecha = string.Empty;
+                    if (fechaDesde != null)
+                    {
+                        fecha = fechaDesde?.Year.ToString() + "-0" + fechaDesde?.Month.ToString() + "-0" + fechaDesde?.Day.ToString();
+                    }
+                    else
+                    {
+                        fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    }
+
+                    string accesToken = api.Token;
+                    // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("{CODAUX}", codAux);
+
+                    string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    int cantidad = 100;
+                    int pagina = 1;
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+
+                        if (documentos[0].Count > 0)
+                        {
+                            pagina = pagina + 1;
+
+                            while (documentos[0].Count < documentos[0][0].total)
+                            {
+                                using (var client2 = new HttpClient())
+                                {
+
+                                    string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+
+                                    client2.BaseAddress = new Uri(url3);
+                                    client2.DefaultRequestHeaders.Accept.Clear();
+                                    client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                    client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                    HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                    if (response2.IsSuccessStatusCode)
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+
+                                        documentos[0].AddRange(documentos2[0]);
+                                        pagina = pagina + 1;
+                                    }
+                                    else
+                                    {
+                                        var content2 = await response2.Content.ReadAsStringAsync();
+                                        LogProceso log = new LogProceso
+                                        {
+                                            Excepcion = response2.StatusCode.ToString(),
+                                            Fecha = DateTime.Now.Date,
+                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                            Mensaje = content2,
+                                            Ruta = "SoftlandService/ObtenerDocumentosAutomaizacion"
+                                        };
+                                        _context.LogProcesos.Add(log);
+                                        _context.SaveChanges();
+                                    }
+
+                                }
+                            }
+
+                            if (año != 0)
+                            {
+                                documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                            }
+
+                           // documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                            if (fechaHasta != null)
+                            {
+                                documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                            }
+
+                            documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+                        }
+
+                        string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", codAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
+                            .Replace("{NOMBRE}", "").Replace("{RUT}", "");
+
+
+                        using (var client2 = new HttpClient())
+                        {
+                            client2.BaseAddress = new Uri(url2);
+                            client2.DefaultRequestHeaders.Accept.Clear();
+                            client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                            //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                            client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                            HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+                            if (response2.IsSuccessStatusCode)
+                            {
+                                var content2 = await response2.Content.ReadAsStringAsync();
+                                List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content2);
+                                clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
+
+                                if (numDoc != 0)
+                                {
+                                    documentos[0] = documentos[0].Where(x => x.Numdoc == numDoc).ToList();
+                                }
+                                foreach (var item in documentos[0])
+                                {
+                                    DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
+                                    aux.FolioDocumento = (int)item.Numdoc;
+                                    aux.TipoDocumento = item.DesDoc;
+                                    aux.CodTipoDocumento = item.Ttdcod;
+                                    aux.FechaEmision = Convert.ToDateTime(item.Movfe);
+                                    aux.FechaVencimiento = Convert.ToDateTime(item.Movfv);
+                                    aux.RutCliente = clientes[0][0].RutAux;
+                                    aux.Bloqueado = clientes[0][0].Bloqueado;
+                                    aux.NombreCliente = clientes[0][0].NomAux;
+                                    aux.DiasAtraso = (int)(fechaActual.Date - item.Movfv.Value.Date).TotalDays;
+                                    aux.Estado = item.Estado == "V" ? "VENCIDO" : item.Estado == "P" ? "PENDIENTE" : "";
+                                    aux.CuentaContable = item.Pctcod;
+                                    var cuenta = cuentasContables.Where(x => x.Codigo == item.Pctcod).FirstOrDefault();
+                                    if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
+                                    aux.MontoDocumento = (float)item.MovMonto;
+                                    aux.SaldoDocumento = (float)item.Saldobase;
+                                    retorno.Add(aux);
+                                }
+                            }
+                            else
+                            {
+                                var content2 = await response2.Content.ReadAsStringAsync();
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response2.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content2,
+                                    Ruta = "SoftlandService/ObtenerDocumentosAutomaizacion"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        LogProceso log = new LogProceso
+                        {
+                            Excepcion = response.StatusCode.ToString(),
+                            Fecha = DateTime.Now.Date,
+                            Hora = DateTime.Now.ToString("HH:mm:ss"),
+                            Mensaje = content,
+                            Ruta = "SoftlandService/ObtenerDocumentosAutomaizacion"
+                        };
+                        _context.LogProcesos.Add(log);
+                        _context.SaveChanges();
+                    }
+                }
+
+                return retorno;
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.IdTipoProceso = -1;
+                log.Fecha = DateTime.Now;
+                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                log.Ruta = @"Softland\ObtenerDocumentosAutomaizacion";
+                log.Mensaje = ex.Message;
+                log.Excepcion = ex.ToString();
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return retorno;
+            }
+
+
+        }
+
+
+        public async Task<List<ClienteSaldosDTO>> GetPagosDocumento(FilterVm filter)
+        {
+            List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
+            string tablaTemporal = string.Empty;
+            try
+            {
+                if (utilizaApiSoftland == "false")
+                {
+
+                }
+                else //FCA 16-06-2022
+                {
+                    using (var client = new HttpClient())
+                    {
+
+                        var monedas = await this.GetMonedasAsync();
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                        var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        string accesToken = api.Token;
+                        //string url = api.Url + api.DocumentosContabilizados.Replace("{SOLOSALDO}", "1").Replace("{DESDE}", fecha).Replace("{AREADATOS}", api.AreaDatos);
+                        //if (!string.IsNullOrEmpty(codaux))
+                        //{
+                        //    url = url.Replace("{CODAUX}", codaux);
+                        //}
+                        //else
+                        //{
+                        //    url = url.Replace("codaux={CODAUX}&", "");
+                        //}
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        int cantidad = 100;
+                        int pagina = 1;
+                        string codaux = string.Empty;
+                        if (!string.IsNullOrEmpty(filter.CodAux))
+                        {
+                            codaux = filter.CodAux;
+                        }
+
+                        string url = api.Url + api.PagosxDocumento.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DOCUMENTO}", filter.TipoDoc).Replace("{FOLIO}", filter.Folio.ToString()).Replace("{PAGINA}", pagina.ToString());
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+                            documentos[0] = documentos[0].Where(x => x.Numdoc != 0).ToList();
+                            if (documentos[0].Count > 0)
+                            {
+                                pagina = pagina + 1;
+
+                                while (documentos[0].Count < documentos[0][0].total)
+                                {
+                                    using (var client2 = new HttpClient())
+                                    {
+
+                                        string url2 = api.Url + api.PagosxDocumento.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DOCUMENTO}", filter.TipoDoc).Replace("{FOLIO}", filter.Folio.ToString()).Replace("{PAGINA}", pagina.ToString());
+
+
+                                        client2.BaseAddress = new Uri(url2);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+                                        if (response.IsSuccessStatusCode)
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+                                            documentos2[0] = documentos2[0].Where(x => x.Numdoc != 0).ToList();
+                                            documentos[0].AddRange(documentos2[0]);
+                                            pagina = pagina + 1;
+                                        }
+                                        else
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response2.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content2,
+                                                Ruta = "SoftlandService/GetPagosDocumento"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                        }
+
+                                    }
+                                }
+
+                                retorno = documentos[0].ConvertAll(doc => new ClienteSaldosDTO
+                                {
+
+                                    //item.comprobanteContable = reader["Comprobante"].ToString();
+                                    Documento = doc.DesDoc,
+                                    Nro = (double)doc.Numdoc,
+                                    FechaEmision = Convert.ToDateTime(doc.Movfe),
+                                    FechaVcto = Convert.ToDateTime(doc.Movfv),
+                                    Debe = (double)doc.MovMontoMa,
+                                    Haber = doc.Saldoadic,
+                                    Saldo = (double)doc.Saldoadic,
+                                    Detalle = "", // reader["Detalle"].ToString();
+                                    Estado = doc.Estado,
+                                    Pago = "", // reader["Pago"].ToString();
+                                    TipoDoc = doc.Ttdcod,
+                                    RazonSocial = "",
+                                    CodigoMoneda = doc.MonCod,
+                                    CodAux = doc.CodAux,
+                                    MontoBase = doc.MovMonto,
+                                    SaldoBase = doc.Saldobase,
+                                    EquivalenciaMoneda = doc.Equivalencia,
+                                    APagar = doc.Saldobase,
+                                    MontoOriginalBase = doc.MontoOriginalBase,
+                                    MovEqui = doc.MovEquiv,
+                                    DesMon = monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault().DesMon : ""
+                                });
+                            }
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetPagosDocumento"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+
+                }
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetPagosDocumento"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+            }
+
+            return retorno;
         }
     }
 }

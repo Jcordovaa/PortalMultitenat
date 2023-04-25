@@ -11,6 +11,45 @@ export class ConfiguracionCorreo {
     cantidadCorreosAcceso?: number;
     cantidadCorreosNotificacion?: number;
     correoOrigen?: string;
+    nombreCorreos?: string;
+    asuntoAccesoCliente?: string;
+    asuntoEnvioDocumentos?: string;
+    textoEnvioDocumentos?: string;
+    logoCorreo?: string;
+    textoMensajeActivacion?: string;
+    tituloPagoCliente?: string;
+    tituloAccesoCliente?: string;
+    tituloEnvioDocumentos?: string;
+    tituloCambioDatos?: string;
+    tituloCambioClave?: string;
+    tituloRecuperarClave?: string;
+    asuntoCambioDatos?: string;
+    asuntoCambioClave?: string;
+    asuntoRecuperarClave?: string;
+    textoPagoCliente?: string;
+    textoAccesoCliente?: string;
+    textoCambioDatos?: string;
+    textoCambioClave?: string;
+    textoRecuperarClave?: string;
+    tituloAvisoPagoCliente?: string;
+    asuntoAvisoPagoCliente?: string;
+    textoAvisoPagoCliente?: string;
+    colorBoton?: string;
+    tituloPagoSinComprobante?: string;
+    asuntoPagoSinComprobante?: string;
+    textoPagoSinComprobante?: string;
+    asuntoCambioCorreo?: string;
+    tituloCambioCorreo?: string;
+    textoCambioCorreo?: string;
+    tituloCobranza?: string;
+    textoCobranza?: string;
+    asuntoCobranza?: string;
+    tituloPreCobranza?: string;
+    asuntoPreCobranza?: string;
+    textoPreCobranza?: string;
+    textoEstadoCuenta?: string;
+    tituloEstadoCuenta?: string;
+    asuntoEstadoCuenta?: string;
 
     constructor() {
         this.idConfiguracionCorreo = 0;
@@ -20,10 +59,49 @@ export class ConfiguracionCorreo {
         this.puerto = 0;
         this.ssl = 0;
         this.correoAvisoPago = '';
-        this.asuntoPagoCliente = '';  
+        this.asuntoPagoCliente = '';
         this.cantidadCorreosAcceso = 0;
         this.cantidadCorreosNotificacion = 0;
         this.correoOrigen = '';
+        this.nombreCorreos = '';
+        this.asuntoAccesoCliente = '';
+        this.asuntoEnvioDocumentos = '';
+        this.textoEnvioDocumentos = '';
+        this.logoCorreo = '';
+        this.textoMensajeActivacion = '';
+        this.tituloPagoCliente = '';
+        this.tituloAccesoCliente = '';
+        this.tituloEnvioDocumentos = '';
+        this.tituloCambioDatos = '';
+        this.tituloCambioClave = '';
+        this.tituloRecuperarClave = '';
+        this.asuntoCambioDatos = '';
+        this.asuntoCambioClave = '';
+        this.asuntoRecuperarClave = '';
+        this.textoPagoCliente = '';
+        this.textoAccesoCliente = '';
+        this.textoCambioDatos = '';
+        this.textoCambioClave = '';
+        this.textoRecuperarClave = '';
+        this.tituloAvisoPagoCliente = '';
+        this.asuntoAvisoPagoCliente = '';
+        this.textoAvisoPagoCliente = '';
+        this.colorBoton = '';
+        this.tituloPagoSinComprobante = '';
+        this.asuntoPagoSinComprobante = '';
+        this.textoPagoSinComprobante = '';
+        this.asuntoCambioCorreo = '';
+        this.tituloCambioCorreo = '';
+        this.textoCambioCorreo = '';
+        this.tituloCobranza = '';
+        this.textoCobranza = '';
+        this.asuntoCobranza = '';
+        this.tituloPreCobranza = '';
+        this.asuntoPreCobranza = '';
+        this.textoPreCobranza = '';
+        this.textoEstadoCuenta = '';
+        this.tituloEstadoCuenta = '';
+        this.asuntoEstadoCuenta = '';
     }
-  
-  }
+
+}

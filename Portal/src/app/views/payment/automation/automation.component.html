@@ -343,7 +343,7 @@
                                         <ng-select class="customAC" style="border-radius: 40px !important;"
                                             [items]="anios" appendTo="body" bindLabel="anioMatricula" required
                                             placeholder="Año" #aniosE="ngModel" name="aniosE"
-                                            [(ngModel)]="estadoCuenta.anio" bindValue="id">
+                                            [(ngModel)]="selectedAnioEstadoCuenta" bindValue="id">
                                         </ng-select>
                                     </div>
 
@@ -401,7 +401,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12 form-group">
+                                    <!-- <div class="col-md-12 form-group">
                                         <label for="picker1">Cobrador</label>
                                         <div class="input-group">
                                             <ng-select class="customAC"
@@ -411,7 +411,7 @@
                                                 [(ngModel)]="selectedCobradoresEstadoCuenta" bindValue="cobCod"
                                                 [multiple]="true" [closeOnSelect]="false"></ng-select>
                                         </div>
-                                    </div>
+                                    </div> -->
 
                                     <div class="col-md-12 form-group">
                                         <label for="picker1">Tipos de documentos</label>
@@ -641,7 +641,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-12 form-group">
+                                <!-- <div class="col-md-12 form-group">
                                     <label for="picker1">Cobrador</label>
                                     <div class="input-group">
                                         <ng-select class="customAC"
@@ -650,7 +650,7 @@
                                             name="cobradorC" [(ngModel)]="selectedCobradoresCobranza" bindValue="cobCod"
                                             [multiple]="true" [closeOnSelect]="false"></ng-select>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <div class="col-md-12 form-group">
                                     <label for="picker1" class="text-lbl">Mostrar en pago</label>

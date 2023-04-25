@@ -18,6 +18,10 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import {NgbCalendar, NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 import { NgbCustomDateParserFormatter } from './shared/ngb-custom-date-parser-formatter'
 import { NgxPaginationModule } from 'ngx-pagination';
+import { ColorPickerModule } from 'ngx-color-picker';
+
+
+
 
 @NgModule({
   declarations: [
@@ -35,6 +39,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
     ReactiveFormsModule,
     NgSelectModule,
     NgxPaginationModule,
+    ColorPickerModule
   ],
   providers: [
     Utils,
@@ -43,6 +48,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
       useValue: new NgbCustomDateParserFormatter("DD/MM/YYYY") // <== formato!
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [ColorPickerModule]
 })
 export class AppModule { }

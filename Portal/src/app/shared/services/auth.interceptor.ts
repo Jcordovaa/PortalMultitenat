@@ -22,6 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
           this.authservice.signoutExpiredToken()
            
         } else {
+          this.spinner.hide();
           return throwError(error);
         }
       })

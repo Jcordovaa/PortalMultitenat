@@ -43,7 +43,7 @@
     "ladda": "2.0.1",
     "ng2-currency-mask": "^9.0.2",
     "ngx-chips": "2.1.0",
-    "ngx-color-picker": "9.0.0",
+    "ngx-color-picker": "^9.0.0",
     "ngx-custom-validators": "9.0.0",
     "ngx-echarts": "4.2.2",
     "ngx-img-cropper": "9.0.1",

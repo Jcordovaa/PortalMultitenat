@@ -88,6 +88,22 @@
   &.show { opacity: $modal-backdrop-opacity; }
 }
 
+.modalPrevisualizar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  -webkit-overflow-scrolling: touch !important;
+  height: 800px;
+  width: 1000px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+
+
 // Modal header
 // Top section of the modal w/ title and dismiss
 .modal-header {

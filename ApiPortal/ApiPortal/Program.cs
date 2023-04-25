@@ -104,7 +104,7 @@ app.Use(async (context, next) =>
     if (context.Request.Method == "OPTIONS")
     {
         var host = context.Request.Host.Host;
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        context.Response.Headers.Add("Access-Control-Allow-Origin", context.Request.Headers["Origin"]);
         context.Response.Headers.Add("Access-Control-Allow-Methods", "*");
         context.Response.Headers.Add("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
         context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");

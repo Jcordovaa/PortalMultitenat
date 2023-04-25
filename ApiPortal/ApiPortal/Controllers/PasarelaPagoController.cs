@@ -22,7 +22,54 @@ namespace ApiPortal.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        [HttpGet("GetAllPasarelas"), Authorize]
+        [HttpGet]
+        public async Task<ActionResult> GetPasarelas()
+        {
+
+            try
+            {
+                var pasarela = _context.PasarelaPagos.Where(x => x.Estado == 1).AsQueryable();
+                List<PasarelaPagoVm> pasarelas = new List<PasarelaPagoVm>();
+
+                foreach (var item in pasarela)
+                {
+                    PasarelaPagoVm p = new PasarelaPagoVm
+                    {
+                        Ambiente = item.Ambiente,
+                        //ApiKeyPasarela = item.ApiKeyPasarela,
+                        //CodigoComercioTBK = item.CodigoComercioTBK,
+                        CuentaContable = item.CuentaContable,
+                        Estado = item.Estado,
+                        IdPasarela = item.IdPasarela,
+                        Logo = item.Logo,
+                        MonedaPasarela = item.MonedaPasarela,
+                        Nombre = item.Nombre,
+                        Protocolo = item.Protocolo,
+                        //SecretKeyPasarela = item.SecretKeyPasarela,
+                        TipoDocumento = item.TipoDocumento,
+                        CodigoComercio = item.CodigoComercio,
+                        SecretKey = item.SecretKey
+                    };
+                    pasarelas.Add(p);
+                }
+
+                return Ok(pasarelas);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/PasarelaPago/GetAllPasarelas";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetAllPasarelas")]
         public async Task<ActionResult> GetAllPasarelas()
         {
 
@@ -36,14 +83,19 @@ namespace ApiPortal.Controllers
                     PasarelaPagoVm p = new PasarelaPagoVm
                     {
                         Ambiente = item.Ambiente,
+                        //ApiKeyPasarela = item.ApiKeyPasarela,
+                        //CodigoComercioTBK = item.CodigoComercioTBK,
                         CuentaContable = item.CuentaContable,
-                        Estado = (int)item.Estado,
+                        Estado = item.Estado,
                         IdPasarela = item.IdPasarela,
                         Logo = item.Logo,
                         MonedaPasarela = item.MonedaPasarela,
                         Nombre = item.Nombre,
                         Protocolo = item.Protocolo,
-                        TipoDocumento = item.TipoDocumento
+                        //SecretKeyPasarela = item.SecretKeyPasarela,
+                        TipoDocumento = item.TipoDocumento,
+                        CodigoComercio = item.CodigoComercio,
+                        SecretKey = item.SecretKey
                     };
                     pasarelas.Add(p);
                 }

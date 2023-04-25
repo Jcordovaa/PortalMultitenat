@@ -25,6 +25,9 @@
         public string? DesMon { get; set; }
         public double? MontoOriginalBase { get; set; }
         public bool? BloqueadoPago { get; set; }
+        public double? MovEqui { get; set; }
         public List<ClienteSaldosDTO>? Abonos { get; set; }
+        public string? IdPaginador { get; set; }
+        public int? TotalFilas { get; set; }
     }
 }

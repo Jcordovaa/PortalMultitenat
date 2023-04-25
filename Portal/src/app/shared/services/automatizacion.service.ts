@@ -32,7 +32,7 @@ export class AutomatizacionService {
   
   save (aut: Automatizacion): Observable<any> {
     const body = JSON.stringify(aut);
-    return this.http.post<any>(this.apiUrl, body, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/GuardaAutomatizacion`, body, this.utils.getHeaders(true));
   }
 
 
@@ -46,7 +46,7 @@ export class AutomatizacionService {
   }
 
   getAutomatizaciones(): Observable<Automatizacion[]> {
-    return this.http.post<Automatizacion[]>(`${this.apiUrl}/GetAutomatizaciones`, null, this.utils.getHeaders(true));
+    return this.http.get<Automatizacion[]>(`${this.apiUrl}/GetAutomatizaciones`, this.utils.getHeaders(true));
   }
 
 

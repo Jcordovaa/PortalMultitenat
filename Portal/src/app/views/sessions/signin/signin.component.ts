@@ -89,7 +89,7 @@ export class SigninComponent implements OnInit {
 
         this.spinner.show();
         this.configuracionService.getConfigPortal().subscribe(res => {
-            debugger
+
             this.configuracion = res;
             this.getConfigDiseno();
         }, err => { this.spinner.hide(); });
@@ -111,7 +111,7 @@ export class SigninComponent implements OnInit {
             this.configDiseno = res;
             this.loadingScreen = true;
             this.spinner.hide();
-        }, err => { this.spinner.hide();});
+        }, err => { this.spinner.hide(); });
     }
 
     signin() {
@@ -153,11 +153,14 @@ export class SigninComponent implements OnInit {
         this.spinner.show();
         this.auth.signinPayment(this.signInModel)
             .subscribe((res: any) => {
-                
+
                 this.ls.setItem("currentUserPortal", res);
 
                 if (res.esUsuario == false) {
-                    this.router.navigateByUrl('/dashboard/cliente');
+                    this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
+                        this.ls.setItem("configuracionCompletaPortal", res2);
+                        this.router.navigateByUrl('/dashboard/cliente');
+                      }, err => { this.spinner.hide(); });
                     //this.spinner.hide();
                 } else {
                     this.router.navigateByUrl('/dashboard/administrador');
@@ -197,22 +200,22 @@ export class SigninComponent implements OnInit {
     }
 
     validaRut() {
-        if(this.signInModel.rutLogin != '' && this.signInModel.rutLogin != null){
+        if (this.signInModel.rutLogin != '' && this.signInModel.rutLogin != null) {
             if (this.utils.isValidRUT(this.signInModel.rutLogin)) {
                 this.signInModel.rutLogin = this.utils.checkRut(this.signInModel.rutLogin);
-            }else{
+            } else {
                 this.notificationService.warning('RUT invalido', '', true);
-                this.signInModel.rutLogin = ''; 
+                this.signInModel.rutLogin = '';
             }
-        }   
+        }
     }
 
     validaRutPagoRapido() {
-        if(this.rutPagoRapido != '' && this.rutPagoRapido != null){
+        if (this.rutPagoRapido != '' && this.rutPagoRapido != null) {
             if (this.utils.isValidRUT(this.rutPagoRapido)) {
                 this.rutPagoRapido = this.utils.checkRut(this.rutPagoRapido);
                 this.rutEncriptado = window.btoa(this.rutPagoRapido)
-            }else{
+            } else {
                 this.notificationService.warning('RUT invalido', '', true);
                 this.rutPagoRapido = '';
                 this.rutEncriptado = '';
@@ -222,17 +225,17 @@ export class SigninComponent implements OnInit {
 
     pagar() {
 
-        if(this.rutPagoRapido != '' && this.rutPagoRapido != null && this.numDocPagoRapido != null && this.numDocPagoRapido != ''){
+        if (this.rutPagoRapido != '' && this.rutPagoRapido != null && this.numDocPagoRapido != null && this.numDocPagoRapido != '') {
             this.notificationService.warning('Debe ingresar solo rut o número de documento', '', true);
             this.numDocPagoRapido = '';
             this.rutPagoRapido = '';
             return;
-        }else if((this.rutPagoRapido == '' || this.rutPagoRapido == null) && (this.numDocPagoRapido == null || this.numDocPagoRapido == '')){
+        } else if ((this.rutPagoRapido == '' || this.rutPagoRapido == null) && (this.numDocPagoRapido == null || this.numDocPagoRapido == '')) {
             this.notificationService.warning('Debe ingresar rut o número de documento', '', true);
             return;
         }
 
-        if(this.rutPagoRapido != '' && this.rutPagoRapido != null){
+        if (this.rutPagoRapido != '' && this.rutPagoRapido != null) {
             var codAux: string = '';
             if (this.rutPagoRapido != '' && this.rutPagoRapido != null) {
                 let str = this.rutPagoRapido.split('');
@@ -244,47 +247,59 @@ export class SigninComponent implements OnInit {
                         codAux = codAux + a;
                     }
                 }
-            } 
-    
-    
-                const data: any = {
-                    correo: '',
-                    rut: this.rutPagoRapido,
-                    codaux: ''
-                };
+            }
+
+
+            const data: any = {
+                correo: '',
+                rut: this.rutPagoRapido,
+                codaux: ''
+            };
             this.spinner.show();
             this.clientesService.getClienteByMailAndRut(data).subscribe((res: Cliente) => {
-                
+
                 this.cliente = res;
-    
+
                 if (this.cliente.rut != '' && this.cliente.rut != null) {
-                    window.location.href = window.location.origin + '#/sessions/pay/' + this.rutEncriptado + '/0/0'
+                    window.location.href = window.location.origin + '#/sessions/pay/' + this.rutEncriptado + '/0/0/0'
                 } else {
                     this.notificationService.error('Cliente no existe', '', true);
                 }
                 this.spinner.hide();
             }, err => { this.spinner.hide(); });
-        }else if(this.numDocPagoRapido != '' && this.numDocPagoRapido != null){
+        } else if (this.numDocPagoRapido != '' && this.numDocPagoRapido != null) {
             this.spinner.show();
             const model = { codAux: codAux, folio: this.numDocPagoRapido }
             this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any[]) => {
-                
-               if(res.length > 0){
-                window.location.href = window.location.origin + '#/sessions/pay/0/' + this.numDocPagoRapido + '/0'
-               }else{
-                this.notificationService.error('Documento no existe', '', true);
-               }
+
+                if (res.length > 0) {
+                    window.location.href = window.location.origin + '#/sessions/pay/0/' + this.numDocPagoRapido + '/0/0'
+                } else {
+                    this.notificationService.error('Documento no existe', '', true);
+                }
 
                 this.spinner.hide();
             }, err => { this.spinner.hide(); });
         }
-        
+
 
     }
 
 
-    recuperarContrasena(){
+    recuperarContrasena() {
         this.router.navigateByUrl('/sessions/forgot');
     }
 
+
+    onKeydownInicioSesion(event) {
+        if (event.keyCode === 13) {
+            this.iniciarSesion();
+        }
+    }
+
+    onKeydownPagoRapido(event) {
+        if (event.keyCode === 13) {
+            this.pagar();
+        }
+    }
 }

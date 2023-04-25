@@ -48,8 +48,8 @@
                         <div class="col-md-4 form-group" *ngIf="showDetail">
                             <label for="lastName">Desde</label>
                             <div class="input-group">
-                                <input class="form-control" placeholder="dd/mm/yyyy" readonly
-                                       name="d2" #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker">
+                                <input class="form-control" placeholder="dd/mm/yyyy" readonly 
+                                       name="d2" #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                 <div class="input-group-append">
                                   <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                       <i class="icon-regular i-Calendar-4"></i>
@@ -61,7 +61,7 @@
                             <label for="lastName">Hasta</label>
                             <div class="input-group">
                                 <input class="form-control" placeholder="dd/mm/yyyy" readonly
-                                       name="d1" #c1="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker">
+                                       name="d1" #c1="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d1="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                 <div class="input-group-append">
                                   <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
                                       <i class="icon-regular i-Calendar-4"></i>

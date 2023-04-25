@@ -101,7 +101,6 @@ export class SidebarCompactComponent implements OnInit {
 
   ngOnInit() {
     this.updateSidebar();
-    this.getConfigDiseno();
     // CLOSE SIDENAV ON ROUTE CHANGE
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
@@ -260,10 +259,5 @@ export class SidebarCompactComponent implements OnInit {
   }
 
   
-  private getConfigDiseno() {
-    this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
-        this.configDiseno = res;
-        this.spinner.hide();
-    }, err => { this.spinner.hide();});
-}
+
 }

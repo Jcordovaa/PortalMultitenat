@@ -309,39 +309,38 @@ namespace ApiPortal.Controllers
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 var listaClientes = _context.ClientesPortals.ToList();
-                var listaClientesSoftland = await sf.BuscarClienteSoftland2Async(value.CodAux, value.Rut, value.Nombre);
+                var listaClientesSoftland = await sf.BuscarClienteSoftlandAccesosAsync(value.CodAux, value.Rut, value.Nombre, value.Vendedor, value.CondicionVenta, value.CategoriaCliente, value.ListaPrecio, 10, value.Pagina);
 
-                //Agregar contactos a clientes
                 foreach (var item in listaClientesSoftland)
                 {
-
-
-                    if (string.IsNullOrEmpty(item.Correo))
+                    var existe = listaClientes.Where(x => x.CodAux == item.CodAux && x.Rut == item.RutAux).FirstOrDefault();
+                    if (existe != null)
                     {
-                        item.Contactos = await sf.GetAllContactosAsync(item.CodAux);
-                        foreach (var c in item.Contactos)
-                        {
-                            if (!string.IsNullOrEmpty(c.Correo))
-                            {
-                                item.Correo = c.Correo;
-                                break;
-                            }
-                        }
+                        item.AccesoEnviado = 1;
                     }
-                   
+                    else
+                    {
+                        item.AccesoEnviado = 0;
+                    }
                 }
 
                 if (value.TipoBusqueda == 2)
                 {
                     //Remueve todos los que tengan accesos
+                    List<ClienteAPIDTO> listaClientesSoftlandEliminar = new List<ClienteAPIDTO>();
                     foreach (var item in listaClientesSoftland)
                     {
-                        var existe = listaClientes.Where(x => x.CodAux == item.CodAux && x.Rut == item.Rut).ToList();
+                        var existe = listaClientes.Where(x => x.CodAux == item.CodAux && x.Rut == item.RutAux).ToList();
 
                         if (existe.Count > 0)
                         {
-                            listaClientesSoftland.Remove(item);
+                            listaClientesSoftlandEliminar.Add(item);
                         }
+                    }
+
+                    foreach (var item in listaClientesSoftlandEliminar)
+                    {
+                        listaClientesSoftland.Remove(item);
                     }
                 }
 

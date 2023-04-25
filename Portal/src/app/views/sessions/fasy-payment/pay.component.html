@@ -5,7 +5,7 @@
         <!-- <img class="profile-picture avatar-lg mb-2" src="./assets/images/profile.png" alt=""> -->
         <br>
         <br>
-        <p class="m-0 text-30">Pago Rapido</p>
+        <p class="m-0 text-30">Paga Tú Cuenta</p>
 
         <p class="m-0 text-24">{{nombreCliente}}</p>
     </div>
@@ -45,8 +45,8 @@
 
                             <label for="firstName">Fecha: </label>
                             <input type="radio" [value]="1" name="fecha" id="1" [(ngModel)]="tipoFecha"
-                                style="margin-left: 20px;">
-                            Emisión
+                                style="margin-left: 20px;" >
+                            Emisión 
                             <input type="radio" [value]="2" name="fecha" id="2" [(ngModel)]="tipoFecha"
                                 style="margin-left: 10px;">
                             Vencimiento
@@ -56,7 +56,7 @@
                                     <div class="input-group">
                                         <input class="form-control" readonly name="d2" #c2="ngModel"
                                             style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
-                                            #d2="ngbDatepicker" placeholder="DESDE">
+                                            #d2="ngbDatepicker" placeholder="DESDE" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -68,7 +68,7 @@
                                     <div class="input-group">
                                         <input class="form-control" readonly name="d1" #c1="ngModel"
                                             style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
-                                            #d1="ngbDatepicker" placeholder="HASTA">
+                                            #d1="ngbDatepicker" placeholder="HASTA" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -98,10 +98,10 @@
 
                     </div>
 
-                    <div class="row movil">
+                    <!-- <div class="row movil">
                         Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
                         correspondiente a <b>$35.000</b>
-                    </div>
+                    </div> -->
 
                     <div class="row mt-3">
                         <div class="col-md-12" *ngIf="compras?.length > 0">
@@ -141,13 +141,32 @@
                                             <tbody>
                                                 <tr *ngFor="let c of compras; let i = index">
                                                     <th scope="row">
-                                                        <label class="checkbox checkbox-outline-primary">
+                                                        <!-- <label class="checkbox checkbox-outline-primary">
                                                             <input type="checkbox" name="checkSel"
                                                                 [disabled]="c.bloqueadoPago" [(ngModel)]="c.checked"
                                                                 (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
+                                                        </label> -->
+
+                                                        <label *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada" class="checkbox checkbox-outline-primary">
+                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                                (change)="onSel($event, c)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                        <label *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && !c.bloqueadoPago" class="checkbox checkbox-outline-primary">
+                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                                (change)="onSel($event, c)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
+                                                        <label *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && c.bloqueadoPago" class="checkbox checkbox-outline-primary" [ngbTooltip]="tipContentOtraMonedaBloqueado" container="body">
+                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago" 
+                                                                (change)="onSel($event, c)">
+                                                            <span class="checkmark"></span>
                                                         </label>
                                                     </th>
+
+                                                  
+
                                                     <td style="text-align: left;" contenteditable="false">{{ c.documento
                                                         }}
                                                     </td>
@@ -164,30 +183,32 @@
                                                         {{c.debe | monto}}</td>
                                                     <td class="alinearTexto"
                                                         (mouseover)="fechaEmision =  c.fechaEmision"
-                                                        *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="100px"
-                                                        [ngbTooltip]="tipContentOrigen" container="body"
-                                                        style="cursor: pointer;">{{c.montoOriginalBase | monto}}</td>
+                                                        [ngbTooltip]="tipContentOrigen"
+                                                        (mouseover)="fechaEmision = c.fechaEmision; varloUfOrigen = c.movEqui; monedaOrigen = c.desMon"
+                                                        container="body" style="cursor: pointer;">{{c.montoOriginalBase
+                                                        | monto}}</td>
                                                     <td class="alinearTexto"
-                                                        *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="100px"
-                                                        [ngbTooltip]="tipContentActual" container="body"
+                                                        [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                                         style="cursor: pointer;">{{c.montoBase | monto}}</td>
                                                     <td class="alinearTexto"
-                                                        *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="200px"
-                                                        [ngbTooltip]="tipContentActual" container="body"
+                                                        [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                                         style="cursor: pointer;">{{c.saldoBase | monto}}</td>
                                                     <td class="alinearTexto"
-                                                        *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="100px">{{c.montoBase | monto}}
                                                     </td>
                                                     <td class="alinearTexto"
-                                                        *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="100px">{{c.montoBase | monto}}
                                                     </td>
                                                     <td class="alinearTexto"
-                                                        *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada"
+                                                        *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="200px">{{c.saldoBase | monto}}
 
                                                     </td>
@@ -258,10 +279,10 @@
                                                         <strong>Monto en Mda. Nacional a la Fecha Emisión $:
                                                         </strong>
                                                         <p style="margin-bottom: 0px;"
-                                                            *ngIf="c.codigoMoneda == configuracionPagos.segundaMonedaUtilizada">
+                                                            *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada">
                                                             {{c.montoOriginalBase | monto}}</p>
                                                         <p style="margin-bottom: 0px;"
-                                                            *ngIf="c.codigoMoneda != configuracionPagos.segundaMonedaUtilizada">
+                                                            *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada">
                                                             {{c.saldoBase | monto}}</p>
                                                         <strong>Monto Mda. Nacional Actualizado $: </strong>${{
                                                         c.montoBase |
@@ -497,7 +518,7 @@
                     </div>
                 </div>
 
-                <div class="row rowButtonMovil"  *ngIf="compras?.length > 0">
+                <div class="row rowButtonMovil" *ngIf="compras?.length > 0">
 
                     <button class="btn btn-primary" (click)="SeleccionarPago(pasarelaPago)" type="button"
                         [disabled]="selected.length == 0" [style.cursor]="selected.length == 0 ? 'no-drop' : 'pointer'">
@@ -513,12 +534,10 @@
             </div>
         </div>
     </div>
-    
-<div class="row" style=" display: flex;
-justify-content: center;
-align-items: center;">
-    <p  class="badge badge-danger mr-1 text-12" style="font-size: calc(0.5rem + 0.5vw) !important;" >{{configDiseno.textoNoConsideraTodaDeuda}}</p>
-</div>
+
+    <div class="row" style=" display: flex;">
+        <p   class="r-1 text-12" style="font-size: calc(0.25rem + 0.5vw) !important; color: #DF6107; margin-left: 30px;" >*{{configDiseno.textoNoConsideraTodaDeuda}}</p>
+    </div>
 </div>
 
 
@@ -798,18 +817,19 @@ align-items: center;">
 
 
 
-<ng-template #tipContentActual>Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
+<ng-template #tipContentActual>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
         }}</b> correspondiente a
     <b>${{valorUfActrual | monto}}</b>
 </ng-template>
 
 
-<ng-template #tipContentOrigen>Calculo realizado sobre el valor de la UF al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
         }}</b> correspondiente a
-    <b>$0</b>
+    <b>${{varloUfOrigen | monto}}</b>
 </ng-template>
 
-
+<ng-template #tipContentOtraMonedaBloqueado>No se encontro valor de la moneda para la fecha actual, se deshabilito el pago de este documento.
+</ng-template>
 
 
 <ng-template #modalClientes let-modal>

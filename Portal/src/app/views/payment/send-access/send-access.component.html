@@ -69,7 +69,7 @@
                                 </option>
                             </select>
                         </div>
-                            <div class="col-md-8 form-group mb-3 desktop">
+                            <!-- <div class="col-md-8 form-group mb-3 desktop">
                                 <label for="firstName">Tipo de búsqueda</label>
                                 <br>
                                 <label class="radio radio-primary ml-3 mr-3 text-16" style="display: initial;">
@@ -83,13 +83,13 @@
                                     <span class="checkmark"></span>
                                 </label>
 
-                            </div>
+                            </div> -->
                     </div>
 
                     <div class="row">
                        
 
-                        <div class="movil">
+                        <!-- <div class="movil">
                             <div class="col-md-8 form-group mb-3">
                                 <label for="firstName">Tipo de búsqueda</label>
                                 <br>
@@ -106,7 +106,7 @@
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
-                        </div>
+                        </div> -->
 
 
                         <div class="row">
@@ -145,6 +145,7 @@
                                                     <th scope="col">Código</th>
                                                     <th scope="col">Nombre</th>
                                                     <th scope="col">Correo Ficha</th>
+                                                    <th scope="col">Estado</th>
                                                     <!-- <th scope="col">Cambiar Correo</th> -->
                                                 </tr>
                                             </thead>
@@ -152,22 +153,28 @@
                                                 <tr *ngFor="let c of clientes | paginate: config">
                                                     <th scope="row">
                                                         <label class="checkbox checkbox-outline-primary">
-                                                            <input type="checkbox" [name]="'checkSel' + c.nombre"
+                                                            <input type="checkbox" [name]="'checkSel' + c.nomAux"
                                                                 [(ngModel)]="c.checked" (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
                                                         </label>
                                                     </th>
-                                                    <td>{{ c.rut }}</td>
+                                                    <td>{{ c.rutAux }}</td>
                                                     <td>{{ c.codAux }}</td>
-                                                    <td>{{ c.nombre }}</td>
-                                                    <td *ngIf="c.correo != '' && c.correo != null">{{ c.correo}}</td>
-                                                    <td *ngIf="c.correo == '' || c.correo == null">Sin Información</td>
+                                                    <td>{{ c.nomAux }}</td>
+                                                    <td *ngIf="c.eMail != '' && c.eMail != null">{{ c.eMail}}</td>
+                                                    <td *ngIf="c.eMail == '' || c.eMail == null">Sin Información</td>
                                                     <!-- <td style="text-align: center;">
                                                         <img (click)="openModalContacto(modalContacto,c)"
                                                             container="body" ngbTooltip="Cambiar Correo"
                                                             style="cursor: pointer;" src="assets/images/icon/change.png"
                                                             width="25" height="25" alt="Cambiar correo">
                                                     </td> -->
+                                                    <td *ngIf="c.accesoEnviado == 1"><span
+                                                        class="badge badge-success"
+                                                        style="font: 1rem;">Acceso Enviado</span></td>
+                                                    <td *ngIf="c.accesoEnviado == 0"><span
+                                                        class="badge badge-danger"
+                                                        style="font: 1rem;">Acceso No Enviado</span></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -208,13 +215,21 @@
                                                 </label>
                                             </td>
                                             <td>
-                                                <strong>Rut: </strong>{{ c.rut }}<br />
+                                                <strong>Rut: </strong>{{ c.rutAux }}<br />
                                                 <strong>Código: </strong>{{ c.codAux }}<br />
-                                                <strong>Nombre: </strong>{{ c.nombre }}<br />
-                                                <strong *ngIf="c.correo != '' && c.correo != null">Correo Ficha:
-                                                </strong>{{ c.correo}}
-                                                <strong *ngIf="c.correo == '' || c.correo == null">Correo Ficha:
-                                                </strong>Sin Información<br />
+                                                <strong>Nombre: </strong>{{ c.nomAux }}<br />
+                                                <strong *ngIf="c.eMail != '' && c.eMail != null">Correo Ficha:
+                                                </strong><p *ngIf="c.eMail != '' && c.eMail != null">{{ c.eMail}}</p>
+                                                <strong *ngIf="c.eMail == '' || c.eMail == null">Correo Ficha:
+                                                </strong><p *ngIf="c.eMail == '' || c.eMail == null">Sin Información</p><br />
+                                                <strong >Estado:
+                                                </strong><span *ngIf="c.accesoEnviado == 1"
+                                                class="badge badge-success"
+                                                style="font: 1rem;">Acceso Enviado</span>
+                                                <span *ngIf="c.accesoEnviado == 0"
+                                                class="badge badge-danger"
+                                                style="font: 1rem;">Acceso No Enviado</span><br />
+                                               
                                                 <!-- <strong>Cambiar Correo: </strong><img
                                                     (click)="openModalContacto(modalContacto,c)" container="body"
                                                     ngbTooltip="Cambiar Correo" style="cursor: pointer;"
@@ -250,7 +265,7 @@
                                 <i class="i-Mail-Send"></i>
                                 <div class="content" style="max-width: 90px !important;align-items: center;">
                                     <p class="text-primary mt-2 mb-0">Clientes Seleccionados</p>
-                                    <p class="lead text-primary text-19 mb-2" style="font-weight: 600; ">{{clientesSeleccionados.length}}</p>
+                                    <p class="lead text-primary text-19 mb-2" style="font-weight: 600; ">{{cantidadSeleccionados}}</p>
                                 </div>
                             </div>
                         </div>
@@ -428,9 +443,9 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let d of clientesSinDatos">
-                      <td><span class="text-13">{{d.rut}}</span></td>
+                      <td><span class="text-13">{{d.rutAux}}</span></td>
                       <td><span class="text-13">{{d.codAux}}</span></td>
-                      <td><span class="text-13">{{d.nombre}}</span></td>
+                      <td><span class="text-13">{{d.nomAux}}</span></td>
                     </tr>
                   </tbody>
                 </table>

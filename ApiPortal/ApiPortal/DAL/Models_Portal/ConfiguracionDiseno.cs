@@ -69,5 +69,6 @@ namespace ApiPortal.Dal.Models_Portal
         public string? BannerPagoRapido { get; set; }
         public string? LogoMinimalistaSidebar { get; set; }
         public string? LogoSidebar { get; set; }
+        public string? Favicon { get; set; }
     }
 }

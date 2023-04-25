@@ -16,7 +16,7 @@ export class ConfiguracionEmpresaService {
 
 
     getConfig() {
-        return this.http.get(`${this.apiUrl}/GetConfiguracionEmpresa`, this.utils.getHeaders(true));
+        return this.http.get(`${this.apiUrl}/getConfiguracionEMpresa`, this.utils.getHeaders(false));
     }
 
 }

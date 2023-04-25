@@ -8,114 +8,860 @@
 
 <div class="separator-breadcrumb border-top"></div>
 
-<div class="row">
-  <div class="col-md-12">
-    <div class="card mb-4">
-      <div class="card-body">
-        <form #myFormCorreos="ngForm">
-          <div class="row">
-            <div class="col-md-12 form-group mb-3">
-              <label for="firstName2">Servidor SMTP <span class="camporequerido">*</span></label>
-              <!-- <input type="email" class="form-control form-control-rounded" id="firstName2" placeholder="Servidor SMTP"> -->
-              <input type="text"
-                [ngClass]="smtp.errors && (smtp.dirty || smtp.touched) ? 'form-control is-invalid' : 'form-control'"
-                placeholder="Servidor SMTP" #smtp="ngModel" required maxlength="50" name="smtp"
-                [(ngModel)]="config.smtpServer" />
-              <p *ngIf="smtp.errors && (smtp.dirty || smtp.touched)" class="text-danger"
-                style="margin-top: 2px; font-size: 12px">
-                Servidor SMTP es requerido
-              </p>
-            </div>
+<div class="">
+  <ngb-tabset class="p-0">
+    <ngb-tab [id]="1" title="Correo">
+      <ng-template ngbTabContent>
+        <div class="col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <form #myFormCorreos="ngForm">
+                <div class="row">
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="firstName2">Servidor SMTP <span class="camporequerido">*</span></label>
+                    <!-- <input type="email" class="form-control form-control-rounded" id="firstName2" placeholder="Servidor SMTP"> -->
+                    <input type="text"
+                      [ngClass]="smtp.errors && (smtp.dirty || smtp.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Servidor SMTP" #smtp="ngModel" required maxlength="50" name="smtp"
+                      [(ngModel)]="config.smtpServer" />
+                    <p *ngIf="smtp.errors && (smtp.dirty || smtp.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Servidor SMTP es requerido
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="user">Usuario <span class="camporequerido">*</span></label>
-              <input type="text"
-                [ngClass]="user.errors && (user.dirty || user.touched) ? 'form-control is-invalid' : 'form-control'"
-                placeholder="Usuario" #user="ngModel" required maxlength="50" name="user"
-                [(ngModel)]="config.usuario" />
-              <p *ngIf="user.errors && (user.dirty || user.touched)" class="text-danger"
-                style="margin-top: 2px; font-size: 12px">
-                Usuario es requerido
-              </p>
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="user">Usuario <span class="camporequerido">*</span></label>
+                    <input type="text"
+                      [ngClass]="user.errors && (user.dirty || user.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Usuario" #user="ngModel" required maxlength="50" name="user"
+                      [(ngModel)]="config.usuario" />
+                    <p *ngIf="user.errors && (user.dirty || user.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Usuario es requerido
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="pass">Clave <span class="camporequerido">*</span></label>
-              <input type="password"
-                [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control is-invalid' : 'form-control'"
-                placeholder="Clave" #pass="ngModel" required maxlength="150" name="pass" [(ngModel)]="config.clave" />
-              <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger"
-                style="margin-top: 2px; font-size: 12px">
-                Clave es requerida
-              </p>
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="pass">Clave <span class="camporequerido">*</span></label>
+                    <input type="password"
+                      [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Clave" #pass="ngModel" required maxlength="150" name="pass"
+                      [(ngModel)]="config.clave" />
+                    <p *ngIf="pass.errors && (pass.dirty || pass.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Clave es requerida
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="correoOrigen">Correo Origen <span class="camporequerido">*</span></label>
-              <input type="text"
-                [ngClass]="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched) ? 'form-control is-invalid' : 'form-control'"
-                placeholder="Correo Origen" #correoOrigen="ngModel" required maxlength="100" name="correoOrigen" (blur)="validaEmail()"
-                [(ngModel)]="config.correoOrigen" />
-              <p *ngIf="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched)" class="text-danger"
-                style="margin-top: 2px; font-size: 12px">
-                Correo Origen es requerido
-              </p>
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="correoOrigen">Correo Origen <span class="camporequerido">*</span></label>
+                    <input type="text"
+                      [ngClass]="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Correo Origen" #correoOrigen="ngModel" required maxlength="100" name="correoOrigen"
+                      (blur)="validaEmail()" [(ngModel)]="config.correoOrigen" />
+                    <p *ngIf="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Correo Origen es requerido
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="port">Puerto <span class="camporequerido">*</span></label>
-              <input type="number"
-                [ngClass]="port.errors && (port.dirty || port.touched) ? 'form-control is-invalid' : 'form-control'"
-                placeholder="Puerto" #port="ngModel" required maxlength="150" name="port" [(ngModel)]="config.puerto" />
-              <p *ngIf="port.errors && (port.dirty || port.touched)" class="text-danger"
-                style="margin-top: 2px; font-size: 12px">
-                Puerto es requerido
-              </p>
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="correoOrigen">Nombre Origen <span class="camporequerido">*</span></label>
+                    <input type="text"
+                      [ngClass]="nombreOrigen.errors && (nombreOrigen.dirty || nombreOrigen.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Correo Origen" #nombreOrigen="ngModel" required maxlength="100" name="nombreOrigen"
+                      (blur)="validaEmail()" [(ngModel)]="config.nombreCorreos" />
+                    <p *ngIf="nombreOrigen.errors && (nombreOrigen.dirty || nombreOrigen.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Nombre Origen
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3 mt-2">
-              <label class="switch switch-success mr-3">
-                <span>SSL</span>
-                <input [(ngModel)]="config.ssl" type="checkbox" id="exampleCheckSSL" name="exampleCheckSSL" />
-                <span class="slider"></span>
-              </label>
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="port">Puerto <span class="camporequerido">*</span></label>
+                    <input type="number"
+                      [ngClass]="port.errors && (port.dirty || port.touched) ? 'form-control is-invalid' : 'form-control'"
+                      placeholder="Puerto" #port="ngModel" required maxlength="150" name="port"
+                      [(ngModel)]="config.puerto" />
+                    <p *ngIf="port.errors && (port.dirty || port.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      Puerto es requerido
+                    </p>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="correos1">Notificación Pago</label>
-              <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
-                (onAdd)="onAdd($event, 1)" theme='primary' [placeholder]="'Inserte correo'"></tag-input>
-            </div>
+                  <div class="col-md-12 form-group mb-3 mt-2">
+                    <label class="switch switch-success mr-3">
+                      <span>SSL</span>
+                      <input [(ngModel)]="config.ssl" type="checkbox" id="exampleCheckSSL" name="exampleCheckSSL" />
+                      <span class="slider"></span>
+                    </label>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="asunto">Asunto Correo Pago Cliente</label>
-              <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
-                name="asuntoPago" [(ngModel)]="config.asuntoPagoCliente" />
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="correos1">Notificación Pago</label>
+                    <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
+                      secondaryPlaceholder="Ingrese correo" (onAdd)="onAdd($event, 1)" theme='primary'
+                      [placeholder]="'Inserte correo'"></tag-input>
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="asunto">Correos diarios de acceso</label>
-              <input type="text" class="form-control" placeholder="acceso" #acceso="ngModel"
-                onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="acceso"
-                [(ngModel)]="cantidadCorreosAccesos" />
-            </div>
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="asunto">Asunto Correo Pago Cliente</label>
+                    <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
+                      name="asuntoPago" [(ngModel)]="config.asuntoPagoCliente" />
+                  </div>
 
-            <div class="col-md-12 form-group mb-3">
-              <label for="asunto">Correos diarios de notificación</label>
-              <input type="text" class="form-control" placeholder="notificacion" #notificacion="ngModel"
-                onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="notificacion"
-                [(ngModel)]="cantidadCorreosNotificacion" />
-            </div>
+                  <!-- <div class="col-md-12 form-group mb-3">
+                    <label for="asunto">Correos diarios de acceso</label>
+                    <input type="text" class="form-control" placeholder="acceso" #acceso="ngModel"
+                      onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="acceso"
+                      [(ngModel)]="cantidadCorreosAccesos" />
+                  </div>
+
+                  <div class="col-md-12 form-group mb-3">
+                    <label for="asunto">Correos diarios de notificación</label>
+                    <input type="text" class="form-control" placeholder="notificacion" #notificacion="ngModel"
+                      onkeypress="return event.charCode >= 48 && event.charCode <= 57" name="notificacion"
+                      [(ngModel)]="cantidadCorreosNotificacion" />
+                  </div> -->
 
 
-            <div class="col-md-12 mt-3 text-center">
-              <button class="btn btn-primary" [disabled]="!myFormCorreos.form.valid"
-                [style.cursor]="!myFormCorreos.form.valid ? 'no-drop' : 'pointer'" (click)="save()">Guardar</button>
+                  <div class="col-md-12 mt-3 text-center">
+                    <button class="btn btn-primary" [disabled]="!myFormCorreos.form.valid"
+                      [style.cursor]="!myFormCorreos.form.valid ? 'no-drop' : 'pointer'"
+                      (click)="save()">Guardar</button>
+                  </div>
+                </div>
+              </form>
+
             </div>
           </div>
-        </form>
+        </div>
+      </ng-template>
+    </ngb-tab>
 
-      </div>
+    <ngb-tab [id]="2" title="Diseño Correo">
+      <ng-template ngbTabContent>
+        <div class="col-md-12">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="col-md-10">
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(1)">
+                    GENERAL <i class="arrowIcon"><img
+                        [src]="general == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="general == 1">
+                    <p>En esta sección podrá configurar el logo que se visualizaran los correos y el color de los
+                      botones si este tuviera</p>
+                    <div class="form-group col-md-8 mb-3">
+                      <label for="picker1">Color Botones</label>
+                      <div class="input-group">
+                        <!--FCA 08-06-2022-->
+                        <div class="circle" style="margin-top: 5px;"
+                          [ngStyle]="{ 'background-color': config.colorBoton}">
+                          <!-- <content></content> -->
+                          <!-- content is now deprecated -->
+                        </div>
+                        <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                          required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                          [(colorPicker)]="config.colorBoton"
+                          [ngClass]="colorBtn.errors && (colorBtn.dirty || colorBtn.touched) ? 'form-control is-invalid' : 'form-control'"
+                          (blur)="verificaColor()" name="colorBtn" #colorBtn="ngModel" [(ngModel)]="config.colorBoton"
+                          pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color principal"
+                          [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                        <!-- <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                          (click)="openInfoModal(modalBasic, 10)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                          width="22" height="22"> -->
+                      </div>
+                      <p *ngIf="colorBtn.errors && (colorBtn.dirty || colorBtn.touched)" class="text-danger"
+                        style="margin-top: 2px; font-size: 12px">
+                        <span *ngIf="colorBtn.errors?.pattern" class="text-danger"
+                          style="margin-top: 2px; font-size: 12px">
+                          Color invalido.
+                        </span>
+                      </p>
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                      <label for="picker1">Logo (172px X 53px)</label>
+                      <div class="input-group">
+                        <input type="file" class="form-control" placeholder="Ruta"
+                          accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPortada"
+                          (change)="onChange($event)" (change)="preview($event, 1)" name="imagen">
+                        <!-- <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                          (click)="openInfoModal(modalBasic, 14)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                          width="22" height="22"> -->
+                      </div>
+                    </div>
+
+                    <div *ngIf="urlImagenLogoPortada != null" class="row mt-4 justify-content-center">
+                      <div class="card card-ecommerce-2 o-hidden mb-4">
+                        <img class="card-img-top" [src]="urlImagenLogoPortada.url" alt="" width="180" height="180px" />
+                        <div class="row">
+                          <div class="card-action">
+                            <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                              (click)="deletePreviewImg()" class="icon i-Close-Window"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(1, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(1)">Guardar</button>
+                      </div>
+  
+                    </div>
+                   
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(2)">
+                    PAGOS <i class="arrowIcon"><img
+                        [src]="pagos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="pagos == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                      notificación para los clientes que realicen un pago a traves del portal.</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoPago.errors && (asuntoPago.dirty || asuntoPago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoPago="ngModel" required maxlength="170" name="asuntoPago"
+                          [(ngModel)]="config.asuntoPagoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloPago.errors && (tituloPago.dirty || tituloPago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloPago="ngModel" required maxlength="170" name="tituloPago"
+                          [(ngModel)]="config.tituloPagoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajePago.errors && (mensajePago.dirty || mensajePago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajePago="ngModel" required maxlength="500" name="mensajePago"
+                          [(ngModel)]="config.textoPagoCliente"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(2, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(2)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(3)">
+                    ENVÍO DE ACCESO <i class="arrowIcon"><img
+                        [src]="activacion == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="activacion == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de acceso.
+                    </p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoActivacion.errors && (asuntoActivacion.dirty || asuntoActivacion.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoActivacion="ngModel" required maxlength="170"
+                          name="asuntoActivacion" [(ngModel)]="config.asuntoAccesoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloActivacion.errors && (tituloActivacion.dirty || tituloActivacion.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloActivacion="ngModel" required maxlength="170"
+                          name="tituloActivacion" [(ngModel)]="config.tituloAccesoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajePago.errors && (mensajePago.dirty || mensajePago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajePago="ngModel" required maxlength="500" name="mensajePago"
+                          [(ngModel)]="config.textoMensajeActivacion"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(3, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(3)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(4)">
+                    ACTUALIZACIÓN DE DATOS CLIENTE<i class="arrowIcon"><img
+                        [src]="cambioDatos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="cambioDatos == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                      notificación cuando el cliente actualice sus datos en la pantalla Mi Perfil.</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoModificacion.errors && (asuntoModificacion.dirty || asuntoModificacion.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoModificacion="ngModel" required maxlength="170"
+                          name="asuntoModificacion" [(ngModel)]="config.asuntoCambioDatos" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloCambioDatos.errors && (tituloCambioDatos.dirty || tituloCambioDatos.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloCambioDatos="ngModel" required maxlength="170"
+                          name="tituloCambioDatos" [(ngModel)]="config.tituloCambioDatos" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeCambioDatos.errors && (mensajeCambioDatos.dirty || mensajeCambioDatos.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeCambioDatos="ngModel" required maxlength="500"
+                          name="mensajeCambioDatos" [(ngModel)]="config.textoCambioDatos"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(4, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(4)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(5)">
+                    ACTUALIZACIÓN DE CLAVE<i class="arrowIcon"><img
+                        [src]="actualizaClave == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="actualizaClave == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                      notificación cuando el cliente actualice su clave en la pantalla Mi Perfil.</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoCambioClave.errors && (asuntoCambioClave.dirty || asuntoCambioClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoCambioClave="ngModel" required maxlength="170"
+                          name="asuntoCambioClave" [(ngModel)]="config.asuntoCambioClave" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloCambioClave.errors && (tituloCambioClave.dirty || tituloCambioClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloCambioClave="ngModel" required maxlength="170"
+                          name="tituloCambioClave" [(ngModel)]="config.tituloCambioClave" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeCambioClave.errors && (mensajeCambioClave.dirty || mensajeCambioClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeCambioClave="ngModel" required maxlength="500"
+                          name="mensajeCambioClave" [(ngModel)]="config.textoCambioClave"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(5, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(5)">Guardar</button>
+                      </div>
+  
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <div class="card mb-4" style="left: 10%;">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(6)">
+                    ACTUALIZACIÓN DE CORREO<i class="arrowIcon"><img
+                        [src]="actualizaCorreo == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="actualizaCorreo == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de notificación cuando el cliente actualice su correo en la pantalla Mi Perfil.</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoCambioCorreo.errors && (asuntoCambioCorreo.dirty || asuntoCambioCorreo.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoCambioCorreo="ngModel" required maxlength="170" name="asuntoCambioCorreo"
+                          [(ngModel)]="config.asuntoCambioCorreo" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloCambioCorreo.errors && (tituloCambioCorreo.dirty || tituloCambioCorreo.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloCambioCorreo="ngModel" required maxlength="170" name="tituloCambioCorreo"
+                          [(ngModel)]="config.tituloCambioCorreo" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea 
+                          [ngClass]="mensajeCambioCorreo.errors && (mensajeCambioCorreo.dirty || mensajeCambioCorreo.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeCambioCorreo="ngModel" required maxlength="500" name="mensajeCambioCorreo"
+                          [(ngModel)]="config.textoCambioCorreo"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3 text-center">
+                      <button style="margin-right: 10px;" class="btn btn-primary" (click)="previsualizar(6, modalBasic)">Pre visualizar</button>
+                      <button style="margin-left: 10px;" class="btn btn-primary" (click)="saveDisenoCorreo(6)">Guardar</button>
+                    </div>
+
+                  </div>
+                </div> -->
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(7)">
+                    RECUPERAR CLAVE<i class="arrowIcon"><img
+                        [src]="recuperaClave == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="recuperaClave == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                      notificación cuando el cliente realice la recuperacion de clave.</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoRecuperaClave.errors && (asuntoRecuperaClave.dirty || asuntoRecuperaClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoRecuperaClave="ngModel" required maxlength="170"
+                          name="asuntoRecuperaClave" [(ngModel)]="config.asuntoRecuperarClave" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloRecuperaClave.errors && (tituloRecuperaClave.dirty || tituloRecuperaClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloRecuperaClave="ngModel" required maxlength="170"
+                          name="tituloRecuperaClave" [(ngModel)]="config.tituloRecuperarClave" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeRecuperaClave.errors && (mensajeRecuperaClave.dirty || mensajeRecuperaClave.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeRecuperaClave="ngModel" required maxlength="500"
+                          name="mensajeRecuperaClave" [(ngModel)]="config.textoRecuperarClave"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(7, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(7)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(8)">
+                    ENVÍO DE DOCUMENTOS<i class="arrowIcon"><img
+                        [src]="envioDocumentos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="envioDocumentos == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos cuando se
+                      envien documentos asociados a nota de venta y facturas</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoDocumentos.errors && (asuntoDocumentos.dirty || asuntoDocumentos.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoDocumentos="ngModel" required maxlength="170"
+                          name="asuntoDocumentos" [(ngModel)]="config.asuntoEnvioDocumentos" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloDocumentos.errors && (tituloDocumentos.dirty || tituloDocumentos.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloDocumentos="ngModel" required maxlength="170"
+                          name="tituloDocumentos" [(ngModel)]="config.tituloEnvioDocumento" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeDocumentos.errors && (mensajeDocumentos.dirty || mensajeDocumentos.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeDocumentos="ngModel" required maxlength="500"
+                          name="mensajeDocumentos" [(ngModel)]="config.textoEnvioDocumentos"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(8, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(8)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- <div class="card mb-4" style="left: 10%;">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(9)">
+                    NOTIFICACIÓN DE PAGO<i class="arrowIcon"><img
+                        [src]="notificacionPago == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="notificacionPago == 1">
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoNotificacionPago.errors && (asuntoNotificacionPago.dirty || asuntoNotificacionPago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoNotificacionPago="ngModel" required maxlength="170" name="asuntoNotificacionPago"
+                          [(ngModel)]="config.asuntoAvisoPagoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloNotificacionPago.errors && (tituloNotificacionPago.dirty || tituloNotificacionPago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloNotificacionPago="ngModel" required maxlength="170" name="tituloNotificacionPago"
+                          [(ngModel)]="config.tituloAvisoPagoCliente" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea 
+                          [ngClass]="mensajeNotificacionPago.errors && (mensajeNotificacionPago.dirty || mensajeNotificacionPago.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeNotificacionPago="ngModel" required maxlength="500" name="mensajeNotificacionPago"
+                          [(ngModel)]="config.textoAvisoPagoCliente"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3 text-center">
+                      <button class="btn btn-primary" (click)="saveDisenoCorreo(9)">Guardar</button>
+                    </div>
+
+                  </div>
+                </div> -->
+
+                <!-- <div class="card mb-4" style="left: 10%;">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(10)">
+                    NOTIFICACIÓN DE PAGO NO GENERA COMPROBANTE<i class="arrowIcon"><img
+                        [src]="notificacionPagoSinComprobante == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="notificacionPagoSinComprobante == 1">
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoNotificacionSinComprobante.errors && (asuntoNotificacionSinComprobante.dirty || asuntoNotificacionSinComprobante.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoNotificacionSinComprobante="ngModel" required maxlength="170" name="asuntoNotificacionSinComprobante"
+                          [(ngModel)]="config.asuntoPagoSinComprobante" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloNotificacionSinComprobante.errors && (tituloNotificacionSinComprobante.dirty || tituloNotificacionSinComprobante.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloNotificacionSinComprobante="ngModel" required maxlength="170" name="tituloNotificacionSinComprobante"
+                          [(ngModel)]="config.tituloPagoSinComprobante" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea 
+                          [ngClass]="mensajeNotificacionSinComprobante.errors && (mensajeNotificacionSinComprobante.dirty || mensajeNotificacionSinComprobante.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeNotificacionSinComprobante="ngModel" required maxlength="500" name="mensajeNotificacionSinComprobante"
+                          [(ngModel)]="config.textoPagoSinComprobante"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3 text-center">
+                      <button class="btn btn-primary" (click)="saveDisenoCorreo(10)">Guardar</button>
+                    </div>
+
+                  </div>
+                </div> -->
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(11)">
+                    ENVÍO COBRANZA<i class="arrowIcon"><img
+                        [src]="cobranza == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="cobranza == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en las cobranzas</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoCobranza.errors && (asuntoCobranza.dirty || asuntoCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoCobranza="ngModel" required maxlength="170" name="asuntoCobranza"
+                          [(ngModel)]="config.asuntoCobranza" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloCobranza.errors && (tituloCobranza.dirty || tituloCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloCobranza="ngModel" required maxlength="170" name="tituloCobranza"
+                          [(ngModel)]="config.tituloCobranza" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeCobranza.errors && (mensajeCobranza.dirty || mensajeCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeCobranza="ngModel" required maxlength="500"
+                          name="mensajeCobranza" [(ngModel)]="config.textoCobranza"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(11, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(11)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(12)">
+                    ENVÍO PRE COBRANZA<i class="arrowIcon"><img
+                        [src]="preCobranza == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="preCobranza == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en las pre cobranzas</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoPreCobranza.errors && (asuntoPreCobranza.dirty || asuntoPreCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoPreCobranza="ngModel" required maxlength="170"
+                          name="asuntoPreCobranza" [(ngModel)]="config.asuntoPreCobranza" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloPreCobranza.errors && (tituloPreCobranza.dirty || tituloPreCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloPreCobranza="ngModel" required maxlength="170"
+                          name="tituloPreCobranza" [(ngModel)]="config.tituloPreCobranza" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajePreCobranza.errors && (mensajePreCobranza.dirty || mensajePreCobranza.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajePreCobranza="ngModel" required maxlength="500"
+                          name="mensajePreCobranza" [(ngModel)]="config.textoPreCobranza"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(12, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(12)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="card mb-4 margenDesktop">
+                  <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(13)">
+                    ENVÍO ESTADO DE CUENTA<i class="arrowIcon"><img
+                        [src]="estadoCuenta == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                  </div>
+                  <div class="card-body" *ngIf="estadoCuenta == 1">
+                    <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los estados de cuenta</p>
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Asunto</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="asuntoEstadoCuenta.errors && (asuntoEstadoCuenta.dirty || asuntoEstadoCuenta.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Asunto" #asuntoEstadoCuenta="ngModel" required maxlength="170"
+                          name="asuntoEstadoCuenta" [(ngModel)]="config.asuntoEstadoCuenta" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Título</label>
+                      <div class="input-group">
+                        <input type="text"
+                          [ngClass]="tituloEstadoCuenta.errors && (tituloEstadoCuenta.dirty || tituloEstadoCuenta.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Título" #tituloEstadoCuenta="ngModel" required maxlength="170"
+                          name="tituloEstadoCuenta" [(ngModel)]="config.tituloEstadoCuenta" />
+                      </div>
+                    </div>
+
+                    <div class="form-group col-md-12 mb-3">
+                      <label for="picker1">Mensaje</label>
+                      <div class="input-group">
+                        <textarea
+                          [ngClass]="mensajeEstadoCuenta.errors && (mensajeEstadoCuenta.dirty || mensajeEstadoCuenta.touched) ? 'form-control is-invalid' : 'form-control'"
+                          placeholder="Mensaje" #mensajeEstadoCuenta="ngModel" required maxlength="500"
+                          name="mensajeEstadoCuenta" [(ngModel)]="config.textoEstadoCuenta"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-right: 10px;" class="btn btn-primary"
+                          (click)="previsualizar(13, modalBasic)">Pre visualizar</button>
+                      </div>
+  
+                      <div class="col-md-6 mt-3 text-center">
+                        <button style="margin-left: 10px;" class="btn btn-primary"
+                          (click)="saveDisenoCorreo(13)">Guardar</button>
+                      </div>
+  
+                    </div>
+
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ngb-tab>
+  </ngb-tabset>
+</div>
+
+
+
+<ng-template #modalBasic let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="card-body" style="overflow: auto;">
+        <iframe [src]="url"></iframe>>
     </div>
   </div>
-</div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>

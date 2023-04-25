@@ -25,5 +25,20 @@ namespace ApiPortal.Services
             }
             return string.Join("&", list);
         }
+
+        public static string EnsureBase64Length(string base64String)
+        {
+            int padding = 4 - (base64String.Length % 4);
+
+            if (padding < 4)
+            {
+                for (int i = 0; i < padding; i++)
+                {
+                    base64String += "=";
+                }
+            }
+
+            return base64String;
+        }
     }
 }

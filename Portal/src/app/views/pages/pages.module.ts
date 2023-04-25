@@ -38,6 +38,7 @@ import { Step1Component } from './ingreso-pago-clientes/wizard/step1/step1.compo
 import { Step2Component } from './ingreso-pago-clientes/wizard/step2/step2.component';
 import { Step3Component } from './ingreso-pago-clientes/wizard/step3/step3.component';
 import { CurrencyMaskModule } from "ng2-currency-mask";
+import { ColorPickerModule } from 'ngx-color-picker';
 
 @NgModule({
   imports: [
@@ -53,7 +54,8 @@ import { CurrencyMaskModule } from "ng2-currency-mask";
     FormWizardModule,
     NgSelectModule,
     TagInputModule,
-    CurrencyMaskModule
+    CurrencyMaskModule,
+    ColorPickerModule
   ],
   declarations: [
     UserProfileComponent,
@@ -80,6 +82,7 @@ import { CurrencyMaskModule } from "ng2-currency-mask";
     Step1Component,
     Step2Component,
     Step3Component
-  ]
+  ],
+  exports: [ColorPickerModule]
 })
 export class PagesModule { }

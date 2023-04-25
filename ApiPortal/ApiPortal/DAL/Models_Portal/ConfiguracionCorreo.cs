@@ -55,5 +55,6 @@ namespace ApiPortal.Dal.Models_Portal
         public string? TituloEstadoCuenta { get; set; }
         public string? AsuntoEstadoCuenta { get; set; }
         public string? CorreoOrigen { get; set; }
+        public int? UtilizaSes { get; set; }
     }
 }

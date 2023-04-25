@@ -12,7 +12,7 @@ export class ConfiguracionSoftlandService {
   private apiUrl: string = '';
 
   constructor(private utils: Utils, private http: HttpClient) {
-    this.apiUrl = this.utils.ServerWithApiUrl + 'Softland';
+    this.apiUrl = this.utils.ServerWithApiUrl + 'softland';
   }
 
   getConfig() {

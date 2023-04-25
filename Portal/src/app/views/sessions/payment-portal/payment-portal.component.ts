@@ -405,6 +405,7 @@ export class PaymentPortalComponent implements OnInit {
                 } else {
                     //consulto al SII
                     this.clientesService.getSII(model).subscribe((res: any) => {
+                        //debugger
                         this.registerForm.get('razonSocialReg').setValue(res.razon_social);
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); });

@@ -91,6 +91,9 @@ export class PayComponent implements OnInit {
   fechaActual = new Date();
   valorUfActrual: number = 0;
   idCobranza: number = 0;
+  automatizacion: string = null;
+  varloUfOrigen: number = 0;
+  fechaEmision: any = null;
 
   constructor(private ngbDatepickerConfig: NgbDatepickerConfig , private disenoSerivce: ConfiguracionDisenoService,
     private clientesService: ClientesService,
@@ -119,12 +122,7 @@ export class PayComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-
-
     this.spinner.show();
-
-
     this.configuracionService.getConfigPortal().subscribe(res => {
       this.configuracion = res;
       this.configuracionService.getConfigPagoClientes().subscribe(res => {     
@@ -158,16 +156,10 @@ export class PayComponent implements OnInit {
           }
         });
     
-    
-    
-    
-    
-    
         if (this.activatedRoute.snapshot.params['rut'] != null && this.activatedRoute.snapshot.params['rut'] != '' && this.activatedRoute.snapshot.params['rut'] != '0') {
     
           this.esPagoRut = true;
           this.rutCliente = window.atob(this.activatedRoute.snapshot.params['rut'])
-          let str = this.rutCliente.split('');
           var codAux: string = '';
       
     
@@ -177,178 +169,187 @@ export class PayComponent implements OnInit {
             codaux: ''
           };
     
-    
-    
           this.clientesService.getClienteByMailAndRut(data).subscribe((res: Cliente) => {
             this.cliente = res;
             codAux = this.cliente.codAux;
             this.nombreCliente = this.cliente.nombre;
+            this.getCompras(codAux);
           }, err => { this.spinner.hide(); });
     
+        }else{
+          this.getCompras(codAux);
         }
     
-        let numDoc = 0;
-        if (this.activatedRoute.snapshot.params['numDoc'] != null && this.activatedRoute.snapshot.params['numDoc'] != '' && this.activatedRoute.snapshot.params['numDoc'] != '0') {
-          numDoc = this.activatedRoute.snapshot.params['numDoc']
-          this.esPagoRut = false;
-        }
-    
-        if (this.activatedRoute.snapshot.params['idCobranza'] != null && this.activatedRoute.snapshot.params['idCobranza'] != '' && this.activatedRoute.snapshot.params['idCobranza'] != '0') {
-          this.idCobranza = this.activatedRoute.snapshot.params['idCobranza']
-        }
-    
-        this.activatedRoute.queryParams.subscribe(params => {
-          if (params['state'] != null) {
-            var state = atob(params['state']);
-    
-            let buscaDocumentos = parseInt(state.split(';')[2]);
-    
-    
-    
-            if (buscaDocumentos == 0) {
-              const model = {rut: this.rutCliente,  codAux: codAux, folio: numDoc, idCobranza : this.idCobranza }
-              this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
-    
-    
-                this.comprasResp = res;
-                this.comprasResp.forEach(element => {
-                  element.bloqueadoPago = false;
-                  if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
-                    let folios = this.foliosErrorComprobate.split('-');
-                    folios.forEach(folio => {
-                      if (element.nro == folio) {
-                        element.bloqueadoPago = true;
-                      }
-                    });
-                  }
-                });
-                this.compras = this.comprasResp;
-                let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
-                if (docsSegundaMoneda.length > 0) {
-                  this.existDocSegundaMoneda = true;
-                    this.valorUfActrual = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
-                }
-                this.estados = [];
-                this.tiposDocs = [];
-                this.estados.push({ id: 0, nombre: 'TODOS' });
-                this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
-                this.selectedTipoDoc = this.tiposDocs[0];
-                this.selectedEstado = this.estados[0];
-                res.forEach((element, index) => {
-    
-                  let auxElement = element;
-                  if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
-                  if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
-                  const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
-                  const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
-    
-                  if (ex1 == null) {
-                    this.estados.push({
-                      id: index + 1,
-                      nombre: auxElement.estado
-                    });
-                  }
-                  if (ex2 == null) {
-                    this.tiposDocs.push({
-                      id: index + 1,
-                      nombre: auxElement.documento
-                    });
-                  }
-                });
-                this.load = true;
-                this.spinner.hide();
-              }, err => { this.spinner.hide(); });
-            }
-          } else {
-            const model = { rut: this.rutCliente, codAux: codAux, folio: numDoc, idCobranza : this.idCobranza }
-            this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
-              this.comprasResp = res;
-              if(this.comprasResp.length == 0){
-                this.notificationService.warning('No se pudo encontrar el documento o este ya fue pagado.', '', true);
-              }
-              if (numDoc != 0) {
-                let listaCodigos = [];
-                this.comprasResp.forEach((elemento) => {
-                  if (!listaCodigos.includes(elemento.codAux)) {
-                    listaCodigos.push({ codAux: elemento.codAux });
-                  }
-                });
-                if(listaCodigos.length > 0){
-                  this.clientesService.getClientesByCodAux(listaCodigos).subscribe(
-                    (res: any) => {
-                      this.clientes = res;
-                      this.modalService.open(this.modalClientes, { keyboard:false,backdrop:'static', ariaLabelledBy: 'modal-basic-title'});
-                      this.spinner.hide();
-                    },
-                    err => { this.spinner.hide(); }
-                  );
-                }else{
-                  this.spinner.hide();
-                }
-              
-              } else {
-                this.comprasResp.forEach(element => {
-                  element.bloqueadoPago = false;
-                  if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
-                    let folios = this.foliosErrorComprobate.split('-');
-                    folios.forEach(folio => {
-                      if (element.nro == folio) {
-                        element.bloqueadoPago = true;
-                      }
-                    });
-                  }
-                });
-
-                this.compras = this.comprasResp;
-                let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
-                if (docsSegundaMoneda.length > 0) {
-                  this.existDocSegundaMoneda = true;
-                    this.valorUfActrual = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
-                }
-                this.estados = [];
-                this.tiposDocs = [];
-                this.estados.push({ id: 0, nombre: 'TODOS' });
-                this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
-                this.selectedTipoDoc = this.tiposDocs[0];
-                this.selectedEstado = this.estados[0];
-                res.forEach((element, index) => {
-    
-                  let auxElement = element;
-                  if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
-                  if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
-                  const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
-                  const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
-    
-                  if (ex1 == null) {
-                    this.estados.push({
-                      id: index + 1,
-                      nombre: auxElement.estado
-                    });
-                  }
-                  if (ex2 == null) {
-                    this.tiposDocs.push({
-                      id: index + 1,
-                      nombre: auxElement.documento
-                    });
-                  }
-                });
-                this.load = true;
-                this.spinner.hide();
-              }
-    
-            }, err => { this.spinner.hide(); });
-          }
-        });
+      
       }, err => { this.spinner.hide(); });
     }, err => { this.spinner.hide(); });
 
-  
+  }
+
+  getCompras(codAux: string){
+    let numDoc = 0;
+    if (this.activatedRoute.snapshot.params['numDoc'] != null && this.activatedRoute.snapshot.params['numDoc'] != '' && this.activatedRoute.snapshot.params['numDoc'] != '0') {
+      numDoc = this.activatedRoute.snapshot.params['numDoc']
+      this.esPagoRut = false;
+    }
+
+    if (this.activatedRoute.snapshot.params['idCobranza'] != null && this.activatedRoute.snapshot.params['idCobranza'] != '' && this.activatedRoute.snapshot.params['idCobranza'] != '0') {
+      this.idCobranza = this.activatedRoute.snapshot.params['idCobranza']
+    }
+
+    debugger
+    if (this.activatedRoute.snapshot.params['automatizacion'] != null && this.activatedRoute.snapshot.params['automatizacion'] != '' && this.activatedRoute.snapshot.params['automatizacion'] != '0') {
+      this.automatizacion = this.activatedRoute.snapshot.params['automatizacion']
+    }
+
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['state'] != null) {
+        var state = atob(params['state']);
+
+        let buscaDocumentos = parseInt(state.split(';')[2]);
 
 
 
+        if (buscaDocumentos == 0) {
+          const model = {rut: this.rutCliente,  codAux: codAux, folio: numDoc, idCobranza : this.idCobranza, automatizacionJson: this.automatizacion }
+          this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
 
 
+            this.comprasResp = res;
+            this.comprasResp.forEach(element => {
+              element.bloqueadoPago = false;
+              if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+                element.bloqueadoPago = true;
+              }
+              if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
+                let folios = this.foliosErrorComprobate.split('-');
+                folios.forEach(folio => {
+                  if (element.nro == folio) {
+                    element.bloqueadoPago = true;
+                  }
+                });
+              }
+            });
+            this.compras = this.comprasResp;
+            let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
+            if (docsSegundaMoneda.length > 0) {
+              this.existDocSegundaMoneda = true;
+            }
+            this.estados = [];
+            this.tiposDocs = [];
+            this.estados.push({ id: 0, nombre: 'TODOS' });
+            this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
+            this.selectedTipoDoc = this.tiposDocs[0];
+            this.selectedEstado = this.estados[0];
+            res.forEach((element, index) => {
 
+              let auxElement = element;
+              if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
+              if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
+              const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
+              const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
+
+              if (ex1 == null) {
+                this.estados.push({
+                  id: index + 1,
+                  nombre: auxElement.estado
+                });
+              }
+              if (ex2 == null) {
+                this.tiposDocs.push({
+                  id: index + 1,
+                  nombre: auxElement.documento
+                });
+              }
+            });
+            this.load = true;
+            this.spinner.hide();
+          }, err => { this.spinner.hide(); });
+        }
+      } else {
+        const model = { rut: this.rutCliente, codAux: codAux, folio: numDoc, idCobranza : this.idCobranza, automatizacionJson: this.automatizacion }
+        this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
+          this.comprasResp = res;
+          if(this.comprasResp.length == 0){
+            this.notificationService.warning('No se pudo encontrar el documento o este ya fue pagado.', '', true);
+          }
+          if (numDoc != 0) {
+            let listaCodigos = [];
+            this.comprasResp.forEach((elemento) => {                 
+              let exist = listaCodigos.filter(x => x.codAux == elemento.codAux);
+              if(exist.length == 0){
+                listaCodigos.push({ codAux: elemento.codAux });
+              }
+            });
+            if(listaCodigos.length > 0){
+              this.clientesService.getClientesByCodAux(listaCodigos).subscribe(
+                (res: any) => {
+                  this.clientes = res;
+                  this.modalService.open(this.modalClientes, { keyboard:false,backdrop:'static', ariaLabelledBy: 'modal-basic-title'});
+                  this.spinner.hide();
+                },
+                err => { this.spinner.hide(); }
+              );
+            }else{
+              this.spinner.hide();
+            }
+          
+          } else {
+            this.comprasResp.forEach(element => {
+              element.bloqueadoPago = false;
+              if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+                element.bloqueadoPago = true;
+              }
+              if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
+                let folios = this.foliosErrorComprobate.split('-');
+                folios.forEach(folio => {
+                  if (element.nro == folio) {
+                    element.bloqueadoPago = true;
+                  }
+                });
+              }
+            });
+
+            this.compras = this.comprasResp;
+            let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
+            if (docsSegundaMoneda.length > 0) {
+              this.existDocSegundaMoneda = true;
+            }
+            this.estados = [];
+            this.tiposDocs = [];
+            this.estados.push({ id: 0, nombre: 'TODOS' });
+            this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
+            this.selectedTipoDoc = this.tiposDocs[0];
+            this.selectedEstado = this.estados[0];
+            res.forEach((element, index) => {
+
+              let auxElement = element;
+              if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
+              if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
+              const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
+              const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
+
+              if (ex1 == null) {
+                this.estados.push({
+                  id: index + 1,
+                  nombre: auxElement.estado
+                });
+              }
+              if (ex2 == null) {
+                this.tiposDocs.push({
+                  id: index + 1,
+                  nombre: auxElement.documento
+                });
+              }
+            });
+            this.load = true;
+            this.spinner.hide();
+          }
+
+        }, err => { this.spinner.hide(); });
+      }
+    });
   }
 
   filter() {
@@ -568,8 +569,10 @@ export class PayComponent implements OnInit {
       PagosDetalle: detalle
     }
 
-    var datosPago = window.btoa(this.nombrePago + ';' + this.apellidoPago + ';' + this.rutPago + ';' + this.correoPago);
+
+    var datosPago = window.btoa(encodeURIComponent(this.nombrePago) + ';' + encodeURIComponent(this.apellidoPago) + ';' + this.rutPago + ';' + this.correoPago);
     let rutEncriptado = window.btoa(this.rutCliente);
+    let tenant = btoa(window.location.hostname );
     this.spinner.show();
 
     this.clientesService.getEstadoConexionSoftland().subscribe(
@@ -580,7 +583,17 @@ export class PayComponent implements OnInit {
               this.spinner.hide();
               //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
 
-              window.location.href = `${this.utils.Server}/procesaPagos?idPago=${res}&idPasarela=${this.selectedPasarela}&rutCliente=${rutEncriptado}&idCobranza=${this.idCobranza}&datosPago=${datosPago}&redirectTo=${TbkRedirect.PagoRapido}`;
+              this.pasarelaService.generaPagoElectronico(res,this.selectedPasarela,rutEncriptado,0,datosPago,TbkRedirect.Front,tenant).subscribe(
+                (res: any) => {
+                  this.spinner.hide();
+                  //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
+                  if (res.estado == 1)
+                  {
+                    window.location.href = res.enlacePago;
+                  }
+                },
+                err => { this.spinner.hide(); this.bloqueaBotonPago = false; }
+              );
 
             },
             err => { this.spinner.hide(); this.bloqueaBotonPago = false; }
@@ -603,7 +616,8 @@ export class PayComponent implements OnInit {
       var rutEncriptado = window.btoa(this.rutCliente);
       this.modalService.dismissAll();
       this.bloqueaBotonPago = false;
-      window.location.href = window.location.origin + '#/sessions/pay/' + rutEncriptado + '/0/' + this.idCobranza
+      let aut = (this.automatizacion == null || this.automatizacion == '') ? '0' : this.automatizacion;
+      window.location.href = window.location.origin + '#/sessions/pay/' + rutEncriptado + '/0/' + this.idCobranza + '/' + aut
     } else {
       this.modalService.dismissAll();
       this.activatedRoute.queryParams.subscribe(params => {
@@ -819,6 +833,9 @@ export class PayComponent implements OnInit {
       this.comprasResp = this.comprasResp.filter(x => x.codAux == this.clienteSeleccionado.codAux);
       this.comprasResp.forEach(element => {
         element.bloqueadoPago = false;
+        if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+          element.bloqueadoPago = true;
+        }
         if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
           let folios = this.foliosErrorComprobate.split('-');
           folios.forEach(folio => {
@@ -829,21 +846,23 @@ export class PayComponent implements OnInit {
         }
       });
       this.compras = this.comprasResp;
-      let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+      let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
       if (docsSegundaMoneda.length > 0) {
         this.existDocSegundaMoneda = true;
-          this.valorUfActrual = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
       }
 
       let valor: number = 0;
       this.selected = [];
   
       this.compras.forEach(element => {
-        element.checked = true;
-        if (element.checked) {
-          this.selected.push(element);
-          valor += element.aPagar;
+        if(!element.bloqueadoPago){
+          element.checked = true;
+          if (element.checked) {
+            this.selected.push(element);
+            valor += element.aPagar;
+          }
         }
+       
       });
   
       this.total = `$ ${valor}`;

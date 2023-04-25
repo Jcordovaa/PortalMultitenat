@@ -26,6 +26,8 @@ import { CollectionsComponent } from './collections/collections.component';
 import { FormWizardModule } from 'src/app/shared/components/form-wizard/form-wizard.module';
 import { ExcludedComponent } from './excluded/excluded.component';
 import { AutomationComponent } from './automation/automation.component';
+import { ColorPickerModule } from 'ngx-color-picker';
+
 
 // import { CookieService } from 'angular2-cookie/services/cookies.service';
 
@@ -43,7 +45,8 @@ import { AutomationComponent } from './automation/automation.component';
     NgxEchartsModule,
     TagInputModule,
     NgSelectModule  ,
-    FormWizardModule  
+    FormWizardModule,
+    ColorPickerModule
   ],
   declarations: [PaymentComponent, 
                  TermsComponent, 
@@ -57,6 +60,7 @@ import { AutomationComponent } from './automation/automation.component';
                 CollectionsComponent,
                 AutomationComponent,
                 ExcludedComponent],
-   providers: [ MontoPipe ]
+   providers: [ MontoPipe ],
+   exports: [ColorPickerModule]
 })
 export class PaymentModule { }

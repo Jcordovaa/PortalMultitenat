@@ -11,7 +11,11 @@ export class Paginator {
     tiposDocumentos?: string;
     vendedor?: string;
     tipo?: number;
-  
+    documentos?: any;
+    folio?: number;
+    fechaDesde?: Date;
+    fechaHasta?: Date;
+
     constructor() {
       this.startRow = 0;
       this.endRow = 10;
@@ -23,6 +27,10 @@ export class Paginator {
       this.tiposDocumentos = '';
       this.vendedor = '';
       this.tipo = 0;
+      this.documentos = null;
+      this.folio = 0;
+      this.fechaDesde = null;
+      this.fechaHasta = null;
     }
   
   }

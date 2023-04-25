@@ -1,6 +1,7 @@
 ﻿using ApiPortal.Dal.Models_Portal;
 using ApiPortal.Services;
 using ApiPortal.ViewModelsPortal;
+using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -108,80 +109,8 @@ namespace ApiPortal.Controllers
                     _context.Entry(usuario).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
 
-                    var logCorreo = new LogCorreo();
-                    logCorreo.Fecha = DateTime.Now;
-                    logCorreo.Tipo = "Acceso";
-                    logCorreo.Estado = "PENDIENTE";
-
-                    _context.LogCorreos.Add(logCorreo);
-                    _context.SaveChanges();
-
-                    var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                    string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
-
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath,"Uploads/MailTemplates/envioClave.component.html")))
-                    {
-                        body = reader.ReadToEnd();
-                    }
-
-                    body = body.Replace("{NOMBRE}", usuario.Nombres);
-                    body = body.Replace("{CLAVE}", claveEnvio);
-                    body = body.Replace("{logo}", logo);
-                    body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                    body = body.Replace("{Titulo}", configCorreo.TituloCambioClave);
-                    body = body.Replace("{Texto}", configCorreo.TextoCambioClave);
-                    try
-                    {
-                        using (MailMessage mailMessage = new MailMessage())
-                        {
-                            mailMessage.To.Add(usuario.Email);
-
-                            mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                            mailMessage.Subject = configCorreo.AsuntoCambioClave;
-                            mailMessage.Body = body;
-                            mailMessage.IsBodyHtml = true;
-                            SmtpClient smtp = new SmtpClient();
-                            smtp.Host = configCorreo.SmtpServer;
-                            smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                            System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                            NetworkCred.UserName = configCorreo.Usuario;
-                            NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave);
-                            smtp.UseDefaultCredentials = false;
-                            smtp.Credentials = NetworkCred;
-                            smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                            smtp.Send(mailMessage);
-                        }
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 4;
-                        registro.IdUsuario = usuario.IdUsuario;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Error al enviar correo";
-                        logCorreo.Error = ex.Message;
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-                        errorEnvio = true;
-                    }
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    emailService.EnviaCorreoCambioClaveUsuario(usuario, claveEnvio);
 
                     return Ok();
                 }
@@ -217,81 +146,8 @@ namespace ApiPortal.Controllers
                     _context.Entry(usuario).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
 
-                    var logCorreo = new LogCorreo();
-                    logCorreo.Fecha = DateTime.Now;
-                    logCorreo.Tipo = "Acceso";
-                    logCorreo.Estado = "PENDIENTE";
-
-                    _context.LogCorreos.Add(logCorreo);
-                    _context.SaveChanges();
-
-                    var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                    string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
-
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/cambioCorreo.component.html")))
-                    {
-                        body = reader.ReadToEnd();
-                    }
-
-                    body = body.Replace("{NOMBRE}", usuario.Nombres);
-                    body = body.Replace("{CORREO}", c.Email);
-                    body = body.Replace("{logo}", logo);
-                    body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                    body = body.Replace("{Titulo}", configCorreo.TextoCambioCorreo);
-                    body = body.Replace("{Texto}", configCorreo.TextoCambioCorreo);
-                    try
-                    {
-                        using (MailMessage mailMessage = new MailMessage())
-                        {
-                            mailMessage.To.Add(usuario.Email);
-                            mailMessage.To.Add(correoAntiguo);
-
-                            mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                            mailMessage.Subject = configCorreo.AsuntoCambioCorreo;
-                            mailMessage.Body = body;
-                            mailMessage.IsBodyHtml = true;
-                            SmtpClient smtp = new SmtpClient();
-                            smtp.Host = configCorreo.SmtpServer;
-                            smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                            System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                            NetworkCred.UserName = configCorreo.Usuario;
-                            NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave);
-                            smtp.UseDefaultCredentials = false;
-                            smtp.Credentials = NetworkCred;
-                            smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                            smtp.Send(mailMessage);
-                        }
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 4;
-                        registro.IdUsuario = usuario.IdUsuario;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Error al enviar correo";
-                        logCorreo.Error = ex.Message;
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-                        return BadRequest();
-                    }
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    emailService.EnviaCambioCorreoUsuario(usuario, c, correoAntiguo);
 
                     return Ok();
                 }
@@ -345,86 +201,11 @@ namespace ApiPortal.Controllers
                         _context.Entry(user).State = EntityState.Modified;
                         await _context.SaveChangesAsync();
 
+                        bool errorEnvio = false;
 
+                        MailService emailService = new MailService(_context, _webHostEnvironment);
 
-                        string body = string.Empty;
-                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath,"~/Uploads/MailTemplates/envioClave.component.html")))
-                        {
-                            body = reader.ReadToEnd();
-                        }
-
-                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                        var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                        Boolean errorEnvio = false;
-
-
-
-                        var logCorreo = new LogCorreo();
-                        logCorreo.Fecha = DateTime.Now;
-                        logCorreo.Rut = configEmpresa.RutEmpresa;
-                        logCorreo.Tipo = "Acceso";
-                        logCorreo.Estado = "PENDIENTE";
-
-                        _context.LogCorreos.Add(logCorreo);
-                        _context.SaveChanges();
-
-                        body = body.Replace("{NOMBRE}", user.Nombres + " " + user.Apellidos);
-                        body = body.Replace("{CLAVE}", usuarios.Password);
-                        body = body.Replace("{logo}", configEmpresa.UrlPortal + "/" + configEmpresa.Logo);
-                        body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                        body = body.Replace("{Titulo}", "Actualización Clave");
-                        body = body.Replace("{Texto}", "Estimado usuario, se ha realizado un cambio de clave para su cuenta.");
-
-                        try
-                        {
-                            using (MailMessage mailMessage = new MailMessage())
-                            {
-                                mailMessage.To.Add(usuarios.Email.ToLower());
-                                mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                                mailMessage.Subject = "Actualización Clave de Acceso";
-                                mailMessage.Body = body;
-                                mailMessage.IsBodyHtml = true;
-                                SmtpClient smtp = new SmtpClient();
-                                smtp.Host = configCorreo.SmtpServer;
-                                smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                                System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                NetworkCred.UserName = configCorreo.Usuario;
-                                NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave);
-                                smtp.UseDefaultCredentials = false;
-                                smtp.Credentials = NetworkCred;
-                                smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                                smtp.Send(mailMessage);
-                            }
-
-                            _context.LogCorreos.Attach(logCorreo);
-                            logCorreo.Estado = "Acceso Enviado";
-                            logCorreo.Error = "";
-                            _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                            _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                            _context.SaveChanges();
-
-
-                            var registro = new RegistroEnvioCorreo();
-
-                            registro.FechaEnvio = DateTime.Today;
-                            registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                            registro.IdTipoEnvio = 1;
-
-                            _context.RegistroEnvioCorreos.Add(registro);
-                            _context.SaveChanges();
-
-                        }
-                        catch (Exception ex)
-                        {
-                            _context.LogCorreos.Attach(logCorreo);
-                            logCorreo.Estado = "Error al enviar correo";
-                            logCorreo.Error = ex.Message;
-                            _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                            _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                            _context.SaveChanges();
-                            errorEnvio = true;
-                        }
-
+                        errorEnvio = emailService.EnviaCorreoDatosUsuario(user, usuarios.Password);
 
                         if (errorEnvio)
                         {
@@ -487,90 +268,10 @@ namespace ApiPortal.Controllers
                 _context.Usuarios.Add(user);
 
                 await _context.SaveChangesAsync();
+                bool errorEnvio = false;
+                MailService emailService = new MailService(_context, _webHostEnvironment);
+                errorEnvio = emailService.EnviaAccesoUsuario(user, pass);
 
-                string body = string.Empty;
-                using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath,"Uploads/MailTemplates/activacionCuenta.component.html")))
-                {
-                    body = reader.ReadToEnd();
-                }
-
-                var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                Boolean errorEnvio = false;
-
-
-
-                var logCorreo = new LogCorreo();
-                logCorreo.Fecha = DateTime.Now;
-                logCorreo.Rut = configEmpresa.RutEmpresa;
-                logCorreo.Tipo = "Acceso";
-                logCorreo.Estado = "PENDIENTE";
-
-                _context.LogCorreos.Add(logCorreo);
-                _context.SaveChanges();
-
-                body = body.Replace("{EMPRESA}", configEmpresa.NombreEmpresa);
-                body = body.Replace("{TEXTO}", "Estimado usuario, a continuación, encontrará las credenciales para poder realizar la activación de su cuenta en nuestro portal, una vez activada, deberas ingresar con el Rut de la empresa, correo y clave registrados.");
-                body = body.Replace("{LOGO}", configCorreo.LogoCorreo);
-                body = body.Replace("{NOMBRE}", user.Nombres + " " + user.Apellidos);
-                body = body.Replace("{RUT}", configEmpresa.RutEmpresa);
-                body = body.Replace("{CORREO}", user.Email.ToLower());
-                body = body.Replace("{CLAVE}", pass);
-                body = body.Replace("{Titulo}", "Activación de Cuenta");
-                body = body.Replace("{ColorBoton}", configCorreo.ColorBoton);
-                string datosCliente = Encrypt.Base64Encode(configEmpresa.RutEmpresa + ";" + user.Email.ToLower());
-                body = body.Replace("{ENLACE}", configEmpresa.UrlPortal + "/#/sessions/activate-account/" + datosCliente);
-
-                try
-                {
-                    using (MailMessage mailMessage = new MailMessage())
-                    {
-                        mailMessage.To.Add(usuarios.Email.ToLower());
-
-                        mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                        mailMessage.Subject = "Activación de Cuenta";
-                        mailMessage.Body = body;
-                        mailMessage.IsBodyHtml = true;
-                        SmtpClient smtp = new SmtpClient();
-                        smtp.Host = configCorreo.SmtpServer;
-                        smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                        System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                        NetworkCred.UserName = configCorreo.Usuario;
-                        NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave); 
-                        smtp.UseDefaultCredentials = false;
-                        smtp.Credentials = NetworkCred;
-                        smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                        smtp.Send(mailMessage);
-                    }
-
-                    _context.LogCorreos.Attach(logCorreo);
-                    logCorreo.Estado = "Acceso Enviado";
-                    logCorreo.Error = "";
-                    _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                    _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                    _context.SaveChanges();
-
-
-                    var registro = new RegistroEnvioCorreo();
-
-                    registro.FechaEnvio = DateTime.Today;
-                    registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                    registro.IdTipoEnvio = 1;
-
-                    _context.RegistroEnvioCorreos.Add(registro);
-                    _context.SaveChanges();
-
-                }
-                catch (Exception ex)
-                {
-                    _context.LogCorreos.Attach(logCorreo);
-                    logCorreo.Estado = "Error al enviar correo";
-                    logCorreo.Error = ex.Message;
-                    _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                    _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                    _context.SaveChanges();
-                    errorEnvio = true;
-                }
 
 
                 if (errorEnvio)
@@ -581,6 +282,7 @@ namespace ApiPortal.Controllers
                 {
                     return Ok(user);
                 }
+
             }
             catch (Exception ex)
             {
@@ -738,90 +440,9 @@ namespace ApiPortal.Controllers
                     _context.Entry(existUser).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
 
-
-                    string body = string.Empty;
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath,"~/Uploads/MailTemplates/activacionCuenta.component.html")))
-                    {
-                        body = reader.ReadToEnd();
-                    }
-
-                    var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                    var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                    Boolean errorEnvio = false;
-
-
-
-                    var logCorreo = new LogCorreo();
-                    logCorreo.Fecha = DateTime.Now;
-                    logCorreo.Rut = configEmpresa.RutEmpresa;
-                    logCorreo.Tipo = "Acceso";
-                    logCorreo.Estado = "PENDIENTE";
-
-                    _context.LogCorreos.Add(logCorreo);
-                    _context.SaveChanges();
-
-                    body = body.Replace("{EMPRESA}", configEmpresa.NombreEmpresa);
-                    body = body.Replace("{TEXTO}", "Estimado usuario se realizo una solicitud para reestablecer su clave, debido a esto su cuenta ha sido deshabilitada, a continuación, encontrará las credenciales para poder realizar la activación de su cuenta en nuestro portal, una vez activada, deberas ingresar con el Rut de la empresa, correo y clave registrados.");
-                    body = body.Replace("{LOGO}", configCorreo.LogoCorreo);
-                    body = body.Replace("{NOMBRE}", existUser.Nombres + " " + existUser.Apellidos);
-                    body = body.Replace("{RUT}", configEmpresa.RutEmpresa);
-                    body = body.Replace("{CORREO}", existUser.Email.ToLower());
-                    body = body.Replace("{CLAVE}", pass);
-                    body = body.Replace("{Titulo}", "Activación de Cuenta");
-                    body = body.Replace("{ColorBoton}", configCorreo.ColorBoton);
-                    string datosCliente = Encrypt.Base64Encode(configEmpresa.RutEmpresa + ";" + existUser.Email.ToLower());
-                    body = body.Replace("{ENLACE}", configEmpresa.UrlPortal + "/#/sessions/activate-account/" + datosCliente);
-
-                    try
-                    {
-                        using (MailMessage mailMessage = new MailMessage())
-                        {
-                            mailMessage.To.Add(usuarios.Email.ToLower());
-
-                            mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                            mailMessage.Subject = "Activación de Cuenta";
-                            mailMessage.Body = body;
-                            mailMessage.IsBodyHtml = true;
-                            SmtpClient smtp = new SmtpClient();
-                            smtp.Host = configCorreo.SmtpServer;
-                            smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                            System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                            NetworkCred.UserName = configCorreo.Usuario;
-                            NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave); 
-                            smtp.UseDefaultCredentials = false;
-                            smtp.Credentials = NetworkCred;
-                            smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                            smtp.Send(mailMessage);
-                        }
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 1;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Error al enviar correo";
-                        logCorreo.Error = ex.Message;
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-                        errorEnvio = true;
-                    }
+                    bool errorEnvio = false;
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    errorEnvio = emailService.EnviaAccesoUsuario(existUser, pass);
 
 
                     if (errorEnvio)

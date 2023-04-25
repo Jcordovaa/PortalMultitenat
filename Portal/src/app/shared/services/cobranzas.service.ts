@@ -11,7 +11,7 @@ export class CobranzasService {
   private apiUrl: string = '';
 
   constructor(private utils: Utils, private http: HttpClient) { 
-    this.apiUrl = this.utils.ServerWithApiUrl + 'cobranza';
+    this.apiUrl = this.utils.ServerWithApiUrl + 'Cobranza';
   }
 
   getDocumentosPendientes(filter: any) {
@@ -72,6 +72,10 @@ export class CobranzasService {
   getCobranzasTipo(filter: any) {
     const body = JSON.stringify(filter);
     return this.http.post(`${this.apiUrl}/GetCobranzasTipo`, body, this.utils.getHeaders(true));
+  }
+
+  getCobranzaGraficos(id: any) {
+    return this.http.get(`${this.apiUrl}/GetCobranzaGraficos/${id}`, this.utils.getHeaders(true));
   }
 
   getCobranzasDetalle(filter: any) {

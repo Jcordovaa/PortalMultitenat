@@ -6,18 +6,18 @@
     </ul>
 </div>
 
-<div class="separator-breadcrumb border-top"></div>
+<div class="separator-breadcrumb border-top"></div> 
 
 <div class="">
     <ngb-tabset class="p-0">
-        <ngb-tab title="Pagos">
+        <ngb-tab [id]="1" title="Pagos">
             <ng-template ngbTabContent>
                 <div class="col-md-12">
                     <div class="card mb-4">
                         <div class="card-body">
                             <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong> desde donde se obtendrán
                                 los documentos pendientes. <img [container]="'body'"
-                                    ngbTooltip="Dejar en blanco para considerar todas las cuentas contables en la búsqueda."
+                                    ngbTooltip="Debe seleccionar almenos una."
                                     style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
                                     width="22" height="22"></h6>
                             <div class="row mt-2">
@@ -105,10 +105,10 @@
                             <div class="row mt-2">
                                 <div class="col-md-3 form-group mb-3">
                                     <label for="firstName2">Año tributario<span class="camporequerido">*</span></label>
-                                    <input type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                    <input type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57" (change)="validaAnio()"
                                         [ngClass]="anio.errors && (anio.dirty || anio.touched) ? 'form-control is-invalid' : 'form-control'"
                                         placeholder="Año tributario" #anio="ngModel" required name="anio"
-                                        [(ngModel)]="configPagoClientes.anioTributario" />
+                                        [(ngModel)]="anioTributario" />
                                     <p *ngIf="anio.errors && (anio.dirty || anio.touched)" class="text-danger"
                                         style="margin-top: 2px; font-size: 12px">
                                         Año tributario es requerido
@@ -124,29 +124,29 @@
                                 </div>
 
 
-                                <div class="col-md-3 form-group mb-3">
+                                <!-- <div class="col-md-3 form-group mb-3">
                                     <label for="moneda">Segunda Moneda</label>
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                         [items]="monedas" bindLabel="desMon" placeholder="Monedas" #moneda="ngModel"
                                         name="moneda" [(ngModel)]="configPagoClientes.segundaMonedaUtilizada"
                                         bindValue="codMon"> </ng-select>
-                                </div>
+                                </div> -->
 
-                                <div class="col-md-3 form-group mb-3">
+                                <!-- <div class="col-md-3 form-group mb-3">
                                     <label for="moneda">Centro de Costo</label>
                                     <input type="text"
                                         [ngClass]="centroCosto.errors && (centroCosto.dirty || centroCosto.touched) ? 'form-control is-invalid' : 'form-control'"
                                         placeholder="Año tributario" #centroCosto="ngModel" required name="centroCosto"
                                         [(ngModel)]="configPagoClientes.centroCosto" />
-                                    <p *ngIf="centroCosto.errors && (centroCosto.dirty || centroCosto.touched)" class="text-danger"
-                                        style="margin-top: 2px; font-size: 12px">
+                                    <p *ngIf="centroCosto.errors && (centroCosto.dirty || centroCosto.touched)"
+                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
                                         Centro de costo es requerido
                                     </p>
-                                    <!-- <ng-select class="customAC" style="border-radius: 40px !important;"
+                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                         [items]="centrosCostos" bindLabel="descCC" placeholder="Centro de Costo"
                                         #cc="ngModel" name="cc" [(ngModel)]="configPagoClientes.centroCosto"
                                         bindValue="codiCC"> </ng-select> -->
-                                </div>
+                                  <!--  </div> -->
 
                                 <div class="col-md-3 form-group mb-3" *ngIf="areasNegocio.length > 0">
                                     <label for="moneda">Area de Negocio</label>
@@ -169,20 +169,21 @@
             </ng-template>
 
         </ngb-tab>
-        <ngb-tab title="Parametros">
+
+        <ngb-tab [id]="2" title="Parametros">
             <ng-template ngbTabContent>
                 <div class="col-md-12">
                     <div class="card mb-4">
                         <div class="card-body">
                             <div class="row">
                                 <div class="form-group row col-md-12 mb-3">
-
-                                    <label for="firstName2" class="col-sm-4 col-form-label">Cantidad Compras Dashboard
+                                
+                                    <label for="firstName2" class="col-sm-6 col-form-label size">Cantidad Compras Dashboard
                                         <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 4)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22"></label>
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-4">
                                         <input type="number" class="form-control" placeholder="Cantidad compras"
                                             #cantidad="ngModel" name="cantidad"
                                             [(ngModel)]="configPortal.cantidadUltimasCompras" />
@@ -191,19 +192,20 @@
 
                                 <div class="form-group row col-md-12 mb-3">
 
-                                    <label for="firstName2" class="col-sm-4 col-form-label">Cantidad Días Documentos Por Vencer
+                                    <label for="firstName2" class="col-sm-6   col-form-label size">Cantidad Días Documentos Por
+                                        Vencer
                                         <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 9)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22"></label>
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-4">
                                         <input type="number" class="form-control" placeholder="Cantidad Días"
                                             #cantidadDias="ngModel" name="cantidadDias"
                                             [(ngModel)]="cantidadDiasPorVencer" />
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                <!-- <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
                                             <span>Mostrar Estado Cliente </span>
@@ -234,89 +236,103 @@
                                             height="22">
 
                                     </div>
-                                </div>
+                                </div> -->
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
-                                            <span>Mostrar Contactos en Perfil </span>
+                                            <span class="size">Mostrar Contactos en Perfil </span>
                                             <input [(ngModel)]="configPortal.muestraContactosPerfil" type="checkbox"
                                                 id="exampleCheck4" name="exampleCheck4" />
+                                                
                                             <span class="slider"></span>
+                                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                                (click)="openInfoModal(modalBasic, 2)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22">
                                         </label>
-                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 2)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22">
+                                    
 
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                <div class="col-md-5 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
-                                            <span>Permite Exportar a Excel </span>
+                                            <span class="size">Permite Exportar a Excel </span>
                                             <input [(ngModel)]="configPortal.permiteExportarExcel" type="checkbox"
                                                 id="exampleCheck6" name="exampleCheck6" />
+                                             
                                             <span class="slider"></span>
-                                        </label>
-                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 3)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22">
+                                        </label>
+                                       
 
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
 
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
-                                            <span>Habilitar Pago Rapido</span>
+                                            <span class="size">Habilitar Paga Tú Cuenta</span>
                                             <input [(ngModel)]="configPortal.habilitaPagoRapido" type="checkbox"
                                                 id="exampleCheck5" name="exampleCheck5" />
                                             <span class="slider"></span>
-                                        </label>
-                                        <img container="body" ngbTooltip="Saber más" id="img6" style="cursor: pointer;"
+                                            <img container="body" ngbTooltip="Saber más" id="img6" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 6)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22">
+                                        </label>
+                                 
                                     </div>
                                 </div>
 
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;" >
-                                    <div class="input-group" >
-                                        <label  class="switch switch-success mr-3">
-                                            <span style="color: grey;" *ngIf="!configPortal.habilitaPagoRapido">Habilitar Busqueda por Documento Pago Rapido</span>
-                                            <span  *ngIf="configPortal.habilitaPagoRapido">Habilitar Busqueda por Documento Pago Rapido</span>
-                                            <input [(ngModel)]="configPortal.utilizaDocumentoPagoRapido" type="checkbox" [disabled]="!configPortal.habilitaPagoRapido"
-                                                id="exampleCheck50" name="exampleCheck50" />
-                                                <span class="slider" style="background-color: grey;" *ngIf="!configPortal.habilitaPagoRapido"></span>
+                                <div class="col-md-5 form-group mb-3" style="margin-top: 20px;">
+                                    <div class="input-group">
+                                        <label class="switch switch-success mr-3">
+                                            <span class="size" style="color: grey;"
+                                                *ngIf="!configPortal.habilitaPagoRapido">Habilitar Busqueda por
+                                                Documento</span>
+                                            <span class="size" *ngIf="configPortal.habilitaPagoRapido">Habilitar Busqueda por
+                                                Documento</span>
+                                            <input [(ngModel)]="configPortal.utilizaDocumentoPagoRapido" type="checkbox"
+                                                [disabled]="!configPortal.habilitaPagoRapido" id="exampleCheck50"
+                                                name="exampleCheck50" />
+                                              
+                                            <span class="slider" style="background-color: grey;"
+                                                *ngIf="!configPortal.habilitaPagoRapido"></span>
                                             <span *ngIf="configPortal.habilitaPagoRapido" class="slider"></span>
-                                        </label>
-                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 8)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22">
+                                        </label>
+                                     
 
                                     </div>
                                 </div>
 
 
 
-                                <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                                <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
-                                            <span style="width: 20px;">Permite abono parcial </span>
+                                            <span class="size" style="width: 20px;">Permite abono parcial </span>
                                             <input [(ngModel)]="configPortal.permiteAbonoParcial" type="checkbox"
                                                 id="exampleCheck7" name="exampleCheck7" />
-                                            <span class="slider"></span>
-                                        </label>
-                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                            
+                                            <span  class="slider"></span>
+                                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 7)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                             height="22">
+                                        </label>
+                                    
 
                                     </div>
                                 </div>
@@ -332,6 +348,1714 @@
                 </div>
             </ng-template>
         </ngb-tab>
+
+        <ngb-tab [id]="3" title="Diseño">
+            <ng-template ngbTabContent>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card mb-4">
+                            <div class="card-body">
+
+
+                                <div class="col-md-10"> 
+                                    <div class="card mb-4 margenDesktop" >
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(1)">
+                                            INICIO <i class="arrowIcon"><img
+                                                    [src]="inicioDeSesion == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="inicioDeSesion == 1">
+                                            <div class="form-group col-md-8 mb-3">
+                                                <label for="picker1">Color Fondo</label>
+                                                <div class="input-group">
+                                                    <!--FCA 08-06-2022-->
+                                                    <div class="circle" style="margin-top: 5px;"
+                                                        [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoPortada}">
+                                                        <!-- <content></content> -->
+                                                        <!-- content is now deprecated -->
+                                                    </div>
+                                                    <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                        [cpSaveClickOutside]="true" required="true"
+                                                        [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                        [(colorPicker)]="configuracionDiseno.colorFondoPortada"
+                                                        cpPosition="bottom"
+                                                        [ngClass]="colorPrin.errors && (colorPrin.dirty || colorPrin.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                        (blur)="verificaColor(1)" name="colorPrin" #colorPrin="ngModel"
+                                                        [(ngModel)]="configuracionDiseno.colorFondoPortada"
+                                                        pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                        placeholder="Color principal" [cpRemoveColorButtonClass]=""
+                                                        [cpOutputFormat]="'hex'" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 10)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                                <p *ngIf="colorPrin.errors && (colorPrin.dirty || colorPrin.touched)"
+                                                    class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                    <span *ngIf="colorPrin.errors?.pattern" class="text-danger"
+                                                        style="margin-top: 2px; font-size: 12px">
+                                                        Color invalido.
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="form-group col-md-8 mb-3">
+                                                <label for="picker1">Color Botón Paga Tú Cuenta</label>
+                                                <div class="input-group">
+                                                    <!--FCA 17-05-2022-->
+                                                    <div class="circle" style="margin-top: 5px;"
+                                                        [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonPagoRapido}">
+                                                    </div> <!--FCA 08-06-2022-->
+                                                    <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                        [cpSaveClickOutside]="true" required="true"
+                                                        [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                        [(colorPicker)]="configuracionDiseno.colorBotonPagoRapido"
+                                                        [ngClass]="colorSec.errors && (colorSec.dirty || colorSec.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                        (blur)="verificaColor(2)" name="colorSec" #colorSec="ngModel"
+                                                        [(ngModel)]="configuracionDiseno.colorBotonPagoRapido"
+                                                        pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                        placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                        [cpOutputFormat]="'hex'" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic,11)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+
+                                                <p *ngIf="colorSec.errors && (colorSec.dirty || colorSec.touched)"
+                                                    class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                    <span *ngIf="colorSec.errors?.pattern" class="text-danger"
+                                                        style="margin-top: 2px; font-size: 12px">
+                                                        Color invalido.
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="form-group col-md-8 mb-3">
+                                                <label for="picker1">Color Botón Inicio de Sesión</label>
+                                                <div class="input-group">
+                                                    <!--FCA 17-05-2022-->
+                                                    <div class="circle" style="margin-top: 5px;"
+                                                        [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonInicioSesion}">
+                                                    </div> <!--FCA 08-06-2022-->
+                                                    <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                        [cpSaveClickOutside]="true" required="true"
+                                                        [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                        [(colorPicker)]="configuracionDiseno.colorBotonInicioSesion"
+                                                        [ngClass]="colorbtnInicio.errors && (colorbtnInicio.dirty || colorbtnInicio.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                        (blur)="verificaColor(3)" name="colorbtnInicio"
+                                                        #colorbtnInicio="ngModel"
+                                                        [(ngModel)]="configuracionDiseno.colorBotonInicioSesion"
+                                                        pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                        placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                        [cpOutputFormat]="'hex'" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 12)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+
+                                                <p *ngIf="colorbtnInicio.errors && (colorbtnInicio.dirty || colorbtnInicio.touched)"
+                                                    class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                    <span *ngIf="colorbtnInicio.errors?.pattern" class="text-danger"
+                                                        style="margin-top: 2px; font-size: 12px">
+                                                        Color invalido.
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="form-group col-md-8 mb-3">
+                                                <label for="picker1">Color Botón Pagar</label>
+                                                <div class="input-group">
+                                                    <!--FCA 17-05-2022-->
+                                                    <div class="circle" style="margin-top: 5px;"
+                                                        [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonPagar}">
+                                                    </div> <!--FCA 08-06-2022-->
+                                                    <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                        [cpSaveClickOutside]="true" required="true"
+                                                        [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                        [(colorPicker)]="configuracionDiseno.colorBotonPagar"
+                                                        [ngClass]="colorbtnPagar.errors && (colorbtnPagar.dirty || colorbtnPagar.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                        (blur)="verificaColor(4)" name="colorbtnPagar"
+                                                        #colorbtnPagar="ngModel"
+                                                        [(ngModel)]="configuracionDiseno.colorBotonPagar"
+                                                        pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                        placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                        [cpOutputFormat]="'hex'" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 13)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+
+                                                <p *ngIf="colorbtnPagar.errors && (colorbtnPagar.dirty || colorbtnPagar.touched)"
+                                                    class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                    <span *ngIf="colorbtnPagar.errors?.pattern" class="text-danger"
+                                                        style="margin-top: 2px; font-size: 12px">
+                                                        Color invalido.
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="picker1">Logo (200px X 56px)</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-png,image/gif,image/jpeg"
+                                                        id="fileImageLogoPortada" (change)="onChange($event, 1)"
+                                                        (change)="preview($event, 1)" name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 14)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenLogoPortada != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top" [src]="urlImagenLogoPortada.url" alt=""
+                                                        width="180" height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(1)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="picker1">Imagen Portada (1710px X 796px)</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-png,image/gif,image/jpeg" id="fileImagePortada"
+                                                        (change)="onChange($event, 2)" (change)="preview($event, 2)"
+                                                        name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 15)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenPortada != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top" [src]="urlImagenPortada.url" alt=""
+                                                        width="180" height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(2)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- <div class="col-md-12 form-group">
+                                                <label for="picker1">Favicon</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-icon" id="fileImageFavicon"
+                                                        (change)="onChange($event, 15)" (change)="preview($event, 15)"
+                                                        name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 16)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenFavicon != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top"
+                                                        [src]="getSantizeUrl(urlImagenFavicon.url)" alt="" width="180"
+                                                        height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(15)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+
+                                            <div class="col-md-12 mt-3 text-center">
+                                                <button class="btn btn-primary"
+                                                    (click)="saveConfigDiseno(1)">Guardar</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="card mb-4 margenDesktop" >
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(2)">
+                                            SIDE BAR <i class="arrowIcon"><img
+                                                    [src]="sidebar == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="sidebar == 1">
+
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="picker1">Logo Principal (200px X 56px)</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-png,image/gif,image/jpeg"
+                                                        id="fileImageLogoPrincipalSidebar"
+                                                        (change)="onChange($event, 3)" (change)="preview($event, 3)"
+                                                        name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 17)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenLogoPrincipalSidebar != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top" [src]="urlImagenLogoPrincipalSidebar.url"
+                                                        alt="" width="180" height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(3)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="picker1">Logo Secundario (40px X 40px)</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-png,image/gif,image/jpeg"
+                                                        id="fileImageLogoSecundarioSidebar"
+                                                        (change)="onChange($event, 4)" (change)="preview($event, 4)"
+                                                        name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 18)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenLogoSecundarioSidebar != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top" [src]="urlImagenLogoSecundarioSidebar.url"
+                                                        alt="" width="180" height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(4)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mt-3 text-center">
+                                                <button class="btn btn-primary"
+                                                    (click)="saveConfigDiseno(2)">Guardar</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="card mb-4 margenDesktop">
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(3)">
+                                            PAGA TÚ CUENTA<i class="arrowIcon"><img
+                                                    [src]="pagoRapido == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="pagoRapido == 1">
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="picker1">Banner (2.000px X 150px)</label>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" placeholder="Ruta"
+                                                        accept="image/x-png,image/gif,image/jpeg"
+                                                        id="fileImageBannerPagoRapido" (change)="onChange($event, 5)"
+                                                        (change)="preview($event, 5)" name="imagen">
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 19)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="urlImagenBannerPagoRapido != null"
+                                                class="row mt-4 justify-content-center">
+                                                <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                    <img class="card-img-top" [src]="urlImagenBannerPagoRapido.url"
+                                                        alt="" width="180" height="180px" />
+                                                    <div class="row">
+                                                        <div class="card-action">
+                                                            <i ngbTooltip="Remover" placement="bottom" container="body"
+                                                                style="cursor: pointer;" (click)="deletePreviewImg(5)"
+                                                                class="icon i-Close-Window"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mt-3 text-center">
+                                                <button class="btn btn-primary"
+                                                    (click)="saveConfigDiseno(3)">Guardar</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="card mb-4 margenDesktop">
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(4)">
+                                            DASHBOARD CLIENTE <i class="arrowIcon"><img
+                                                    [src]="dashboardCliente == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="dashboardCliente == 1">
+                                            <div class="form-group col-md-12 mb-3">
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Documentos Pendientes</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Documentos Pendientes"
+                                                            #tituloDocPendientes="ngModel" name="tituloDocPendientes"
+                                                            [(ngModel)]="configuracionDiseno.tituloPendientesDashboard" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 20)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Documentos Vencidos</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Documentos Vencidos"
+                                                            #tituloDocVencidos="ngModel" name="tituloDocVencidos"
+                                                            [(ngModel)]="configuracionDiseno.tituloVencidosDashboard" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 21)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Documentos Por Vencer</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Documentos Pendientes"
+                                                            #tituloDocPorVencer="ngModel" name="tituloDocPorVencer"
+                                                            [(ngModel)]="configuracionDiseno.tituloPorVencerDashboard" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 22)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Ultimas Compras</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Ultimas Compras"
+                                                            #tituloUltCompras="ngModel" name="tituloUltCompras"
+                                                            [(ngModel)]="configuracionDiseno.tituloUltimasCompras" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 23)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Moneda Nacional</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="70" class="form-control"
+                                                            placeholder="Título Moneda Principal"
+                                                            #tituloMprincipal="ngModel" name="tituloMprincipal"
+                                                            [(ngModel)]="configuracionDiseno.tituloMonedaPeso" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 24)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Otras Monedas</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="70" class="form-control"
+                                                            placeholder="Título Moneda Secundaria"
+                                                            #tituloMSecundaria="ngModel" name="tituloMSecundaria"
+                                                            [(ngModel)]="configuracionDiseno.tituloOtraMoneda" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 25)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Texto Aviso</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="1000" class="form-control"
+                                                            placeholder="Texto Aviso" #txtAviso="ngModel" name="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.textoNoConsideraTodaDeuda" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 26)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Documentos Pendientes</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoDocumentos}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoDocumentos"
+                                                            [ngClass]="colorFondoP.errors && (colorFondoP.dirty || colorFondoP.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(5)" name="colorFondoP"
+                                                            #colorFondoP="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoDocumentos"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 27)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoP.errors && (colorFondoP.dirty || colorFondoP.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoP.errors?.pattern" class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Texto Documentos Pendientes</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorTextoPendientes}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorTextoPendientes"
+                                                            [ngClass]="colorTextoPendientes.errors && (colorTextoPendientes.dirty || colorTextoPendientes.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(6)" name="colorTextoPendientes"
+                                                            #colorTextoPendientes="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorTextoPendientes"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 28)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorTextoPendientes.errors && (colorTextoPendientes.dirty || colorTextoPendientes.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorTextoPendientes.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Documentos Vencidos</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoVencidos}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoVencidos"
+                                                            [ngClass]="colorFondoVencidos.errors && (colorFondoVencidos.dirty || colorFondoVencidos.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(7)" name="colorFondoVencidos"
+                                                            #colorFondoVencidos="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoVencidos"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 29)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoVencidos.errors && (colorFondoVencidos.dirty || colorFondoVencidos.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoVencidos.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Texto Documentos Vencidos</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorTextoVencidos}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorTextoVencidos"
+                                                            [ngClass]="colorTextoVencidos.errors && (colorTextoVencidos.dirty || colorTextoVencidos.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(8)" name="colorTextoVencidos"
+                                                            #colorTextoVencidos="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorTextoVencidos"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 30)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorTextoVencidos.errors && (colorTextoVencidos.dirty || colorTextoVencidos.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorTextoVencidos.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Documentos Por Vencer</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoPorVencer}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoPorVencer"
+                                                            [ngClass]="colorFondoPorVencer.errors && (colorFondoPorVencer.dirty || colorFondoPorVencer.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(9)" name="colorFondoPorVencer"
+                                                            #colorFondoPorVencer="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoPorVencer"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 31)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoPorVencer.errors && (colorFondoPorVencer.dirty || colorFondoPorVencer.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoPorVencer.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Texto Documentos Por Vencer</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorTextoPorVencer}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorTextoPorVencer"
+                                                            [ngClass]="colorTextoPorVencer.errors && (colorTextoPorVencer.dirty || colorTextoPorVencer.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(10)" name="colorTextoPorVencer"
+                                                            #colorTextoPorVencer="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorTextoPorVencer"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 32)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorTextoPorVencer.errors && (colorTextoPorVencer.dirty || colorTextoPorVencer.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorTextoPorVencer.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Selección Recuadro Documentos</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorSeleccionDocumentos}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorSeleccionDocumentos"
+                                                            [ngClass]="colorSeleccionDocumentos.errors && (colorSeleccionDocumentos.dirty || colorSeleccionDocumentos.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(11)" name="colorSeleccionDocumentos"
+                                                            #colorSeleccionDocumentos="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorSeleccionDocumentos"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 33)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorSeleccionDocumentos.errors && (colorSeleccionDocumentos.dirty || colorSeleccionDocumentos.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorSeleccionDocumentos.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Fondo Ultimas Compras</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoUltimasCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoUltimasCompras"
+                                                            [ngClass]="colorFondoUltimasCompras.errors && (colorFondoUltimasCompras.dirty || colorFondoUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(12)" name="colorFondoUltimasCompras"
+                                                            #colorFondoUltimasCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoUltimasCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 34)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoUltimasCompras.errors && (colorFondoUltimasCompras.dirty || colorFondoUltimasCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoUltimasCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Detalle Ultimas Compras</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonUltimasCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonUltimasCompras"
+                                                            [ngClass]="colorBotonUltimasCompras.errors && (colorBotonUltimasCompras.dirty || colorBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(13)" name="colorBotonUltimasCompras"
+                                                            #colorBotonUltimasCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonUltimasCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 35)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonUltimasCompras.errors && (colorBotonUltimasCompras.dirty || colorBotonUltimasCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonUltimasCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Selección Botón Detalle Ultimas
+                                                        Compras</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorHoverBotonUltimasCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorHoverBotonUltimasCompras"
+                                                            [ngClass]="colorHoverBotonUltimasCompras.errors && (colorHoverBotonUltimasCompras.dirty || colorHoverBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(14)"
+                                                            name="colorHoverBotonUltimasCompras"
+                                                            #colorHoverBotonUltimasCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorHoverBotonUltimasCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 36)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorHoverBotonUltimasCompras.errors && (colorHoverBotonUltimasCompras.dirty || colorHoverBotonUltimasCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorHoverBotonUltimasCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Texto Botón Detalle Ultimas
+                                                        Compras</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorTextoBotonUltimasCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorTextoBotonUltimasCompras"
+                                                            [ngClass]="colorTextoBotonUltimasCompras.errors && (colorTextoBotonUltimasCompras.dirty || colorTextoBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(15)"
+                                                            name="colorTextoBotonUltimasCompras"
+                                                            #colorTextoBotonUltimasCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorTextoBotonUltimasCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 37)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorTextoBotonUltimasCompras.errors && (colorTextoBotonUltimasCompras.dirty || colorTextoBotonUltimasCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorTextoBotonUltimasCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Imagen Ultimas Compras (60px X 74px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageUltimasCompras" (change)="onChange($event, 6)"
+                                                            (change)="preview($event, 6)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 38)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenUltimasCompras != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenUltimasCompras.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(6)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3 text-center">
+                                                    <button class="btn btn-primary"
+                                                        (click)="saveConfigDiseno(4)">Guardar</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card mb-4 margenDesktop">
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(5)">
+                                            MIS COMPRAS <i class="arrowIcon"><img
+                                                    [src]="misCompras == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="misCompras == 1">
+                                            <div class="form-group col-md-12 mb-3">
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Mis Compras</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Mis Compras" #tituloMisCompras="ngModel"
+                                                            name="tituloMisCompras"
+                                                            [(ngModel)]="configuracionDiseno.tituloMisCompras" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 39)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Compras Facturadas</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Compras Facturadas"
+                                                            #tituloComprasFacturadas="ngModel"
+                                                            name="tituloComprasFacturadas"
+                                                            [(ngModel)]="configuracionDiseno.tituloComprasFacturadas" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 40)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Compras Pendientes Por
+                                                        Facturar</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Pendientes Por Facturar"
+                                                            #tituloPendientesFacturar="ngModel"
+                                                            name="tituloPendientesFacturar"
+                                                            [(ngModel)]="configuracionDiseno.tituloPendientesFacturar" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 41)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="firstName2">Título Productos Comprados</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Productos" #tituloProductos="ngModel"
+                                                            name="tituloProductos"
+                                                            [(ngModel)]="configuracionDiseno.tituloProductos" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 42)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                </div>
+
+
+
+
+                                                <div class="form-group col-md-12 mb-3">
+                                                    <label for="firstName2">Título Guias Pendientes de Facturar</label>
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="60" class="form-control"
+                                                            placeholder="Título Guias Pendientes"
+                                                            #tituloGuiasPendientes="ngModel"
+                                                            name="tituloGuiasPendientes"
+                                                            [(ngModel)]="configuracionDiseno.tituloGuiasPendientes" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 43)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Compras Facturadas</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoMisCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoMisCompras"
+                                                            [ngClass]="colorFondoMisCompras.errors && (colorFondoMisCompras.dirty || colorFondoMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(16)" name="colorFondoMisCompras"
+                                                            #colorFondoMisCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoMisCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 44)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoMisCompras.errors && (colorFondoMisCompras.dirty || colorFondoMisCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoMisCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Compras Pendientes Por
+                                                        Facturar</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoPendientesMisCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoPendientesMisCompras"
+                                                            [ngClass]="colorFondoPendientesMisCompras.errors && (colorFondoPendientesMisCompras.dirty || colorFondoPendientesMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(17)"
+                                                            name="colorFondoPendientesMisCompras"
+                                                            #colorFondoPendientesMisCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoPendientesMisCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 45)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoPendientesMisCompras.errors && (colorFondoPendientesMisCompras.dirty || colorFondoPendientesMisCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoPendientesMisCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Productos Comprados</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoProductosMisCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoProductosMisCompras"
+                                                            [ngClass]="colorFondoProductosMisCompras.errors && (colorFondoProductosMisCompras.dirty || colorFondoProductosMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(18)"
+                                                            name="colorFondoProductosMisCompras"
+                                                            #colorFondoProductosMisCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoProductosMisCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 46)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoProductosMisCompras.errors && (colorFondoProductosMisCompras.dirty || colorFondoProductosMisCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoProductosMisCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Recuadro Guias Pendientes de
+                                                        Facturar</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorFondoGuiasMisCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorFondoGuiasMisCompras"
+                                                            [ngClass]="colorFondoGuiasMisCompras.errors && (colorFondoGuiasMisCompras.dirty || colorFondoGuiasMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(19)" name="colorFondoGuiasMisCompras"
+                                                            #colorFondoGuiasMisCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorFondoGuiasMisCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 47)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorFondoGuiasMisCompras.errors && (colorFondoGuiasMisCompras.dirty || colorFondoGuiasMisCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorFondoGuiasMisCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Texto Recuadros Mis Compras</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorIconosMisCompras}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorIconosMisCompras"
+                                                            [ngClass]="colorIconosMisCompras.errors && (colorIconosMisCompras.dirty || colorIconosMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(20)" name="colorIconosMisCompras"
+                                                            #colorIconosMisCompras="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorIconosMisCompras"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 48)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorIconosMisCompras.errors && (colorIconosMisCompras.dirty || colorIconosMisCompras.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorIconosMisCompras.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Buscar</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonBuscar}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonBuscar"
+                                                            [ngClass]="colorBotonBuscar.errors && (colorBotonBuscar.dirty || colorBotonBuscar.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(21)" name="colorBotonBuscar"
+                                                            #colorBotonBuscar="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonBuscar"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 49)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonBuscar.errors && (colorBotonBuscar.dirty || colorBotonBuscar.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonBuscar.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Mis Compras (72px X 72px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageIconoMisCompras" (change)="onChange($event, 7)"
+                                                            (change)="preview($event, 7)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 50)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenMisCompras != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenMisCompras.url" alt=""
+                                                            width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(7)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Banner Mis Compras (2.000px X 150px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageBannerMisCompras"
+                                                            (change)="onChange($event, 8)" (change)="preview($event, 8)"
+                                                            name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 51)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenBannerMisCompras != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenBannerMisCompras.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(8)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3 text-center">
+                                                    <button class="btn btn-primary"
+                                                        (click)="saveConfigDiseno(5)">Guardar</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card mb-4 margenDesktop">
+                                        <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(6)">
+                                            MI PERFIL <i class="arrowIcon"><img
+                                                    [src]="miPerfil == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                                        </div>
+                                        <div class="card-body" *ngIf="miPerfil == 1">
+                                            <div class="form-group col-md-12 mb-3">
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Modificar Datos</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonModificarPerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonModificarPerfil"
+                                                            [ngClass]="colorBotonModificarPerfil.errors && (colorBotonModificarPerfil.dirty || colorBotonModificarPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(22)" name="colorBotonModificarPerfil"
+                                                            #colorBotonModificarPerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonModificarPerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 52)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonModificarPerfil.errors && (colorBotonModificarPerfil.dirty || colorBotonModificarPerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonModificarPerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Cambio de Clave</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonClavePerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonClavePerfil"
+                                                            [ngClass]="colorBotonClavePerfil.errors && (colorBotonClavePerfil.dirty || colorBotonClavePerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(23)" name="colorBotonClavePerfil"
+                                                            #colorBotonClavePerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonClavePerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 53)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonClavePerfil.errors && (colorBotonClavePerfil.dirty || colorBotonClavePerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonClavePerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Estado de Cuenta</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonEstadoPerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonEstadoPerfil"
+                                                            [ngClass]="colorBotonEstadoPerfil.errors && (colorBotonEstadoPerfil.dirty || colorBotonEstadoPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(24)" name="colorBotonEstadoPerfil"
+                                                            #colorBotonEstadoPerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonEstadoPerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 54)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonEstadoPerfil.errors && (colorBotonEstadoPerfil.dirty || colorBotonEstadoPerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonEstadoPerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Seleccion Botón</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorHoverBotonesPerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorHoverBotonesPerfil"
+                                                            [ngClass]="colorHoverBotonesPerfil.errors && (colorHoverBotonesPerfil.dirty || colorHoverBotonesPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(25)" name="colorHoverBotonesPerfil"
+                                                            #colorHoverBotonesPerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorHoverBotonesPerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 55)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorHoverBotonesPerfil.errors && (colorHoverBotonesPerfil.dirty || colorHoverBotonesPerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorHoverBotonesPerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Cancelar pop up</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonCancelarModalPerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonCancelarModalPerfil"
+                                                            [ngClass]="colorBotonCancelarModalPerfil.errors && (colorBotonCancelarModalPerfil.dirty || colorBotonCancelarModalPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(26)"
+                                                            name="colorBotonCancelarModalPerfil"
+                                                            #colorBotonCancelarModalPerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonCancelarModalPerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 56)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonCancelarModalPerfil.errors && (colorBotonCancelarModalPerfil.dirty || colorBotonCancelarModalPerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonCancelarModalPerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="form-group col-md-8 mb-3">
+                                                    <label for="picker1">Color Botón Guardar pop up</label>
+                                                    <div class="input-group">
+                                                        <!--FCA 17-05-2022-->
+                                                        <div class="circle" style="margin-top: 5px;"
+                                                            [ngStyle]="{ 'background-color': configuracionDiseno.colorBotonGuardarModalPerfil}">
+                                                        </div> <!--FCA 08-06-2022-->
+                                                        <input style="margin-left: 10px;" [cpOKButton]="true"
+                                                            [cpSaveClickOutside]="true" required="true"
+                                                            [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                                                            [(colorPicker)]="configuracionDiseno.colorBotonGuardarModalPerfil"
+                                                            [ngClass]="colorBotonGuardarModalPerfil.errors && (colorBotonGuardarModalPerfil.dirty || colorBotonGuardarModalPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                                                            (blur)="verificaColor(27)"
+                                                            name="colorBotonGuardarModalPerfil"
+                                                            #colorBotonGuardarModalPerfil="ngModel"
+                                                            [(ngModel)]="configuracionDiseno.colorBotonGuardarModalPerfil"
+                                                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$"
+                                                            placeholder="Color secundario" [cpRemoveColorButtonClass]=""
+                                                            [cpOutputFormat]="'hex'" />
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 57)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+
+                                                    <p *ngIf="colorBotonGuardarModalPerfil.errors && (colorBotonGuardarModalPerfil.dirty || colorBotonGuardarModalPerfil.touched)"
+                                                        class="text-danger" style="margin-top: 2px; font-size: 12px">
+                                                        <span *ngIf="colorBotonGuardarModalPerfil.errors?.pattern"
+                                                            class="text-danger"
+                                                            style="margin-top: 2px; font-size: 12px">
+                                                            Color invalido.
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Mi Perfil (72px X 72px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageUsuario" (change)="onChange($event, 9)"
+                                                            (change)="preview($event, 9)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 58)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenUsuario != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenUsuario.url" alt=""
+                                                            width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(9)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Banner Mi Perfil (2.000px X 150px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageBannerMiPerfil" (change)="onChange($event, 10)"
+                                                            (change)="preview($event, 10)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 59)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenBannerPerfil != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenBannerPerfil.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(10)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Contactos (80px X 80px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageIconoContactos" (change)="onChange($event, 11)"
+                                                            (change)="preview($event, 11)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 60)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenIconoContactos != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenIconoContactos.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(11)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Cambio de Clave (80px X 80px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageIconoClavePerfil"
+                                                            (change)="onChange($event, 12)"
+                                                            (change)="preview($event, 12)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 61)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenIconoClavePerfil != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenIconoClavePerfil.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(12)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Modificar Datos (80px X 80px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageIconoEditarPerfil"
+                                                            (change)="onChange($event, 13)"
+                                                            (change)="preview($event, 13)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 62)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenIconoEditarPerfil != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenIconoEditarPerfil.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(13)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 form-group">
+                                                    <label for="picker1">Icono Estado de Cuenta (80px X 80px)</label>
+                                                    <div class="input-group">
+                                                        <input type="file" class="form-control" placeholder="Ruta"
+                                                            accept="image/x-png,image/gif,image/jpeg"
+                                                            id="fileImageIconoEstadoPerfil"
+                                                            (change)="onChange($event, 14)"
+                                                            (change)="preview($event, 14)" name="imagen">
+                                                        <img container="body" ngbTooltip="Saber más"
+                                                            style="cursor: pointer;"
+                                                            (click)="openInfoModal(modalBasic, 63)"
+                                                            src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                            width="22" height="22">
+                                                    </div>
+                                                </div>
+
+                                                <div *ngIf="urlImagenIconoEstadoPerfil != null"
+                                                    class="row mt-4 justify-content-center">
+                                                    <div class="card card-ecommerce-2 o-hidden mb-4">
+                                                        <img class="card-img-top" [src]="urlImagenIconoEstadoPerfil.url"
+                                                            alt="" width="180" height="180px" />
+                                                        <div class="row">
+                                                            <div class="card-action">
+                                                                <i ngbTooltip="Remover" placement="bottom"
+                                                                    container="body" style="cursor: pointer;"
+                                                                    (click)="deletePreviewImg(14)"
+                                                                    class="icon i-Close-Window"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3 text-center">
+                                                    <button class="btn btn-primary"
+                                                        (click)="saveConfigDiseno(6)">Guardar</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </ngb-tab>
+
     </ngb-tabset>
 </div>
 

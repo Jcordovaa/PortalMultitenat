@@ -28,6 +28,7 @@ export class SendAccessComponent implements OnInit {
   clientes: any = [];
   showDetail: boolean = false;
   clientesSeleccionados: any = [];
+  clientesEliminados: any = [];
   selectedVendedor: any;
   vendedores: any = [];
   selectedCondVenta: any;
@@ -52,6 +53,12 @@ export class SendAccessComponent implements OnInit {
   enviarFicha: boolean = false;
   enviarTodosCargos: boolean = true;
   clientesSinDatos: any = [];
+  cantidadSeleccionados: number = 0;
+
+  listaDePrecio: string = '';
+  categoriaCliente: string = '';
+  vendedorCliente: string = '';
+  condicionDeVenta: string = '';
 
   public config: any;
   public paginador: Paginator = {
@@ -99,6 +106,10 @@ export class SendAccessComponent implements OnInit {
       this.catClientes.forEach(element => {
         element.catDes = element.catCod + ' - ' + element.catDes;
       });
+
+      if (this.catClientes.length == 0) {
+        this.catClientes.push({ catDes: 'SIN DATOS', catCod: '' })
+      }
       this.softlandService.getCondVentas().subscribe((res2: any) => {
 
         this.condVentas = res2;
@@ -106,21 +117,40 @@ export class SendAccessComponent implements OnInit {
           element.cveDes = element.cveCod + ' - ' + element.cveDes;
         });
 
+        if (this.condVentas.length == 0) {
+          this.condVentas.push({ cveDes: 'SIN DATOS', cveCod: '' })
+        }
+
         this.softlandService.getListasPrecio().subscribe((res3: any) => {
           this.listasPrecio = res3;
           this.listasPrecio.forEach(element => {
             element.desLista = element.codLista + ' - ' + element.desLista;
           });
+
+          if (this.listasPrecio.length == 0) {
+            this.listasPrecio.push({ desLista: 'SIN DATOS', codLista: '' })
+          }
+
           this.softlandService.getVendedores().subscribe((res4: any) => {
             this.vendedores = res4;
             this.vendedores.forEach(element => {
               element.venDes = element.venCod + ' - ' + element.venDes;
             });
+
+            if (this.vendedores.length == 0) {
+              this.vendedores.push({ venDes: 'SIN DATOS', venCod: '' })
+            }
+
             this.softlandService.getCargos().subscribe((res5: any) => {
               this.cargos = res5;
               this.cargos.forEach(element => {
                 element.carNom = element.carCod + ' - ' + element.carNom;
               });
+
+              if (this.cargos.length == 0) {
+                this.cargos.push({ carNom: 'SIN DATOS', carCod: '' })
+              }
+
             }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar cargos', '', true); });
           }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar vendedores', '', true); });
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar listas de precio', '', true); });
@@ -130,26 +160,20 @@ export class SendAccessComponent implements OnInit {
   }
   search() {
     this.clientesSeleccionados = [];
-    const model = { rut: this.searchRut, codAux: this.searchCodAux, nombre: this.searchNombre, tipoBusqueda: this.tipoBusqueda }
+    this.clientesEliminados = [];
+    this.listaDePrecio = this.selectListaPrecio != null ? this.selectListaPrecio : '';
+    this.categoriaCliente = this.selectedCatCliente != null ? this.selectedCatCliente : '';
+    this.vendedorCliente = this.selectedVendedor != null ? this.selectedVendedor : '';
+    this.condicionDeVenta = this.selectedCondVenta != null ? this.selectedCondVenta : '';
+    const model = {
+      rut: this.searchRut, codAux: this.searchCodAux, nombre: this.searchNombre, tipoBusqueda: 1, listaPrecio: this.listaDePrecio, categoriaCliente: this.categoriaCliente,
+      condicionVenta: this.condicionDeVenta, vendedor: this.vendedorCliente, pagina: 1
+    }
     this.spinner.show();
     this.softlandService.getClientesAccesos2(model).subscribe((res: any) => {
+      debugger
       this.clientesRes = res;
       this.clientes = res;
-
-      
-      if (this.selectedCatCliente != null) {
-        this.clientesRes = this.clientesRes.filter(x => x.codCatCliente == this.selectedCatCliente)
-      }
-      if (this.selectListaPrecio != null) {
-        this.clientesRes = this.clientesRes.filter(x => x.codLista == this.selectListaPrecio)
-      }
-      if (this.selectedCondVenta != null) {
-        
-        this.clientesRes = this.clientesRes.filter(x => x.codCondVenta == this.selectedCondVenta)
-      }
-      if (this.selectedVendedor != null) {
-        this.clientesRes = this.clientesRes.filter(x => x.codVendedor == this.selectedVendedor)
-      }
 
       this.paginador.startRow = 0;
       this.paginador.endRow = 10;
@@ -157,24 +181,33 @@ export class SendAccessComponent implements OnInit {
       this.config = {
         itemsPerPage: this.paginador.endRow,
         currentPage: 1,
-        totalItems: this.clientesRes.length
+        totalItems: this.clientesRes.length > 0 ? this.clientesRes[0].total : 0
       };
 
       this.clientes = this.clientesRes.slice(this.paginador.startRow, this.paginador.endRow);
       this.showDetail = true;
+      this.checkAll = false;
       this.spinner.hide();
     }, err => { this.spinner.hide(); });
   }
 
   onSelAll(val: any) {
     this.clientesSeleccionados = [];
+    this.clientesEliminados = [];
 
     this.clientesRes.forEach(element => {
       element.checked = val.target.checked
       if (val.target.checked) {
         this.clientesSeleccionados.push(element);
+        this.clientesEliminados = [];
       }
     });
+
+    if (this.checkAll) {
+      this.cantidadSeleccionados = this.clientesRes[0].total - this.clientesEliminados.length;
+    } else {
+      this.cantidadSeleccionados = this.clientesSeleccionados.length;
+    }
   }
 
   openModalContacto(content, cliente: any) {
@@ -201,18 +234,36 @@ export class SendAccessComponent implements OnInit {
   }
 
   onSel(val: any, c: any) {
-    const added = this.clientesSeleccionados.find(x => x.rut == c.rut && x.codAux == c.codAux);
+    if (this.checkAll) {
+      if (!val.target.checked) {
+        let exist = this.clientesEliminados.find(x => x.rutAux == c.rutAux && x.codAux == c.codAux);
+        if (exist == null) {
+          this.clientesEliminados.push(c);
+        }
+      } else {
+        let exist = this.clientesEliminados.find(x => x.rutAux == c.rutAux && x.codAux == c.codAux);
+        if (exist != null) {
+          for (let i = 0; i <= this.clientesEliminados.length - 1; i++) {
+            if (this.clientesEliminados[i].rutAux == c.rutAux && this.clientesEliminados[i].codAux == c.codAux) {
+              this.clientesEliminados.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+    }
+    const added = this.clientesSeleccionados.find(x => x.rutAux == c.rutAux && x.codAux == c.codAux);
     if (added != null) {
       //remueve
       for (let i = 0; i <= this.clientesSeleccionados.length - 1; i++) {
-        if (this.clientesSeleccionados[i].rut == c.rut && this.clientesSeleccionados[i].codAux == c.codAux) {
+        if (this.clientesSeleccionados[i].rutAux == c.rutAux && this.clientesSeleccionados[i].codAux == c.codAux) {
           this.clientesSeleccionados.splice(i, 1);
           break;
         }
       }
     } else {
       this.clientesRes.forEach(element => {
-        if (c.rut == element.rut && c.codAux == element.codAux) {
+        if (c.rutAux == element.rutAux && c.codAux == element.codAux) {
           element.checked = val.target.checked
         }
       });
@@ -221,6 +272,13 @@ export class SendAccessComponent implements OnInit {
 
     if (this.clientesSeleccionados.length == 0) {
       this.checkAll = false;
+    }
+
+    if (this.checkAll) {
+      debugger
+      this.cantidadSeleccionados = this.clientesRes[0].total - this.clientesEliminados.length;
+    } else {
+      this.cantidadSeleccionados = this.clientesSeleccionados.length;
     }
   }
 
@@ -248,7 +306,7 @@ export class SendAccessComponent implements OnInit {
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
   }
 
-  send() {
+  async send() {
     this.clientesSinDatos = [];
     if (!this.enviarTodosCargos && this.selectedCargos.length == 0) {
       this.notificationService.warning('Debe seleccionar almenos un cargo para el envio.', '', true);
@@ -260,7 +318,7 @@ export class SendAccessComponent implements OnInit {
     this.spinner.show();
     const user = this.authService.getuser();
     this.clientesSeleccionados.forEach(element => {
-      element.encriptadoCliente = btoa(element.codAux + ";" + element.correo);
+      element.encriptadoCliente = btoa(element.codAux + ";" + element.email);
       element.correoUsuario = user.email;
     });
 
@@ -287,51 +345,87 @@ export class SendAccessComponent implements OnInit {
     this.clientesSeleccionados[0].enviarTodosContactos = this.enviarTodosContactos;
     this.clientesSeleccionados[0].enviarFicha = this.enviarFicha;
 
-    this.configuracionCorreoService.getConfigCorreos().subscribe((res: any) => {
 
-      this.cantidadCorreosDia = res[0].cantidadCorreosAcceso;
-      this.configuracionCorreoService.getCantidadEnviadaDia().subscribe((res: number) => {
+    this.spinner.hide();
+    const response = await this.notificationService.confirmation('Enviar accesos', 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice, ¿Desea continuar?');
+    if (response.isConfirmed) {
+      this.spinner.show();
+      let model = {
+        value: this.clientesSeleccionados,
+        enviaTodos: this.checkAll ? 1 : 0,
+        eliminados: this.clientesEliminados
+      }
+      this.clienteService.enviaAcceso(model).subscribe(res => {
+        this.clientes = [];
+        this.clientesSeleccionados = [];
+        this.clientesEliminados = [];
+        this.limpiar();
+        this.spinner.hide();
+        this.modalService.dismissAll();
+        this.notificationService.success('Enviando accesos...', '', true);
 
-        this.cantidadCorreosEnviados = res;
-        if ((this.clientesSeleccionados.length + this.cantidadCorreosEnviados) > this.cantidadCorreosDia) {
-          this.spinner.hide();
-          this.notificationService.warning('Solo dispone de ' + (this.cantidadCorreosDia - this.cantidadCorreosEnviados) + ' correos para enviar accesos el día de hoy', '', true);
-        } else {
-          this.clienteService.enviaAcceso(this.clientesSeleccionados).subscribe(res => {
-            this.spinner.hide();
-            if (res != "-1") {
-              this.clientesSinDatos = res;
-              this.clientes = [];
-              this.clientesSeleccionados = [];
-              this.limpiar();
-              this.modalService.dismissAll();
-              if(this.clientesSinDatos.length > 0){
-                this.notificationService.warning('Clientes sin correos electronicos para envio de accesos', '', true);
-                this.modalService.open(this.modalErrores, { ariaLabelledBy: 'modal-basic-title' });
-              }else{
-                this.notificationService.success('Envío de accesos correcto', '', true);
-              }
-              
-            } else {
-              this.notificationService.warning('Ocurrio un problema en el envio de accesos, favor revisar el log de envios.', '', true);
-            }
-            
-            this.spinner.hide();
-          }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al enviar correo.', '', true); });
-        }
-      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener cantidad de correos enviados.', '', true); });
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener cantidad de correos por dia', '', true); });
+        // if (res != "-1") {
+        //   this.clientesSinDatos = res;
+        //   this.clientes = [];
+        //   this.clientesSeleccionados = [];
+        //   this.limpiar();
+        //   this.modalService.dismissAll();
+        //   if(this.clientesSinDatos.length > 0){
+        //     this.notificationService.warning('Clientes sin correos electronicos para envio de accesos', '', true);
+        //     this.modalService.open(this.modalErrores, { ariaLabelledBy: 'modal-basic-title' });
+        //   }else{
+        //     this.notificationService.success('Envío de accesos correcto', '', true);
+        //   }
 
+        // } else {
+        //   this.notificationService.warning('Ocurrio un problema en el envio de accesos, favor revisar el log de envios.', '', true);
+        // }
 
+        this.spinner.hide();
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al ejecutar el proceso.', '', true); });
+    }
 
   }
 
   changePageClientes(event: any) {
-    this.paginador.startRow = ((event - 1) * 10);
-    this.paginador.endRow = (event * 10);
+    this.spinner.show();
+    //this.clientesSeleccionados = [];
+    this.paginador.startRow = 0;
+    this.paginador.endRow = 10;
     this.paginador.sortBy = 'desc';
     this.config.currentPage = event;
-    this.clientes = this.clientesRes.slice(this.paginador.startRow, this.paginador.endRow);
+    const model = {
+      rut: this.searchRut, codAux: this.searchCodAux, nombre: this.searchNombre, tipoBusqueda: 1, listaPrecio: this.listaDePrecio, categoriaCliente: this.categoriaCliente,
+      conidcionVenta: this.condicionDeVenta, vendedor: this.vendedorCliente, pagina: this.config.currentPage
+    }
+    this.softlandService.getClientesAccesos2(model).subscribe((res: any) => {
+      this.clientesRes = res;
+      this.clientes = res;
+      this.clientes = this.clientesRes.slice(this.paginador.startRow, this.paginador.endRow);
+      this.showDetail = true;
+      if (this.checkAll) {
+
+        this.clientes.forEach(element => {
+
+          let eliminado = this.clientesEliminados.filter(x => x.codAux == element.codAux);
+          if (eliminado.length > 0) {
+            element.checked = false;
+          } else {
+            element.checked = true;
+          }
+        });
+      } else {
+        this.clientes.forEach(element => {
+          this.clientesSeleccionados.forEach(elementSelect => {
+            if (element.codAux == elementSelect.codAux) {
+              element.checked = true;
+            }
+          });
+        });
+
+      }
+      this.spinner.hide();
+    }, err => { this.spinner.hide(); });
   }
 
 

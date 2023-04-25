@@ -33,10 +33,10 @@
                                 </div> -->
 
                                 <div *ngIf="(pasarela.idPasarela == 1 || pasarela.idPasarela == 3) && pasarela.estado == 1" class="col-md-4 form-group mb-3">
-                                    <label for="ambiente">Ambiente</label>
-                                    <select [(ngModel)]="pasarela.ambiente"
+                                    <label for="ambiente2">Ambiente</label>
+                                    <select [(ngModel)]="ambiente" (change)="cambiaAmbienteTbk(pasarela)"
                                             class="form-control"
-                                            name="ambiente" #ambiente="ngModel" required>
+                                            name="ambiente2" #ambiente2="ngModel" required>
                                         <option *ngIf="pasarela.idPasarela == 1" [ngValue]="'INTEGRACION'">
                                             Integración
                                         </option>
@@ -59,32 +59,38 @@
                                     <input type="text"
                                         [ngClass]="msg.errors && (msg.dirty || msg.touched) ? 'form-control is-invalid' : 'form-control'"
                                         placeholder="Código de comercio" #msg="ngModel" required
-                                        name="msg" [(ngModel)]="pasarela.codigoComercioTBK" />  
+                                        name="msg" [(ngModel)]="pasarela.codigoComercio" />  
                                     <p *ngIf="msg.errors && (msg.dirty || msg.touched)" class="text-danger"
                                       style="margin-top: 2px; font-size: 12px">
                                       Código de comercio es requerido
                                     </p>
                                 </div>
 
-                                <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela != 5" class="col-md-12 form-group" style="padding-bottom: 20px;">
+                                <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela != 5" class="col-md-10 form-group" style="padding-bottom: 20px;">
                                     <label for="firstName2">Api Key<span class="camporequerido">*</span></label>
-                                    <input type="text"
+                                    <input type="password"
                                         [ngClass]="apiKey.errors && (apiKey.dirty || apiKey.touched) ? 'form-control is-invalid' : 'form-control'"
                                         placeholder="Api Key" #apiKey="ngModel" required
-                                        name="apiKey" [(ngModel)]="pasarela.apiKeyPasarela" />  
+                                        name="apiKey" [(ngModel)]="pasarela.secretKey" />  
                                     <p *ngIf="apiKey.errors && (apiKey.dirty || apiKey.touched)" class="text-danger"
                                       style="margin-top: 2px; font-size: 12px">
                                       Api Key es requerido
                                     </p>
+                                    
+                                </div>
+
+                                <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela != 5" class="col-md-2 form-group" style="margin-top: 30px;">
+                                    <!-- <button style="height: 30px; width: 50px; color: #0016b2;"  class="btn btn-primary" (click)="verPass()" ><i style="color: #fff !important;"  name="iconPass" id="iconPass"  class="i-Eye"></i></button> -->
+                                    <button style="height: 30px; width: 50px; color: #0016b2; display: flex; align-items: center;"  class="btn btn-primary" (click)="verPass()" ><img style="color: #fff;padding-bottom: 3px;" [src]="icon"></button>
                                 </div>
 
                                 <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela == 3" class="col-md-12 form-group" style="padding-bottom: 20px;">
                                     <label for="firstName2">Secret Key<span class="camporequerido">*</span></label>
                                     <input type="text"
-                                        [ngClass]="secretKey.errors && (secretKey.dirty || secretKey.touched) ? 'form-control is-invalid' : 'form-control'"
-                                        placeholder="Secret Key" #secretKey="ngModel" required
-                                        name="secretKey" [(ngModel)]="pasarela.secretKeyPasarela" />  
-                                    <p *ngIf="secretKey.errors && (secretKey.dirty || secretKey.touched)" class="text-danger"
+                                        [ngClass]="secretKeyPasarela.errors && (secretKeyPasarela.dirty || secretKeyPasarela.touched) ? 'form-control is-invalid' : 'form-control'"
+                                        placeholder="Secret Key" #secretKeyPasarela="ngModel" required
+                                        name="secretKeyPasarela" [(ngModel)]="pasarela.secretKey" />  
+                                    <p *ngIf="secretKeyPasarela.errors && (secretKeyPasarela.dirty || secretKeyPasarela.touched)" class="text-danger"
                                       style="margin-top: 2px; font-size: 12px">
                                       Secret Key es requerido
                                     </p>
@@ -100,24 +106,20 @@
 
                                 <div *ngIf="pasarela.estado == 1" class="col-md-4 form-group mb-3">
                                     <label for="documento">Documento contable</label>
-                                    <select [(ngModel)]="pasarela.tipoDocumento"
-                                            class="form-control"
-                                            name="documento" #documento="ngModel" required>
-                                        <option *ngFor="let documento of tipoDocumentos" [ngValue]="documento.codDoc">
-                                            {{documento.desDoc}}
-                                        </option>
-                                    </select>
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                        [items]="tipoDocumentos" bindLabel="desDoc" placeholder="Documento"
+                                        #td="ngModel" name="td" [(ngModel)]="pasarela.tipoDocumento" bindValue="codDoc"
+                                        [multiple]="false" [closeOnSelect]="false">
+                                    </ng-select>
                                 </div>
 
                                 <div *ngIf="pasarela.estado == 1" class="col-md-4 form-group mb-3">
                                     <label for="cuenta">Cuenta contable</label>
-                                    <select [(ngModel)]="pasarela.cuentaContable"
-                                    class="form-control"
-                                            name="cuenta" #cuenta="ngModel" required>
-                                        <option *ngFor="let cuenta of cuentasContables" [ngValue]="cuenta.codigo">
-                                            {{cuenta.nombre}}
-                                        </option>
-                                    </select>
+                                    <ng-select class="customAC" style="border-radius: 40px !important;"
+                                    [items]="cuentasContables" bindLabel="nombre" placeholder="Cuenta Contable"
+                                    #cc="ngModel" name="cc" [(ngModel)]="pasarela.cuentaContable" bindValue="codigo"
+                                    [multiple]="false" [closeOnSelect]="false">
+                                </ng-select>
                                 </div>
                                                
                                 <div class="col-md-12 mt-3 text-center">

@@ -9,8 +9,13 @@ import { ITipoApi } from '../shared/enums/TipoApi';
     providedIn: 'root'
 })
 export class Utils {
-    public Server: string = 'https://localhost:7043';
-    // public Server: string = 'https://apitenat.intgra.cl';
+    // public Server: string = 'https://localhost:44375';
+     public Server: string = 'https://localhost:7043'; //NET CORE
+    //public Server: string = 'https://apiportal.intgra.cl/';
+    //public Server: string = 'https://apiportal.intgra.cl/';  //BERRYLION
+    //APP SERVICE:
+    // public Server: string = 'https://apiportalclientedemo2.softlandcloud.cl';
+    //public Server: string = 'https://apiportalclientedemo1.softlandcloud.cl';
     //public Server: string = 'https://apiportalcliente.softlandcloud.cl';
     public ApiUrl: string = 'api/';
     public ServerWithApiUrl = this.Server + '/' + this.ApiUrl;
@@ -53,55 +58,18 @@ export class Utils {
     }
 
     getHeaders(withAuth: boolean = true) {
-        
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+    
         if (withAuth) {
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.getToken()}`
-                })
-            };
-            return httpOptions;
-        } else {
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json'
-                    // ,'Access-Control-Allow-Origin' : '*'
-                })
-            };
-            return httpOptions;
-        } 
-    }
-
-    getHeadersType(withAuth: boolean = true) {
-        
-        if (withAuth) {
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    'charset': 'utf-8',
-                    'Authorization': `Bearer ${this.getToken()}`
-                }),
-                responseType: 'text' as 'json'                
-            };
-            return httpOptions;
-        } else {
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    'charset': 'utf-8',
-                    'Access-Control-Allow-Origin' : '*'
-                }),
-                responseType: 'text' as 'json'
-
-                
-            };
-            return httpOptions;
-        } 
-    }
+          headers['Authorization'] = `Bearer ${this.getToken()}`;
+        }
+    
+        return { headers: new HttpHeaders(headers) };
+      }
 
     getToken(): string {
-        
         var currentUserAd = localStorage.getItem('currentUserPortal');
         if (currentUserAd != null) {
             return JSON.parse(currentUserAd).token;

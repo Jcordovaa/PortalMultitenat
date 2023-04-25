@@ -39,5 +39,10 @@ namespace ApiPortal.Dal.Models_Portal
         public string? ConsultaMonedas { get; set; }
         public string? ContabilizaPagos { get; set; }
         public string? ConsultaCargos { get; set; }
+        public string? DocumentosContabilizadosResumen { get; set; }
+        public string? TopDeudores { get; set; }
+        public string? TransbankRegistrarCliente { get; set; }
+        public string? DocContabilizadosResumenxRut { get; set; }
+        public string? PagosxDocumento { get; set; }
     }
 }

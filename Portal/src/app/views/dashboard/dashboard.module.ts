@@ -17,6 +17,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
 import { TagInputModule } from 'ngx-chips';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     FormsModule,
     TagInputModule,
     NgSelectModule,
+    NgxSpinnerModule
     
   ],
   declarations: [DashboadDefaultComponent,

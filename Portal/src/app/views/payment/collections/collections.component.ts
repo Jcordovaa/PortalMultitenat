@@ -19,6 +19,7 @@ import { CategoriaClienteDTO, CondicionVentaDTO, ListaPrecioDTO, TipoDocumento, 
 import { ConfiguracionSoftlandService } from 'src/app/shared/services/configuracionsoftland.service';
 import { Cobrador } from 'src/app/shared/models/cobrador.model';
 import { CanalVenta } from 'src/app/shared/models/canalventa.model';
+import { ClientesService } from 'src/app/shared/services/clientes.service';
 
 
 
@@ -76,6 +77,7 @@ export class CollectionsComponent implements OnInit {
   public selectedPeriocidad: number = null;
   public muestraDetalleDocumentos: boolean = false;
   public dateDesde: NgbDateStruct;
+  public fechaInicioMin = new Date().setDate(new Date().getDate() + 1);
   public dateHasta: NgbDateStruct;
   public dateDesdeFiltro: NgbDateStruct;
   public dateHastaFiltro: NgbDateStruct;
@@ -84,6 +86,7 @@ export class CollectionsComponent implements OnInit {
   //FCA 13-12-2021
   public montoDesdeFiltro: number = null;
   public montoHastaFiltro: number = null;
+  abonos: any = null;
 
   public nombreCobranza: string = null;
   public paso: number = 0;
@@ -197,7 +200,7 @@ export class CollectionsComponent implements OnInit {
     private mailService: MailService,
     private utils: Utils,
     private authService: AuthService,
-    private modalService: NgbModal, private softlandService: SoftlandService, private configSoftlandService: ConfiguracionSoftlandService,
+    private modalService: NgbModal, private softlandService: SoftlandService, private configSoftlandService: ConfiguracionSoftlandService, private clientesService: ClientesService,
     private miDatePipe: DatePipe //FCA 22-11-2021 Se agrega datepipe
   ) {
 
@@ -288,7 +291,7 @@ export class CollectionsComponent implements OnInit {
   getListasPrecio() {
     this.spinner.show();
     this.softlandService.getListasPrecio().subscribe((resp: ListaPrecioDTO[]) => {
-      
+
       this.listasPrecio = resp;
     }, err => {
       this.spinner.hide();
@@ -333,7 +336,7 @@ export class CollectionsComponent implements OnInit {
     } else { fechaHasta = null; }
 
     this.spinner.show();
-    const model = { idTipoCobranza: this.selectedTipoFiltro, nombreCobranza: this.nombreFiltro, idEstadoCobranza: this.selectedEstadoFiltro, fechaHasta: fechaHasta, fechaDesde: fechaDesde, tipoProgramacion: this.selectedModalidadCobranza } //FCA 13-12-2021
+    const model = { IdTipoCobranza: this.selectedTipoFiltro, NombreCobranza: this.nombreFiltro, IdEstadoCobranza: this.selectedEstadoFiltro, FechaHasta: fechaHasta, FechaDesde: fechaDesde, TipoProgramacion: this.selectedModalidadCobranza } //FCA 13-12-2021
     this.cobranzaService.getCobranzasTipo(model).subscribe((res: any) => {
       this.listaCobranzasRes = res;
       this.paginador.startRow = 0;
@@ -355,6 +358,7 @@ export class CollectionsComponent implements OnInit {
 
   //METODOS NUEVOS COBRANZA SE MANTENDRAN
   crearCobranza() {
+    this.spinner.show()
     this.nuevaCobranza = true;
     this.muestraCabecera = true;
 
@@ -405,7 +409,7 @@ export class CollectionsComponent implements OnInit {
 
     if (this.selectedProgramacion == 1) //Clasica
     {
-      if (this.fecha == null || this.selectedHorario == null) {
+      if (this.fecha == null || this.selectedHorario == null || this.fechaVencimiento == null) {
         return false;
       }
     }
@@ -426,6 +430,37 @@ export class CollectionsComponent implements OnInit {
 
       }
     }
+
+
+
+
+    const currentDate = new Date();
+    var fechaActual = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() };
+
+    let fechaInicio: string = this.fecha.year.toString() + '/' + this.fecha.month.toString() + '/' + this.fecha.day.toString();
+    let actual: string = fechaActual.year.toString() + '/' + fechaActual.month.toString() + '/' + fechaActual.day.toString();
+
+
+    if (Date.parse(actual) > Date.parse(fechaInicio)) {
+      return false;
+    }
+ 
+    let val2: string = this.fechaVencimiento.year.toString() + '/' + this.fechaVencimiento.month.toString() + '/' + this.fechaVencimiento.day.toString();
+    if (Date.parse(val2) < Date.parse(fechaInicio)) {
+      return false;
+    }
+
+    return true
+  }
+
+  get IsStepTwoOk() {
+    if (this.selectedAnio == null || this.selectedAnio == '') {
+      return false
+    }
+
+    if (this.selectedTipoDoc == null || this.selectedTipoDoc == '') {
+      return false;
+    }
     return true
   }
 
@@ -438,6 +473,8 @@ export class CollectionsComponent implements OnInit {
     this.paso = 2;
     this.muestraDetalleClientes = false; //FCA 07-12-2021
   }
+
+
 
   onStep3Next(e) {
     this.paso = 3;
@@ -487,12 +524,14 @@ export class CollectionsComponent implements OnInit {
           return `${accumulator};${item}`;
         }) : null;
 
+
         let cargosContactos = null;
         if (this.enviaTodosCargos) {
           cargosContactos = this.cargos.length > 0 ? this.cargos.reduce((accumulator, item) => {
             return `${accumulator};${item.carCod}`;
           }) : null;
         } else {
+
           cargosContactos = this.selectedCargosContactos.length > 0 ? this.selectedCargosContactos.reduce((accumulator, item) => {
             return `${accumulator};${item.carCod}`;
           }) : null;
@@ -602,7 +641,7 @@ export class CollectionsComponent implements OnInit {
                 idEstado: 1, //Estado pendiente     
                 cuentaContable: doc.cuentaContable,
                 nombreCliente: element.nombreCliente,
-                codAuxCliente: element.rutCliente.replace('.','').replace('.','').split('-')[0]
+                codAuxCliente: element.rutCliente.replace('.', '').replace('.', '').split('-')[0]
               };
 
               detalle.push(det);
@@ -640,6 +679,8 @@ export class CollectionsComponent implements OnInit {
   }
 
   async onStepChangedl(e, p1, p2, p3, p4, p5) {
+
+
     if (this.paso === 1) {
       const currentDate = new Date();
       var fechaActual = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() };
@@ -697,22 +738,22 @@ export class CollectionsComponent implements OnInit {
           return;
         }
 
-        if (this.fechaVencimiento.year < this.fecha.year) {
-          this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        } else if (this.fechaVencimiento.month < this.fecha.month) {
-          this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        } else if (this.fechaVencimiento.day < this.fecha.day) {
-          this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        }
+        // if (this.fechaVencimiento.year < this.fecha.year) {
+        //   this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // } else if (this.fechaVencimiento.month < this.fecha.month) {
+        //   this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // } else if (this.fechaVencimiento.day < this.fecha.day) {
+        //   this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // }
 
       } else if (this.selectedProgramacion == 2) //Inteligente
       {
@@ -826,6 +867,7 @@ export class CollectionsComponent implements OnInit {
             return;
           }
         }
+
       }
 
       this.cobranzaService.getAniosPagos().subscribe(resAnio => {
@@ -842,14 +884,15 @@ export class CollectionsComponent implements OnInit {
 
     if (this.paso === 2) {
 
-      if (this.selectedAnio == null) {
+
+      if (this.selectedAnio == null || this.selectedAnio == '') {
         this.notificationService.warning('Debe ingresar el campo obligatorio Año.', '', true);
         this.paso = 0;
         e.goToStep(p2);
         return;
       }
 
-      if (this.selectedTipoDoc == null) {
+      if (this.selectedTipoDoc == null || this.selectedTipoDoc == '') {
         this.notificationService.warning('Debe ingresar el campo obligatorio Tipo Documento.', '', true);
         this.paso = 0;
         e.goToStep(p2);
@@ -910,13 +953,16 @@ export class CollectionsComponent implements OnInit {
         return `${accumulator};${item}`;
       }) : null;
 
+      let SelAnio = 0;
       if (this.selectedAnio == 'TODOS') {
-        this.selectedAnio = 0;
+        SelAnio = 0;
+      } else {
+        SelAnio = this.selectedAnio;
       }
       this.spinner.show();
 
       const model = {
-        tipoDocumento: tiposDocs, anio: this.selectedAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+        tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
         excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
         cobradores: cobradores
       }
@@ -941,7 +987,7 @@ export class CollectionsComponent implements OnInit {
         // this.mailService.getCorreosDisponibles().subscribe((res: any) => {
 
         //   this.correosDisponibles = res;
-          this.spinner.hide();
+        this.spinner.hide();
         // }, err => {
         //   this.spinner.hide();
         // });
@@ -1079,7 +1125,7 @@ export class CollectionsComponent implements OnInit {
     }) : null;
 
     this.spinner.show();
-    
+
     const model = {
       tipoDocumento: tiposDocs, anio: this.selectedAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
       excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta
@@ -1306,11 +1352,11 @@ export class CollectionsComponent implements OnInit {
         //   this.notificationService.warning('Supera el limite de correos disponibles.', '', true);
         //   val.target.checked = false;
         // } else {
-          this.detalleClientes.forEach(element => {
-            if (c.rutCliente == element.rutCliente) {
-              element.selected = val.target.checked
-            }
-          });
+        this.detalleClientes.forEach(element => {
+          if (c.rutCliente == element.rutCliente) {
+            element.selected = val.target.checked
+          }
+        });
         //}
       }
       this.calculaSeleccionados();
@@ -1340,7 +1386,7 @@ export class CollectionsComponent implements OnInit {
 
   //FCA 13-12-2021
   filter2() {
-    
+
     let data: any = Object.assign([], this.detalleClientes);
 
     if (this.montoDesdeFiltro != null) {
@@ -1499,65 +1545,38 @@ export class CollectionsComponent implements OnInit {
     this.muestraCabecera = false;
     this.nuevaCobranza = false;
   }
+  openModalAbonos(content, documento: any) {
+    this.spinner.show();
+    const model = { codAux: documento.codAuxCliente, folio: documento.folio, TipoDoc: documento.codTipoDocumento }
+    this.clientesService.getPagosDocumento(model).subscribe((res: any) => {
+      debugger
+      this.abonos = [];
+      this.abonos = res;
+
+      if (this.abonos.length <= 0) {
+        this.spinner.hide();
+        this.notificationService.warning('El documento no posee abonos asociados', '', true);
+        return;
+      }
+
+      this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
+      this.spinner.hide();
+    }, err => { this.spinner.hide(); });
+  
+  }
+
+  
+
+  closeModal() {
+    this.modalService.dismissAll();
+  }
 
   verDetalleCobranza(item: Cobranza) {
-    // this.spinner.show();
-    this.cobranzaDatos = item;
-    this.muestraDetalle = true;
-
-    this.chartMonto = {
-      ...echartStyles.defaultOptions, ...{
-        series: [{
-          type: 'pie',
-          itemStyle: echartStyles.pieLineStyle,
-          data: [{
-            name: 'Pendiente Recaudar',
-            value: this.cobranzaDatos.totalRecaudar - this.cobranzaDatos.totalRecaudado,
-            ...echartStyles.pieLabelOff,
-            itemStyle: {
-              borderColor: '#ff4d4d',
-            }
-          }, {
-            name: 'Recaudado',
-            value: this.cobranzaDatos.totalRecaudado,
-            ...echartStyles.pieLabelOff,
-            itemStyle: {
-              borderColor: '#009933',
-            }
-          }]
-        }]
-      }
-    };
-
-    this.chartDocumentos = {
-      ...echartStyles.defaultOptions, ...{
-        series: [{
-          type: 'pie',
-          itemStyle: echartStyles.pieLineStyle,
-          data: [{
-            name: 'Documentos Pendientes',
-            value: this.cobranzaDatos.cantidadDocumentosEnviadosCobrar - this.cobranzaDatos.cantidadDocumentosPagados,
-            ...echartStyles.pieLabelOff,
-            itemStyle: {
-              borderColor: '#ff4d4d',
-            }
-          }, {
-            name: 'Documentos Pagados',
-            value: this.cobranzaDatos.cantidadDocumentosPagados,
-            ...echartStyles.pieLabelOff,
-            itemStyle: {
-              borderColor: '#009933',
-            }
-          }]
-        }]
-      }
-    };
-
     this.spinner.show();
 
     const model = { idCobranza: item.idCobranza }
     this.cobranzaService.getCobranzasDetalle(model).subscribe((res: any) => {
-      
+
       //FCA 22-11-2021 Se modifica para agregar paginador y arreglar fechas
       this.cobranzaDetalleRes = res;
 
@@ -1574,8 +1593,63 @@ export class CollectionsComponent implements OnInit {
       this.totalItemsDetalle = this.cobranzaDetalleRes.length;
 
       this.cobranzaDetalle = this.cobranzaDetalleRes.slice(this.paginadorDetalle.startRow, this.paginadorDetalle.endRow);
-     
-      this.spinner.hide();
+
+      this.cobranzaService.getCobranzaGraficos(item.idCobranza).subscribe((res: any) => {
+        this.cobranzaDatos = res;
+        this.muestraDetalle = true;
+
+        this.chartMonto = {
+          ...echartStyles.defaultOptions, ...{
+            series: [{
+              type: 'pie',
+              itemStyle: echartStyles.pieLineStyle,
+              data: [{
+                name: 'Pendiente Recaudar',
+                value: this.cobranzaDatos.totalRecaudar - this.cobranzaDatos.totalRecaudado,
+                ...echartStyles.pieLabelOff,
+                itemStyle: {
+                  borderColor: '#ff4d4d',
+                }
+              }, {
+                name: 'Recaudado',
+                value: this.cobranzaDatos.totalRecaudado,
+                ...echartStyles.pieLabelOff,
+                itemStyle: {
+                  borderColor: '#009933',
+                }
+              }]
+            }]
+          }
+        };
+
+        this.chartDocumentos = {
+          ...echartStyles.defaultOptions, ...{
+            series: [{
+              type: 'pie',
+              itemStyle: echartStyles.pieLineStyle,
+              data: [{
+                name: 'Documentos Pendientes',
+                value: this.cobranzaDatos.cantidadDocumentosEnviadosCobrar - this.cobranzaDatos.cantidadDocumentosPagados,
+                ...echartStyles.pieLabelOff,
+                itemStyle: {
+                  borderColor: '#ff4d4d',
+                }
+              }, {
+                name: 'Documentos Pagados',
+                value: this.cobranzaDatos.cantidadDocumentosPagados,
+                ...echartStyles.pieLabelOff,
+                itemStyle: {
+                  borderColor: '#009933',
+                }
+              }]
+            }]
+          }
+        };
+        this.spinner.hide();
+      }, err => {
+        this.spinner.hide();
+      });
+
     }, err => {
       this.spinner.hide();
       this.notificationService.error('Ocurrio problema al obtener documentos.', '', true);
@@ -1663,25 +1737,53 @@ export class CollectionsComponent implements OnInit {
     //2 fecha vencimiento
     const currentDate = new Date();
     var fechaActual = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() };
+
+
+    let actual: string = fechaActual.year.toString() + '/' + fechaActual.month.toString() + '/' + fechaActual.day.toString();
+
+
+
     if (tipoFecha == 1) {
-      debugger 
-      if (val.year < fechaActual.year) {
-        this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
-      } else if (val.month < fechaActual.month) {
-        this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
-      } else if (val.day <= fechaActual.day) {
+      let fechaInicio: string = val.year.toString() + '/' + val.month.toString() + '/' + val.day.toString();
+      if (Date.parse(actual) > Date.parse(fechaInicio)) {
         this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
       }
-    } else if (tipoFecha == 2) {
-      debugger
-      let val2: string = val.year.toString() + '/' + val.month.toString() + '/' + val.day.toString();
-      let fecha: string = this.fecha.year.toString() + '/' + this.fecha.month.toString() + '/' + this.fecha.day.toString();
-      if (Date.parse(val2)  < Date.parse(fecha)) {
+
+      if (this.fechaVencimiento != null) {
+        let fechaFin: string = this.fechaVencimiento.year.toString() + '/' + this.fechaVencimiento.month.toString() + '/' + this.fechaVencimiento.day.toString();
+        if (Date.parse(fechaInicio) > Date.parse(fechaFin)) {
+          this.notificationService.warning('Fecha inicio no puede ser mayor a fecha de termino.', '', true);
+        }
+      }
+      // if (val.year < fechaActual.year) {
+
+      //   this.fecha = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() + 1 };
+      // } else if (val.month < fechaActual.month) {
+      //   this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
+      //   this.fecha = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() + 1 };
+      // } else if (val.day <= fechaActual.day) {
+      //   this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
+      //   this.fecha = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() + 1 };
+      // } else {
+      //   let val2: string = this.fechaVencimiento.year.toString() + '/' + this.fechaVencimiento.month.toString() + '/' + this.fechaVencimiento.day.toString();
+      //   let fecha: string = val.year.toString() + '/' + val.month.toString() + '/' + val.day.toString();
+      //   if (Date.parse(val2) < Date.parse(fecha)) {
+      //     this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
+      //     this.fechaVencimiento = { year: this.fecha.year, month: this.fecha.month, day: this.fecha.day };
+      //   }
+
+      // }
+    }
+
+    if (tipoFecha == 2) {
+      let fechaFin: string = val.year.toString() + '/' + val.month.toString() + '/' + val.day.toString();
+      let fechaInicio: string = this.fecha.year.toString() + '/' + this.fecha.month.toString() + '/' + this.fecha.day.toString();
+      if (Date.parse(fechaFin) < Date.parse(fechaInicio)) {
         this.notificationService.warning('Fecha vencimiento no puede ser menor a fecha de inicio.', '', true);
-      } 
+      }
+
     }
     else if (tipoFecha == 3) {
-      debugger
       if (val.year < this.fecha.year) {
         this.notificationService.warning('Fecha vencimiento no puede ser menor o igual a fecha de inicio.', '', true);
       } else if (val.month < this.fecha.month) {

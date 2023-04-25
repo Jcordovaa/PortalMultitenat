@@ -79,6 +79,7 @@ export class DashboardClienteComponent implements OnInit {
     folio: number = null;
     documentoAEnviar: any = null;
     valorUfActrual: number = 0;
+    varloUfOrigen: number = 0;
     public totalItems: number = 0;
     documentos: Documento[] = [];
     documentosOtrasMonedas: Documento[] = [];
@@ -89,7 +90,8 @@ export class DashboardClienteComponent implements OnInit {
     public enviaXml: boolean = false;
     documentosPorPagina: Documento[] = [];
     documentosFiltro: Documento[] = [];
-   
+
+
     public paginadorDocumentos: Paginator = {
         startRow: 0,
         endRow: 10,
@@ -129,113 +131,35 @@ export class DashboardClienteComponent implements OnInit {
         this.spinner.show();
         const user = this.authService.getuser();
         if (user != null) {
+            const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+            if (configuracionCompletaPortal != null) {
+                this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+                this.configuracion = configuracionCompletaPortal.configuracionPortal;
+                this.configuracionPagos = configuracionCompletaPortal.configuracionPagoCliente;
+                this.existModuloInventario = configuracionCompletaPortal.existModuloInventario;
+            }
 
-            this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
+            this.spinner.show();
+
+            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {
                 this.spinner.show();
-                this.configDiseno = res;
-                this.configuracionService.getConfigPortal().subscribe(res => {
+                this.topCompras = res;
+                this.clienteService.getDashboardDocumentos(user.codAux).subscribe((res: any) => {
                     this.spinner.show();
-                    this.configuracion = res;
-                    this.configuracionService.getConfigPagoClientes().subscribe(res => {
-                        this.spinner.show();
-                        this.configuracionPagos = res;
-                        this.softlandService.getExistModuloInventario().subscribe(res => {
-                            this.spinner.show();
-                            this.existModuloInventario = res;
-                            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {
-                                this.spinner.show();
-                                this.topCompras = res;
-                                this.clienteService.getDashboardDocumentos(user.codAux).subscribe((res: any) => {
-                                    this.spinner.show();
-                                    if (res.length > 0) {
-                                        res.forEach(element => {
-                                            if (element.estado == "VENCIDO") {
-                                                this.cantidadVencidos = element.cantidadDocumentos;
-                                                this.totalVencidos = element.totalDocumentos;
-                                            }
-                
-                                            if (element.estado == "PORVENCER") {
-                                                this.cantidadPorVencer = element.cantidadDocumentos;
-                                                this.totalPorVencer = element.totalDocumentos;
-                                            }
-                
-                                            if (element.estado == "PENDIENTES") {
-                                                this.cantidadPendiente = element.cantidadDocumentos;
-                                                this.totalPendiente = element.totalDocumentos;
-                                            }
-                                        });
-                                    }
-                                    // this.clienteService.getEstadoBloqueoCliente(user.codAux).subscribe((res: string) => {
-                                    //     this.spinner.show();
-                                    //     if (res == "0") {
-                                    //         this.estadoBloqueo = 'Bloqueado';
-                                    //     } else {
-                                    //         this.estadoBloqueo = 'Habilitado';
-                                    //     }
-                
-                                    //     this.clienteService.getResumenContable(user.codAux).subscribe((res: ResumenContable) => {
-                                    //         this.spinner.show();
-                                    //         this.resumenContable = res;
-                                    //         this.chartPie1 = {
-                                    //             ...echartStyles.defaultOptions, ...{
-                                    //                 legend: {
-                                    //                     show: true,
-                                    //                     bottom: 0,
-                                    //                 },
-                                    //                 series: [{
-                                    //                     type: 'pie',
-                                    //                     ...echartStyles.pieRing,
-                            
-                                    //                     label: echartStyles.pieLabelCenterHover,
-                                    //                     data: [{
-                                    //                         name: 'Utilizado',
-                                    //                         value: this.resumenContable.montoUtilizado,
-                                    //                         itemStyle: {
-                                    //                             color: '#d22346',
-                                    //                         }
-                                    //                     }, {
-                                    //                         name: 'Disponible',
-                                    //                         value: this.resumenContable.disponible,
-                                    //                         itemStyle: {
-                                    //                             color: '#007661',
-                                    //                         }
-                                    //                     }]
-                                    //                 }]
-                                    //             }
-                                                
-                                    //         };
-                                    //         this.spinner.hide();
-                                            
-                                    //     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener resumen contable', '', true); });
-                                      
-                                    // }, () => { this.spinner.hide(); });
-                                    this.spinner.hide();
-                                }, err => { this.spinner.hide(); });
-                            }, err => { this.spinner.hide(); });
 
-                        }, err => { this.spinner.hide(); });
-                    }, err => { this.spinner.hide(); });
+                    this.cantidadVencidos = res.cantidadVencida;
+                    this.totalVencidos = res.montoVencido;
+                    this.cantidadPendiente = res.cantidadDocPendiente;
+                    this.totalPendiente = res.saldoPendiente;
+                    this.cantidadPorVencer = res.cantidadxVencer;
+                    this.totalPorVencer = res.saldoxvencer;
+                    this.spinner.hide();
                 }, err => { this.spinner.hide(); });
-            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener configuración', '', true); });
-
-
-          
-
+            }, err => { this.spinner.hide(); });
 
 
         }
 
-
-
-        // const data: DashboardEcommerce = {
-        //     tipoDashboard: TipoDashboards.Ecommerce,
-        //     fechaDesde: new Date(2019, new Date().getMonth(), new Date().getDate(), 0, 0, 0),
-        //     fechaHasta: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 23, 59, 59)
-        // };
-
-        // this.dashboardsService.getDashboardEcommerce(data).subscribe((res: DashboardEcommerce) => {
-        //     this.dashboardEcommerceResult = res;            
-        // }, err => { });
     }
 
     verDetalle(compra: any) {
@@ -243,7 +167,7 @@ export class DashboardClienteComponent implements OnInit {
         var obj = { Folio: 0, TipoDoc: '', CodAux: '' };
         this.estadoDoc = compra.estado == 'V' ? 'VENCIDO' : 'PENDIENTE';
         if (user != null) {
-            
+
             // let vm = JSON.parse(user);
             obj.Folio = compra.folio;
             obj.CodAux = user.rut;
@@ -265,7 +189,7 @@ export class DashboardClienteComponent implements OnInit {
         this.spinner.show();
 
         this.clienteService.getDetalleCompra(obj).subscribe((res: any) => {
-            
+
             this.spinner.hide();
             if (res.cabecera != null) {
                 if (res.cabecera.folio != 0) { //FCA 05-07-2022               
@@ -274,10 +198,10 @@ export class DashboardClienteComponent implements OnInit {
                     this.showDetail = true;
                     this.tituloDetalle = compra.documento;
                 } else {
-                    this.notificationService.info('Compra no posee detalle asociado.', '', true);
+                    this.notificationService.info('Documento no posee detalle asociado.', '', true);
                 }
             } else {
-                this.notificationService.info('Compra no posee detalle asociado.', '', true);
+                this.notificationService.info('Documento no posee detalle asociado.', '', true);
             }
 
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
@@ -362,7 +286,11 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
-                    this.clienteService.getDocumentosPendientes(user.codAux).subscribe((res: Documento[]) => {
+                    let model = {
+                        CodAux: user.codAux,
+                        Pagina: 1
+                    }
+                    this.clienteService.getDocumentosPendientes(model).subscribe((res: Documento[]) => {
                         this.tabset.select(1);
                         this.documentos = res;
                         this.documentosPorPagina = res.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
@@ -372,12 +300,11 @@ export class DashboardClienteComponent implements OnInit {
                             currentPage: 1,
                             totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).length
                         };
-                        
-                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+
+                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
 
                         if (compraSsegundaMoneda.length > 0) {
                             this.existComprasSegundaMoneda = true;
-                            this.valorUfActrual = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos pendientes', '', true); });
@@ -401,7 +328,11 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
-                    this.clienteService.getDocumentosVencidos(user.codAux).subscribe((res: Documento[]) => {
+                    let model = {
+                        CodAux: user.codAux,
+                        Pagina: 1
+                    }
+                    this.clienteService.getDocumentosVencidos(model).subscribe((res: Documento[]) => {
                         this.tabset.select(1);
                         this.documentos = res;
                         this.documentosPorPagina = res.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
@@ -409,13 +340,12 @@ export class DashboardClienteComponent implements OnInit {
                         this.configDocumentos = {
                             itemsPerPage: this.paginadorDocumentos.endRow,
                             currentPage: 1,
-                            totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).length
+                            totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).length
                         };
-                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
 
                         if (compraSsegundaMoneda.length > 0) {
                             this.existComprasSegundaMoneda = true;
-                            this.valorUfActrual = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos vencidos', '', true); });
@@ -439,7 +369,11 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
-                    this.clienteService.getDocumentosPorVencer(user.codAux).subscribe((res: Documento[]) => {
+                    let model = {
+                        CodAux: user.codAux,
+                        Pagina: 1
+                    }
+                    this.clienteService.getDocumentosPorVencer(model).subscribe((res: Documento[]) => {
                         this.tabset.select(1);
                         this.documentos = res;
                         this.documentosPorPagina = res.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
@@ -447,14 +381,13 @@ export class DashboardClienteComponent implements OnInit {
                         this.configDocumentos = {
                             itemsPerPage: this.paginadorDocumentos.endRow,
                             currentPage: 1,
-                            totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).length
+                            totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).length
                         };
 
-                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+                        let compraSsegundaMoneda = this.documentos.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
 
                         if (compraSsegundaMoneda.length > 0) {
                             this.existComprasSegundaMoneda = true;
-                            this.valorUfActrual = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos por vencer', '', true); });
@@ -497,7 +430,7 @@ export class DashboardClienteComponent implements OnInit {
                 break;
 
             case 2:
-                this.documentosPorPagina = this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
+                this.documentosPorPagina = this.documentos.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada).slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
                 break;
         }
     }
@@ -510,7 +443,7 @@ export class DashboardClienteComponent implements OnInit {
         if (moneda == 1) {
             this.documentosFiltro = this.documentosFiltro.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada);
         } else if (moneda == 2) {
-            this.documentosFiltro = this.documentosFiltro.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+            this.documentosFiltro = this.documentosFiltro.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
         }
 
         if (this.folio != null) {
@@ -577,13 +510,13 @@ export class DashboardClienteComponent implements OnInit {
             var fechaEmision;
             fechaEmision = new Date(element.fechaEmision);
             fechaEmision = fechaEmision.getDate() + "/" + (fechaEmision.getMonth() + 1) + "/" + fechaEmision.getFullYear();
-            if(this.existComprasSegundaMoneda){
-                const model = {Tipo: element.documento, Folio: element.nro, Emision: fechaEmision, Vencimiento: fechavto, Moneda: element.desMon,  Monto_Moneda_Origen: element.debe, Monto_Moneda_Nacional_Emision: element.montoOriginalBase, Monto_Mda_Nacional_Actualizado: element.montoBase, Saldo_En_Mda_Nacional: element.saldoBase, Estado: element.estado };
+            if (this.existComprasSegundaMoneda) {
+                const model = { Tipo: element.documento, Folio: element.nro, Emision: fechaEmision, Vencimiento: fechavto, Moneda: element.desMon, Monto_Moneda_Origen: element.debe, Monto_Moneda_Nacional_Emision: element.montoOriginalBase, Monto_Mda_Nacional_Actualizado: element.montoBase, Saldo_En_Mda_Nacional: element.saldoBase, Estado: element.estado };
                 listaExportacion.push(model);
-              }else{
-                const model = {Tipo: element.documento, Folio: element.nro, Emision: fechaEmision, Vencimiento: fechavto, Moneda: element.desMon,  Monto: element.debe, Saldo: element.saldo, Estado: element.estado };
+            } else {
+                const model = { Tipo: element.documento, Folio: element.nro, Emision: fechaEmision, Vencimiento: fechavto, Moneda: element.desMon, Monto: element.debe, Saldo: element.saldo, Estado: element.estado };
                 listaExportacion.push(model);
-              }
+            }
         });
         var nombre;
         if (this.tipoDoc == 1) {
@@ -615,7 +548,7 @@ export class DashboardClienteComponent implements OnInit {
 
     //FCA 01-07-2022
     private getConfigDiseno() {
-      
+
     }
 
     send() {
@@ -638,21 +571,21 @@ export class DashboardClienteComponent implements OnInit {
 
         let correos: string = '';
         this.contactosSeleccionados.forEach(element => {
-            if(correos == ''){
+            if (correos == '') {
                 correos = correos + element.correo;
-            }else{
-                correos = correos +  ";" + element.correo ;
+            } else {
+                correos = correos + ";" + element.correo;
             }
-            
+
         });
 
         this.otrosCorreo.forEach(element => {
-            if(correos == ''){
+            if (correos == '') {
                 correos += `${element.value}`;
-            }else{
+            } else {
                 correos += `;${element.value}`;
             }
-          
+
         });
 
         const user = this.authService.getuser();
@@ -664,7 +597,7 @@ export class DashboardClienteComponent implements OnInit {
         }
 
         var tipoEnvio = (this.enviaPdf && this.enviaXml) ? 3 : (this.enviaPdf) ? 1 : (this.enviaXml) ? 2 : 3;
-        
+
         var envioDocumento = {
             destinatarios: correos,
             folio: this.documentoAEnviar.folio,
@@ -676,18 +609,18 @@ export class DashboardClienteComponent implements OnInit {
         }
 
 
-        this.clienteService.enviaDocumentoPDF(envioDocumento).subscribe( (res: any) => {
+        this.clienteService.enviaDocumentoPDF(envioDocumento).subscribe((res: any) => {
             this.spinner.hide();
             this.otrosCorreo = [];
             this.contactosSeleccionados = [];
             this.enviaPdf = false;
             this.enviaXml = false;
             this.modalService.dismissAll();
-            if(res == 0){
+            if (res == 0) {
                 this.notificationService.warning('No existen archivos asociados al documento.', '', true);
-            }else{
+            } else {
                 this.notificationService.success('Documentos enviados correctamente.', '', true);
-            }           
+            }
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al enviar correo.', '', true); });
 
     }
@@ -696,7 +629,7 @@ export class DashboardClienteComponent implements OnInit {
 
         const user = this.authService.getuser();
         if (user != null) {
-           
+
         }
     }
 
@@ -726,7 +659,7 @@ export class DashboardClienteComponent implements OnInit {
                 this.configDocumentos = {
                     itemsPerPage: this.paginadorDocumentos.endRow,
                     currentPage: 1,
-                    totalItems: this.documentos.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).length
+                    totalItems: this.documentos.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada).length
                 };
                 this.limpiarFiltros();
                 break;
@@ -735,20 +668,20 @@ export class DashboardClienteComponent implements OnInit {
 
 
     descargarDocumentos(tipo: number, doc: any) {
-        
-        if(!this.enviaPdf && !this.enviaXml){
+
+        if (!this.enviaPdf && !this.enviaXml) {
             this.notificationService.warning('Debe seleccionar documentos a descargar.', '', true);
             return;
         }
 
-        if(this.enviaPdf){
+        if (this.enviaPdf) {
             this.downloadPDF();
         }
-       
-        if(this.enviaXml){
+
+        if (this.enviaXml) {
             this.downloadXML();
         }
-     
+
     }
 
 
@@ -758,8 +691,8 @@ export class DashboardClienteComponent implements OnInit {
 
         if (user != null) {
             obj.Folio = this.documentoAEnviar.folio;
-            obj.TipoDoc = this.documentoAEnviar.tipo;
-            obj.CodAux =  this.compraDetalleAux.CodAux;
+            obj.TipoDoc = this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
+            obj.CodAux = this.compraDetalleAux.CodAux;
         }
 
 
@@ -779,7 +712,7 @@ export class DashboardClienteComponent implements OnInit {
                     link.click();
                     document.body.removeChild(link);
                     link.remove();
-                }else{
+                } else {
                     this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
                 }
 
@@ -801,9 +734,9 @@ export class DashboardClienteComponent implements OnInit {
                 obj.TipoDoc = this.documentoAEnviar.movtipdocref;//fca 08-07-2022 FALTA TIPO DOCUMENTO NO VIEN EN LA API SI ES PRODUCTO
             } else {
                 obj.Folio = this.documentoAEnviar.folio;
-                obj.TipoDoc = this.documentoAEnviar.tipo;
+                obj.TipoDoc = this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
             }
-            obj.CodAux =  this.compraDetalleAux.CodAux;
+            obj.CodAux = this.compraDetalleAux.CodAux;
         }
 
         this.spinner.show();
@@ -811,7 +744,7 @@ export class DashboardClienteComponent implements OnInit {
         //Obtengo ruta
         this.clienteService.getClienteXML(obj).subscribe(
             (res: any) => {
-                
+
                 if (res.base64 != null && res.base64 != '') {
                     var link = document.createElement("a");
                     link.download = res.nombreArchivo;
@@ -834,25 +767,25 @@ export class DashboardClienteComponent implements OnInit {
     public onAdd(tag: AutoCompleteModel, type: number) {
         this.removeFromArrayIfMailIsInvalid(tag.value, this.otrosCorreo);
         this.toLowerMails(this.otrosCorreo);
-      }
-    
-      toLowerMails(arrayCorreos: AutoCompleteModel[]) {
+    }
+
+    toLowerMails(arrayCorreos: AutoCompleteModel[]) {
         for (let i: number = 0; i <= arrayCorreos.length - 1; i++) {
-          arrayCorreos[i].value = arrayCorreos[i].value.toLowerCase();
-          arrayCorreos[i].display = arrayCorreos[i].display.toLowerCase();
+            arrayCorreos[i].value = arrayCorreos[i].value.toLowerCase();
+            arrayCorreos[i].display = arrayCorreos[i].display.toLowerCase();
         }
-      }
-    
-      removeFromArrayIfMailIsInvalid(mail: string, arrayCorreos: AutoCompleteModel[]) {
+    }
+
+    removeFromArrayIfMailIsInvalid(mail: string, arrayCorreos: AutoCompleteModel[]) {
         if (!this.utils.validateMail(mail)) {
-          this.notificationService.warning('Debe ingresar un correo válido.', '', true);
-          for (let i: number = 0; i <= arrayCorreos.length - 1; i++) {
-            if (arrayCorreos[i].value == mail) {
-              arrayCorreos.splice(i, 1);
-              break;
+            this.notificationService.warning('Debe ingresar un correo válido.', '', true);
+            for (let i: number = 0; i <= arrayCorreos.length - 1; i++) {
+                if (arrayCorreos[i].value == mail) {
+                    arrayCorreos.splice(i, 1);
+                    break;
+                }
             }
-          }
-          return;
+            return;
         }
-      }
+    }
 }

@@ -20,7 +20,7 @@ namespace ApiPortal.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        [HttpGet("GetConfiguracionEmpresa"), Authorize]
+        [HttpGet("GetConfiguracionEmpresa")]
         public async Task<ActionResult> GetConfiguracionEmpresa()
         {
 

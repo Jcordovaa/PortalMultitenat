@@ -99,6 +99,7 @@ export class Cobranza {
         this.enviaTodosCargos = 0;
         this.canalesVenta = '';
         this.cobradores = '';
+
     }
 
 }

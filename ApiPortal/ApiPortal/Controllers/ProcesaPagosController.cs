@@ -39,7 +39,7 @@ namespace ApiPortal.Controllers
 
 
         [HttpPost("GeneraPagoElectronico")]
-        public async Task<IActionResult> GeneraPagoElectronico([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string datosPago, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
+        public async Task<IActionResult> GeneraPagoElectronico([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
         {
             string rutEncriptado = "";
             SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
@@ -119,17 +119,17 @@ namespace ApiPortal.Controllers
                 string action = !String.IsNullOrEmpty(HttpContext.Request.Query["action"]) ? HttpContext.Request.Query["action"] : "init";
 
                 //Creamos las url completas con el protocolo configurado http o https
-                string sample_baseurl = pasarela.Protocolo + httpHost + selfURL;
+                string sample_baseurl = pasarela.Protocolo + "://" + httpHost + selfURL;
                 string completeUrl = pasarela.Protocolo + httpHost;
 
                 //Creamos url que se enviara a tbk y una vez finalizada la transacción retornara para poder identificar en que flujo se ejecuta
-                string urlReturn = sample_baseurl + $"?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}"; ;
+                string urlReturn = sample_baseurl + $"?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}"; ;
 
                 //Creamos la url que se utilizara para finalizar el proceso
-                string urlFinal = sample_baseurl + $"?action=end&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}";
+                string urlFinal = sample_baseurl + $"?action=end&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
 
                 //Creamos la url que se utilizara para procesos fallidos
-                string urlFallo = sample_baseurl + $"?action=failure&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}";
+                string urlFallo = sample_baseurl + $"?action=failure&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
 
                 //Definimos el flujo por pasarela
                 #region WEBPAY
@@ -730,7 +730,7 @@ namespace ApiPortal.Controllers
                 #endregion
 
                 #region SOFTLANDPAY VPOS
-                if (pasarela.IdPasarela == 5)
+                if (pasarela.IdPasarela == 5 || pasarela.IdPasarela == 1)
                 {
                     //Swich que se ejecutara cada vez que se ingrese a este contralodor y permite identificar la accion a realizar durante la integración
                     switch (action)
@@ -769,12 +769,30 @@ namespace ApiPortal.Controllers
                                                               .Replace("{RUT}", datosPagoDescrinptados.Split(';')[2])
                                                               .Replace("{TIPO}", "B")
                                                               .Replace("{IMPUESTO}", iva.ToString())
-                                                              .Replace("{NOMBRE}", datosPagoDescrinptados.Split(';')[0])
-                                                              .Replace("{APELLIDO}", datosPagoDescrinptados.Split(';')[1])
+                                                              .Replace("{NOMBRE}", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0]))
+                                                              .Replace("{APELLIDO}", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1]))
                                                               .Replace("{CORREO}", datosPagoDescrinptados.Split(';')[3])
-                                                              .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0) ? "N" : "S")
+                                                              .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S")
                                                               .Replace("{AREADATOS}", pasarela.EmpresaSoftlandPay);
 
+                                var multipart = new MultipartFormDataContent();
+                                if (pasarela.IdPasarela == 1)
+                                {
+                                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+
+                                    multipart.Add(new StringContent(urlFinal), "url_redireccion");
+                                    multipart.Add(new StringContent(urlReturn), "url_callback");
+                                    multipart.Add(new StringContent(idPago.ToString()), "id_interno");
+                                    multipart.Add(new StringContent(monto.ToString()), "monto_total");
+                                    multipart.Add(new StringContent(montoNeto.ToString()), "monto_bruto");
+                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[2]), "rutCliente");
+                                    multipart.Add(new StringContent("B"), "tipo");
+                                    multipart.Add(new StringContent(iva.ToString()), "monto_impuestos");
+                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0])), "nombre_cliente");
+                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1])), "apellido_cliente");
+                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[3]), "correo_cliente");
+                                    multipart.Add(new StringContent(pasarela.EsProduccion == 0 || pasarela.EsProduccion == null ? "N" : "S"), "esProductivo");
+                                }
 
 
                                 client.BaseAddress = new Uri(url);
@@ -783,7 +801,17 @@ namespace ApiPortal.Controllers
                                 client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-                                HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                HttpResponseMessage response = new HttpResponseMessage();
+
+                                if (pasarela.IdPasarela == 1)
+                                {
+                                    response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                }
+
                                 if (response.IsSuccessStatusCode)
                                 {
                                     var content = await response.Content.ReadAsStringAsync();
@@ -874,9 +902,8 @@ namespace ApiPortal.Controllers
                                         string accesToken = api.Token;
 
 
-                                        string url = pasarela.AmbienteConsultarPago.Replace("{ID}", logValida.Codigo)
-                                                                      .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0) ? "N" : "S")
-                                                                      .Replace("{AREA}", pasarela.EmpresaSoftlandPay);
+                                        string url = pasarela.AmbienteConsultarPago.Replace("{ID}", logValida.Token)
+                                                                      .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S");
 
 
 
@@ -892,7 +919,7 @@ namespace ApiPortal.Controllers
                                             var content = await response.Content.ReadAsStringAsync();
                                             ResultadoEstadoPagoVPOS result = JsonConvert.DeserializeObject<ResultadoEstadoPagoVPOS>(content);
 
-                                            if (result.Estado == "PAGADO") //Pago exitoso generar comprobante
+                                            if (result.Estado == "PAGADO" || result.Estado == "AUTHORIZED") //Pago exitoso generar comprobante
                                             {
                                                 logValida.Estado = result.Estado;
                                                 logValida.Fecha = DateTime.Now;
@@ -908,7 +935,7 @@ namespace ApiPortal.Controllers
                                                 await _context.SaveChangesAsync();
 
                                                 //Genera comprobante contable por el pago realizado
-                                                string numComprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Codigo);
+                                                string numComprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token);
 
                                                 if (string.IsNullOrEmpty(numComprobante))
                                                 {
@@ -993,8 +1020,8 @@ namespace ApiPortal.Controllers
                                                         }
                                                         _context.SaveChanges();
                                                     }
-                                                    ClientesPortalController clientesController = new ClientesPortalController(_context,_webHostEnvironment,_admin);
-                                                    clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
+                                                    //ClientesPortalController clientesController = new ClientesPortalController(_context,_webHostEnvironment,_admin, IHttpContextAccessor contextAccessor);
+                                                    //clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
                                                     if (redirectTo == TbkRedirect.PagoRapido)
                                                     {
                                                         if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")

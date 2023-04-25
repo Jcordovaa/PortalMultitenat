@@ -53,8 +53,8 @@
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="card-box" style="background-color: rgb(61, 81, 185);">
                         <div class="inner">
-                            <h3>${{ totalPagados | monto }} </h3>
-                            <p>{{cantidadPagados}} Pagos mes en curso</p>
+                            <h3>${{  cantidadPagados | monto }} </h3>
+                            <p>{{totalPagados}} Pagos mes en curso</p>
                         </div>
                         <a (click)="obtenerDocumentos(4)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
                                 class="i-Arrow-Down"></i></a>
@@ -126,7 +126,15 @@
                     <h3 style="color: #fff;">TOP 10 DEUDORES</h3>
                 </div>
                 <div class="card-body">
-                    <div echarts [options]="salesChartBar" [autoResize]="true" style="height: 600px;"></div>
+                    <div *ngIf="!graphicDeudoresLoad"  style="height: 600px;">
+                        <ngx-spinner  bdOpacity = 0.8
+                        bdColor = "rgba(0,0,0,0.1);"
+                        size = "default"
+                        color = "#263db5"
+                        type = "ball-spin"
+                        [fullScreen] = "false" style="z-index: 999;" name="spinnerDeudores" ><h3 style="color: #263db5;">GENERANDO...</h3></ngx-spinner>
+                    </div>
+                    <div *ngIf="graphicDeudoresLoad" echarts [options]="salesChartBar" [autoResize]="true" style="height: 600px;"></div>
                 </div>
             </div>
         </div>
@@ -140,7 +148,15 @@
                     <h3 style="color: #fff;">RESUMEN ULTIMOS 13 MESES</h3>
                 </div>
                 <div class="card-body">
-                    <div echarts [options]="salesChartBar2" [autoResize]="true" style="height: 600px;"></div>
+                    <div *ngIf="!graphicResumenLoad"  style="height: 600px;">
+                        <ngx-spinner  bdOpacity = 0.8
+                        bdColor = "rgba(0,0,0,0.1);"
+                        size = "default"
+                        color = "#263db5"
+                        type = "ball-spin"
+                        [fullScreen] = "false" name="spinnerResumen"><h3 style="color: #263db5;">GENERANDO...</h3></ngx-spinner>
+                    </div>
+                    <div *ngIf="graphicResumenLoad" echarts [options]="salesChartBar2" [autoResize]="true" style="height: 600px;"></div>
                 </div>
             </div>
         </div>
@@ -156,24 +172,30 @@
                     <form>
                         <div class="row">
                             <div class="col-md-2 form-group mb-3">
-                                <label for="firstName">Rut Cliente</label>
+                                <!-- <label for="firstName">Rut Cliente</label>
                                 <input type="text" autocomplete="off" (blur)="validaRut()" required maxlength="12"
+                                    class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut"
+                                    placeholder="Rut"> -->
+
+                                    <label for="firstName">RUT</label>
+                                <input type="text" autocomplete="off"  required 
                                     class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut"
                                     placeholder="Rut">
                             </div>
 
-                            <div class="col-md-2 form-group mb-3">
+                            <div class="col-md-4 form-group mb-3">
                                 <label for="firstName">Número Documento</label>
                                 <input type="number" min="0" class="form-control" id="folio" name="folio"
                                     [(ngModel)]="folio" placeholder="0">
                             </div>
 
-                            <div class="col-md-4 form-group mb-3">
+                            <div class="col-md-3 form-group mb-3">
                                 <label for="lastName">Fecha Emisión</label>
                                 <div class="input-group">
                                     <input class="form-control" placeholder="DESDE" readonly name="d2" #c2="ngModel"
                                         style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
-                                        #d2="ngbDatepicker">
+                                        #d2="ngbDatepicker" [navigation]="'select'"
+                                        [minDate]="{year: 1900, month: 1, day: 1}">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                             <i class="icon-regular i-Calendar-4"></i>
@@ -181,12 +203,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 form-group mb-3" style="margin-top: 27px;">
+                            <div class="col-md-3 form-group mb-3" style="margin-top: 27px;">
                                 <!-- <label for="lastName">Fecha Emisión Hasta</label> -->
                                 <div class="input-group">
                                     <input class="form-control" placeholder="HASTA" readonly name="d1" #c1="ngModel"
                                         style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
-                                        #d1="ngbDatepicker">
+                                        #d1="ngbDatepicker" [navigation]="'select'"
+                                        [minDate]="{year: 1900, month: 1, day: 1}">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
                                             <i class="icon-regular i-Calendar-4"></i>
@@ -206,10 +229,10 @@
                                 <button id="sss2" (click)="limpiarFiltros()" class="btn btn-secondary mr-3"
                                     style="margin-top: 20px;" [loading]="loading"><span><i class="i-Paint-Brush"></i>
                                         Limpiar</span></button>
-                                <button id="ss3" (click)="export()" style="margin-top: 20px;"
+                                <!-- <button id="ss3" (click)="export()" style="margin-top: 20px;"
                                     *ngIf="documentosPorPagina?.length > 0 "
                                     [disabled]="documentosPorPagina?.length == 0" class="btn btn-secondary mr-3"><i
-                                        class="i-File-Excel"></i> Exportar a Excel</button>
+                                        class="i-File-Excel"></i> Exportar a Excel</button> -->
                                 <button style="margin-top: 20px;" (click)="volverDashboard()"
                                     class="btn btn-secondary mr-3"><i class="i-To-Left"></i>
                                     Volver</button>
@@ -237,60 +260,83 @@
                                     <div class="flex-grow-1 pl-2 d-flex">
                                         <div
                                             class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center flex-lg-row">
-                                            <div class="form-group mb-3" style="flex-basis:150px">
+                                            <div class="form-group mb-3 rowClientResume">
                                                 <label for="lastName" style="font-size: 13px;"><strong>RUT
                                                     </strong></label>
                                                 <div class="input-group">
-                                                    <p class="m-0 text-muted w-15 w-sm-100">
-                                                        {{cliente.rut}}
+                                                    <p *ngIf="cliente.rutaux != null && cliente.rutaux != ''"
+                                                        class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.rutaux}}
+                                                    </p>
+                                                    <p *ngIf="cliente.rutaux == null || cliente.rutaux == ''"
+                                                        class="m-0 text-muted w-15 w-sm-100">
+                                                        CUENTA NO MANEJA AUXILIAR
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group mb-3" style="flex-basis:150px">
+                                            <div class="form-group mb-3 rowClientResume" >
                                                 <label for="lastName" style="font-size: 13px;"><strong>Nombre
                                                     </strong></label>
                                                 <div class="input-group">
-                                                    <p class="m-0 text-muted w-15 w-sm-100">
-                                                        {{cliente.nombre}}
+                                                    <p *ngIf="cliente.nomaux != null && cliente.nomaux != ''"
+                                                        class="m-0 text-muted w-15 w-sm-100">
+                                                        {{cliente.nomaux}}
+                                                    </p>
+                                                    <p *ngIf="cliente.nomaux == null || cliente.nomaux == ''"
+                                                        class="m-0 text-muted w-15 w-sm-100">
+                                                        -
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: center;">
+                                            <div class="form-group mb-3 rowClientResume">
                                                 <label for="lastName" style="font-size: 13px;"><strong>Cantidad
                                                         Documentos </strong></label>
-                                                    <p class="m-0 text-muted w-15 w-sm-100">
-                                                        {{cliente.cantidadDocumentos}}
-                                                    </p>
+                                                <p class="m-0 text-muted w-15 w-sm-100">
+                                                    {{cliente.cantidadDoctos}}
+                                                </p>
                                             </div>
 
-                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
+                                            <div class="form-group mb-3 rowClientResume">
                                                 <label for="lastName" style="font-size: 13px;"><strong>Total $
                                                     </strong></label>
-                                                    <p class="m-0 text-muted w-15 w-sm-100">
-                                                        {{cliente.totalDocumentos | monto}}
-                                                    </p>
+                                                <p class="m-0 text-muted w-15 w-sm-100">
+                                                    {{cliente.montototal | monto}}
+                                                </p>
                                             </div>
 
-                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
+                                            <div class="form-group mb-3 rowClientResume">
                                                 <label for="lastName" style="font-size: 13px;"><strong>Saldo $
                                                     </strong></label>
-                                                    <p class="m-0 text-muted">
-                                                        {{cliente.totalSaldo | monto}}
-                                                    </p>
+                                                <p class="m-0 text-muted">
+                                                    {{cliente.saldototal | monto}}
+                                                </p>
 
                                             </div>
 
-                                            <div class="form-group mb-3" style="flex-basis:150px; text-align: right;">
-                                                <a (click)="desplegarDetallesDocumentos(cliente)" style="cursor: pointer;"
-                                                *ngIf="!cliente.muestraDocumentos" class="card-box-footer">Ver Más
-                                                <i class="i-Arrow-Down"></i></a>
-                                            <a (click)="desplegarDetallesDocumentos(cliente)" style="cursor: pointer;"
-                                                *ngIf="cliente.muestraDocumentos" class="card-box-footer">Ver Menos
-                                                <i class="i-Arrow-Up"></i></a>
+                                            <div class="form-group mb-3 rowClientResume2 desktop" style="text-align: right !important;">
+                                                <a (click)="desplegarDetallesDocumentos(cliente)"
+                                                    style="cursor: pointer; vertical-align: center;" *ngIf="!cliente.muestraDocumentos"
+                                                    class="card-box-footer">Ver Más
+                                                    <i class="i-Arrow-Down"></i></a>
+                                                <a (click)="desplegarDetallesDocumentos(cliente)"
+                                                    style="cursor: pointer; vertical-align: center;" *ngIf="cliente.muestraDocumentos"
+                                                    class="card-box-footer">Ver Menos
+                                                    <i class="i-Arrow-Up"></i></a>
                                             </div>
-                                     
+
+                                            <div class="rowClientResume2 movil" style="text-align: center !important;">
+                                                <a (click)="desplegarDetallesDocumentos(cliente)"
+                                                    style="cursor: pointer; vertical-align: center;" *ngIf="!cliente.muestraDocumentos"
+                                                    class="card-box-footer">Ver Más
+                                                    <i class="i-Arrow-Down"></i></a>
+                                                <a (click)="desplegarDetallesDocumentos(cliente)"
+                                                    style="cursor: pointer; vertical-align: center;" *ngIf="cliente.muestraDocumentos"
+                                                    class="card-box-footer">Ver Menos
+                                                    <i class="i-Arrow-Up"></i></a>
+                                            </div>
+
                                         </div>
                                     </div>
 
@@ -424,8 +470,8 @@
 
 
                                     <div class="col-md-12 mt-3"
-                                        *ngIf="cliente.documentosFiltro?.length > 0 && cliente.muestraDocumentos">
-                                        <pagination-controls [id]='cliente.codAux'
+                                        *ngIf="cliente.documentosPorPagina?.length > 0 && cliente.muestraDocumentos">
+                                        <pagination-controls [id]='cliente.idPaginador'
                                             (pageChange)="changePageDocumentosCliente(cliente,$event)" maxSize="6"
                                             responsive="true" previousLabel="" nextLabel="">
                                         </pagination-controls>
@@ -443,7 +489,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="row" *ngIf="documentosPorPagina?.length == 0">
 
                             <div class="col-md-12">
@@ -500,7 +546,8 @@
                                 <div class="input-group">
                                     <input class="form-control" placeholder="DESDE" readonly name="d2" #c2="ngModel"
                                         style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
-                                        #d2="ngbDatepicker">
+                                        #d2="ngbDatepicker" [navigation]="'select'"
+                                        [minDate]="{year: 1900, month: 1, day: 1}">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                             <i class="icon-regular i-Calendar-4"></i>
@@ -513,7 +560,9 @@
                                 <div class="input-group">
                                     <input class="form-control" placeholder="HASTA" readonly name="d1" #c1="ngModel"
                                         style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
-                                        #d1="ngbDatepicker">
+                                        #d1="ngbDatepicker" [navigation]="'select'"
+                                        [minDate]="{year: 1900, month: 1, day: 1}"
+                                        [maxDate]="{year: 2050, month: 12, day: 31}">
                                     <div class="input-group-append">
                                         <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
                                             <i class="icon-regular i-Calendar-4"></i>
@@ -584,18 +633,18 @@
                                                         Sin Comprobante</td>
                                                     <td>{{documento.fechaPago | date: 'dd/MM/yyyy'}}</td>
                                                     <td>{{documento.horaPago}}</td>
-                                                
+
                                                     <td style="text-align: right;">{{documento.montoPago |
                                                         monto}}
                                                     </td>
                                                     <td> <span
-                                                        *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null"
-                                                        class="badge badge-danger mr-1">Finalizado sin
-                                                        comprobante</span>
-                                                    <span
-                                                        *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null"
-                                                        class="badge badge-success mr-1">Finalizado</span>
-                                                </td>
+                                                            *ngIf="documento.comprobanteContable == '' || documento.comprobanteContable == null"
+                                                            class="badge badge-danger mr-1">Finalizado sin
+                                                            comprobante</span>
+                                                        <span
+                                                            *ngIf="documento.comprobanteContable != '' && documento.comprobanteContable != null"
+                                                            class="badge badge-success mr-1">Finalizado</span>
+                                                    </td>
                                                     <td style="vertical-align:middle;">
                                                         <div ngbDropdown>
                                                             <button ngbDropdownToggle aria-haspopup="true"

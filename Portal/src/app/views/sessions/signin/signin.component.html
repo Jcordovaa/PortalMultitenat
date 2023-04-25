@@ -1,13 +1,14 @@
 <!-- [ngStyle]="{'background-image': 'url(' + configDiseno.bannerPortal + ')'}"-->
 <div *ngIf="!esPago && loadingScreen" class="contenedortaita"
     [ngStyle]="{'border-color': configDiseno.colorFondoPortada, 'background-image': 'url(' + configDiseno.imagenPortada + ')'}">
-    <section id="seccion1" *ngIf="!muestraPago && !muestraInicio " class="contenedor">
+    <section id="section22" *ngIf="!muestraPago && !muestraInicio " class="contenedor">
         <div class="section00">
         </div>
         <div class="section11">
         </div>
-        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
-            <div  class="form2" id="verticalForm">
+
+        <div [ngStyle]="{'background-color': configDiseno.colorFondoPortada}" style="height:100%;" class="border-form">
+            <div class="form2">
                 <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
                     <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
@@ -42,7 +43,7 @@
         <div class="section0">
         </div>
 
-        <div style="margin-right: 40px;" class="section1 animate__animated animate__fadeInRight">
+        <div  class="section1 animate__animated animate__fadeInRight">
 
             <div class="form ">
                 <ul>
@@ -61,18 +62,18 @@
                 </ul>
             </div>
         </div>
-        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
-            <div  class="form2" id="verticalForm">
+        <div [ngStyle]="{'background-color': configDiseno.colorFondoPortada}" style="height:100%;" class="border-form">
+            <div class="form2">
                 <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
                     <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
                 <form>
-                    <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()"
-                        [(ngModel)]="rutPagoRapido">
+                    <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()" [disabled]="numDocPagoRapido != '' && numDocPagoRapido != null"
+                        [(ngModel)]="rutPagoRapido" (keydown)="onKeydownPagoRapido($event)">
                     <p *ngIf="configuracion.utilizaDocumentoPagoRapido == 1"
                         style="color: #ffffff; text-align: center;">O</p>
-                    <input *ngIf="configuracion.utilizaDocumentoPagoRapido == 1" class="place" type="number"
-                        placeholder="Número documento" name="docPago" [(ngModel)]="numDocPagoRapido">
+                    <input *ngIf="configuracion.utilizaDocumentoPagoRapido == 1" class="place" type="number" [disabled]="rutPagoRapido != '' && rutPagoRapido != null"
+                        placeholder="Número documento" name="docPago" [(ngModel)]="numDocPagoRapido" (keydown)="onKeydownPagoRapido($event)">
                 </form>
                 <a class="boton3" [ngStyle]="{'background-color': configDiseno.colorBotonPagar}"
                     style="cursor: pointer; color: #ffffff;" (click)="pagar()">PAGAR </a>
@@ -89,17 +90,17 @@
         <div class="section11">
 
         </div>
-        <div id="sectionVertical" [ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
-            <div  class="form2" id="verticalForm">
+        <div [ngStyle]="{'background-color': configDiseno.colorFondoPortada}" style="height:100%;" class="border-form">
+            <div class="form2">
                 <div class="logo2" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
                     <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
                 <form>
-                    <input class="place" (blur)="validaRut()" id="rut" name="rut" [(ngModel)]="signInModel.rutLogin"
+                    <input class="place" (blur)="validaRut()" id="rut" name="rut" [(ngModel)]="signInModel.rutLogin" (keydown)="onKeydownInicioSesion($event)"
                         type="text" placeholder="Escribe tu Rut">
-                    <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email"
+                    <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email" (keydown)="onKeydownInicioSesion($event)"
                         placeholder="Correo electrónico">
-                    <input class="place" id="pass" name="pass" [(ngModel)]="signInModel.pass" type="password"
+                    <input class="place" id="pass" name="pass" [(ngModel)]="signInModel.pass" type="password" (keydown)="onKeydownInicioSesion($event)"
                         placeholder="Password">
                 </form>
                 <a (click)="iniciarSesion()" class="boton3" style="cursor: pointer; color: #ffffff;">INICIAR SESIÓN

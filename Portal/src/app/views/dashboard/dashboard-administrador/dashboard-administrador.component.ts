@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, EventEmitter, OnInit } from '@angular/core';
 import { EChartOption } from 'echarts';
 import { echartStyles } from '../../../shared/echart-styles';
 import { DashboardEcommerce, DashboardVentas } from '../../../shared/models/dashboards.model';
@@ -39,7 +39,7 @@ interface AutoCompleteModel {
     styleUrls: ['./dashboard-administrador.component.scss'],
     animations: [SharedAnimations]
 })
-export class DashboardAdministradorComponent implements OnInit {
+export class DashboardAdministradorComponent implements OnInit, DoCheck {
     chartLineOption1: EChartOption;
     chartLineOption2: EChartOption;
     chartLineOption3: EChartOption;
@@ -63,7 +63,7 @@ export class DashboardAdministradorComponent implements OnInit {
     dateDesde: NgbDateStruct;
     dateHasta: NgbDateStruct;
     showDashboard: number = 1;
-    dashboardAdmin: any = [];
+    dashboardAdmin: any = null;
     detallePago: any = [];
     rangoInicial: number = 0;
     cantidadVencidos: number = 0;
@@ -93,9 +93,14 @@ export class DashboardAdministradorComponent implements OnInit {
         startRow: 0,
         endRow: 10,
         sortBy: 'desc',
-        search: ''
+        search: '',
+        documentos: []
     };
 
+    public spinnerResumen = 'spinnerResumen';
+    public spinnerDeudores = 'spinnerDeudores';
+    public graphicDeudoresLoad: boolean = false;
+    public graphicResumenLoad: boolean = false;
     clienteMostrar: number = -1;
     topDeudores: any[] = [];
     idPago: number = null;
@@ -104,30 +109,85 @@ export class DashboardAdministradorComponent implements OnInit {
     pagoComprobante: any = null;
     deudaVsPago: any[] = [];
     compraDetalleAux = null;
+    updateDocumentos = false;
+    updateDocumentosEvent = new EventEmitter<any>();
+    updateClientes = true;
+    updateClientesEvent = new EventEmitter<any>();
+    updatePagados = true;
+    updatePagadosEvent = new EventEmitter<any>();
+    cliente: any = null;
 
     constructor(private dashboardsService: DashboardsService,
         private clienteService: ClientesService,
         private authService: AuthService,  //private montoPipe: MontoPipe,
         private spinner: NgxSpinnerService, private utils: Utils, private configuracionService: ConfiguracionPagoClientesService,
         private notificationService: NotificationService, private softlandConfigService: SoftlandService,
-        private modalService: NgbModal, private softlandService: ConfiguracionSoftlandService) { }
+        private modalService: NgbModal, private softlandService: ConfiguracionSoftlandService, private cdr: ChangeDetectorRef) { }
 
     ngOnInit() {
 
-        this.getExistenCompras();
+        this.getCantidadDocumentos();
+
+
+    }
+
+    ngDoCheck() {
+        if (this.updateDocumentos) {
+            this.updateDocumentosEvent.subscribe(documentos => {
+
+                let c = this.documentosPorPagina.filter(x => x.codaux == this.cliente.codaux);
+                if (c.length > 0) {
+                    c[0].documentosPorPagina = documentos;
+                    this.cdr.markForCheck();
+
+                }
+                this.updateDocumentos = false;
+            });
+        }
+
+        // if (this.updateClientes) {
+        //     this.updateClientesEvent.subscribe(clientes => {
+        //         this.documentosPorPagina = clientes
+        //         this.documentosPorPagina.forEach(element => {
+        //             element.paginadorDocumentos = {
+        //                 startRow: 0,
+        //                 endRow: 10,
+        //                 sortBy: 'desc',
+        //                 search: ''
+        //             }
+
+        //             element.configDocumentosCliente = {
+        //                 itemsPerPage: element.paginadorDocumentos.endRow,
+        //                 currentPage: 1,
+        //                 totalItems: element.documentosFiltro.length,
+        //                 id: element.idPaginador
+        //             }
+        //             element.documentosPorPagina = element.documentosFiltro.slice(element.paginadorDocumentos.startRow, element.paginadorDocumentos.endRow)
+        //             element.documentosFiltro = element.documentosFiltro
+        //             element.muestraDocumentos = false;
+        //         });
+        //         this.updateClientes = false;
+        //     });
+        // }
+
+        if (this.updatePagados) {
+            this.updateClientesEvent.subscribe(pagados => {
+                this.documentosPorPagina = pagados
+                this.updatePagados = false;
+            });
+        }
     }
 
 
-
-
     getTopDeudores() {
+        this.spinner.show(this.spinnerDeudores);
         this.clienteService.getTopDeudores().subscribe((res: any) => {
             this.topDeudores = res;
             let clientes = [];
             let montos = [];
             this.topDeudores.forEach(element => {
-                clientes.push(element.razonSocial);
-                montos.push(element.totalDeuda);
+                clientes.push(element.nomaux);
+                montos.push(element.saldo);
             });
 
             let yAxis = {
@@ -208,182 +268,195 @@ export class DashboardAdministradorComponent implements OnInit {
             }
 
 
+            this.graphicDeudoresLoad = true;
+            this.spinner.hide(this.spinnerDeudores);
+        }, err => { this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
+    }
 
-            this.clienteService.getDeudaVsPagos().subscribe((res: any) => {
-                this.deudaVsPago = res;
-                let meses = [];
-                let deudas = [];
-                let pagos = [];
-                this.deudaVsPago.forEach(element => {
-                    meses.push(element.fechaTexto);
-                    deudas.push(element.totalDeuda);
-                    pagos.push(element.totalPagos);
-                });
+    getDeudaVsPagos() {
+        this.spinner.show(this.spinnerResumen);
 
-                let yAxis = {
-                    type: 'value',
-                    axisLabel: {
-                        formatter: '${value}'
+        this.clienteService.getDeudaVsPagos().subscribe((res: any) => {
+            this.deudaVsPago = res
+            let meses = [];
+            let deudas = [];
+            let pagos = [];
+            this.deudaVsPago.forEach(element => {
+                meses.push(element.fechaTexto);
+                deudas.push(element.totalDeuda);
+                pagos.push(element.totalPagos);
+            });
+
+            let yAxis = {
+                type: 'value',
+                axisLabel: {
+                    formatter: '${value}'
+                },
+                // min: 0,
+                // max:  this.topDeudores.reduce(function(a,b){return Math.max(a.totalDeuda,b.totalDeuda)}),
+                // interval: this.topDeudores.reduce(function(a,b){return Math.max(a.totalDeuda,b.totalDeuda)}) / 10,
+                // axisLine: {
+                //     show: true
+                // },
+                // splitLine: {
+                //     show: true,
+                //     interval: 'auto'
+                // }
+
+            };
+
+            this.salesChartBar2 = {
+                legend: {
+                    borderRadius: 0,
+                    orient: 'horizontal',
+                    x: 'right',
+
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true,
+                },
+                tooltip: {
+                    show: true,
+                    backgroundColor: 'rgba(0, 0, 0, .8)',
+
+                },
+                xAxis: [{
+                    type: 'category',
+                    data: meses,
+                    axisTick: {
+                        alignWithLabel: false
                     },
-                    // min: 0,
-                    // max:  this.topDeudores.reduce(function(a,b){return Math.max(a.totalDeuda,b.totalDeuda)}),
-                    // interval: this.topDeudores.reduce(function(a,b){return Math.max(a.totalDeuda,b.totalDeuda)}) / 10,
-                    // axisLine: {
+                    axisLabel: {
+                        fontSize: 10,
+                        rotate: -90,
+                        overflow: 'truncate',
+                        width: 10,
+                    },
+
+                    // axisLabel: {
+                    //     inside: true,
+                    //     color: '#fff',
+                    //   },
+                    // splitLine: {
                     //     show: true
                     // },
-                    // splitLine: {
-                    //     show: true,
-                    //     interval: 'auto'
+                    // axisLine: {
+                    //     show: true
                     // }
+                }],
+                yAxis: [yAxis //FCA 05-04-2022 SE CAMBIAN CANTIDAD DE INTERVALOS
+                ],
 
-                };
-
-                this.salesChartBar2 = {
-                    legend: {
-                        borderRadius: 0,
-                        orient: 'horizontal',
-                        x: 'right',
-
-                    },
-                    grid: {
-                        left: '3%',
-                        right: '4%',
-                        bottom: '3%',
-                        containLabel: true,
-                    },
-                    tooltip: {
-                        show: true,
-                        backgroundColor: 'rgba(0, 0, 0, .8)',
-
-                    },
-                    xAxis: [{
-                        type: 'category',
-                        data: meses,
-                        axisTick: {
-                            alignWithLabel: false
-                        },
-                        axisLabel: {
-                            fontSize: 10,
-                            rotate: -90,
-                            overflow: 'truncate',
-                            width: 10,
-                        },
-
-                        // axisLabel: {
-                        //     inside: true,
-                        //     color: '#fff',
-                        //   },
-                        // splitLine: {
-                        //     show: true
-                        // },
-                        // axisLine: {
-                        //     show: true
-                        // }
-                    }],
-                    yAxis: [yAxis //FCA 05-04-2022 SE CAMBIAN CANTIDAD DE INTERVALOS
-                    ],
-
-                    series: [{
-                        name: 'Deuda Vencimiento en el mes',
-                        data: deudas,
-                        label: { show: false, color: '#fff' },
-                        type: 'bar',
-                        barGap: 0,
-                        color: '#bcbbdd',
-                        smooth: true,
-                        barCategoryGap: '40%',
-                        animation: true,
-                    },
-                    {
-                        name: 'Pagos Portal',
-                        data: pagos,
-                        label: { show: false, color: '#fff' },
-                        type: 'bar',
-                        barGap: 0,
-                        color: '#C4DAC3',
-                        smooth: true,
-                        barCategoryGap: '40%',
-                        animation: true,
-                    }
-                    ]
+                series: [{
+                    name: 'Deuda Vencimiento en el mes',
+                    data: deudas,
+                    label: { show: false, color: '#fff' },
+                    type: 'bar',
+                    barGap: 0,
+                    color: '#bcbbdd',
+                    smooth: true,
+                    barCategoryGap: '40%',
+                    animation: true,
+                },
+                {
+                    name: 'Pagos Portal',
+                    data: pagos,
+                    label: { show: false, color: '#fff' },
+                    type: 'bar',
+                    barGap: 0,
+                    color: '#C4DAC3',
+                    smooth: true,
+                    barCategoryGap: '40%',
+                    animation: true,
                 }
-                this.spinner.hide();
-            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
+                ]
+            }
+            this.graphicResumenLoad = true;
+            this.spinner.hide(this.spinnerResumen);
+            this.getTopDeudores();
+        }, err => { this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
     }
 
-    getExistenCompras() {
-        this.spinner.show();
-        this.clienteService.getExistCompras().subscribe((res: any) => {
+    // getExistenCompras() {
+    //     this.spinner.show();
+    //     this.clienteService.getExistCompras().subscribe((res: any) => {
 
-            if (res.hoy == true) {
-                this.rangoRegistros.push({ id: 1, rango: "Hoy" });
-            }
-            if (res.semana == true) {
-                this.rangoRegistros.push({ id: 2, rango: "Semana" });
-            }
-            if (res.mes == true) {
-                this.rangoRegistros.push({ id: 3, rango: "Mes" });
-            }
-            if (res.anio == true) {
-                this.rangoRegistros.push({ id: 4, rango: "Año" });
-            }
-            this.rangoRegistros.push({ id: 5, rango: "Rango de fecha" });
-            this.rangoInicial = 3;
-            if (this.rangoInicial != 5) {
-                this.getDashboardEcommerce(3);
-            }
+    //         if (res.hoy == true) {
+    //             this.rangoRegistros.push({ id: 1, rango: "Hoy" });
+    //         }
+    //         if (res.semana == true) {
+    //             this.rangoRegistros.push({ id: 2, rango: "Semana" });
+    //         }
+    //         if (res.mes == true) {
+    //             this.rangoRegistros.push({ id: 3, rango: "Mes" });
+    //         }
+    //         if (res.anio == true) {
+    //             this.rangoRegistros.push({ id: 4, rango: "Año" });
+    //         }
+    //         this.rangoRegistros.push({ id: 5, rango: "Rango de fecha" });
+    //         this.rangoInicial = 3;
+    //         if (this.rangoInicial != 5) {
+    //             this.getCantidadDocumentos();
+    //         }
 
 
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener pagos.', '', true); });
-    }
+    //     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener pagos.', '', true); });
+    // }
 
-    getDashboardEcommerce(tipo: number) {
+    // getDashboardEcommerce(tipo: number) {
 
-        const model = { Rut: '', CodAux: '', Nombre: '', Folio: 0, TipoDoc: '', correos: '', TipoEnvioDoc: '', TipoBusqueda: tipo, fechaDesde: this.dateDesde, fechaHasta: this.dateHasta };
-        this.clienteService.getDashboardAdministrador(model).subscribe((res: any) => {
-            this.totalPagados = res[0].montoTotal;
-            this.cantidadPagados = res[0].cantidadDocumentos;
-            this.ultimosPagos = res.filter(x => x.idPagoEstado == 2);
-            this.ultimosRechazados = res.filter(x => x.idPagoEstado == 1 || x.idPagoEstado == 3);
-            this.getCantidadDocumentos();
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener pagos.', '', true); });
+    //     const model = { Rut: '', CodAux: '', Nombre: '', Folio: 0, TipoDoc: '', correos: '', TipoEnvioDoc: '', TipoBusqueda: tipo, fechaDesde: this.dateDesde, fechaHasta: this.dateHasta };
+    //     this.clienteService.getDashboardAdministrador(model).subscribe((res: any) => {
+    //         this.totalPagados = res[0].montoTotal;
+    //         this.cantidadPagados = res[0].cantidadDocumentos;
+    //         this.getCantidadDocumentos();
+    //     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener pagos.', '', true); });
 
-    }
+    // }
 
     getCantidadDocumentos() {
-        this.clienteService.getDocumentosDashboardAdministrador().subscribe((res: any) => {
+        this.spinner.show();
+        this.configuracionService.getConfigPagoClientes().subscribe((res: any) => {
+            if (res.cuentasContablesDeuda = ! '' && res.cuentasContablesDeuda != null) {
+                this.clienteService.getDocumentosDashboardAdministrador().subscribe((res: any) => {
 
-            if (res.length > 0) {
-                res.forEach(element => {
-                    if (element.estado == "VENCIDO") {
-                        this.cantidadVencidos = element.cantidadDocumentos;
-                        this.totalVencidos = element.totalDocumentos;
-                    }
-                    if (element.estado == "PENDIENTES") {
-                        this.cantidadPendiente = element.cantidadDocumentos;
-                        this.totalPendiente = element.totalDocumentos;
-                    }
-                    if (element.estado == "POR VENCER") {
-                        this.cantidadPorVencer = element.cantidadDocumentos;
-                        this.totalPorVencer = element.totalDocumentos;
-                    }
-                });
-                this.softlandService.getAllTipoDocSoftland().subscribe((res: any) => {
-                    this.tiposDocumentos = res;
+                    this.dashboardAdmin = res;
 
-                    this.softlandConfigService.getExistModuloInventario().subscribe(res => {
-                        this.existModuloInventario = res;
-                        this.configuracionService.getConfigPortal().subscribe(res => {
-                            this.configuracion = res;
-                            this.getTopDeudores();
+                    this.cantidadVencidos = this.dashboardAdmin.cantidadVencida;
+                    this.totalVencidos = this.dashboardAdmin.montoVencido;
+                    this.cantidadPendiente = this.dashboardAdmin.cantidadDocPendiente;
+                    this.totalPendiente = this.dashboardAdmin.saldoPendiente;
+                    this.cantidadPorVencer = this.dashboardAdmin.cantidadxVencer;
+                    this.totalPorVencer = this.dashboardAdmin.saldoxvencer;
+                    this.totalPagados = this.dashboardAdmin.cantidadDocumentosPagados;
+                    this.cantidadPagados = this.dashboardAdmin.montoPagado;
+                    this.softlandService.getAllTipoDocSoftland().subscribe((res: any) => {
+                        this.tiposDocumentos = res;
+
+                        this.softlandConfigService.getExistModuloInventario().subscribe(res => {
+                            this.existModuloInventario = res;
+                            this.configuracionService.getConfigPortal().subscribe(res => {
+                                this.configuracion = res;
+                                this.spinner.hide();
+                                this.getDeudaVsPagos();
+                                this.getTopDeudores();
+                            }, err => { this.spinner.hide(); });
                         }, err => { this.spinner.hide(); });
-                    }, err => { this.spinner.hide(); });
-                }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
-            }else{
+                    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
+                }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
+            } else {
                 this.spinner.hide();
+                this.notificationService.warning('No se encontraron cuentas contables configuradas para el portal.', '', true);
             }
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
+
+        }, err => {
+            this.spinner.hide();
+            this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
+        });
+
     }
 
     verDetalle(pago: any) {
@@ -447,21 +520,21 @@ export class DashboardAdministradorComponent implements OnInit {
         }
     }
 
-    onChangeRango(rango: any) {
-        if (rango.nextId == 5) {
-            this.showDashboard = 0;
-        }
-        else {
-            this.showDashboard = 1;
-            this.getDashboardEcommerce(rango.nextId);
-        }
+    // onChangeRango(rango: any) {
+    //     if (rango.nextId == 5) {
+    //         this.showDashboard = 0;
+    //     }
+    //     else {
+    //         this.showDashboard = 1;
+    //         this.getDashboardEcommerce(rango.nextId);
+    //     }
 
-    }
+    // }
 
-    filter() {
-        this.getDashboardEcommerce(5);
-        this.showDashboard = 1;
-    }
+    // filter() {
+    //     this.getDashboardEcommerce(5);
+    //     this.showDashboard = 1;
+    // }
 
 
     obtenerDocumentos(estado: number) {
@@ -479,7 +552,7 @@ export class DashboardAdministradorComponent implements OnInit {
 
                 this.noResultText = "No se encontraron resultados"
                 this.clienteService.getDocumentosPagadosAdministrador().subscribe((res: any[]) => {
-                  
+
                     this.documentosPagados = res;
                     this.documentosPagadosPorPagina = res.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
                     this.documentosPagadosFiltro = res;
@@ -492,6 +565,27 @@ export class DashboardAdministradorComponent implements OnInit {
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
             }
         } else {
+            switch (estado) {
+                case 1:
+                    if (this.cantidadPendiente == 0) {
+                        this.notificationService.warning('No existen documentos pendientes', '', true);
+                        return;
+                    }
+                    break;
+
+                case 2:
+                    if (this.cantidadVencidos == 0) {
+                        this.notificationService.warning('No existen documentos vencidos', '', true);
+                        return;
+                    }
+                    break;
+                case 2:
+                    if (this.cantidadPorVencer == 0) {
+                        this.notificationService.warning('No existen documentos por vencer', '', true);
+                        return;
+                    }
+                    break;
+            }
             this.dateDesde = null;
             this.dateHasta = null;
             this.folio = null;
@@ -502,42 +596,41 @@ export class DashboardAdministradorComponent implements OnInit {
 
             if (user != null) {
                 this.spinner.show();
-                let codaux = '0';
-                if (this.searchRut != null && this.searchRut != '') {
-                    codaux = this.searchRut.replace('.', '').split('-')[0];
-                }
-
                 this.noResultText = "No se encontraron resultados"
-                this.clienteService.getDocumentosAdministrador(codaux, this.tipoDoc).subscribe((res: any[]) => {
+
+                let model = {
+                    TipoBusqueda: this.tipoDoc,
+                    Pagina: 1
+                }
+                this.clienteService.getDocumentosResumenAdministrador(model).subscribe((res: any[]) => {
                     this.documentos = res;
-                    this.documentos.forEach(element => {
-                       
-                        element.paginadorDocumentos = {
+                    this.documentosPorPagina = this.documentos;
+                    this.documentosPorPagina.forEach(element => {
+                        let paginadorDocumentos = {
                             startRow: 0,
                             endRow: 10,
                             sortBy: 'desc',
-                            search: ''
+                            idPaginador: element.codaux
                         }
+                        element.paginadorDocumentos = paginadorDocumentos;
+                        element.documentosPorPagina = null;
+                        element.idPaginador = element.codaux;
 
                         element.configDocumentosCliente = {
-                            itemsPerPage: element.paginadorDocumentos.endRow,
+                            itemsPerPage: 10,
                             currentPage: 1,
-                            totalItems: element.documentos.length,
-                            id: element.codAux
-                        }
-                        element.documentosPorPagina = element.documentos.slice(element.paginadorDocumentos.startRow, element.paginadorDocumentos.endRow)
-                        element.documentosFiltro = element.documentos
-                        element.muestraDocumentos = false;
+                            totalItems: 0,
+                            id: element.codaux
+                        };
                     });
-
-                    this.documentosPorPagina = res.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
                     this.documentosFiltro = res;
                     this.configDocumentos = {
                         itemsPerPage: this.paginadorDocumentos.endRow,
                         currentPage: 1,
-                        totalItems: this.documentos.length
+                        totalItems: this.documentos.length > 0 ? this.documentos[0].total : 0
                     };
                     this.spinner.hide();
+
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
             }
         }
@@ -549,6 +642,7 @@ export class DashboardAdministradorComponent implements OnInit {
             if (this.utils.isValidRUT(this.searchRut)) {
                 this.searchRut = this.utils.checkRut(this.searchRut);
             } else {
+                this.searchRut = '';
                 this.notificationService.warning('Rut ingresado no es valido', '', true);
             }
         }
@@ -566,18 +660,71 @@ export class DashboardAdministradorComponent implements OnInit {
         this.otroCorreo = '';
         this.searchRut = '';
         this.documentosPorPagina = [];
+
+        if (!this.graphicResumenLoad) {
+            this.spinner.show(this.spinnerResumen);
+        }
+
+        if (!this.graphicDeudoresLoad) {
+            this.spinner.show(this.spinnerDeudores);
+        }
     }
 
 
     changePageDocumentos(event: any) {
-        this.paginadorDocumentos.startRow = ((event - 1) * 10);
-        this.paginadorDocumentos.endRow = (event * 10);
+        this.spinner.show();
+        this.paginadorDocumentos.startRow = 0;
+        this.paginadorDocumentos.endRow = 10;
         this.paginadorDocumentos.sortBy = 'desc';
         this.configDocumentos.currentPage = event;
-        this.documentosPorPagina = this.documentos.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
-        this.documentosPorPagina.forEach(element => {
-            element.muestraDocumentos = false;
-        });
+
+        let fHasta = null;
+        if (this.dateHasta != null) {
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+        }
+
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        }
+
+        let model = {
+            TipoBusqueda: this.tipoDoc,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
+            Pagina: this.configDocumentos.currentPage,
+            CodAux: this.searchRut,
+            Folio: this.folio
+        }
+        this.clienteService.getDocumentosResumenAdministrador(model).subscribe((res: any[]) => {
+            this.documentos = res;
+            this.documentosPorPagina = this.documentos;
+            this.documentosPorPagina.forEach(element => {
+                let paginadorDocumentos = {
+                    startRow: 0,
+                    endRow: 10,
+                    sortBy: 'desc',
+                    idPaginador: element.codaux
+                }
+                element.paginadorDocumentos = paginadorDocumentos;
+                element.documentosPorPagina = null;
+                element.idPaginador = element.codaux;
+
+                element.configDocumentosCliente = {
+                    itemsPerPage: 10,
+                    currentPage: 1,
+                    totalItems: 0,
+                    id: element.codaux
+                };
+            });
+            this.documentosFiltro = res;
+            this.configDocumentos = {
+                itemsPerPage: this.paginadorDocumentos.endRow,
+                currentPage: this.configDocumentos.currentPage,
+                totalItems: this.documentos.length > 0 ? this.documentos[0].total : 0
+            };
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
     }
 
     changePageDocumentosPagados(event: any) {
@@ -585,72 +732,68 @@ export class DashboardAdministradorComponent implements OnInit {
         this.paginadorDocumentos.endRow = (event * 10);
         this.paginadorDocumentos.sortBy = 'desc';
         this.configDocumentos.currentPage = event;
-        this.documentosPagadosPorPagina = this.documentosPagados.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
+        this.documentosPagadosPorPagina = this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
+        // this.updatePagados = true
+        // this.updatePagadosEvent.emit(this.documentosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow));
+
     }
 
 
     filterDocs() {
-        this.documentosFiltro = this.documentos;
-        this.documentosFiltro.forEach(element => {
-            element.documentosFiltro = element.documentos;
-            element.muestraDocumentos = false;
-        });
-      
-        if (this.searchRut != null && this.searchRut != '') {
-          
-            let codAux = this.searchRut.replace('.', '').replace('.', '').split('-')[0];
-            this.documentosFiltro = this.documentosFiltro.filter(x => x.rut == this.searchRut)
-        }
-        if (this.folio != null && this.folio != 0) {   
-            let filtrados = [];     
-            this.documentosFiltro.forEach(element => {
-                element.documentosFiltro =  element.documentosFiltro.filter(x => x.nro == this.folio)
-                if(element.documentosFiltro.length > 0){
-                    filtrados.push(element);
-                }
-            });
-            this.documentosFiltro = filtrados;
-        }
-        if (this.dateDesde != null) {
+        this.spinner.show();
 
-            let filtrados = [];     
-            const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
-            this.documentosFiltro.forEach(element => {
-                element.documentosFiltro =  element.documentosFiltro.filter(x => new Date(x.fechaEmision) >= fDesde)
-                if(element.documentosFiltro.length > 0){
-                    filtrados.push(element);
-                }
-            });
-            this.documentosFiltro = filtrados;
-        }
+        let fHasta = null;
         if (this.dateHasta != null) {
-
-            let filtrados = [];     
-            const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
-            this.documentosFiltro.forEach(element => {
-                element.documentosFiltro =  element.documentosFiltro.filter(x => new Date(x.fechaEmision) <= fHasta)
-                if(element.documentosFiltro.length > 0){
-                    filtrados.push(element);
-                }
-            });
-            this.documentosFiltro = filtrados;
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
         }
-        this.paginadorDocumentos.startRow = 0;
-        this.paginadorDocumentos.endRow = 10;
-        this.paginadorDocumentos.sortBy = 'desc';
-        this.configDocumentos = {
-            itemsPerPage: this.paginadorDocumentos.endRow,
-            currentPage: 1,
-            totalItems: this.documentosFiltro.length
-        };
 
-        this.documentosPorPagina = this.documentosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        }
 
+        let model = {
+            TipoBusqueda: this.tipoDoc,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
+            Pagina: 1,
+            CodAux: this.searchRut,
+            Folio: this.folio
+        }
+        this.clienteService.getDocumentosResumenAdministrador(model).subscribe((res: any[]) => {
+            this.documentos = res;
+            this.documentosPorPagina = this.documentos;
+            this.documentosPorPagina.forEach(element => {
+                let paginadorDocumentos = {
+                    startRow: 0,
+                    endRow: 10,
+                    sortBy: 'desc',
+                    idPaginador: element.codaux
+                }
+                element.paginadorDocumentos = paginadorDocumentos;
+                element.documentosPorPagina = null;
+                element.idPaginador = element.codaux;
 
+                element.configDocumentosCliente = {
+                    itemsPerPage: 10,
+                    currentPage: 1,
+                    totalItems: 0,
+                    id: element.codaux
+                };
+            });
+            this.documentosFiltro = res;
+            this.configDocumentos = {
+                itemsPerPage: this.paginadorDocumentos.endRow,
+                currentPage: 1,
+                totalItems: this.documentos.length > 0 ? this.documentos[0].total : 0
+            };
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
     }
 
 
     filterDocsPagados() {
+        debugger
         this.documentosPagadosFiltro = this.documentosPagados;
 
         if (this.selectedEstadoPagos == 2) {
@@ -661,7 +804,7 @@ export class DashboardAdministradorComponent implements OnInit {
 
         if (this.searchRut != null && this.searchRut != '') {
             let codAux = this.searchRut.replace('.', '').replace('.', '').split('-')[0];
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.codAux == codAux)
+            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.rut == this.searchRut)
         }
 
         if (this.folio != null) {
@@ -687,6 +830,9 @@ export class DashboardAdministradorComponent implements OnInit {
             totalItems: this.documentosPagadosFiltro.length
         };
 
+
+        this.updatePagados = true
+        //this.updatePagadosEvent.emit(this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow));
         this.documentosPagadosPorPagina = this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
 
 
@@ -714,6 +860,7 @@ export class DashboardAdministradorComponent implements OnInit {
         this.dateHasta = null;
         this.folio = null;
         this.searchRut = null;
+        this.selectedEstadoPagos = 1;
 
         this.filterDocsPagados();
     }
@@ -837,6 +984,7 @@ export class DashboardAdministradorComponent implements OnInit {
             if (res.cabecera != null) {
                 if (res.cabecera.folio != 0) { //FCA 05-07-2022               
                     this.detalleCab = res.cabecera; //FCA 05-07-2022
+                    this.detalleCab.tipo = obj.TipoDoc;
                     this.detalleDet = res.detalle;
                     this.showDetail = true;
                     this.tituloDetalle = compra.documento;
@@ -852,7 +1000,7 @@ export class DashboardAdministradorComponent implements OnInit {
 
 
     verDetalleDocumentoPagado(pago: any) {
-
+debugger
         this.docPagado = pago;
         this.docPagado.pagosDetalle.forEach(element => {
             let doc = this.tiposDocumentos.filter(x => x.codDoc == element.tipoDocumento);
@@ -889,7 +1037,7 @@ export class DashboardAdministradorComponent implements OnInit {
     generarComprobante() {
         this.spinner.show();
         this.softlandService.generaComprobantePago(this.idPago).subscribe(res => {
-            
+
             this.spinner.hide();
             this.modalService.dismissAll();
             if (res == '' || res == null) {
@@ -919,7 +1067,7 @@ export class DashboardAdministradorComponent implements OnInit {
 
 
     descargarDocumentos(tipo: number, doc: any) {
-        
+
         if (!this.enviaPdf && !this.enviaXml) {
             this.notificationService.warning('Debe seleccionar documentos a descargar.', '', true);
             return;
@@ -944,7 +1092,7 @@ export class DashboardAdministradorComponent implements OnInit {
         if (user != null) {
             obj.Folio = this.documentoAEnviar.folio;
             obj.TipoDoc = this.documentoAEnviar.tipo;
-            obj.CodAux =  this.compraDetalleAux.CodAux;
+            obj.CodAux = this.compraDetalleAux.CodAux;
         }
 
 
@@ -997,7 +1145,7 @@ export class DashboardAdministradorComponent implements OnInit {
         //Obtengo ruta
         this.clienteService.getClienteXML(obj).subscribe(
             (res: any) => {
-                
+
                 if (res.base64 != null && res.base64 != '') {
                     var link = document.createElement("a");
                     link.download = res.nombreArchivo;
@@ -1091,7 +1239,7 @@ export class DashboardAdministradorComponent implements OnInit {
             }
 
             var tipoEnvio = (this.enviaPdf && this.enviaXml) ? 3 : (this.enviaPdf) ? 1 : (this.enviaXml) ? 2 : 3;
-            
+
             var envioDocumento = {
                 destinatarios: correos,
                 folio: this.documentoAEnviar.folio,
@@ -1129,33 +1277,81 @@ export class DashboardAdministradorComponent implements OnInit {
             cliente.muestraDocumentos = false;
         } else {
             cliente.muestraDocumentos = true;
+            this.spinner.show();
+
+            let fHasta = null;
+            if (this.dateHasta != null) {
+                fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+            }
+
+            let fDesde = null;
+            if (this.dateDesde != null) {
+                fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+            }
+
+            let model = {
+                TipoBusqueda: this.tipoDoc,
+                fechaDesde: fDesde,
+                fechaHasta: fHasta,
+                Pagina: 1,
+                CodAux: cliente.codaux,
+                Folio: this.folio
+            }
+
+
+
+            this.clienteService.GetDocumentosContabilizadosXCliente(model).subscribe((res: any[]) => {
+                debugger
+                cliente.documentosPorPagina = res;
+                cliente.paginadorDocumentos.startRow = 0;
+                cliente.paginadorDocumentos.endRow = 10;
+                cliente.paginadorDocumentos.sortBy = 'desc';
+                cliente.configDocumentosCliente.itemsPerPage = cliente.paginadorDocumentos.endRow;
+                cliente.configDocumentosCliente.currentPage = 1;
+                cliente.configDocumentosCliente.totalItems = cliente.documentosPorPagina.length > 0 ? cliente.documentosPorPagina[0].totalFilas : 0;
+                this.cliente = cliente;
+                this.updateDocumentos = true
+                this.updateDocumentosEvent.emit(cliente.documentosPorPagina);
+
+                this.cdr.detectChanges();
+                this.spinner.hide();
+            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
         }
-
-        cliente.paginadorDocumentos.startRow = 0;
-        cliente.paginadorDocumentos.endRow = 10;
-        cliente.paginadorDocumentos.sortBy = 'desc';
-        cliente.configDocumentosCliente.itemsPerPage = cliente.paginadorDocumentos.endRow;
-        cliente.configDocumentosCliente.currentPage = 1;
-        cliente.configDocumentosCliente.totalItems = cliente.documentosFiltro.length
-
-
-
-        cliente.documentosPorPagina = cliente.documentosFiltro.slice(cliente.paginadorDocumentos.startRow, cliente.paginadorDocumentos.endRow);
-
-
 
     }
 
     changePageDocumentosCliente(cliente: any, event: any) {
 
+        this.spinner.show();
 
+        let fHasta = null;
+        if (this.dateHasta != null) {
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+        }
 
-        cliente.paginadorDocumentos.startRow = ((event - 1) * 10);
-        cliente.paginadorDocumentos.endRow = (event * 10);
-        cliente.paginadorDocumentos.sortBy = 'desc';
-        cliente.configDocumentosCliente.currentPage = event;
-        cliente.documentosPorPagina = cliente.documentos.slice(cliente.paginadorDocumentos.startRow, cliente.paginadorDocumentos.endRow);
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        }
 
+        let model = {
+            TipoBusqueda: this.tipoDoc,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
+            Pagina: event,
+            CodAux: cliente.codaux,
+            Folio: this.folio
+        }
+
+        this.clienteService.GetDocumentosContabilizadosXCliente(model).subscribe((res: any[]) => {
+            cliente.documentosPorPagina = res;
+            cliente.paginadorDocumentos.startRow = 0;
+            cliente.paginadorDocumentos.endRow = 10;
+            cliente.paginadorDocumentos.sortBy = 'desc';
+            cliente.configDocumentosCliente.currentPage = event;
+
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
 
 
     }

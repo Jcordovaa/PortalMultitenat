@@ -17,6 +17,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { MontoPipe } from 'src/app/shared/pipes/monto.pipe';
 import { PayComponent } from './fasy-payment/pay.component';
+import { AcountStateViewComponent } from './account-state-view/account-state-view.component';
 
 @NgModule({
   imports: [
@@ -30,7 +31,7 @@ import { PayComponent } from './fasy-payment/pay.component';
     NgxPaginationModule,
     SharedPipesModule
   ],
-  declarations: [SignupComponent, SigninComponent, ForgotComponent, ActivateAccountComponent, PaymentPortalComponent, PayComponent],
+  declarations: [SignupComponent, SigninComponent, ForgotComponent, ActivateAccountComponent, PaymentPortalComponent, PayComponent, AcountStateViewComponent],
   providers: [ MontoPipe ]
 })
 export class SessionsModule { }

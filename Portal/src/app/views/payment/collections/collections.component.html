@@ -83,7 +83,7 @@
                 <label for="lastName">Fecha Creación Desde</label>
                 <div class="input-group">
                     <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d2"
-                        #c2="ngModel" [(ngModel)]="dateDesdeFiltro" ngbDatepicker #d2="ngbDatepicker">
+                        #c2="ngModel" [(ngModel)]="dateDesdeFiltro" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                     <div class="input-group-append">
                         <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                             <i class="icon-regular i-Calendar-4"></i>
@@ -95,7 +95,7 @@
                 <label for="lastName">Fecha Creación Hasta</label>
                 <div class="input-group">
                     <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d3"
-                        #c3="ngModel" [(ngModel)]="dateHastaFiltro" ngbDatepicker #d3="ngbDatepicker">
+                        #c3="ngModel" [(ngModel)]="dateHastaFiltro" ngbDatepicker #d3="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                     <div class="input-group-append">
                         <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
                             <i class="icon-regular i-Calendar-4"></i>
@@ -120,7 +120,7 @@
     <div class="row mb-4" *ngIf="totalItems > 0">
         <!-- GRID AND LIST BUTTONS -->
         <div class="col-6">
-            <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2"
+            <!-- <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2"
                 [ngClass]="{active: viewMode === 'grid'}" (click)="viewMode = 'grid'">
                 <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 369.946 369.946"
@@ -141,7 +141,7 @@
                     <path
                         d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
                 </svg>
-            </button>
+            </button> -->
         </div>
     </div>
 
@@ -163,11 +163,11 @@
                     <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
                         [ngClass]="{'flex-lg-row': viewMode === 'list'}">
                         <!-- OTHER DATA -->
-                        <p class="m-0 text-muted w-15 w-sm-100">
+                        <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:200px">
                             {{item.nombre}}
                         </p>
                         <!--FCA 13-12-2021-->
-                        <p *ngIf="selectedModalidadCobranza == 1" class="m-0 text-muted w-15 w-sm-100">
+                        <p *ngIf="selectedModalidadCobranza == 1" class="m-0 text-muted w-15 w-sm-100" style="flex-basis:200px">
                             <strong>Estado: </strong> {{item.nombreEstado}}
                         </p>
                         <p class="m-0 text-muted w-15 w-sm-100">
@@ -180,29 +180,29 @@
 
 
                         <!--FCA 13-12-2021-->
-                        <p *ngIf="selectedModalidadCobranza == 2" class="m-0 text-muted w-15 w-sm-100">
+                        <p *ngIf="selectedModalidadCobranza == 2" class="m-0 text-muted w-15 w-sm-100" style="flex-basis:100px">
                             <strong>Fecha Hasta: </strong> {{item.fechaFin | date: 'dd/MM/yyyy'}}
                         </p>
 
-                        <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 0">
+                        <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 0" style="flex-basis:100px"> 
                             <strong>Tipo: </strong> {{item.nombreTipoCobranza}}
                         </p>
                         <!-- <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 1">
                     <strong>A recaudar: </strong> ${{item.totalRecaudar | monto}}
                 </p> -->
                         <!--FCA 13-12-2021-->
-                        <p class="m-0 text-muted w-15 w-sm-100"
+                        <!-- <p class="m-0 text-muted w-15 w-sm-100"
                             *ngIf="item.enviaEnlacePago == 1 && selectedModalidadCobranza == 1">
                             <strong>Recaudado: </strong> ${{item.totalRecaudado | monto}}
-                        </p>
+                        </p> -->
                         <!--FCA 13-12-2021-->
-                        <p class="m-0 text-muted text-18 w-15 w-sm-100 d-none d-lg-block item-badges"
+                        <!-- <p class="m-0 text-muted text-18 w-15 w-sm-100 d-none d-lg-block item-badges"
                             *ngIf="item.enviaEnlacePago == 1 && selectedModalidadCobranza == 1">
                             <span ngbTooltip="Estado recaudación"
                                 class="badge badge-{{item.colorPorcentajeRecaudacion}}">{{item.porcentajeRecaudacion}}%</span>
-                        </p>
+                        </p> -->
                         <!--FCA 13-12-2021-->
-                        <p class="m-0 text-muted w-15 w-sm-100">
+                        <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:100px">
                             <img *ngIf="selectedModalidadCobranza == 1" (click)="verDetalleCobranza(item)"
                                 container="body" ngbTooltip="Ver detalle" style="cursor: pointer;"
                                 src="assets/images/show-property.png" width="25" height="25" alt="">
@@ -236,7 +236,7 @@
         </div>
     </div>
 </div>
-<div class="row" *ngIf="nuevaCobranza">
+<div class="row" *ngIf="nuevaCobranza" >
     <div class="col-md-12 mt-3 mb-3">
 
         <form-wizard id="wizard1" (onStepChanged)="onStepChangedl(wz, step1, step2, step3, step4, step5)">
@@ -285,8 +285,8 @@
                                 <div class="col-sm-4">
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d1"
-                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c1="ngModel"
-                                            [(ngModel)]="fecha" ngbDatepicker #d1="ngbDatepicker">
+                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c1="ngModel" 
+                                            [(ngModel)]="fecha" ngbDatepicker #d1="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d1.toggle();" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -303,7 +303,7 @@
                                     <ng-select class="customAC"
                                         style="border-radius: 40px !important; max-height: 120px;"
                                         (open)="handleFocus()" [items]="horarios" bindLabel="horario"
-                                        placeholder="Horas" #cc="ngModel" name="cc" [(ngModel)]="selectedHorario"
+                                        placeholder="Horas" #cc="ngModel" name="cc" [(ngModel)]="selectedHorario" 
                                         bindValue="hora">
                                     </ng-select>
                                 </div>
@@ -315,7 +315,7 @@
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="v1"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,2)" #g1="ngModel"
-                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v1="ngbDatepicker">
+                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v1="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="v1.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -413,7 +413,7 @@
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d2"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c2="ngModel"
-                                            [(ngModel)]="fecha" ngbDatepicker #d2="ngbDatepicker">
+                                            [(ngModel)]="fecha" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -429,8 +429,8 @@
                                 <div class="col-sm-4">
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="v2"
-                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,3)" #g2="ngModel"
-                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v2="ngbDatepicker">
+                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,2)" #g2="ngModel"
+                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="v2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -451,7 +451,7 @@
 
 
 
-            <wizard-step #step2 [title]="'Documentos'" (onNext)="onStep2Next($event)">
+            <wizard-step #step2 id="step2" [title]="'Documentos'" [isValid]="IsStepTwoOk" (onNext)="onStep2Next($event)" >
 
                 <div class="row">
                     <div class="col-md-12 mb-4 mt-4">
@@ -552,7 +552,7 @@
                                 (dateSelect)="onChangeSelect(4)" name="d2" #c2="ngModel" [(ngModel)]="dateDesde"
                                 ngbDatepicker #d2="ngbDatepicker"> -->
                             <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d2"
-                                #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker">
+                                #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
@@ -567,7 +567,7 @@
                                 (dateSelect)="onChangeSelect(5)" name="d3" #c3="ngModel" [(ngModel)]="dateHasta"
                                 ngbDatepicker #d3="ngbDatepicker"> -->
                             <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d3"
-                                #c3="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d3="ngbDatepicker">
+                                #c3="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d3="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
@@ -669,7 +669,7 @@
                 </div>
             </wizard-step>
 
-            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)">
+            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)" >
                 <div class="row" *ngIf="selectedProgramacion == 1">
                     <div class="col-md-12 mb-3 mt-3">
                         <span style="font-size: 16px; font-weight: 600;">Detalle de los correos que se enviaran a los
@@ -684,14 +684,14 @@
                         <label for="nombreCliente" class="text-lbl">Nombre Cliente</label>
                         <input type="text" class="form-control" id="nombreCliente" name="nombreCliente" [(ngModel)]="searchNombre" placeholder="Ingrese nombre Cliente">
                     </div> -->
-                    <div class="form-group col-md-3 mb-3">
+                    <!-- <div class="form-group col-md-3 mb-3">
                         <label for="firstName" class="text-lbl">Estado Correo para envío</label>
                         <ng-select appendTo="body" class="customAC" style="border-radius: 40px !important;"
                             [items]="estadosCorreo" bindLabel="nombre" required placeholder="Estado Correo cliente"
                             #estadoCorreo="ngModel" name="estadoCorreo" [(ngModel)]="selectedEstadoCorreo"
                             bindValue="id">
                         </ng-select>
-                    </div>
+                    </div> -->
 
                     <div class="form-group col-md-3 mb-3">
                         <label for="firstName" class="text-lbl">Estado Cliente</label>
@@ -749,10 +749,10 @@
                                                     <td>{{ c.montoDeuda | monto }}</td>
                                                     <td>{{ c.cantidadDocumentos}}</td>
                                                     <td> 
-                                                        <span placement="bottom" container="body" ngbTooltip="Estado: Activo" *ngIf="c.bloqueado == 'N'"
-                                                        class="badge badge-success">Bloqueado</span>
-                                                        <span placement="bottom" container="body" ngbTooltip="Estado: Activo" *ngIf="c.bloqueado != 'N'"
-                                                        class="badge badge-danger">No Bloqueado</span>
+                                                        <span placement="bottom" container="body" ngbTooltip="Estado: Bloqueado" *ngIf="c.bloqueado != 'N'"
+                                                        class="badge badge-danger">Bloqueado</span>
+                                                        <span placement="bottom" container="body" ngbTooltip="Estado: No Bloqueado" *ngIf="c.bloqueado == 'N'"
+                                                        class="badge badge-success">No Bloqueado</span>
                                                     </td>
                                                     <td style="text-align: center;">
                                                         <img *ngIf="c.estadoDatos != -1"
@@ -760,11 +760,11 @@
                                                             ngbTooltip="Ver Detalle" style="cursor: pointer;"
                                                             src="assets/images/show-property.png" width="27" height="27"
                                                             alt="">
-                                                        <img *ngIf="c.emailCliente == '' || c.emailCliente == null"
+                                                        <!-- <img *ngIf="c.emailCliente == '' || c.emailCliente == null"
                                                             (click)="agregarCorreoApoderado(c,modalAddCorreo)"
                                                             container="body" ngbTooltip="Agregar Correo"
                                                             style="cursor: pointer;" src="assets/images/alert.png"
-                                                            width="27" height="27" alt="">
+                                                            width="27" height="27" alt=""> -->
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -1055,7 +1055,7 @@
                             <div class="card-body text-center">
                                 <i class="i-Mail-Send"></i>
                                 <div class="content" style="max-width: 90px !important;">
-                                    <p class="text-primary mt-2 mb-0">Correos</p>
+                                    <p class="text-primary mt-2 mb-0">Clientes Seleccionados</p>
                                     <p class="lead text-primary text-19 mb-2" style="font-weight: 600;">
                                         {{cantidadCorreos}}</p>
                                 </div>
@@ -1089,7 +1089,7 @@
                 <div class="card-body">
                     <div class="d-sm-flex mb-5">
                         <span class="m-auto"></span>
-                        <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
+                        <button class="btn btn-primary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
                     </div>
                     <!---===== Print Area =======-->
                     <div id="print-area">
@@ -1196,10 +1196,11 @@
                                                 <th scope="col">Cliente</th>
                                                 <th scope="col">Monto</th>
                                                 <th scope="col">Estado</th>
-                                                <th scope="col" *ngIf="cobranzaDatos.enviaEnlacePago == 1">Fecha Pago
+                                                <th scope="col">Abonos</th>
+                                                <!-- <th scope="col" *ngIf="cobranzaDatos.enviaEnlacePago == 1">Fecha Pago
                                                 </th>
                                                 <th scope="col" *ngIf="cobranzaDatos.enviaEnlacePago == 1">Comprobante
-                                                </th>
+                                                </th> -->
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1209,11 +1210,13 @@
                                                 <td>{{item.rutCliente}}</td>
                                                 <td>${{item.monto | monto}}</td>
                                                 <td>{{item.nombreEstado}}</td>
-                                                <td *ngIf="cobranzaDatos.enviaEnlacePago == 1">{{item.fechaPagoTexto}}
+                                                <!-- <td *ngIf="cobranzaDatos.enviaEnlacePago == 1">{{item.fechaPagoTexto}}
                                                 </td>
                                                 <td *ngIf="cobranzaDatos.enviaEnlacePago == 1">
                                                     {{item.comprobanteContable}}
-                                                </td>
+                                                </td> -->
+                                                <td><button class="btn btn-primary"
+                                                    (click)="openModalAbonos(detalleSaldo,item)">Ver Abonos</button></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1259,6 +1262,10 @@
                         </div>
                     </div>
                     <!--==== / Print Area =====-->
+                    <div class="d-sm-flex mb-5">
+                        <span class="m-auto"></span>
+                        <button class="btn btn-primary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
+                    </div>
                 </div>
 
             </div>
@@ -1353,5 +1360,68 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-primary" (click)="modal.dismiss('Cross click')">Cerrar</button>
+    </div>
+</ng-template>
+
+
+<ng-template #detalleSaldo let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title justify-content-center" id="modal-basic-title">Abonos</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row desktop">
+            <div class="table-responsive mt-5">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tipo De Documento</th>
+                            <th scope="col">Número Documento</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Monto Abono $</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of abonos; let i = index">
+                            <td><span class="text-13">{{a.documento}}</span></td>
+                            <td><span class="text-13">{{a.nro}}</span></td>
+                            <td><span class="text-13">{{a.fechaEmision | date: 'dd/MM/yyyy'}}</span></td>
+                            <td><span class="text-13">{{a.montoBase | monto}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row movil">
+            <div class="table-responsive mt-5">
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Detalle</th>
+                            <th scope="col">Monto Abono $</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of abonos; let i = index">
+                            <td style="text-align: left;">
+                                <strong>Documento: </strong>{{ a.desDoc }}<br />
+                                <strong>Número: </strong>{{ a.numdoc }}<br />
+                                <strong>Fecha Pago: </strong>{{a.movfe | date: 'dd/MM/yyyy'}}<br />
+                            </td>
+                            <td style="vertical-align: middle;"><span class="text-13">{{a.movMonto | monto}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="closeModal()" class="btn btn-primary">Cerrar</button>
     </div>
 </ng-template>

@@ -27,6 +27,8 @@ namespace ApiPortal.Dal.Models_Portal
         public int? ManejaAuxiliar { get; set; }
         public int? EsProduccion { get; set; }
         public string? AmbienteConsultarPago { get; set; }
+        public string? CodigoComercio { get; set; }
+        public string? SecretKey { get; set; }
 
         public virtual ICollection<PasarelaPagoLog> PasarelaPagoLogs { get; set; }
     }

@@ -222,9 +222,9 @@ export class ExcludedComponent implements OnInit {
         this.spinner.show();
         this.showDetail = false;
 
-        var rut: string = "";
+        var codaux: string = "";
         if (this.searchRut != "") {
-            rut = this.searchRut.split('-')[0].replace('.', '').replace('.', '');
+            codaux = this.searchRut.split('-')[0].replace('.', '').replace('.', '');
         }
 
 
@@ -253,7 +253,7 @@ export class ExcludedComponent implements OnInit {
             catCliente = this.selectedCatCliente;
         }
 
-        const model = { codAux: rut, nombre: nombreCliente, listaPrecio: listaPrecio, categoriaCliente: catCliente, vendedor: vendedor, condicionVenta: condicionVenta, rut: rut }
+        const model = { codAux: codaux, nombre: nombreCliente, listaPrecio: listaPrecio, categoriaCliente: catCliente, vendedor: vendedor, condicionVenta: condicionVenta, rut: this.searchRut }
 
         this.clienteService.getClientesFiltros(model).subscribe((res: any) => {
 
@@ -274,11 +274,12 @@ export class ExcludedComponent implements OnInit {
     }
 
     excluir(cliente: any) {
+        debugger
         const model = { rutCliente: cliente.rut, codAuxCliente: cliente.codAux, nombreCliente: cliente.nombre }
         this.spinner.show();
         var existe: boolean;
         this.ClientesExcluidosRes.forEach(element => {
-            if (model.rutCliente == element.rut && model.codAuxCliente == element.codAux) {
+            if (model.rutCliente == element.rutCliente && model.codAuxCliente == element.codAuxCliente) {
 
                 existe = true;
             }

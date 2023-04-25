@@ -277,14 +277,14 @@
                                     <td>{{c.desMon}}</td>
                                     <td class="alinearTexto">{{c2.debe | monto }}</td>
                                     <td class="alinearTexto" [ngbTooltip]="tipContentOrigen"
-                                      (mousemove)="fechaEmision = c.fechaEmision" container="body"
+                                    (mouseover)="fechaEmision = c.fechaEmision; varloUfOrigen = c.movEqui; monedaOrigen = c.desMon" container="body"
                                       style="cursor: pointer;"> 0
                                     </td>
-                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body"
+                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                       style="cursor: pointer;">
                                       {{c.montoBase | monto}}
                                     </td>
-                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body"
+                                    <td class="alinearTexto" [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                       style="cursor: pointer;">
                                       {{c.saldoBase | monto}}
                                     </td>
@@ -398,12 +398,11 @@
         </div>
       </div>
     </div>
+    <div class="row" style=" display: flex;">
+      <p  class="r-1 text-12" style="font-size: calc(0.25rem + 0.5vw) !important; color: #DF6107;" >*{{configDiseno.textoNoConsideraTodaDeuda}}</p>
   </div>
-  <div class="row" style=" display: flex;
-  justify-content: center;
-  align-items: center;">
-      <p  class="badge badge-danger mr-1 text-12" style="font-size: calc(0.5rem + 0.5vw) !important;" >{{configDiseno.textoNoConsideraTodaDeuda}}</p>
   </div>
+
 </div>
 
 
@@ -2264,15 +2263,15 @@
 </ng-template>
 
 
-<ng-template #tipContentActual>Calculo realizado sobre el valor de la UF al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
-    }}</b> correspondiente a
-  <b>${{valorUfActrual | monto}}</b>
+<ng-template #tipContentActual>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
+}}</b> correspondiente a
+<b>${{valorUfActrual | monto}}</b>
 </ng-template>
 
 
-<ng-template #tipContentOrigen>Calculo realizado sobre el valor de la UF al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
-    }}</b> correspondiente a
-  <b>$0</b>
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de  <b>{{monedaOrigen}}</b> al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
+}}</b> correspondiente a
+<b>${{varloUfOrigen | monto}}</b>
 </ng-template>
 
 <ng-template #tipDocumentos>Descargar o enviar archivos asociados al documento

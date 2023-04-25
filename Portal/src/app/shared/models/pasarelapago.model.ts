@@ -1,9 +1,8 @@
 export class PasarelaPago {
     idPasarela?: number;
     nombre?: string;
-    codigoComercioTBK?: string;
-    apiKeyPasarela?: string;
-    secretKeyPasarela?: string;
+    codigoComercio?: string;
+    secretKey?: string;
     protocolo?:string;
     ambiente?: string;
     tipoDocumento?: String;
@@ -15,9 +14,8 @@ export class PasarelaPago {
     constructor() {
         this.idPasarela = 0;
         this.nombre = '';
-        this.codigoComercioTBK = '';
-        this.apiKeyPasarela = '';
-        this.secretKeyPasarela = '';
+        this.codigoComercio = '';
+        this.secretKey = '';
         this.protocolo = '';
         this.ambiente = '';
         this.tipoDocumento = '';

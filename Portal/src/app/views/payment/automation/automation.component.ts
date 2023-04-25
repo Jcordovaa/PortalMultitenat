@@ -256,133 +256,184 @@ export class AutomationComponent implements OnInit {
       //recordatorio
       let tipoDocsRecordatorio: string[] = this.recordatorio.tipoDocumentos != null && this.recordatorio.tipoDocumentos != '' ? this.recordatorio.tipoDocumentos.split(';') : [];
       tipoDocsRecordatorio.forEach(element => {
-        this.selectedTiposDocumentosRecordatorio.push(element);
+        if( this.selectedTiposDocumentosRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedTiposDocumentosRecordatorio.push(element);
+        }
+    
       });
 
       let catCliRecordatorio: string[] = this.recordatorio.codCategoriaCliente != null && this.recordatorio.codCategoriaCliente != '' ? this.recordatorio.codCategoriaCliente.split(';') : [];
       catCliRecordatorio.forEach(element => {
-        this.selectedCategoriasClienteRecordatorio.push(element);
+        if( this.selectedCategoriasClienteRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedCategoriasClienteRecordatorio.push(element);
+        }
+
       });
 
       let listasPrecioRecordatorio: string[] = this.recordatorio.codListaPrecios != null && this.recordatorio.codListaPrecios != '' ? this.recordatorio.codListaPrecios.split(';') : [];
       listasPrecioRecordatorio.forEach(element => {
-        this.selectedListasPrecioRecordatorio.push(element);
+        if( this.selectedListasPrecioRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedListasPrecioRecordatorio.push(element);
+        }
       });
 
       let condicionVentaRecordatorio: string[] = this.recordatorio.codCondicionVenta != null && this.recordatorio.codCondicionVenta != '' ? this.recordatorio.codCondicionVenta.split(';') : [];
       condicionVentaRecordatorio.forEach(element => {
-        this.selectedCondicionesVentaRecordatorio.push(element);
+        if( this.selectedCondicionesVentaRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedCondicionesVentaRecordatorio.push(element);
+        }
       });
 
       let vendedoresRecordatorio: string[] = this.recordatorio.codVendedor != null && this.recordatorio.codVendedor != '' ? this.recordatorio.codVendedor.split(';') : [];
       vendedoresRecordatorio.forEach(element => {
-        this.selectedVendedoresRecordatorio.push(element);
+        if( this.selectedVendedoresRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedVendedoresRecordatorio.push(element);
+        }
       });
 
       let canalVentaRecordatiorio: string[] = this.recordatorio.codCanalVenta != null && this.recordatorio.codCanalVenta != '' ? this.recordatorio.codCanalVenta.split(';') : [];
       canalVentaRecordatiorio.forEach(element => {
-        this.selectedCanalesVentaRecordatorio.push(element);
+        if( this.selectedCanalesVentaRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedCanalesVentaRecordatorio.push(element);
+        }
       });
 
       let cobradoresRecordatorio: string[] = this.recordatorio.codCobrador != null && this.recordatorio.codCobrador != '' ? this.recordatorio.codCobrador.split(';') : [];
       cobradoresRecordatorio.forEach(element => {
-        this.selectedCobradoresRecordatorio.push(element);
+        if( this.selectedCobradoresRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedCobradoresRecordatorio.push(element);
+        }
       });
 
       let cargosRecordatorio: string[] = this.recordatorio.codCargo != null && this.recordatorio.codCargo != '' ? this.recordatorio.codCargo.split(';') : [];
       cargosRecordatorio.forEach(element => {
-        this.selectedCargosRecordatorio.push(element);
+        if( this.selectedCargosRecordatorio.filter(x  => x = element).length == 0){
+          this.selectedCargosRecordatorio.push(element);
+        }
       });
 
-      this.selectedAnioRecordatorio = this.recordatorio.anio != null ? this.recordatorio.anio : 'TODOS';
+      debugger
+      this.selectedAnioRecordatorio = this.recordatorio.anio != null && this.recordatorio.anio != 0 ? this.recordatorio.anio : 'TODOS';
 
 
       //estado de cuenta
       
       let tipoDocsEstadoCuenta: string[] = this.estadoCuenta.tipoDocumentos != null && this.estadoCuenta.tipoDocumentos != '' ? this.estadoCuenta.tipoDocumentos.split(';') : [];
       tipoDocsEstadoCuenta.forEach(element => {
-        this.selectedTiposDocumentosEstadoCuenta.push(element);
+        if( this.selectedTiposDocumentosEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedTiposDocumentosEstadoCuenta.push(element);
+        }
       });
 
       let catCliEstadoCuenta: string[] = this.estadoCuenta.codCategoriaCliente != null && this.estadoCuenta.codCategoriaCliente != '' ? this.estadoCuenta.codCategoriaCliente.split(';') : [];
       catCliEstadoCuenta.forEach(element => {
-        this.selectedCategoriasClienteEstadoCuenta.push(element);
+        if( this.selectedCategoriasClienteEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedCategoriasClienteEstadoCuenta.push(element);
+        }
       });
 
       let listasPrecioEstadoCuenta: string[] = this.estadoCuenta.codListaPrecios != null && this.estadoCuenta.codListaPrecios != '' ? this.estadoCuenta.codListaPrecios.split(';') : [];
       listasPrecioEstadoCuenta.forEach(element => {
-        this.selectedListasPrecioEstadoCuenta.push(element);
+        if( this.selectedListasPrecioEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedListasPrecioEstadoCuenta.push(element);
+        }
       });
 
       let condicionVentaEstadoCuenta: string[] = this.estadoCuenta.codCondicionVenta != null && this.estadoCuenta.codCondicionVenta != '' ? this.estadoCuenta.codCondicionVenta.split(';') : [];
       condicionVentaEstadoCuenta.forEach(element => {
-        this.selectedCondicionesVentaEstadoCuenta.push(element);
+        if( this.selectedCondicionesVentaEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedCondicionesVentaEstadoCuenta.push(element);
+        }
       });
 
       let vendedoresEstadoCuenta: string[] = this.estadoCuenta.codVendedor != null && this.estadoCuenta.codVendedor != '' ? this.estadoCuenta.codVendedor.split(';') : [];
       vendedoresEstadoCuenta.forEach(element => {
-        this.selectedVendedoresEstadoCuenta.push(element);
+        if( this.selectedVendedoresEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedVendedoresEstadoCuenta.push(element);
+        }
       });
 
       let canalVentaEstadoCuenta: string[] = this.estadoCuenta.codCanalVenta != null && this.estadoCuenta.codCanalVenta != '' ? this.estadoCuenta.codCanalVenta.split(';') : [];
       canalVentaEstadoCuenta.forEach(element => {
-        this.selectedCanalesVentaEstadoCuenta.push(element);
+        if( this.selectedCanalesVentaEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedCanalesVentaEstadoCuenta.push(element);
+        }
       });
 
       let cobradoresEstadoCuenta: string[] = this.estadoCuenta.codCobrador != null && this.estadoCuenta.codCobrador != '' ? this.estadoCuenta.codCobrador.split(';') : [];
       cobradoresEstadoCuenta.forEach(element => {
-        this.selectedCobradoresEstadoCuenta.push(element);
+        if( this.selectedCobradoresEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedCobradoresEstadoCuenta.push(element);
+        }
       });
 
       let cargosEstadoCuenta: string[] = this.estadoCuenta.codCargo != null && this.estadoCuenta.codCargo != '' ? this.estadoCuenta.codCargo.split(';') : [];
       cargosEstadoCuenta.forEach(element => {
-        this.selectedCargosEstadoCuenta.push(element);
+        if( this.selectedCargosEstadoCuenta.filter(x  => x = element).length == 0){
+          this.selectedCargosEstadoCuenta.push(element);
+        }
       });
-
-      this.selectedAnioEstadoCuenta = this.estadoCuenta.anio != null ? this.estadoCuenta.anio : 'TODOS';
+      debugger
+      this.selectedAnioEstadoCuenta = this.estadoCuenta.anio != null && this.estadoCuenta.anio != 0 ? this.estadoCuenta.anio : 'TODOS';
 
       //cobranza
       let tipoDocsCobranza: string[] = this.cobranza.tipoDocumentos != null && this.cobranza.tipoDocumentos != '' ? this.cobranza.tipoDocumentos.split(';') : [];
       tipoDocsCobranza.forEach(element => {
-        this.selectedTiposDocumentosCobranza.push(element);
+        if( this.selectedTiposDocumentosCobranza.filter(x  => x = element).length == 0){
+          this.selectedTiposDocumentosCobranza.push(element);
+        }
       });
 
       let catCliCobranza: string[] = this.cobranza.codCategoriaCliente != null && this.cobranza.codCategoriaCliente != '' ? this.cobranza.codCategoriaCliente.split(';') : [];
       catCliCobranza.forEach(element => {
-        this.selectedCategoriasClienteCobranza.push(element);
+        if( this.selectedCategoriasClienteCobranza.filter(x  => x = element).length == 0){
+          this.selectedCategoriasClienteCobranza.push(element);
+        }
       });
 
       let listasPrecioCobranza: string[] = this.cobranza.codListaPrecios != null && this.cobranza.codListaPrecios != '' ? this.cobranza.codListaPrecios.split(';') : [];
       listasPrecioCobranza.forEach(element => {
-        this.selectedListasPrecioCobranza.push(element);
+        if( this.selectedListasPrecioCobranza.filter(x  => x = element).length == 0){
+          this.selectedListasPrecioCobranza.push(element);
+        }
       });
 
       let condicionVentaCobranza: string[] = this.cobranza.codCondicionVenta != null && this.cobranza.codCondicionVenta != '' ? this.cobranza.codCondicionVenta.split(';') : [];
       condicionVentaCobranza.forEach(element => {
-        this.selectedCondicionesVentaCobranza.push(element);
+        if( this.selectedCondicionesVentaCobranza.filter(x  => x = element).length == 0){
+          this.selectedCondicionesVentaCobranza.push(element);
+        }
       });
 
       let vendedoresCobranza: string[] = this.cobranza.codVendedor != null && this.cobranza.codVendedor != '' ? this.cobranza.codVendedor.split(';') : [];
       vendedoresCobranza.forEach(element => {
-        this.selectedVendedoresCobranza.push(element);
+        if( this.selectedVendedoresCobranza.filter(x  => x = element).length == 0){
+          this.selectedVendedoresCobranza.push(element);
+        }
       });
 
       let canalVentaCobranza: string[] = this.cobranza.codCanalVenta != null && this.cobranza.codCanalVenta != '' ? this.cobranza.codCanalVenta.split(';') : [];
       canalVentaCobranza.forEach(element => {
-        this.selectedCanalesVentaCobranza.push(element);
+        if( this.selectedCanalesVentaCobranza.filter(x  => x = element).length == 0){
+          this.selectedCanalesVentaCobranza.push(element);
+        }
       });
 
       let cobradoresCobranza: string[] = this.cobranza.codCobrador != null && this.cobranza.codCobrador != '' ? this.cobranza.codCobrador.split(';') : [];
       cobradoresCobranza.forEach(element => {
-        this.selectedCobradoresCobranza.push(element);
+        if( this.selectedCobradoresCobranza.filter(x  => x = element).length == 0){
+          this.selectedCobradoresCobranza.push(element);
+        }
       });
 
       let cargosCobranza: string[] = this.cobranza.codCargo != null && this.cobranza.codCargo != '' ? this.cobranza.codCargo.split(';') : [];
       cargosCobranza.forEach(element => {
-        this.selectedCargosCobranza.push(element);
+        if( this.selectedCargosCobranza.filter(x  => x = element).length == 0){
+          this.selectedCargosCobranza.push(element);
+        }
       });
 
-      this.selectedAnioCobranza = this.cobranza.anio != null ? this.cobranza.anio : 'TODOS';
+      this.selectedAnioCobranza = this.cobranza.anio != null && this.cobranza.anio != 0 ? this.cobranza.anio : 'TODOS';
 
 
       this.loaded = true;

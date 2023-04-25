@@ -9,11 +9,11 @@
 <div class="separator-breadcrumb border-top"></div>
 
 <div class="row mb-4">
-  <div class="col-md-4">
+  <div class="col-md-4" style="margin-bottom: 10px;">
     <button type="button" class="btn btn-success" style="background-color: #263db5;" (click)="openModal(modalBasic, null)">
       <i class="i-Add mt-3 mr-1"></i> Nuevo Usuario</button>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-8" style="margin-bottom: 10px;">
     <input type="text" name="searcher" [(ngModel)]="paginador.search" class="form-control form-control" 
       (keydown.enter)="getUsuarios()"
       placeholder="Buscar usuario...">
@@ -22,7 +22,7 @@
 
 <div class="row mb-4" *ngIf="totalItems > 0 && loaded">
   <!-- GRID AND LIST BUTTONS -->
-  <div class="col-6">
+  <!-- <div class="col-6">
     <button class="btn btn-sm btn-rounded btn-outline-light btn-svg mr-2" [ngClass]="{active: viewMode === 'grid'}" (click)="viewMode = 'grid'">
       <svg version="1.1" width="16px" id="grid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         x="0px" y="0px" viewBox="0 0 369.946 369.946" style="enable-background:new 0 0 369.946 369.946;" xml:space="preserve">
@@ -40,7 +40,7 @@
         <path d="M0,97.92v24.48h612V97.92H0z M0,318.24h612v-24.48H0V318.24z M0,514.08h612V489.6H0V514.08z" />
       </svg>
     </button>
-  </div>
+  </div> -->
   <!-- SELECT CEHECKBOX -->
   <!-- <div class="col-6">
     <div class="btn-group float-right">
@@ -83,14 +83,14 @@
           <a class="w-15 w-sm-60" style="flex-basis:150px">
             <div class="item-title"><strong>{{item.nombres}} {{item.apellidos}}</strong></div>
           </a>
-          <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:150px">
+          <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:200px">
             <strong>Perfil: </strong> {{item.perfil?.nombre}}
           </p>
-          <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:150px">
+          <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
             <strong>Email: </strong> {{item.email}}
           </p>
 
-          <p class="m-0 text-muted w-15 w-sm-100 d-none d-lg-block item-badges" style="flex-basis:10px">
+          <p class="m-0 text-muted w-15 w-sm-100 d-none d-lg-block item-badges" style="flex-basis:100px">
             <span *ngIf="item.cuentaActivada == null || item.cuentaActivada == 0" class="badge badge-warning">En activación</span>
             <span *ngIf="item.cuentaActivada == 1 && item.activo == 1" class="badge badge-success">Activo</span>
             <span *ngIf="item.cuentaActivada == 1 && item.activo == 0" class="badge badge-danger">Inactivo</span>
@@ -166,7 +166,7 @@
             <label for="picker1">Nombres <span class="camporequerido">*</span></label>
             <div class="input-group">
               <input type="text"
-                [ngClass]="name.errors && (name.dirty || name.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                [ngClass]="name.errors && (name.dirty || name.touched) ? 'form-control form-control is-invalid' : 'form-control form-control'"
                 placeholder="Nombres" #name="ngModel" required maxlength="50"
                 name="name" [(ngModel)]="usuario.nombres" >
             </div>
@@ -182,7 +182,7 @@
             <label for="picker1">Apellidos <span class="camporequerido">*</span></label>
             <div class="input-group">
               <input type="text"
-                [ngClass]="desc.errors && (desc.dirty || desc.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                [ngClass]="desc.errors && (desc.dirty || desc.touched) ? 'form-control form-control is-invalid' : 'form-control form-control'"
                 placeholder="Apellidos"  #desc="ngModel" required maxlength="60"
                 name="desc" [(ngModel)]="usuario.apellidos" >
             </div>
@@ -199,7 +199,7 @@
         <label for="picker1">Perfil <span class="camporequerido">*</span></label>
         <div class="input-group">
           <select [(ngModel)]="selectedPerfil"
-                  class="form-control form-control-rounded"
+                  class="form-control form-control"
                   name="catPadre" #catPadre="ngModel" required>
               <option *ngFor="let p of perfiles"
                       [ngValue]="p">
@@ -217,7 +217,7 @@
         <label for="picker1">Email <span class="camporequerido">*</span></label>
         <div class="input-group">
           <input type="email"
-            [ngClass]="mail.errors && (mail.dirty || mail.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+            [ngClass]="mail.errors && (mail.dirty || mail.touched) ? 'form-control form-control is-invalid' : 'form-control form-control'"
             placeholder="Email"  #mail="ngModel" required maxlength="50" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" (blur)="onBlurEmail()"
             name="mail" [(ngModel)]="usuario.email" >
         </div>
@@ -228,7 +228,7 @@
         </p>
         <p *ngIf="mail.errors && (mail.dirty || mail.touched)" class="text-danger" style="margin-top: 2px; font-size: 12px">
             <span *ngIf="mail.errors.pattern">
-              Email no es valido.
+              Email no es válido.
             </span>
           </p>
       </div>
@@ -250,7 +250,7 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark btn-rounded" (click)="save(modalConfirmEdit)"
+    <button type="button" class="btn btn-outline-dark btn" (click)="save(modalConfirmEdit)"
       [disabled]="!myFormPerfil.form.valid" 
       [style.cursor]="!myFormPerfil.form.valid ? 'no-drop' : 'pointer'"
     >Guardar</button>
@@ -273,7 +273,7 @@
             <label for="picker1">Nueva contraseña <span class="camporequerido">*</span></label>
             <div class="input-group">
               <input type="password"
-                [ngClass]="passs1.errors && (passs1.dirty || passs1.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                [ngClass]="passs1.errors && (passs1.dirty || passs1.touched) ? 'form-control form-control is-invalid' : 'form-control form-control'"
                 placeholder="Nueva contraseña" #passs1="ngModel" required maxlength="50" minlength="6"
                 name="passs1" [(ngModel)]="password1" >
             </div>
@@ -292,7 +292,7 @@
             <label for="picker1">Repita contraseña <span class="camporequerido">*</span></label>
             <div class="input-group">
               <input type="password"
-                [ngClass]="passs2.errors && (passs2.dirty || passs2.touched) ? 'form-control form-control-rounded is-invalid' : 'form-control form-control-rounded'"
+                [ngClass]="passs2.errors && (passs2.dirty || passs2.touched) ? 'form-control form-control is-invalid' : 'form-control form-control'"
                 placeholder="Repita contraseña" #passs2="ngModel" required maxlength="50" minlength="6"
                 name="passs2" [(ngModel)]="password2" >
             </div>
@@ -310,7 +310,7 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark btn-rounded" (click)="changePassword()"
+    <button type="button" class="btn btn-outline-dark btn" (click)="changePassword()"
       [disabled]="!myFormChangePass.form.valid" 
       [style.cursor]="!myFormChangePass.form.valid ? 'no-drop' : 'pointer'"
     >Aceptar</button>

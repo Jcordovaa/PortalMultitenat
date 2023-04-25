@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -52,6 +53,7 @@ namespace ApiPortal.Controllers
         [HttpGet("EnviaAutomatizaciones"), Authorize]
         public async Task<ActionResult<object>> EnviaAutomatizacionesAsync()
         {
+
             int horaActual = DateTime.Now.Hour;
             string estadoLogC = string.Empty;
             LogCobranza lc = new LogCobranza();
@@ -59,11 +61,11 @@ namespace ApiPortal.Controllers
             lc.Estado = "PROCESANDO";
             _context.LogCobranzas.Add(lc);
             _context.SaveChanges();
-            SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
 
             try
             {
-                Generador genera = new Generador(_context,_webHostEnvironment);
+                Generador genera = new Generador(_context, _webHostEnvironment);
                 var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
                 var auxEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 string urlFrot = System.Configuration.ConfigurationManager.AppSettings["URL_FRONT"];
@@ -155,7 +157,7 @@ namespace ApiPortal.Controllers
 
 
 
-                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync((int)automatizacion.Anio, fechaDesde, fechaHasta, configPago.TiposDocumentosDeuda);
+                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos);
 
                     if (automatizacion.ExcluyeClientes == 1)
                     {
@@ -168,7 +170,7 @@ namespace ApiPortal.Controllers
                     switch (automatizacion.IdAutomatizacion)
                     {
                         case 1:
-                            documentos = documentos.Where(x => (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays <= automatizacion.DiasVencimiento && (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays > 0).ToList();
+                            documentos = documentos.Where(x => (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays == automatizacion.DiasVencimiento && (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays > 0).ToList();
                             break;
                         case 3:
                             documentos = documentos.Where(x => (DateTime.Now.Date - x.FechaVencimiento.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
@@ -183,7 +185,7 @@ namespace ApiPortal.Controllers
                     //Recorremes y seleccionamos los documentos por clientes
                     foreach (var al in clientes)
                     {
-                        var clienteApi = await sf.BuscarClienteSoftland2Async(al.Replace(".", "").Split('-')[0], string.Empty, string.Empty);
+                        var clienteApi = await sf.BuscarClienteSoftland2Async(string.Empty, al, string.Empty);
 
                         if (clienteApi.Count == 0)
                         {
@@ -195,75 +197,95 @@ namespace ApiPortal.Controllers
 
                         //}
 
-                        if (!string.IsNullOrEmpty(clienteApi[0].CodCatCliente))
+                        if (!string.IsNullOrEmpty(automatizacion.CodCategoriaCliente))
                         {
-                            if (!automatizacion.CodCategoriaCliente.Contains(clienteApi[0].CodCatCliente))
+                            if (!string.IsNullOrEmpty(clienteApi[0].CodCatCliente))
+                            {
+                                if (!automatizacion.CodCategoriaCliente.Contains(clienteApi[0].CodCatCliente))
+                                {
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                        }
+
+
+                        if (!string.IsNullOrEmpty(automatizacion.CodCobrador))
+                        {
+                            if (!string.IsNullOrEmpty(clienteApi[0].CodCobrador))
+                            {
+                                if (!automatizacion.CodCobrador.Contains(clienteApi[0].CodCobrador))
+                                {
+                                    continue;
+                                }
+                            }
+                            else
                             {
                                 continue;
                             }
                         }
-                        else
-                        {
-                            continue;
-                        }
 
 
-                        if (!string.IsNullOrEmpty(clienteApi[0].CodCobrador))
+                        if (!string.IsNullOrEmpty(automatizacion.CodCondicionVenta))
                         {
-                            if (!automatizacion.CodCobrador.Contains(clienteApi[0].CodCobrador))
+                            if (!string.IsNullOrEmpty(clienteApi[0].CodCondVenta))
+                            {
+                                if (!automatizacion.CodCondicionVenta.Contains(clienteApi[0].CodCondVenta))
+                                {
+                                    continue;
+                                }
+                            }
+                            else
                             {
                                 continue;
                             }
                         }
-                        else
-                        {
-                            continue;
-                        }
 
-                        if (!string.IsNullOrEmpty(clienteApi[0].CodCondVenta))
+
+                        if (!string.IsNullOrEmpty(automatizacion.CodListaPrecios))
                         {
-                            if (!automatizacion.CodCondicionVenta.Contains(clienteApi[0].CodCondVenta))
+                            if (!string.IsNullOrEmpty(clienteApi[0].CodLista))
+                            {
+
+                                if (!automatizacion.CodListaPrecios.Contains(clienteApi[0].CodLista))
+                                {
+                                    continue;
+                                }
+                            }
+                            else
                             {
                                 continue;
                             }
                         }
-                        else
-                        {
-                            continue;
-                        }
 
-                        if (!string.IsNullOrEmpty(clienteApi[0].CodLista))
-                        {
 
-                            if (!automatizacion.CodListaPrecios.Contains(clienteApi[0].CodLista))
+                        if (!string.IsNullOrEmpty(automatizacion.CodVendedor))
+                        {
+                            if (!string.IsNullOrEmpty(clienteApi[0].CodVendedor))
+                            {
+
+                                if (!automatizacion.CodVendedor.Contains(clienteApi[0].CodVendedor))
+                                {
+                                    continue;
+                                }
+                            }
+                            else
                             {
                                 continue;
                             }
                         }
-                        else
-                        {
-                            continue;
-                        }
 
-                        if (!string.IsNullOrEmpty(clienteApi[0].CodVendedor))
-                        {
-
-                            if (!automatizacion.CodVendedor.Contains(clienteApi[0].CodVendedor))
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
 
 
 
 
                         var docCliente = documentos.Where(x => x.RutCliente == al).ToList();
 
-                        var contactos = await sf.GetContactosClienteAsync(docCliente[0].RutCliente.Replace(".", "").Split('-')[0]);
+                        var contactos = await sf.GetContactosClienteAsync(clienteApi[0].CodAux);
                         string correos = string.Empty;
                         if (automatizacion.EnviaTodosContactos == 1)
                         {
@@ -305,7 +327,7 @@ namespace ApiPortal.Controllers
                             }
                         }
 
-                        if (string.IsNullOrEmpty(correos))
+                        if (string.IsNullOrEmpty(correos) && automatizacion.EnviaCorreoFicha == 1)
                         {
                             correos = clienteApi[0].Correo;
                         }
@@ -324,6 +346,39 @@ namespace ApiPortal.Controllers
                                 doc.CantidadDocumentosPendientes = docCliente.Count;
                                 doc.MontoDeuda = Convert.ToInt32(item.MontoDocumento);
                                 doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
+                                doc.CodAux = clienteApi[0].CodAux;
+
+                                AutomatizacionVm aut = new AutomatizacionVm();
+
+                                aut.AgrupaCobranza = automatizacion.AgrupaCobranza;
+                                aut.Anio = automatizacion.Anio;
+                                aut.CodCanalVenta = automatizacion.CodCanalVenta;
+                                aut.CodCargo = automatizacion.CodCargo;
+                                aut.CodCategoriaCliente = automatizacion.CodCategoriaCliente;
+                                aut.CodCobrador = automatizacion.CodCobrador;
+                                aut.CodCondicionVenta = automatizacion.CodCondicionVenta;
+                                aut.CodListaPrecios = automatizacion.CodListaPrecios;
+                                aut.CodVendedor = automatizacion.CodVendedor;
+                                aut.DiaEnvio = automatizacion.DiaEnvio;
+                                aut.DiasRecordatorio = automatizacion.DiasRecordatorio;
+                                aut.DiasVencimiento = automatizacion.DiasVencimiento;
+                                aut.EnviaCorreoFicha = (int)automatizacion.EnviaCorreoFicha;
+                                aut.EnviaTodosContactos = (int)automatizacion.EnviaTodosContactos;
+                                aut.Estado = automatizacion.Estado;
+                                aut.ExcluyeClientes = automatizacion.ExcluyeClientes;
+                                aut.ExcluyeFestivos = automatizacion.ExcluyeFestivos;
+                                aut.IdAutomatizacion = automatizacion.IdAutomatizacion;
+                                aut.IdHorario = automatizacion.IdHorario;
+                                aut.IdPerioricidad = automatizacion.IdPerioricidad;
+                                aut.IdTipoAutomatizacion = automatizacion.IdTipoAutomatizacion;
+                                aut.MuestraSoloVencidos = automatizacion.MuestraSoloVencidos;
+
+                                List<int> folios = new List<int>();
+                                folios.Add(item.FolioDocumento);
+                                aut.NumDoc = folios;
+                                aut.TipoDocumentos = automatizacion.TipoDocumentos;
+
+                                doc.AutomatizacionJson = JsonConvert.SerializeObject(aut);
 
                                 DocumentosCobranzaVM aux = new DocumentosCobranzaVM();
                                 aux.Folio = (int)item.FolioDocumento;
@@ -346,6 +401,42 @@ namespace ApiPortal.Controllers
                             doc.CantidadDocumentosPendientes = docCliente.Count;
                             doc.MontoDeuda = Convert.ToInt32(docCliente.Sum(x => x.MontoDocumento));
                             doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
+                            doc.CodAux = clienteApi[0].CodAux;
+
+                            AutomatizacionVm aut = new AutomatizacionVm();
+
+                            aut.AgrupaCobranza = automatizacion.AgrupaCobranza;
+                            aut.Anio = automatizacion.Anio;
+                            aut.CodCanalVenta = automatizacion.CodCanalVenta;
+                            aut.CodCargo = automatizacion.CodCargo;
+                            aut.CodCategoriaCliente = automatizacion.CodCategoriaCliente;
+                            aut.CodCobrador = automatizacion.CodCobrador;
+                            aut.CodCondicionVenta = automatizacion.CodCondicionVenta;
+                            aut.CodListaPrecios = automatizacion.CodListaPrecios;
+                            aut.CodVendedor = automatizacion.CodVendedor;
+                            aut.DiaEnvio = automatizacion.DiaEnvio;
+                            aut.DiasRecordatorio = automatizacion.DiasRecordatorio;
+                            aut.DiasVencimiento = automatizacion.DiasVencimiento;
+                            aut.EnviaCorreoFicha = (int)automatizacion.EnviaCorreoFicha;
+                            aut.EnviaTodosContactos = (int)automatizacion.EnviaTodosContactos;
+                            aut.Estado = automatizacion.Estado;
+                            aut.ExcluyeClientes = automatizacion.ExcluyeClientes;
+                            aut.ExcluyeFestivos = automatizacion.ExcluyeFestivos;
+                            aut.IdAutomatizacion = automatizacion.IdAutomatizacion;
+                            aut.IdHorario = automatizacion.IdHorario;
+                            aut.IdPerioricidad = automatizacion.IdPerioricidad;
+                            aut.IdTipoAutomatizacion = automatizacion.IdTipoAutomatizacion;
+                            aut.MuestraSoloVencidos = automatizacion.MuestraSoloVencidos;
+                            List<int> folios = new List<int>();
+
+                            foreach (var item in docCliente)
+                            {
+                                folios.Add(item.FolioDocumento);
+                            }
+                            aut.NumDoc = folios;
+                            aut.TipoDocumentos = automatizacion.TipoDocumentos;
+
+                            doc.AutomatizacionJson = JsonConvert.SerializeObject(aut);
 
                             //Agregamos documentos
                             foreach (var d in docCliente)
@@ -367,142 +458,10 @@ namespace ApiPortal.Controllers
 
                     int IdEstadoFinal = 3; //ESTADO ENVIADA
 
-                    //Recorremos resultado de cobranza, generamos documento y enviamos correo
-                    foreach (var cobranza in listaEnvio)
-                    {
-                        //Valida si existen correos disponbles para envio
-                        if (correosEnviados >= correosDisponibles)
-                        {
-                            //No existen correos por lo que se cambia el estado a 2: ENVIADO PARCIALMENTE
-                            IdEstadoFinal = 2;
-                            break;
-                        }
-                        else
-                        {
-                            if (string.IsNullOrEmpty(cobranza.EmailCliente))
-                            {
-                                continue;
-                            }
-                            var docStream = genera.generaDetalleCobranza(cobranza);
+                    MailService mailService = new MailService(_context, _webHostEnvironment);
+                    int idEstadoEnvio = await mailService.EnviaAutomatizacionAsync(listaEnvio, automatizacion);
+                    if (idEstadoEnvio != 0) { IdEstadoFinal = idEstadoEnvio; }
 
-                            string body = string.Empty;
-                            string rutaCorreo = "~/Uploads/MailTemplates/cobranza.component.html";
-
-
-                            string asunto = string.Empty;
-                            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
-                            {
-                                body = reader.ReadToEnd();
-                            }
-
-                            string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
-                            body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
-                            body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
-
-                            if (automatizacion.IdAutomatizacion == 1)
-                            {
-                                asunto = auxCorreo.AsuntoPreCobranza;
-                                body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0");
-                                body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                                body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
-                                body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
-                                body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
-                            }
-                            else if (automatizacion.IdAutomatizacion == 2)
-                            {
-                                asunto = auxCorreo.AsuntoEstadoCuenta;
-                                body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0");
-                                body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                                body = body.Replace("{TituloCorreo}", auxCorreo.TituloEstadoCuenta);
-                                body = body.Replace("{TextoCorreo}", auxCorreo.TextoEstadoCuenta);
-                                body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
-                            }
-                            else if (automatizacion.IdAutomatizacion == 3)
-                            {
-                                asunto = auxCorreo.AsuntoCobranza;
-                                if (automatizacion.AgrupaCobranza == 1)
-                                {
-                                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0");
-                                }
-                                else
-                                {
-                                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/0/{cobranza.ListaDocumentos[0].Folio}/0");
-                                }
-                                body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                                body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
-                                body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
-                                body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
-                            }
-
-
-
-                            try
-                            {
-                                using (MailMessage mailMessage = new MailMessage())
-                                {
-                                    Attachment documento = new Attachment(new MemoryStream(docStream), "Estado Cuenta.pdf", "application/pdf");
-                                    mailMessage.Attachments.Add(documento);
-
-                                    if (cobranza.EmailCliente.Contains(";"))
-                                    {
-                                        string[] destinatarios = cobranza.EmailCliente.Split(';');
-                                        foreach (var d in destinatarios)
-                                        {
-                                            if (!string.IsNullOrEmpty(d) && d.Trim() != ";")
-                                            {
-                                                mailMessage.To.Add(new MailAddress(d));
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        mailMessage.To.Add(new MailAddress(cobranza.EmailCliente));
-                                    }
-
-                                    mailMessage.From = new MailAddress(auxCorreo.CorreoOrigen, auxCorreo.NombreCorreos);
-                                    mailMessage.Subject = asunto;
-                                    mailMessage.Body = body;
-                                    mailMessage.IsBodyHtml = true;
-                                    SmtpClient smtp = new SmtpClient();
-                                    smtp.Host = auxCorreo.SmtpServer;
-                                    smtp.EnableSsl = (auxCorreo.Ssl == 1) ? true : false;
-                                    System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                    NetworkCred.UserName = auxCorreo.Usuario;
-                                    NetworkCred.Password = Encrypt.Base64Decode(auxCorreo.Clave);
-                                    smtp.UseDefaultCredentials = false;
-                                    smtp.Credentials = NetworkCred;
-                                    smtp.Port = Convert.ToInt32(auxCorreo.Puerto);
-                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                                    await smtp.SendMailAsync(mailMessage);
-
-                                    MailService ms = new MailService(_context, _webHostEnvironment);
-                                    ms.registraLogCorreo(cobranza.RutCliente, cobranza.RutCliente.Replace(".", "").Split('-')[0], cobranza.EmailCliente);
-                                }
-
-                                correosEnviados += cobranza.EmailCliente.Split(';').Count();
-                            }
-                            catch (Exception ex)
-                            {
-                                //Registrar en tabla log
-                                LogProceso log = new LogProceso();
-                                log.IdTipoProceso = -1;
-                                log.Fecha = DateTime.Now;
-                                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                                log.Ruta = @"Autometizacion\EnviaAutomatizaciones";
-                                log.Mensaje = ex.Message;
-                                log.Excepcion = ex.ToString();
-                                _context.LogProcesos.Add(log);
-                                _context.SaveChanges();
-
-                                estadoLogC = estadoLogC + ";Error al enviar correo";
-                                IdEstadoFinal = 2;
-                                if (ex.Message == "Error al enviar correo.")
-                                {
-                                    Thread.Sleep(5000);
-                                }
-                            }
-                        }
-                    }
                     //Agregar a logCobranza
                     string nombreAutomatizacion = string.Empty;
                     if (automatizacion.IdAutomatizacion == 1)
@@ -570,7 +529,7 @@ namespace ApiPortal.Controllers
                     aut.ExcluyeFestivos = automatizacion.ExcluyeFestivos;
                     aut.IdHorario = automatizacion.IdHorario;
                     aut.IdPerioricidad = automatizacion.IdPerioricidad;
-                    aut.IdTipoAutomatizacion = automatizacion.IdTipoAutomatizacion;
+                    aut.IdTipoAutomatizacion = (int)automatizacion.IdTipoAutomatizacion;
                     aut.MuestraSoloVencidos = automatizacion.MuestraSoloVencidos;
                     aut.TipoDocumentos = automatizacion.TipoDocumentos;
                     aut.DiaEnvio = automatizacion.DiaEnvio;
@@ -605,55 +564,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPut("ActualizaAutomatizacion"), Authorize]
-        public async Task<ActionResult<AuthenticateVm>> ActualizaAutomatizacionAsync(AutomatizacionVm automatizacion)
-        {
-            try
-            {
-                var aut = _context.Automatizacions.Where(x => x.IdAutomatizacion == automatizacion.IdAutomatizacion).FirstOrDefault();
-                if (aut != null)
-                {
-                    aut.AgrupaCobranza = automatizacion.AgrupaCobranza;
-                    aut.Anio = automatizacion.Anio;
-                    aut.CodCategoriaCliente = automatizacion.CodCategoriaCliente;
-                    aut.CodCondicionVenta = automatizacion.CodCondicionVenta;
-                    aut.CodListaPrecios = automatizacion.CodListaPrecios;
-                    aut.CodVendedor = automatizacion.CodVendedor;
-                    aut.DiasVencimiento = automatizacion.DiasVencimiento;
-                    aut.Estado = automatizacion.Estado;
-                    aut.ExcluyeClientes = automatizacion.ExcluyeClientes;
-                    aut.ExcluyeFestivos = automatizacion.ExcluyeFestivos;
-                    aut.IdHorario = automatizacion.IdHorario;
-                    aut.IdPerioricidad = automatizacion.IdPerioricidad;
-                    aut.IdTipoAutomatizacion = automatizacion.IdTipoAutomatizacion;
-                    aut.MuestraSoloVencidos = automatizacion.MuestraSoloVencidos;
-                    aut.TipoDocumentos = automatizacion.TipoDocumentos;
-                    aut.DiasRecordatorio = automatizacion.DiasRecordatorio;
-                    aut.CodCobrador = automatizacion.CodCobrador;
-                    aut.CodCanalVenta = automatizacion.CodCanalVenta;
-                    aut.EnviaCorreoFicha = automatizacion.EnviaCorreoFicha;
-                    aut.EnviaTodosContactos = automatizacion.EnviaTodosContactos;
-                    _context.Entry(aut);
-                    _context.SaveChanges();
-
-                }
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                //FCA 17-12-2021  Se guarda log
-                LogProceso log = new LogProceso();
-                log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
-                log.Excepcion = ex.StackTrace;
-                log.Mensaje = ex.Message;
-                log.Ruta = "api/Automatizacion/ActualizaAutomaticacion";
-                _context.LogProcesos.Add(log);
-                _context.SaveChanges();
-                return BadRequest(ex.Message);
-            }
-        }
+    
 
         [HttpGet("GetTipos"), Authorize]
         public ActionResult<object> GetTipos()

@@ -14,11 +14,14 @@ namespace ApiPortal.Dal.Models_Portal
         }
 
         public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options, IHttpContextAccessor contextAccessor)
-            : base(options)
         {
             _contextAccessor = contextAccessor;
         }
 
+        public PortalClientesSoftlandContext(IHttpContextAccessor contextAccessor)
+        {
+            _contextAccessor = contextAccessor;
+        }
 
         public virtual DbSet<Acceso> Accesos { get; set; } = null!;
         public virtual DbSet<ApiSoftland> ApiSoftlands { get; set; } = null!;
@@ -66,7 +69,6 @@ namespace ApiPortal.Dal.Models_Portal
             {
                 var currentTenant = _contextAccessor.HttpContext?.GetTenant();
                 optionsBuilder.UseSqlServer(currentTenant.Items["ConnectionString"].ToString());
-                //optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalClientesSoftland2;User Id=sa;Password=204709cejA;");
             }
         }
 
@@ -156,7 +158,15 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.DocContabilizadosResumenxRut)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.DocumentosContabilizados)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DocumentosContabilizadosResumen)
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
@@ -201,6 +211,10 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.PagosxDocumento)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.PendientesPorFacturar)
                     .HasMaxLength(500)
                     .IsUnicode(false);
@@ -214,6 +228,14 @@ namespace ApiPortal.Dal.Models_Portal
                     .IsUnicode(false);
 
                 entity.Property(e => e.Token)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TopDeudores)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TransbankRegistrarCliente)
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
@@ -647,6 +669,8 @@ namespace ApiPortal.Dal.Models_Portal
                 entity.Property(e => e.Usuario)
                     .HasMaxLength(100)
                     .IsUnicode(false);
+
+                entity.Property(e => e.UtilizaSes).HasColumnName("UtilizaSES");
             });
 
             modelBuilder.Entity<ConfiguracionCorreoCasilla>(entity =>
@@ -820,6 +844,10 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Favicon)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.IconoClavePerfil)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -864,9 +892,7 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.TextoNoConsideraTodaDeuda)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                entity.Property(e => e.TextoNoConsideraTodaDeuda).IsUnicode(false);
 
                 entity.Property(e => e.TituloComprasFacturadas)
                     .HasMaxLength(60)
@@ -1309,6 +1335,8 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
+                entity.Property(e => e.CodigoComercio).IsUnicode(false);
+
                 entity.Property(e => e.CodigoMedioPagoSoftlandPay)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -1336,6 +1364,8 @@ namespace ApiPortal.Dal.Models_Portal
                 entity.Property(e => e.Protocolo)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.SecretKey).IsUnicode(false);
 
                 entity.Property(e => e.TipoDocumento)
                     .HasMaxLength(50)

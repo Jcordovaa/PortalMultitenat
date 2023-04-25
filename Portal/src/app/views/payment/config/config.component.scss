@@ -27,3 +27,49 @@ select{
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
+
+  .card-header {
+    background-color: #26bdef;
+    color: white;
+    font-size: larger;
+    font-weight: 500;
+    display: flex;
+}
+
+/*FCA 02-06-2022*/
+.circle{
+    height: 25px;
+  width: 25px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+
+}
+
+.arrowIcon{
+  margin-left: auto !important;
+}
+
+.size{
+  font-size: 1.5vh;
+}
+
+.color-picker-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+@media (min-width:992px) {
+  .margenDesktop{
+    margin-left: 10%;
+  }
+}
+
+
+@media (max-width:991px) {
+
+}
+

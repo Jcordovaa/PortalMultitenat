@@ -61,6 +61,7 @@ export class Step1Component implements OnInit {
 
   onChangeAPagar(val: any, data: any) {
     // let monto = val.replace(/\./g,'')
+    // debugger
     // const newMonto: number = parseInt(monto)
   
     this.compras.forEach(element => {

@@ -17,10 +17,10 @@ export class SecurityService {
   private apiUrlUsuarios: string = '';
 
   constructor(private utils: Utils, private http: HttpClient) { 
-    this.apiUrlPerfiles = this.utils.ServerWithApiUrl + 'Perfiles';
-    this.apiUrlAccesos = this.utils.ServerWithApiUrl + 'Accesos';
-    this.apiUrlPermisos = this.utils.ServerWithApiUrl + 'Permisos';
-    this.apiUrlUsuarios = this.utils.ServerWithApiUrl + 'Usuarios';
+    this.apiUrlPerfiles = this.utils.ServerWithApiUrl + 'perfiles';
+    this.apiUrlAccesos = this.utils.ServerWithApiUrl + 'accesos';
+    this.apiUrlPermisos = this.utils.ServerWithApiUrl + 'permisos';
+    this.apiUrlUsuarios = this.utils.ServerWithApiUrl + 'usuarios';
     
   }
 
@@ -54,11 +54,11 @@ export class SecurityService {
 
   //PERFILES
   getPerfil(idPerfil: number): Observable<Perfil> {
-    return this.http.get<Perfil>(`${this.apiUrlPerfiles}/GetPerfilId/${idPerfil}`, this.utils.getHeaders(true));
+    return this.http.get<Perfil>(`${this.apiUrlPerfiles}/getPerfilId/${idPerfil}`, this.utils.getHeaders(true));
   }
 
   getPerfiles(): Observable<Perfil[]> {
-    return this.http.get<Perfil[]>(`${this.apiUrlPerfiles}/GetPerfiles`, this.utils.getHeaders(true));
+    return this.http.get<Perfil[]>(`${this.apiUrlPerfiles}/getPerfiles`, this.utils.getHeaders(true));
   }
 
 
@@ -88,7 +88,7 @@ export class SecurityService {
 
   getPermisosByEmail(data: any): Observable<Permisos[]> {
     const body = JSON.stringify(data);
-    return this.http.post<Permisos[]>(`${this.apiUrlPermisos}/GetPermisosByEmail`, body, this.utils.getHeaders(true));
+    return this.http.post<Permisos[]>(`${this.apiUrlPermisos}/GetPermisosByEmail/`, body, this.utils.getHeaders(true));
   }
 
   savePermiso(permiso: Permisos): Observable<Perfil> {
@@ -126,7 +126,7 @@ export class SecurityService {
 
 
   getUsuarioId (idUsuario: number): Observable<Usuarios> {
-    return this.http.get<Usuarios>(`${this.apiUrlUsuarios}/GetUsuarioId/${idUsuario}`, this.utils.getHeaders(true));
+    return this.http.get<Usuarios>(`${this.apiUrlUsuarios}/getUsuarioId/${idUsuario}`, this.utils.getHeaders(true));
   }
 
   saveUsuario (usuario: Usuarios): Observable<any> {
@@ -136,7 +136,7 @@ export class SecurityService {
 
   editUsuario (usuario: Usuarios): Observable<any> {
     const body = JSON.stringify(usuario);
-    return this.http.post<any>(`${this.apiUrlUsuarios}/ActualizaUsuario`, body, this.utils.getHeaders(true));
+    return this.http.put<any>(`${this.apiUrlUsuarios}/ActualizaUsuario`, body, this.utils.getHeaders(true));
   }
 
   restableceContraseñaUsuario (usuario: Usuarios): Observable<any> {
@@ -162,7 +162,7 @@ export class SecurityService {
 
   activateAccount (usuario: Usuarios): Observable<Usuarios> {
     const body = JSON.stringify(usuario);
-    return this.http.post<Usuarios>(`${this.apiUrlUsuarios}/ActivateAccount`, body, this.utils.getHeaders(false));
+    return this.http.post<Usuarios>(`${this.apiUrlUsuarios}/activateAccount`, body, this.utils.getHeaders(false));
   }
 
   // changePasswordRequest (usuario: Usuarios): Observable<Usuarios> {

@@ -41,6 +41,13 @@
     color: rgba(230, 213, 213, 0.322);
 }
 
+.ngx-spinner ::ng-deep .ngx-spinner-text {
+  color: red;
+}
+
+.loading-text{
+  z-index: 99999999;
+}
 .card-box .card-box-footer {
     position: absolute;
     left: 0px;
@@ -86,17 +93,37 @@
   }
 
 
-  @media (min-width:930px) {
+  @media (min-width:992px) {
 
     .movil{
       display: none;
     }
+    .rowClientResume{
+      flex-basis: 150px; 
+      align-self: start;
+    }
+    .rowClientResume2{
+      flex-basis: 150px;
+      vertical-align: middle;
+    }
   }
   
   
-  @media (max-width:929px) {
+  @media (max-width:991px) {
     .desktop{
         display: none;
+    }
+    .rowClientResume{
+      flex-basis: 50px; 
+      align-self: start;
+    }
+
+    .rowClientResume2{
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.1);
+      width: 150%;
+      padding-bottom: 0px;
+      margin-bottom: 0px;
     }
   }
 

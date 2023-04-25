@@ -116,7 +116,7 @@ export class ShoppingComponent implements OnInit {
     search: ''
   };
 
-
+  varloUfOrigen: number = 0;
 
 
   noResultText: string = 'No se encontraron documentos con los filtros seleccionados.'
@@ -126,7 +126,7 @@ export class ShoppingComponent implements OnInit {
   existModuloNotaVenta: boolean = false;
   existModuloContabilidad: boolean = false;
 
-  productoVenta: string; 
+  productoVenta: string;
   public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno(); //FCA 01-07-2022
 
   constructor(private ngbDatepickerConfig: NgbDatepickerConfig, private disenoSerivce: ConfiguracionDisenoService,//FCA 01-07-2022
@@ -151,77 +151,68 @@ export class ShoppingComponent implements OnInit {
 
   ngOnInit(): void {
     this.spinner.show();
-    this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
-      this.configDiseno = res;
+    const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+    if (configuracionCompletaPortal != null) {
+      this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+      this.configuracion = configuracionCompletaPortal.configuracionPortal;
+      this.configuracionPagos = configuracionCompletaPortal.configuracionPagoCliente;
+      this.existModuloInventario = configuracionCompletaPortal.existModuloInventario;
+      this.existModuloNotaVenta = configuracionCompletaPortal.existModuloNotaVenta;
+      this.existModuloContabilidad = configuracionCompletaPortal.existModuloContabilidad;
+    }
 
-      this.configuracionService.getConfigPortal().subscribe(res => {
-        this.configuracion = res;
-        this.configuracionService.getConfigPagoClientes().subscribe(res => {
-          this.configuracionPagos = res;
-          const user = this.authService.getuser();
-          this.softlandService.getExistModuloInventario().subscribe(res => {
-            this.existModuloInventario = res;
-            this.softlandService.getExistModuloNotaVenta().subscribe(res => {
-              this.existModuloNotaVenta = res;
-              this.softlandService.getExistModuloContabilidad().subscribe(res => {
-                this.existModuloContabilidad = res;
-                if (user) {
-                  if (!this.existModuloInventario) {
-                    this.clientesService.getAllDocumentosContabilizados(user.codAux).subscribe((res: Documento[]) => {
-                      
-                      this.compras = res.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
-                      this.comprasResp = res;
-                      this.config = {
-                        itemsPerPage: this.paginador.endRow,
-                        currentPage: 1,
-                        totalItems: this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).length
-                      };
-                      let compraSsegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+    const user = this.authService.getuser();
+    if (user) {
+      if (!this.existModuloInventario) {
+        this.clientesService.getAllDocumentosContabilizados(user.codAux).subscribe((res: Documento[]) => {
 
-                      if (compraSsegundaMoneda.length > 0) {
-                        this.existComprasSegundaMoneda = true;
-                        this.valorUfActrual = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
-                      }
-                      this.spinner.hide();
-                    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener compras', '', true); });
-                  } else {
-                    this.clientesService.getDashboardCompras(user.codAux).subscribe((res: any) => {
+          this.compras = res.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
+          this.comprasResp = res;
+          this.config = {
+            itemsPerPage: this.paginador.endRow,
+            currentPage: 1,
+            totalItems: this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada).length
+          };
+          let compraSsegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
 
-                      if (res.length > 0) {
-                        res.forEach(element => {
-                          if (element.tipo == "NV") {
-                            this.cantidadNV = element.cantidadDocumentos;
-                            this.totalNV = element.montoTotal;
-                          } else if (element.tipo == "COMPRAS") {
-                            this.cantidadCompras = element.cantidadDocumentos;
-                            this.totalCompras = element.montoTotal;
-                          } else if (element.tipo == "PRODUCTOS") {
-                            this.CantidadProductos = element.cantidadDocumentos;
-                          } else if (element.tipo == "GUIAS") {
-                            this.cantidadGuias = element.cantidadDocumentos;
-                            this.totalGuias = element.montoTotal;
-                          }
-                        });
-                      }
+          if (compraSsegundaMoneda.length > 0) {
+            this.existComprasSegundaMoneda = true;
+          }
+          this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener compras', '', true); });
+      } else {
+        this.clientesService.getDashboardCompras(user.codAux).subscribe((res: any) => {
 
-                      this.cantidadRecuadrosDocumentos = 0;
-                      if (this.configuracion.muestraComprasFacturadas == 1) { this.cantidadRecuadrosDocumentos += 1; }
-                      if (this.configuracion.muestraPendientesFacturar == 1 && this.existModuloNotaVenta) { this.cantidadRecuadrosDocumentos += 1; }
-                      if (this.configuracion.muestraProductos == 1) { this.cantidadRecuadrosDocumentos += 1; }
-                      if (this.configuracion.muestraGuiasPendientes == 1) { this.cantidadRecuadrosDocumentos += 1; }
-                      this.loadingMisCompras = true;
-                      this.spinner.hide();
-                    }, err => { this.spinner.hide(); });
-                  }
-                } else {
-                  this.spinner.hide();
-                }
-              }, err => { this.spinner.hide(); });
-            }, err => { this.spinner.hide(); });
-          }, err => { this.spinner.hide(); });
-        }, err => { this.spinner.hide(); });
-      }, err => { this.spinner.hide(); });
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener configuración', '', true); });
+          if (res.length > 0) {
+            res.forEach(element => {
+              if (element.tipo == "NV") {
+                this.cantidadNV = element.cantidadDocumentos;
+                this.totalNV = element.montoTotal;
+              } else if (element.tipo == "COMPRAS") {
+                this.cantidadCompras = element.cantidadDocumentos;
+                this.totalCompras = element.montoTotal;
+              } else if (element.tipo == "PRODUCTOS") {
+                this.CantidadProductos = element.cantidadDocumentos;
+              } else if (element.tipo == "GUIAS") {
+                this.cantidadGuias = element.cantidadDocumentos;
+                this.totalGuias = element.montoTotal;
+              }
+            });
+          }
+
+          this.cantidadRecuadrosDocumentos = 0;
+          if (this.configuracion.muestraComprasFacturadas == 1) { this.cantidadRecuadrosDocumentos += 1; }
+          if (this.configuracion.muestraPendientesFacturar == 1 && this.existModuloNotaVenta) { this.cantidadRecuadrosDocumentos += 1; }
+          if (this.configuracion.muestraProductos == 1) { this.cantidadRecuadrosDocumentos += 1; }
+          if (this.configuracion.muestraGuiasPendientes == 1) { this.cantidadRecuadrosDocumentos += 1; }
+          this.loadingMisCompras = true;
+          this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al datos', '', true);});
+      }
+    } else {
+      this.spinner.hide();
+    }
+
 
   }
 
@@ -232,7 +223,7 @@ export class ShoppingComponent implements OnInit {
     if (moneda == 1) {
       data = data.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada);
     } else if (moneda == 2) {
-      data = data.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+      data = data.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
     }
 
     if (this.notaVenta != null) {
@@ -290,7 +281,7 @@ export class ShoppingComponent implements OnInit {
     if (moneda == 1) {
       data = data.filter(x => x.codMon == this.configuracionPagos.monedaUtilizada);
     } else if (moneda == 2) {
-      data = data.filter(x => x.codMon == this.configuracionPagos.segundaMonedaUtilizada);
+      data = data.filter(x => x.codMon != this.configuracionPagos.monedaUtilizada);
     }
 
     if (this.notaVenta != null) {
@@ -365,6 +356,7 @@ export class ShoppingComponent implements OnInit {
   }
 
   filterPr() {
+    
     let data: any = Object.assign([], this.productosResp);
 
     if (this.folio != null) {
@@ -377,7 +369,7 @@ export class ShoppingComponent implements OnInit {
       data = data.filter(x => x.desProd == this.nomProd)
     }
     if (this.dateDesde != null) {
-      const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
+      const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
       data = data.filter(x => new Date(x.fecha) >= fDesde)
     }
     if (this.dateHasta != null) {
@@ -446,7 +438,7 @@ export class ShoppingComponent implements OnInit {
         obj.TipoDoc = this.documentoAEnviar.movtipdocref;//fca 08-07-2022 FALTA TIPO DOCUMENTO NO VIEN EN LA API SI ES PRODUCTO
       } else {
         obj.Folio = this.documentoAEnviar.folio;
-        obj.TipoDoc = this.documentoAEnviar.tipo == undefined ? this.documentoAEnviar.tipoDoc : this.documentoAEnviar.tipo;
+        obj.TipoDoc = this.documentoAEnviar.tipo == undefined ? this.documentoAEnviar.tipoDoc : this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
       }
 
       obj.CodAux = user.codAux;
@@ -458,7 +450,8 @@ export class ShoppingComponent implements OnInit {
     //Obtengo ruta
     this.clientesService.getClienteDocumento(obj).subscribe(
       (res: any) => {
-        if (res.base64 != '' && res.base != null) {
+        debugger
+        if (res.base64 != '' && res.base64 != null) {
           var link = document.createElement("a");
           link.download = res.nombreArchivo;
           link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
@@ -486,7 +479,7 @@ export class ShoppingComponent implements OnInit {
         obj.TipoDoc = this.documentoAEnviar.movtipdocref;//fca 08-07-2022 FALTA TIPO DOCUMENTO NO VIEN EN LA API SI ES PRODUCTO
       } else {
         obj.Folio = this.documentoAEnviar.folio;
-        obj.TipoDoc = this.documentoAEnviar.tipo == undefined ? this.documentoAEnviar.tipoDoc : this.documentoAEnviar.tipo;
+        obj.TipoDoc = this.documentoAEnviar.tipo == undefined ? this.documentoAEnviar.tipoDoc : this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
       }
       obj.CodAux = user.codAux;
     }
@@ -496,7 +489,7 @@ export class ShoppingComponent implements OnInit {
     //Obtengo ruta
     this.clientesService.getClienteXML(obj).subscribe(
       (res: any) => {
-        
+
         if (res.base64 != null) {
           var link = document.createElement("a");
           link.download = res.nombreArchivo;
@@ -516,7 +509,7 @@ export class ShoppingComponent implements OnInit {
   }
 
   verDetalle(compra: any) {
-    
+
     var user = this.authService.getuser();
     var obj = { Folio: 0, TipoDoc: '', CodAux: '' };
 
@@ -626,7 +619,8 @@ export class ShoppingComponent implements OnInit {
   }
 
   verDetalleGuia(guia: any) {
-    
+
+    debugger
     var user = this.authService.getuser();
     var obj = { Folio: 0, TipoDoc: '', CodAux: '' };
 
@@ -641,7 +635,7 @@ export class ShoppingComponent implements OnInit {
     this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
       this.spinner.hide();
       if (res.cabecera != null && res.cabecera != undefined) {
-        
+
         this.estadoGuia = guia.estado;
         this.detalleCab = res.cabecera;
         this.detalleDet = res.detalle;
@@ -700,12 +694,13 @@ export class ShoppingComponent implements OnInit {
   }
 
   exportCompras(moneda: number) {
+    debugger
     let data: any = Object.assign([], this.comprasResp);
 
     if (moneda == 1) {
       data = data.filter(x => x.codMon == this.configuracionPagos.monedaUtilizada);
     } else if (moneda == 2) {
-      data = data.filter(x => x.codMon == this.configuracionPagos.segundaMonedaUtilizada);
+      data = data.filter(x => x.codMon != this.configuracionPagos.monedaUtilizada);
     }
 
     if (this.notaVenta != null) {
@@ -717,14 +712,28 @@ export class ShoppingComponent implements OnInit {
     if (this.folio != null) {
       data = data.filter(x => x.nro == this.folio)
     }
-    if (this.dateDesde != null) {
-      const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
-      data = data.filter(x => new Date(x.femision) >= fDesde)
+    if(this.tipoFecha == 1){
+      if (this.dateDesde != null) {
+        const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
+        data = data.filter(x => new Date(x.femision) >= fDesde)
+      }
+      if (this.dateHasta != null) {
+        const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
+        data = data.filter(x => new Date(x.femision) <= fHasta)
+      }
     }
-    if (this.dateHasta != null) {
-      const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
-      data = data.filter(x => new Date(x.femision) <= fHasta)
+
+    if(this.tipoFecha == 2){
+      if (this.dateDesde != null) {
+        const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
+        data = data.filter(x => new Date(x.fvencimiento) >= fDesde)
+      }
+      if (this.dateHasta != null) {
+        const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
+        data = data.filter(x => new Date(x.fvencimiento) <= fHasta)
+      }
     }
+  
 
     var listaExportacion = [];
     data.forEach((element, index) => {
@@ -744,7 +753,7 @@ export class ShoppingComponent implements OnInit {
     if (moneda == 1) {
       data = data.filter(x => x.codigoMoneda == this.configuracionPagos.monedaUtilizada);
     } else if (moneda == 2) {
-      data = data.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
+      data = data.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
     }
 
     if (this.notaVenta != null) {
@@ -817,7 +826,7 @@ export class ShoppingComponent implements OnInit {
     }
 
     if (this.dateDesde != null) {
-      const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
+      const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
       data = data.filter(x => new Date(x.fecha) >= fDesde)
     }
     if (this.dateHasta != null) {
@@ -935,7 +944,7 @@ export class ShoppingComponent implements OnInit {
           this.estados = [];
           this.tiposDocs = [];
 
-          let compraSsegundaMoneda = this.comprasResp.filter(x => x.codMon == this.configuracionPagos.segundaMonedaUtilizada);
+          let compraSsegundaMoneda = this.comprasResp.filter(x => x.codMon != this.configuracionPagos.monedaUtilizada);
 
           if (compraSsegundaMoneda.length > 0) {
             this.existComprasSegundaMoneda = true;
@@ -1119,18 +1128,23 @@ export class ShoppingComponent implements OnInit {
 
     this.clientesService.getDespachoDocumeto(model).subscribe(res => {
       this.despachos = res;
+      if(this.despachos.length > 0){
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
+      }else{
+        this.notificationService.warning('No existen despachos asociados', '', true);
+      }
       this.spinner.hide();
-      this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
+      
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener despachos', '', true); });
 
   }
 
   verDetalleDespacho(desp: any, content) {
-    
+
     if (desp.tipo == 'B' || desp.tipo == 'F') {
       this.verDetalleAutoRef(desp.folio, desp.tipo);
     } else {
-      
+
       this.detalleDespacho = desp.detalle;
       this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
     }
@@ -1210,11 +1224,11 @@ export class ShoppingComponent implements OnInit {
   }
 
   descargarDocumentos(tipo: number, doc: any) {
-    
+
     this.documentoAEnviar = doc;
     switch (tipo) {
       case 1:
-        
+
         if (!this.enviaPdf && !this.enviaXml && (this.showDetailProducto || this.showDetail || this.showDetailGuia)) {
           this.notificationService.warning('Debe seleccionar documentos a descargar.', '', true);
           return;
@@ -1234,8 +1248,8 @@ export class ShoppingComponent implements OnInit {
         }
         break;
 
-      case 2:      
-        if(!this.enviaPdf && this.showDetailNv){
+      case 2:
+        if (!this.enviaPdf && this.showDetailNv) {
           this.notificationService.warning('Debe seleccionar documentos a descargar.', '', true);
           return;
         }
@@ -1251,10 +1265,11 @@ export class ShoppingComponent implements OnInit {
         }
 
         this.clientesService.getdocumentoPDFNv(nv).subscribe((res: any) => {
-          if (res != '' && res != null) {
+          debugger
+          if (res.pdfBase64 != '' && res.pdfBase64 != null) {
             var link = document.createElement("a");
             link.download = "Nota de Venta " + nv.nvNumero + ".pdf";
-            link.href = this.utils.transformaDocumento64(res, ".pdf");
+            link.href = this.utils.transformaDocumento64(res.pdfBase64, ".pdf");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1268,7 +1283,7 @@ export class ShoppingComponent implements OnInit {
 
         break;
       case 3:
-        if(!this.enviaPdf && this.showDetailGuia){
+        if (!this.enviaPdf && this.showDetailGuia) {
           this.notificationService.warning('Debe seleccionar documentos a descargar.', '', true);
           return;
         }
@@ -1351,7 +1366,7 @@ export class ShoppingComponent implements OnInit {
         }
 
         var tipoEnvio = (this.enviaPdf && this.enviaXml) ? 3 : (this.enviaPdf) ? 1 : (this.enviaXml) ? 2 : 3;
-        
+
         var envioDocumento = {
           destinatarios: correos,
           folio: this.documentoAEnviar.folio,
@@ -1406,7 +1421,7 @@ export class ShoppingComponent implements OnInit {
         break;
 
       case 3: //PRODUCTO SE DEBE REVISAR FOLIO, TIPO Y SUB TIPO
-      var tipoEnvio = (this.enviaPdf && this.enviaXml) ? 3 : (this.enviaPdf) ? 1 : (this.enviaXml) ? 2 : 3;
+        var tipoEnvio = (this.enviaPdf && this.enviaXml) ? 3 : (this.enviaPdf) ? 1 : (this.enviaXml) ? 2 : 3;
         var envioDocumento = {
           destinatarios: correos,
           folio: this.documentoAEnviar.folio,
@@ -1447,7 +1462,7 @@ export class ShoppingComponent implements OnInit {
         break;
 
       case 2:
-        this.compras = this.comprasResp.filter(x => x.codMon == this.configuracionPagos.segundaMonedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
+        this.compras = this.comprasResp.filter(x => x.codMon != this.configuracionPagos.monedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
         break;
     }
 
@@ -1465,7 +1480,7 @@ export class ShoppingComponent implements OnInit {
         break;
 
       case 2:
-        this.compras = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
+        this.compras = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada).slice(this.paginador.startRow, this.paginador.endRow);
         break;
     }
 
@@ -1578,7 +1593,7 @@ export class ShoppingComponent implements OnInit {
         this.config = {
           itemsPerPage: this.paginador.endRow,
           currentPage: 1,
-          totalItems: this.comprasResp.filter(x => x.codMon == this.configuracionPagos.segundaMonedaUtilizada).length
+          totalItems: this.comprasResp.filter(x => x.codMon != this.configuracionPagos.monedaUtilizada).length
         };
         this.limpiarFiltros();
         break;
@@ -1610,7 +1625,7 @@ export class ShoppingComponent implements OnInit {
         this.config = {
           itemsPerPage: this.paginador.endRow,
           currentPage: 1,
-          totalItems: this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada).length
+          totalItems: this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada).length
         };
         this.limpiarFiltrosContabilizados();
         break;

@@ -19,11 +19,11 @@ export class UsuariosService {
 
   getUsuarioByMail(cliente: any): Observable<any> {
     const body = JSON.stringify(cliente);
-    return this.http.post<any>(`${this.apiUrl}/GetUsuarioByMail`, body, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/getUsuarioByMail`, body, this.utils.getHeaders(true));
   }
 
   getEmpresa(): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/GetEmpresa`,this.utils.getHeaders(true));
+    return this.http.post<string>(`${this.apiUrl}/getEmpresa`,null, this.utils.getHeaders(true));
   }
 
   changePassword(usuario: Usuario): Observable<Usuario> {
@@ -33,7 +33,7 @@ export class UsuariosService {
 
   changeCorreo(usuario: Usuario): Observable<Usuario> {
     const body = JSON.stringify(usuario);
-    return this.http.post<Usuario>(`${this.apiUrl}/ChangeCorreo`, body, this.utils.getHeaders(true));
+    return this.http.post<Usuario>(`${this.apiUrl}/changeCorreo`, body, this.utils.getHeaders(true));
   }
 
 }

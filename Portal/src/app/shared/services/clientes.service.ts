@@ -35,12 +35,17 @@ export class ClientesService {
 
   activateAccount (usuario: any): Observable<Usuarios> {
     const body = JSON.stringify(usuario);
-    return this.http.post<Usuarios>(`${this.apiUrl}/ActivateAccount`, body, this.utils.getHeaders(false));
+    return this.http.post<Usuarios>(`${this.apiUrl}/activateAccount`, body, this.utils.getHeaders(false));
   }
 
   getClienteByMailAndRut (cliente: any): Observable<any> {
     const body = JSON.stringify(cliente);
-    return this.http.post<any>(`${this.apiUrl}/GetClienteByMailAndRut`, body, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/getClienteByMailAndRut`, body, this.utils.getHeaders(false));
+  }
+
+  getClienteByCodAux (cliente: any): Observable<any> {
+    const body = JSON.stringify(cliente);
+    return this.http.post<any>(`${this.apiUrl}/getClienteByCodAux`, body, this.utils.getHeaders(true));
   }
 
 
@@ -49,14 +54,20 @@ export class ClientesService {
     return this.http.post<any>(`${this.apiUrl}/enviaCorreoComprobante`, body, this.utils.getHeaders(true));
   }
 
+  getPDFEstadoCuenta (cliente: any): Observable<any> {
+    const body = JSON.stringify(cliente);
+    return this.http.post<any>(`${this.apiUrl}/getPDFEstadoCuenta`, body, this.utils.getHeaders(false));
+  }
+
+
   actualizaClienteSoftland(cliente: any): Observable<any> {
     const body = JSON.stringify(cliente);
-    return this.http.post<Cliente[]>(`${this.apiUrl}/ActualizaClienteSoftland`, body, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/actualizaClienteSoftland`, body, this.utils.getHeaders(true));
   }
 
   changePassword (cliente: Cliente): Observable<Cliente> {
     const body = JSON.stringify(cliente);
-    return this.http.post<Cliente>(`${this.apiUrl}/ChangePassword`, body, this.utils.getHeaders(true));
+    return this.http.post<Cliente>(`${this.apiUrl}/changePassword`, body, this.utils.getHeaders(true));
   }
 
   getDashboardCompras(codAux: string) {
@@ -75,7 +86,7 @@ export class ClientesService {
 
   getDetalleCompra (data: any) {
     const body = JSON.stringify(data);
-    return this.http.post(`${this.apiUrl}/GetDetalleCompra`, body, this.utils.getHeaders(true));
+    return this.http.post(`${this.apiUrl}/getDetalleCompra`, body, this.utils.getHeaders(true));
   }
 
   getDetallePago (data: any) :Observable<any> {
@@ -133,34 +144,39 @@ export class ClientesService {
 
   getClienteEstadoComprasFromSoftland(data: any) {
     const body = JSON.stringify(data);
-    return this.http.post(`${this.apiUrl}/GetClienteEstadoComprasFromSoftland`, body, this.utils.getHeaders(true));
+    return this.http.post(`${this.apiUrl}/getClienteEstadoComprasFromSoftland`, body, this.utils.getHeaders(false));
+  }
+
+  getPagosDocumento(data: any) {
+    const body = JSON.stringify(data);
+    return this.http.post(`${this.apiUrl}/getPagosDocumento`, body, this.utils.getHeaders(false));
   }
 
 
   getClientesByCodAux(data: any) {
     const body = JSON.stringify(data);
-    return this.http.post(`${this.apiUrl}/GetClientesByCodAux`, body, this.utils.getHeaders(false));
+    return this.http.post(`${this.apiUrl}/getClientesByCodAux`, body, this.utils.getHeaders(false));
   }
 
 
   getEstadoConexionSoftland() {
-    return this.http.get(`${this.apiUrl}/GetEstadoConexionSoftland`,this.utils.getHeaders(true));
+    return this.http.get(`${this.apiUrl}/getEstadoConexionSoftland`);
   }
 
   postSavePago (data: any) {
     const body = JSON.stringify(data);
-    return this.http.post(`${this.apiUrl}/SavePago`, body, this.utils.getHeaders(true));
+    return this.http.post(`${this.apiUrl}/SavePago`, body, this.utils.getHeaders(false));
   }
 
 
   getPDFPago(numComprobante: string) {
-    return this.http.get(`${this.apiUrl}/GetPDFPago/${numComprobante}`,this.utils.getHeadersType(false));
+    return this.http.get(`${this.apiUrl}/GetPDFPago/${numComprobante}`);
   }
 
   postRecuperarContrasena (data: any) {
     
     const body = JSON.stringify(data);
-    return this.http.post(`${this.apiUrl}/RecuperarContrasena`, body, this.utils.getHeaders(false));
+    return this.http.post(`${this.apiUrl}/recuperarContrasena`, body, this.utils.getHeaders(false));
   }
 
   getTopDeudores() {
@@ -274,21 +290,44 @@ export class ClientesService {
     return this.http.get(`${this.apiUrl}/GetDashboardDocumentosVencidos/${codAux}`, this.utils.getHeaders(true));
   }
 
-  getDocumentosVencidos(codAux: string): Observable<Documento[]> {
-    return this.http.get<Documento[]>(`${this.apiUrl}/GetDocumentosVencidos/${codAux}`, this.utils.getHeaders(true));
+  getDocumentosVencidos(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosVencidos`, body, this.utils.getHeaders(true));
   }
 
-  getDocumentosPorVencer(codAux: string): Observable<Documento[]> {
-    return this.http.get<Documento[]>(`${this.apiUrl}/GetDocumentosPorVencer/${codAux}`, this.utils.getHeaders(true));
+  getDocumentosPorVencer(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosPorVencer`, body, this.utils.getHeaders(true));
   }
 
-  getDocumentosPendientes(codAux: string): Observable<Documento[]> {
-    return this.http.get<Documento[]>(`${this.apiUrl}/GetDocumentosPendientes/${codAux}`, this.utils.getHeaders(true));
+  getDocumentosPendientes(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosPendientes`, body, this.utils.getHeaders(true));
+  }
+
+  getDocumentosVencidosOtrasMonedas(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosVencidosOtrasMonedas`, body, this.utils.getHeaders(true));
+  }
+
+  getDocumentosPorVencerOtrasMonedas(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosPorVencerOtrasMonedas`, body, this.utils.getHeaders(true));
+  }
+
+  getDocumentosPendientesOtrasMonedas(data: any): Observable<Documento[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<Documento[]>(`${this.apiUrl}/GetDocumentosPendientesOtrasMonedas`, body, this.utils.getHeaders(true));
   }
 
   
   getAllDocumentosContabilizados(codAux: string): Observable<Documento[]> {
     return this.http.get<Documento[]>(`${this.apiUrl}/getAllDocumentosContabilizados/${codAux}`, this.utils.getHeaders(true));
+  }
+
+  GetDocumentosContabilizadosXCliente(data: any): Observable<any[]> {
+    const body = JSON.stringify(data);
+    return this.http.post<any[]>(`${this.apiUrl}/GetDocumentosContabilizadosXCliente`, body,this.utils.getHeaders(true));
   }
 
   getEstadoBloqueoCliente(codAux: string) {
@@ -302,22 +341,30 @@ export class ClientesService {
   }
 
   getExistCompras(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/GetExistCompras`, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/GetExistCompras`,null, this.utils.getHeaders(true));
   }
 
 
   getDocumentosDashboardAdministrador(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/GetDocumentosDashboarddAdmin`, this.utils.getHeaders(true));
   }
+
   
-  getDocumentosAdministrador(codaux: string, estado: number): Observable<any> {
-    debugger
-    return this.http.get<any>(`${this.apiUrl}/GetDocumentosAdmin/${codaux}/${estado}`, this.utils.getHeaders(true));
+  
+  getDocumentosAdministrador(rutAux: string, estado: number): Observable<any> {
+    //const body = JSON.stringify(paginador);
+    return this.http.post<any>(`${this.apiUrl}/GetDocumentosAdmin/${rutAux}/${estado}`, null, this.utils.getHeaders(true));
+  }
+
+  getDocumentosResumenAdministrador(filter: any): Observable<any[]> {
+    const body = JSON.stringify(filter);
+    return this.http.post<any[]>(`${this.apiUrl}/GetResumenDocumentosCliente`,body, this.utils.getHeaders(true));
   }
 
 
+
   getDocumentosPagadosAdministrador(): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/GetDocumentosPagados`, null, this.utils.getHeaders(true));
+    return this.http.get<any>(`${this.apiUrl}/GetDocumentosPagados`, this.utils.getHeaders(true));
   }
 
  //FCA 05-07-2022
@@ -340,7 +387,7 @@ getResumenContable(codAux: string): Observable<ResumenContable> {
 //FCA 05-07-2022
 getdocumentoPDFNv(cabecera : any): Observable<any> {
   const body = JSON.stringify(cabecera);
-  return this.http.post(`${this.apiUrl}/GetDocumentoPDFNv`, body, this.utils.getHeadersType(true));
+  return this.http.post<any>(`${this.apiUrl}/GetDocumentoPDFNv`, body, this.utils.getHeaders(true));
 }
 
 getClientesExcluidos(): Observable<any[]> {
@@ -348,7 +395,7 @@ getClientesExcluidos(): Observable<any[]> {
 }
 
 deleteExcluido (cliente: any): Observable<any> {
-  return this.http.delete<any>(`${this.apiUrlClientesExcluidos}/${cliente.idExcluido}`, this.utils.getHeaders(true));
+  return this.http.delete<any>(`${this.apiUrlClientesExcluidos}/DeleteClienteExcluido/${cliente.idExcluido}`, this.utils.getHeaders(true));
 }
 
 
@@ -365,6 +412,6 @@ saveExcluido (cliente: any): Observable<any> {
 
 getCorreosDTE(rut: string): Observable<any[]> {
   const body = JSON.stringify(rut);
-  return this.http.get<any[]>(`${this.apiUrl}/GetCorreosDTE/${rut}`,this.utils.getHeaders(true));
+  return this.http.post<any[]>(`${this.apiUrl}/GetCorreosDTE`, body,this.utils.getHeaders(true));
 }
 }

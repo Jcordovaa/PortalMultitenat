@@ -2,12 +2,15 @@
 {
     public class DetalleEnvioCobranzaVm
     {
-        public string RutCliente { get; set; }
-        public string NombreCliente { get; set; }
-        public string EmailCliente { get; set; }
-        public int CantidadDocumentosPendientes { get; set; }
-        public int MontoDeuda { get; set; }
-        public List<DocumentosCobranzaVM> ListaDocumentos { get; set; }
+        public string? RutCliente { get; set; }
+        public string? NombreCliente { get; set; }
+        public string? EmailCliente { get; set; }
+        public int? CantidadDocumentosPendientes { get; set; }
+        public int? MontoDeuda { get; set; }
+        public List<DocumentosCobranzaVM>? ListaDocumentos { get; set; }
+        public string? CodAux { get; set; }
+        public int? IdCobranza { get; set; }
+        public string? AutomatizacionJson { get; set; }
     }
 
     public class DocumentosCobranzaVM

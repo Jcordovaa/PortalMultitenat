@@ -1,4 +1,6 @@
-﻿namespace ApiPortal.Security.TenantService
+﻿using ApiPortal.Services;
+
+namespace ApiPortal.Security.TenantService
 {
     public class HostResolutionStrategy : ITenantResolutionStrategy
     {
@@ -16,8 +18,19 @@
             }
 
             //return await Task.FromResult(_httpContext.Request.Host.Host);
-            var uri = new Uri(_httpContext.Request.Headers.Origin);
-            return await Task.FromResult(uri.Host);
+            if(_httpContext.Request.Path.Value == "/api/ProcesaPagos/GeneraPagoElectronico")
+            {
+                
+                string tenant = Encrypt.Base64Decode(_httpContext.Request.QueryString.Value.Split("tenant").Last().Remove(0, 1));
+                return await Task.FromResult(tenant);
+            }
+            else
+            {
+                var uri = new Uri(_httpContext.Request.Headers.Origin);
+                return await Task.FromResult(uri.Host);
+            }
+           
+            
         }
     }
 }

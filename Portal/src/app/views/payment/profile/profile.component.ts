@@ -26,7 +26,7 @@ export class ProfileComponent implements OnInit {
     rut: ''
   }
 
-  public clienteChangeDatos :  any = {};
+  public clienteChangeDatos: any = {};
 
   changePass: any = {
     newPass1: '',
@@ -36,7 +36,7 @@ export class ProfileComponent implements OnInit {
   selectedRegion: any = null;
   selectedCiudad: any = null;
   selectedComuna: any = null;
-  selectedGiro:  any = null;
+  selectedGiro: any = null;
   selectedRazonSocial: any = null;
   selectedCorreo: any = null;
   selectedCorreoDTE: any = null;
@@ -44,7 +44,7 @@ export class ProfileComponent implements OnInit {
   selectedNumDir: any = null;
   selectedTelefono: any = null;
   selectedRut: any = null;
-  selectedCodAux:any = null;
+  selectedCodAux: any = null;
   public regiones: any = [];
   public ciudades: any = [];
   public comunas: any = [];
@@ -52,7 +52,7 @@ export class ProfileComponent implements OnInit {
   public giros: any = [];
   public nombreCliente: string = '';
 
-  configuracion: ConfiguracionPortal = new ConfiguracionPortal(); 
+  configuracion: ConfiguracionPortal = new ConfiguracionPortal();
 
   loadingUpdate: boolean = false;
   loadingChangePass: boolean = false;
@@ -61,34 +61,23 @@ export class ProfileComponent implements OnInit {
   invalidRut: boolean = false;
 
   public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno(); //FCA 06-07-2022  
-  hoverBtnEdit : boolean = false;
-  hoverBtnClave : boolean = false;
-  hoverBtnEstado : boolean = false;
+  hoverBtnEdit: boolean = false;
+  hoverBtnClave: boolean = false;
+  hoverBtnEstado: boolean = false;
 
   correosDTE: any = [];
 
   constructor(private softlandService: ConfiguracionSoftlandService, private disenoSerivce: ConfiguracionDisenoService,//FCA 06-07-2022
-              private configuracionService: ConfiguracionPagoClientesService,
-              private authService: AuthService, 
-              private clientesService: ClientesService, 
-              private modalService: NgbModal,
-              private spinner: NgxSpinnerService, 
-              private utils: Utils, 
-              private notificationService: NotificationService,
-              private router: Router) {
+    private configuracionService: ConfiguracionPagoClientesService,
+    private authService: AuthService,
+    private clientesService: ClientesService,
+    private modalService: NgbModal,
+    private spinner: NgxSpinnerService,
+    private utils: Utils,
+    private notificationService: NotificationService,
+    private router: Router) {
 
-    this.spinner.show();
-    
-    this.softlandService.getUbicaciones().subscribe(res => {
-      this.regiones = res.regiones;     
-      this.comunasRes = res.comunas;
-      this.configuracionService.getConfigPortal().subscribe(res => {
-        this.configuracion = res;
 
-        this.getGiros();  
-        this.getCorreosDTE();
-      }, err => { this.spinner.hide(); });     
-    }, err => { this.spinner.hide(); });     
   }
 
   getUserData() {
@@ -101,11 +90,11 @@ export class ProfileComponent implements OnInit {
         codaux: user.codAux
       };
 
-      this.clientesService.getClienteByMailAndRut(data).subscribe((res: any) => {
-        debugger
+      this.clientesService.getClienteByCodAux(data).subscribe((res: any) => {
+
         this.cliente = res;
         this.nombreCliente = this.cliente.nombre
-        
+
         // const giro = this.giros.find(x => x.idGiro == res.giro.idGiro);
 
         // if (region) 
@@ -115,17 +104,33 @@ export class ProfileComponent implements OnInit {
         // if (giro) 
         //   this.selectedGiro = giro;
 
-          this.spinner.hide();
+        this.spinner.hide();
 
       }, err => { this.spinner.hide(); });
-    }    
+    }
   }
 
   getGiros() {
     this.softlandService.getGirosSoftland().subscribe(res => {
-      
+
       this.giros = res;
-      this.getUserData();
+      const comuna = this.comunasRes.filter(x => x.idRegion == this.cliente.idRegion);
+      this.comunas = comuna;
+
+      if (this.correosDTE.length > 0) {
+        let existeDTE = this.correosDTE.filter(x => x.mail == this.cliente.emailDTE);
+        if (existeDTE.length == 0) {
+          let dte: any = {
+            id: 0,
+            rut: this.cliente.rut,
+            correo: this.cliente.emailDTE
+          };
+
+          this.correosDTE.unshift(dte);
+        }
+      }
+
+      this.getCorreosDTE();
     }, err => { this.spinner.hide(); });
   }
 
@@ -133,6 +138,7 @@ export class ProfileComponent implements OnInit {
     var user = this.authService.getuser();
     this.clientesService.getCorreosDTE(user.rut).subscribe(res => {
       this.correosDTE = res;
+      this.spinner.hide();
     }, err => { this.spinner.hide(); });
   }
 
@@ -146,10 +152,11 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.getConfigDiseno(); //FCA 06-07-2022
+    this.getUserData();
   }
 
   async ActualizaCliente() {
-    const response = await this.notificationService.confirmation('Actualizar datos', '¿Confirma actualizar los datos?'); 
+    const response = await this.notificationService.confirmation('Actualizar datos', '¿Confirma actualizar los datos?');
     if (response.isConfirmed) {
       var user = this.authService.getuser();
       debugger
@@ -166,41 +173,37 @@ export class ProfileComponent implements OnInit {
       this.clienteChangeDatos.emailDTE = this.selectedCorreoDTE;
       this.clienteChangeDatos.correo = this.selectedCorreo;
       this.clienteChangeDatos.nombre = this.selectedRazonSocial;
-      this.spinner.show(); 
+      this.spinner.show();
       this.clientesService.actualizaClienteSoftland(this.clienteChangeDatos).subscribe(res => {
-        this.modalService.dismissAll();    
-        this.notificationService.success('Datos actualizados Correctamente', '', true); 
-       
+        this.modalService.dismissAll();
+        this.notificationService.success('Datos actualizados Correctamente', '', true);
+
         this.getUserData();
-      }, err => { this.spinner.hide();  this.loadingUpdate = false;  this.notificationService.error('Ocurrió un error al actualizar datos', '', true); });
+      }, err => { this.spinner.hide(); this.loadingUpdate = false; this.notificationService.error('Ocurrió un error al actualizar datos', '', true); });
     }
   }
 
   openModalChangePass(content) {
     this.changePass.newPass1 = '';
-    this.changePass.newPass2 = '';   
+    this.changePass.newPass2 = '';
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
   }
 
   openModalModificarDatos(content) {
 
-    const comuna = this.comunasRes.filter(x => x.idRegion == this.cliente.idRegion);
-    this.comunas = comuna;
+    this.spinner.show();
 
-    if(this.correosDTE.length > 0){
-      let existeDTE = this.correosDTE.filter(x => x.mail == this.cliente.emailDTE);
-      if(existeDTE.length == 0){
-        let dte : any = {
-            id: 0,
-            rut: this.cliente.rut,
-            correo: this.cliente.emailDTE
-        };
-  
-        this.correosDTE.unshift(dte);
-      }
-    }
-   
-    
+    this.softlandService.getUbicaciones().subscribe(res => {
+      this.regiones = res.regiones;
+      this.comunasRes = res.comunas;
+
+      this.getGiros();
+
+    }, err => { this.spinner.hide(); });
+
+
+
+
     this.selectedComuna = this.cliente.comCod;
     this.selectedGiro = this.cliente.codGiro;
     this.selectedRegion = this.cliente.idRegion
@@ -217,27 +220,25 @@ export class ProfileComponent implements OnInit {
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
   }
 
-  onChangeRegion(value: any)
-  {
-    if (this.selectedRegion != null || this.selectedRegion != 0)
-      {
-        this.selectedComuna = "";
-        this.comunas = [];
-        const comuna = this.comunasRes.filter(x => x.idRegion == value.idRegion);
-    this.comunas = comuna;
-      }
+  onChangeRegion(value: any) {
+    if (this.selectedRegion != null || this.selectedRegion != 0) {
+      this.selectedComuna = "";
+      this.comunas = [];
+      const comuna = this.comunasRes.filter(x => x.idRegion == value.idRegion);
+      this.comunas = comuna;
+    }
   }
 
   async onChangePass() {
     if (this.changePass.newPass1 != this.changePass.newPass2) {
-      this.notificationService.warning('Claves no coinciden.' ,'' , true); 
+      this.notificationService.warning('Claves no coinciden.', '', true);
       return;
     }
 
-    const response = await this.notificationService.confirmation('Cambiar Clave', 'Al cambiar su clave usted será redirigido al inicio de sesión, ¿Confirma actualizar su clave?'); 
+    const response = await this.notificationService.confirmation('Cambiar Clave', 'Al cambiar su clave usted será redirigido al inicio de sesión, ¿Confirma actualizar su clave?');
     if (response.isConfirmed) {
       this.loadingChangePass = true;
-      
+
       this.spinner.show();
 
       const data: any = {
@@ -250,35 +251,67 @@ export class ProfileComponent implements OnInit {
         this.modalService.dismissAll();
         this.changePass.newPass1 = '';
         this.changePass.newPass2 = '';
-        this.notificationService.success('Clave actualizada correctamente' ,'', true);
+        this.notificationService.success('Clave actualizada correctamente', '', true);
 
         setTimeout(() => {
           this.authService.signout();
         }, 1000);
 
-      }, err => { 
+      }, err => {
         this.spinner.hide();
         if (err && err.error != null && err.error.message != "") {
           this.notificationService.error(err.error.message, '', true);
         } else {
-          this.notificationService.error('Ocurrió un error al cambiar clave.' ,'' , true); 
-        }  
+          this.notificationService.error('Ocurrió un error al cambiar clave.', '', true);
+        }
       });
 
-    }   
+    }
   }
 
-  irEstadoCuenta()
-  {
+  irEstadoCuenta() {
     this.router.navigate(['/payment/accounts-state']);
   }
 
   //FCA 06-07-2022
-    //FCA 01-07-2022
-    private getConfigDiseno() {
-      this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
-          this.configDiseno = res;
-      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener configuración', '', true); });
+  //FCA 01-07-2022
+
+  private getConfigDiseno() {
+    this.spinner.show();
+    const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+    if (configuracionCompletaPortal != null) {
+      this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+      this.configuracion = configuracionCompletaPortal.configuracionPortal;
+    }
+
+    var user = this.authService.getuser();
+    if (user) {
+      const data: any = {
+        correo: user.email,
+        rut: user.rut,
+        codaux: user.codAux
+      };
+
+      this.clientesService.getClienteByCodAux(data).subscribe((res: any) => {
+
+        this.cliente = res;
+        this.nombreCliente = this.cliente.nombre
+
+        // const giro = this.giros.find(x => x.idGiro == res.giro.idGiro);
+
+        // if (region) 
+        //   this.selectedRegion = region;
+        // if (comuna) 
+        //   this.selectedComuna = comuna;
+        // if (giro) 
+        //   this.selectedGiro = giro;
+
+        this.spinner.hide();
+
+      }, err => {  this.notificationService.error('Ocurrió un error al obtener datos.', '', true); this.spinner.hide(); });
+    }
+
+
   }
 
 }

@@ -77,6 +77,7 @@ export class AccountsStateComponent implements OnInit {
   foliosErrorComprobate: string = '';
   bloqueaBotonPago: boolean = false;
   public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno();
+  varloUfOrigen: number = 0;
 
   constructor(private ngbDatepickerConfig: NgbDatepickerConfig, private disenoSerivce: ConfiguracionDisenoService,
     private clientesService: ClientesService,
@@ -105,101 +106,105 @@ export class AccountsStateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.configuracionService.getConfigPortal().subscribe(res => {
-      this.configuracion = res;
-      this.configuracionService.getConfigPagoClientes().subscribe(res => {
-        this.configuracionPagos = res;
-        this.getConfigDiseno();
-        this.activatedRoute.queryParams.subscribe(params => {
-          if (params['state'] != null) {
-    
-            var state = atob(params['state']);
-    
-            this.paymentResultState = parseInt(state.split(';')[0]);
-            this.showModalPaymentResult = true;
-    
-            if (this.paymentResultState == 4) {
-              this.foliosErrorComprobate = state.split(';')[2];
-            }
-    
-            this.pasarelaService.getLogPasarela(parseInt(state.split(';')[1])).subscribe(res => {
-              this.logPasarela = res;
-              var btn = document.getElementById('btnModal')
-              btn.click();
-            }, err => {
-              this.logPasarela = null;
-              var btn = document.getElementById('btnModal')
-              btn.click();
+    const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+    if (configuracionCompletaPortal != null) {
+      this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+      this.configuracion = configuracionCompletaPortal.configuracionPortal;
+      this.configuracionPagos = configuracionCompletaPortal.configuracionPagoCliente;
+    }
+
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['state'] != null) {
+
+        var state = atob(params['state']);
+
+        this.paymentResultState = parseInt(state.split(';')[0]);
+        this.showModalPaymentResult = true;
+
+        if (this.paymentResultState == 4) {
+          this.foliosErrorComprobate = state.split(';')[2];
+        }
+
+        this.pasarelaService.getLogPasarela(parseInt(state.split(';')[1])).subscribe(res => {
+          this.logPasarela = res;
+          var btn = document.getElementById('btnModal')
+          btn.click();
+        }, err => {
+          this.logPasarela = null;
+          var btn = document.getElementById('btnModal')
+          btn.click();
+        });
+      }
+    });
+
+    const user = this.authService.getuser();
+    if (user) {
+      this.spinner.show();
+
+
+      const model = { codAux: user.codAux, folio: 0 }
+
+      this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
+
+        this.comprasResp = res;
+        this.comprasResp.forEach(element => {
+          element.bloqueadoPago = false;
+          if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
+            element.bloqueadoPago = true;
+          }
+
+          if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
+            let folios = this.foliosErrorComprobate.split('-');
+            folios.forEach(folio => {
+              if (element.nro == folio) {
+                element.bloqueadoPago = true;
+              }
             });
           }
         });
-    
-        const user = this.authService.getuser();
-        if (user) {
-          this.spinner.show();
-    
-    
-          const model = { codAux: user.codAux, folio: 0 }
-    
-          this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
-    
-            this.comprasResp = res;
-            this.comprasResp.forEach(element => {
-              element.bloqueadoPago = false;
-              if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
-                let folios = this.foliosErrorComprobate.split('-');
-                folios.forEach(folio => {
-                  if (element.nro == folio) {
-                    element.bloqueadoPago = true;
-                  }
-                });
-              }
-            });
-    
-            this.compras = this.comprasResp;
-            let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada);
-            if (docsSegundaMoneda.length > 0) {
-              this.existDocSegundaMoneda = true;
-              this.valorUfActrual = this.comprasResp.filter(x => x.codigoMoneda == this.configuracionPagos.segundaMonedaUtilizada)[0].equivalenciaMoneda;
-            }
-            this.estados = [];
-            this.tiposDocs = [];
-            this.estados.push({ id: 0, nombre: 'TODOS' });
-            this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
-            this.selectedTipoDoc = this.tiposDocs[0];
-            this.selectedEstado = this.estados[0];
-            res.forEach((element, index) => {
-    
-              let auxElement = element;
-              if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
-              if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
-              const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
-              const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
-    
-              if (ex1 == null) {
-                this.estados.push({
-                  id: index + 1,
-                  nombre: auxElement.estado
-                });
-              }
-              if (ex2 == null) {
-                this.tiposDocs.push({
-                  id: index + 1,
-                  nombre: auxElement.documento
-                });
-              }
-            });
-    
-    
-            this.spinner.hide();
-          }, err => { this.spinner.hide(); });
-    
-    
+
+        this.compras = this.comprasResp;
+        let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
+        if (docsSegundaMoneda.length > 0) {
+          this.existDocSegundaMoneda = true;
         }
+        this.estados = [];
+        this.tiposDocs = [];
+        this.estados.push({ id: 0, nombre: 'TODOS' });
+        this.tiposDocs.push({ id: 0, nombre: 'TODOS' });
+        this.selectedTipoDoc = this.tiposDocs[0];
+        this.selectedEstado = this.estados[0];
+        res.forEach((element, index) => {
+
+          let auxElement = element;
+          if (auxElement.estado == 'V') { auxElement.estado = 'VENCIDO'; }
+          if (auxElement.estado == 'P') { auxElement.estado = 'PENDIENTE'; }
+          const ex1 = this.estados.find(x => x.nombre == auxElement.estado);
+          const ex2 = this.tiposDocs.find(x => x.nombre == auxElement.documento);
+
+          if (ex1 == null) {
+            this.estados.push({
+              id: index + 1,
+              nombre: auxElement.estado
+            });
+          }
+          if (ex2 == null) {
+            this.tiposDocs.push({
+              id: index + 1,
+              nombre: auxElement.documento
+            });
+          }
+        });
+
+
+        this.spinner.hide();
       }, err => { this.spinner.hide(); });
 
-    }, err => { this.spinner.hide(); });
-  
+
+    }
+
+
 
   }
 
@@ -217,6 +222,7 @@ export class AccountsStateComponent implements OnInit {
     }
     if (this.tipoFecha != 0) {
       if (this.tipoFecha == 1) {
+        debugger
         if (this.dateDesde != null) {
           const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
           data = data.filter(x => new Date(x.fechaEmision) >= fDesde)
@@ -317,7 +323,7 @@ export class AccountsStateComponent implements OnInit {
 
   SeleccionarPago(content) {
 
-    this.pasarelaService.getAllPasarelasPago().subscribe(
+    this.pasarelaService.getPasarelasPago().subscribe(
       res => {
 
         if (res.length > 0) {
@@ -382,7 +388,8 @@ export class AccountsStateComponent implements OnInit {
       this.spinner.show();
 
       let rutCliente = btoa(user.rut);
-      let datosPago = window.btoa(user.nombre + ';' + user.nombre + ';' + user.ruit + ';' + user.email);
+      let tenant = btoa(window.location.hostname );
+      let datosPago = window.btoa(encodeURIComponent(user.nombre) + ';' + encodeURIComponent(user.nombre)+ ';' + user.rut + ';' + user.email);
       this.clientesService.getEstadoConexionSoftland().subscribe(
         resVal => {
           if (resVal) {
@@ -390,7 +397,8 @@ export class AccountsStateComponent implements OnInit {
               (res: any) => {
                 this.spinner.hide();
                 //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
-                this.pasarelaService.generaPagoElectronico(res,this.selectedPasarela,rutCliente,0,datosPago,TbkRedirect.Front).subscribe(
+
+                this.pasarelaService.generaPagoElectronico(res,this.selectedPasarela,rutCliente,0,datosPago,TbkRedirect.Front,tenant).subscribe(
                   (res: any) => {
                     this.spinner.hide();
                     //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
@@ -401,7 +409,6 @@ export class AccountsStateComponent implements OnInit {
                   },
                   err => { this.spinner.hide(); this.bloqueaBotonPago = false; }
                 );
-                
 
               },
               err => { this.spinner.hide(); this.bloqueaBotonPago = false; }
@@ -610,23 +617,27 @@ export class AccountsStateComponent implements OnInit {
   }
 
   openInfoModal(content, compra: any) {
-    if (compra.abonos.length == 0) {
-      this.notificationService.warning('El documento no posee abonos asociados', '', true);
-      return;
-    } else {
+
+    this.spinner.show();
+    const model = { codAux: compra.codAux, folio: compra.nro, TipoDoc: compra.tipoDoc }
+
+    this.clientesService.getPagosDocumento(model).subscribe((res: any) => {
+
       this.abonos = [];
-      this.abonos = compra.abonos;
+      this.abonos = res;
+
+      if (this.abonos.length <= 0) {
+        this.spinner.hide();
+        this.notificationService.warning('El documento no posee abonos asociados', '', true);
+        return;
+      }
       this.totalDocumentoAbono = compra.debe;
       this.saldoPendiente = compra.saldoBase;
-    }
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
-  }
-
-  private getConfigDiseno() {
-    this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
-      this.configDiseno = res;
+      this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
       this.spinner.hide();
     }, err => { this.spinner.hide(); });
   }
+
+
 
 }

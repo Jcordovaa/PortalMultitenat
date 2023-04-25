@@ -91,6 +91,7 @@ export class UsersComponent implements OnInit {
   }
 
   dateEvent(event: any) {
+    //debugger
   }
 
   getPerfiles() {
@@ -123,7 +124,7 @@ export class UsersComponent implements OnInit {
       this.loaded = true;
 
       this.spinner.hide();
-    }, err => {console.log(err); this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener los usuarios', '', true); });
+    }, err => { debugger; console.log(err); this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener los usuarios', '', true); });
   }
 
   onChangeSexo(event: any, tipo: string) {

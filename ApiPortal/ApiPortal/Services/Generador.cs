@@ -153,7 +153,7 @@ namespace ApiPortal.Services
             {
                 //JCA 28-10-2021: Modifica generación de documento
                 //Obtenemos reporte en html 
-                var reporte = System.IO.File.ReadAllText(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/Rpt/CobranzaGeorgeChaytor.html"));
+                var reporte = System.IO.File.ReadAllText(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/Rpt/CobranzaGeorgeChaytor.html"));
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
 

@@ -12,6 +12,8 @@ using System.Text;
 using System.Xml;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 
 namespace ApiPortal.Controllers
 {
@@ -23,299 +25,350 @@ namespace ApiPortal.Controllers
         private readonly PortalClientesSoftlandContext _context;
         private readonly PortalAdministracionSoftlandContext _admin;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public ClientesPortalController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, PortalAdministracionSoftlandContext admin)
+        public ClientesPortalController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, PortalAdministracionSoftlandContext admin, IHttpContextAccessor contextAccessor)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _admin = admin;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpPost("SendAccesosCliente"), Authorize]
-        public async Task<ActionResult<int>> SendAccesosClienteAsync(List<ClienteDTO> value)
+        public async Task<ActionResult<int>> SendAccesosClienteAsync(EnvioAccesoClienteVm envio)
         {
             try
             {
-                var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
-                Boolean errorEnvio = false;
-                string[] cargos = value[0].CodCargo.Split(';');
-                string body = string.Empty;
-
-                if (value.Count > 0)
+                if (envio == null)
                 {
-                    foreach (var item in value)
-                    {
-
-                        var contactos = await softlandService.GetAllContactosAsync(item.CodAux);
-                        List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
-                        foreach (var c in contactos)
-                        {
-                            var exist = cargos.Where(x => x == c.CodCargo).FirstOrDefault();
-
-                            if (exist != null)
-                            {
-                                contactosFiltrados.Add(c);
-                            }
-                        }
-
-                        if (contactosFiltrados.Count() == 0 && Convert.ToBoolean(value[0].EnviarTodosContactos))
-                        {
-                            contactosFiltrados = contactos;
-                        }
-
-                        if (contactosFiltrados.Count > 0)
-                        {
-                            foreach (var c in contactosFiltrados)
-                            {
-
-
-                                var clave = RandomPassword.GenerateRandomPassword();
-
-                                var cliente = _context.ClientesPortals.Where(x => x.Rut == item.Rut && x.CodAux == item.CodAux && x.Correo == c.Correo).FirstOrDefault();
-                                if (cliente == null) //NUEVO ACCESO
-                                {
-                                    var nuevoCliente = new ClientesPortal();
-                                    nuevoCliente.Rut = item.Rut;
-                                    nuevoCliente.CodAux = item.CodAux;
-                                    nuevoCliente.Nombre = item.Nombre;
-                                    nuevoCliente.Correo = c.Correo.ToLower();
-                                    nuevoCliente.Clave = clave;
-                                    nuevoCliente.ActivaCuenta = 0;
-
-                                    _context.ClientesPortals.Add(nuevoCliente);
-                                    _context.SaveChanges();
-
-                                }
-                                else //ACTUALIZA ACCESO
-                                {
-                                    cliente.Correo = c.Correo.ToLower();
-                                    cliente.ActivaCuenta = 0;
-                                    cliente.Clave = clave;
-                                    _context.Entry(cliente).Property(x => x.Clave).IsModified = true;
-                                    _context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
-                                    _context.Entry(cliente).Property(x => x.Correo).IsModified = true;
-                                    _context.SaveChanges();
-                                }
-
-
-                                var logCorreo = new LogCorreo();
-                                logCorreo.Fecha = DateTime.Now;
-                                logCorreo.Rut = item.Rut;
-                                logCorreo.CodAux = item.CodAux;
-                                logCorreo.Tipo = "Acceso";
-                                logCorreo.Estado = "PENDIENTE";
-
-                                _context.LogCorreos.Add(logCorreo);
-                                _context.SaveChanges();
-
-                                using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/activacionCuenta.component.html")))
-                                {
-                                    body = reader.ReadToEnd();
-                                }
-
-                                body = body.Replace("{EMPRESA}", configEmpresa.NombreEmpresa);
-                                body = body.Replace("{TEXTO}", configCorreo.TextoMensajeActivacion);
-                                body = body.Replace("{LOGO}", configCorreo.LogoCorreo);
-                                body = body.Replace("{NOMBRE}", item.Nombre);
-                                body = body.Replace("{RUT}", item.Rut);
-                                body = body.Replace("{CORREO}", c.Correo.ToLower());
-                                body = body.Replace("{CLAVE}", clave);
-                                body = body.Replace("{Titulo}", configCorreo.TituloAccesoCliente);
-                                body = body.Replace("{ColorBoton}", configCorreo.ColorBoton);
-                                string datosCliente = Encrypt.Base64Encode(item.CodAux + ";" + c.Correo.ToLower());
-                                body = body.Replace("{ENLACE}", configEmpresa.UrlPortal + "/#/sessions/activate-account/" + datosCliente);
-
-                                try
-                                {
-                                    using (MailMessage mailMessage = new MailMessage())
-                                    {
-                                        mailMessage.To.Add(c.Correo.ToLower());
-
-                                        mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                                        mailMessage.Subject = configCorreo.AsuntoAccesoCliente;
-                                        mailMessage.Body = body;
-                                        mailMessage.IsBodyHtml = true;
-                                        SmtpClient smtp = new SmtpClient();
-                                        smtp.Host = configCorreo.SmtpServer;
-                                        smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                                        System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                        NetworkCred.UserName = configCorreo.Usuario;
-                                        NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave); 
-                                        smtp.UseDefaultCredentials = false;
-                                        smtp.Credentials = NetworkCred;
-                                        smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                                        smtp.Send(mailMessage);
-                                    }
-
-                                    _context.LogCorreos.Attach(logCorreo);
-                                    logCorreo.Estado = "Acceso Enviado";
-                                    logCorreo.Error = "";
-                                    _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                                    _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                                    _context.SaveChanges();
-
-                                    var user = _context.Usuarios.Where(x => x.Email == item.CorreoUsuario).FirstOrDefault();
-                                    if (user != null)
-                                    {
-                                        var registro = new RegistroEnvioCorreo();
-
-                                        registro.FechaEnvio = DateTime.Today;
-                                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                                        registro.IdTipoEnvio = 1;
-                                        registro.IdUsuario = user.IdUsuario;
-
-                                        _context.RegistroEnvioCorreos.Add(registro);
-                                        _context.SaveChanges();
-                                    }
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    _context.LogCorreos.Attach(logCorreo);
-                                    logCorreo.Estado = "Error al enviar correo";
-                                    logCorreo.Error = ex.Message;
-                                    _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                                    _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                                    _context.SaveChanges();
-                                    errorEnvio = true;
-                                }
-                            }
-                        }
-                        else if (contactosFiltrados.Count() == 0 && Convert.ToBoolean(value[0].EnviarFicha))
-                        {
-                            var clave = RandomPassword.GenerateRandomPassword();
-
-                            var cliente = _context.ClientesPortals.Where(x => x.Rut == item.Rut && x.CodAux == item.CodAux && x.Correo == item.Correo).FirstOrDefault();
-                            if (cliente == null) //NUEVO ACCESO
-                            {
-                                var nuevoCliente = new ClientesPortal();
-                                nuevoCliente.Rut = item.Rut;
-                                nuevoCliente.CodAux = item.CodAux;
-                                nuevoCliente.Nombre = item.Nombre;
-                                nuevoCliente.Correo = item.Correo.ToLower();
-                                nuevoCliente.Clave = clave;
-                                nuevoCliente.ActivaCuenta = 0;
-                                _context.ClientesPortals.Add(nuevoCliente);
-                                _context.SaveChanges();
-
-                            }
-                            else //ACTUALIZA ACCESO
-                            {
-                                cliente.Correo = item.Correo.ToLower();
-                                cliente.ActivaCuenta = 0;
-                                cliente.Clave = clave;
-                                _context.Entry(cliente).Property(x => x.Clave).IsModified = true;
-                                _context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
-                                _context.Entry(cliente).Property(x => x.Correo).IsModified = true;
-                                _context.SaveChanges();
-                            }
-
-
-                            var logCorreo = new LogCorreo();
-                            logCorreo.Fecha = DateTime.Now;
-                            logCorreo.Rut = item.Rut;
-                            logCorreo.CodAux = item.CodAux;
-                            logCorreo.Tipo = "Acceso";
-                            logCorreo.Estado = "PENDIENTE";
-
-                            _context.LogCorreos.Add(logCorreo);
-                            _context.SaveChanges();
-
-                            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/activacionCuenta.component.html")))
-                            {
-                                body = reader.ReadToEnd();
-                            }
-
-                            body = body.Replace("{EMPRESA}", configEmpresa.NombreEmpresa);
-                            body = body.Replace("{TEXTO}", configCorreo.TextoMensajeActivacion);
-                            body = body.Replace("{LOGO}", configCorreo.LogoCorreo);
-                            body = body.Replace("{NOMBRE}", item.Nombre);
-                            body = body.Replace("{RUT}", item.Rut);
-                            body = body.Replace("{CORREO}", item.Correo.ToLower());
-                            body = body.Replace("{CLAVE}", clave);
-                            string datosCliente = Encrypt.Base64Encode(item.CodAux + ";" + item.Correo.ToLower());
-                            body = body.Replace("{ENLACE}", configEmpresa.UrlPortal + "/#/sessions/activate-account/" + datosCliente);
-
-                            try
-                            {
-                                using (MailMessage mailMessage = new MailMessage())
-                                {
-                                    mailMessage.To.Add(item.Correo.ToLower());
-
-                                    mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                                    mailMessage.Subject = configCorreo.AsuntoAccesoCliente;
-                                    mailMessage.Body = body;
-                                    mailMessage.IsBodyHtml = true;
-                                    SmtpClient smtp = new SmtpClient();
-                                    smtp.Host = configCorreo.SmtpServer;
-                                    smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                                    System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                    NetworkCred.UserName = configCorreo.Usuario;
-                                    NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave);//Encrypt.DesEncriptar(configCorreo.Clave);
-                                    smtp.UseDefaultCredentials = false;
-                                    smtp.Credentials = NetworkCred;
-                                    smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                                    smtp.Send(mailMessage);
-                                }
-
-                                _context.LogCorreos.Attach(logCorreo);
-                                logCorreo.Estado = "Acceso Enviado";
-                                logCorreo.Error = "";
-                                _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                                _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                                _context.SaveChanges();
-
-                                var user = _context.Usuarios.Where(x => x.Email == item.CorreoUsuario.ToLower()).FirstOrDefault();
-                                if (user != null)
-                                {
-                                    var registro = new RegistroEnvioCorreo();
-
-                                    registro.FechaEnvio = DateTime.Today;
-                                    registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                                    registro.IdTipoEnvio = 1;
-                                    registro.IdUsuario = user.IdUsuario;
-
-                                    _context.RegistroEnvioCorreos.Add(registro);
-                                    _context.SaveChanges();
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                _context.LogCorreos.Attach(logCorreo);
-                                logCorreo.Estado = "Error al enviar correo";
-                                logCorreo.Error = ex.Message;
-                                _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                                _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                                _context.SaveChanges();
-                                errorEnvio = true;
-                            }
-                        }
-                    }
+                    return BadRequest();
                 }
+                PortalClientesSoftlandContext aux = new PortalClientesSoftlandContext(_contextAccessor);
+                     this.enviaAccesoAsync(envio, aux, _webHostEnvironment);
 
-                if (errorEnvio)
-                {
-                    return Ok(-1);
-                }
-                else
-                {
-                    return Ok(1);
-                }
+                return Ok();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                LogProceso log = new LogProceso();
-                log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
-                log.Excepcion = ex.StackTrace;
-                log.Mensaje = ex.Message;
-                log.Ruta = "api/ClientesPortal/SendAccesosCliente";
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "api/ClientesPortal/SendAccesosCliente/"
+                };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
-                return BadRequest(ex.Message);
+                return BadRequest();
+            }
+        }
+
+        private async Task enviaAccesoAsync(EnvioAccesoClienteVm envio, PortalClientesSoftlandContext _context, IWebHostEnvironment _webHostEnvironment)
+        {
+            try
+            {
+                using (var context = _context)
+                {
+
+                    if (envio.EnviaTodos == 0)
+                    {
+                        var value = envio.value;
+
+                        var configCorreo = context.ConfiguracionCorreos.FirstOrDefault();
+                        var configEmpresa = context.ConfiguracionEmpresas.FirstOrDefault();
+                        MailService emailService = new MailService(context, _webHostEnvironment);
+                        SoftlandService softlandService = new SoftlandService(context, _webHostEnvironment);
+                        List<ClienteAPIDTO> clientesSinDatos = new List<ClienteAPIDTO>();
+                        Boolean errorEnvio = false;
+                        string[] cargos = value[0].CodCargo.Split(';');
+                        string body = string.Empty;
+
+                        if (value.Count > 0)
+                        {
+                            foreach (var item in value)
+                            {
+
+                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux);
+                                List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
+                                foreach (var c in contactos)
+                                {
+                                    var exist = cargos.Where(x => x == c.CodCargo).FirstOrDefault();
+
+                                    if (exist != null)
+                                    {
+                                        contactosFiltrados.Add(c);
+                                    }
+                                }
+
+                                if (contactosFiltrados.Count() == 0 && value[0].EnviarTodosContactos == true)
+                                {
+                                    contactosFiltrados = contactos;
+                                }
+
+                                if (contactosFiltrados.Count > 0)
+                                {
+                                    contactosFiltrados = contactosFiltrados.Where(x => !string.IsNullOrWhiteSpace(x.Correo)).ToList();
+                                    if (contactosFiltrados.Count == 0)
+                                    {
+                                        clientesSinDatos.Add(item);
+                                    }
+                                    foreach (var c in contactosFiltrados)
+                                    {
+
+
+                                        var clave = RandomPassword.GenerateRandomPassword();
+
+                                        var cliente = context.ClientesPortals.Where(x => x.Rut == item.RutAux && x.CodAux == item.CodAux && x.Correo == c.Correo).FirstOrDefault();
+                                        if (cliente == null) //NUEVO ACCESO
+                                        {
+                                            var nuevoCliente = new ClientesPortal();
+                                            nuevoCliente.Rut = item.RutAux;
+                                            nuevoCliente.CodAux = item.CodAux;
+                                            nuevoCliente.Nombre = item.NomAux;
+                                            nuevoCliente.Correo = c.Correo.ToLower();
+                                            nuevoCliente.Clave = clave;
+                                            nuevoCliente.ActivaCuenta = 0;
+
+                                            context.ClientesPortals.Add(nuevoCliente);
+                                            context.SaveChanges();
+
+                                        }
+                                        else //ACTUALIZA ACCESO
+                                        {
+                                            cliente.Correo = c.Correo.ToLower();
+                                            cliente.ActivaCuenta = 0;
+                                            cliente.Clave = clave;
+                                            context.Entry(cliente).Property(x => x.Clave).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.Correo).IsModified = true;
+                                            context.SaveChanges();
+                                        }
+
+                                        var envioConError = emailService.EnviaAcceso(item, c.Correo, clave);
+                                        if (envioConError)
+                                        {
+                                            errorEnvio = true;
+                                        }
+                                    }
+                                }
+                                else if (contactosFiltrados.Count() == 0 && value[0].EnviarFicha == true)
+                                {
+                                    if (String.IsNullOrWhiteSpace(item.EMail))
+                                    {
+                                        clientesSinDatos.Add(item);
+                                    }
+                                    else
+                                    {
+                                        var clave = RandomPassword.GenerateRandomPassword();
+
+                                        var cliente = context.ClientesPortals.Where(x => x.Rut == item.RutAux && x.CodAux == item.CodAux && x.Correo == item.EMail).FirstOrDefault();
+                                        if (cliente == null) //NUEVO ACCESO
+                                        {
+                                            var nuevoCliente = new ClientesPortal();
+                                            nuevoCliente.Rut = item.RutAux;
+                                            nuevoCliente.CodAux = item.CodAux;
+                                            nuevoCliente.Nombre = item.NomAux;
+                                            nuevoCliente.Correo = item.EMail.ToLower();
+                                            nuevoCliente.Clave = clave;
+                                            nuevoCliente.ActivaCuenta = 0;
+                                            context.ClientesPortals.Add(nuevoCliente);
+                                            context.SaveChanges();
+
+                                        }
+                                        else //ACTUALIZA ACCESO
+                                        {
+                                            cliente.Correo = item.EMail.ToLower();
+                                            cliente.ActivaCuenta = 0;
+                                            cliente.Clave = clave;
+                                            context.Entry(cliente).Property(x => x.Clave).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.Correo).IsModified = true;
+                                            context.SaveChanges();
+                                        }
+
+                                        var envioConError = emailService.EnviaAcceso(item, item.EMail, clave);
+                                        if (envioConError)
+                                        {
+                                            errorEnvio = true;
+                                            clientesSinDatos.Add(item);
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    clientesSinDatos.Add(item);
+                                }
+                            }
+
+                            emailService.EnviaNotificacionEjecucionAccesos(clientesSinDatos);
+                        }
+
+                    }
+                    else
+                    {
+                        var value = envio.value;
+                        var configCorreo = context.ConfiguracionCorreos.FirstOrDefault();
+                        var configEmpresa = context.ConfiguracionEmpresas.FirstOrDefault();
+                        MailService emailService = new MailService(context, _webHostEnvironment);
+                        SoftlandService softlandService = new SoftlandService(context, _webHostEnvironment);
+                        List<ClienteAPIDTO> clientesSinDatos = new List<ClienteAPIDTO>();
+                        Boolean errorEnvio = false;
+                        string[] cargos = value[0].CodCargo.Split(';');
+                        string body = string.Empty;
+
+                        var clientes = await softlandService.BuscarClienteSoftlandAccesosAsync(envio.CodAux, envio.Rut, envio.Nombre, envio.Vendedor, envio.CondicionVenta, envio.CategoriaCliente, envio.ListaPrecio, 100, null).ConfigureAwait(false);
+
+                        foreach (var item in envio.Eliminados)
+                        {
+                            clientes.RemoveAll(x => x.CodAux == item.CodAux && x.RutAux == item.RutAux);
+                        }
+
+                        if (clientes.Count > 0)
+                        {
+                            foreach (var item in clientes)
+                            {
+
+                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux).ConfigureAwait(false);
+                                List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
+                                foreach (var c in contactos)
+                                {
+                                    var exist = cargos.Where(x => x == c.CodCargo).FirstOrDefault();
+
+                                    if (exist != null)
+                                    {
+                                        contactosFiltrados.Add(c);
+                                    }
+                                }
+
+                                if (contactosFiltrados.Count() == 0 && value[0].EnviarTodosContactos == true)
+                                {
+                                    contactosFiltrados = contactos;
+                                }
+
+                                if (contactosFiltrados.Count > 0)
+                                {
+                                    contactosFiltrados = contactosFiltrados.Where(x => !string.IsNullOrWhiteSpace(x.Correo)).ToList();
+                                    if (contactosFiltrados.Count == 0)
+                                    {
+                                        clientesSinDatos.Add(item);
+                                    }
+                                    else
+                                    {
+                                        foreach (var c in contactosFiltrados)
+                                        {
+
+
+                                            var clave = RandomPassword.GenerateRandomPassword();
+
+                                            var cliente = context.ClientesPortals.Where(x => x.Rut == item.RutAux && x.CodAux == item.CodAux && x.Correo == c.Correo).FirstOrDefault();
+                                            if (cliente == null) //NUEVO ACCESO
+                                            {
+                                                var nuevoCliente = new ClientesPortal();
+                                                nuevoCliente.Rut = item.RutAux;
+                                                nuevoCliente.CodAux = item.CodAux;
+                                                nuevoCliente.Nombre = item.NomAux;
+                                                nuevoCliente.Correo = c.Correo.ToLower();
+                                                nuevoCliente.Clave = clave;
+                                                nuevoCliente.ActivaCuenta = 0;
+
+                                                context.ClientesPortals.Add(nuevoCliente);
+                                                context.SaveChanges();
+
+                                            }
+                                            else //ACTUALIZA ACCESO
+                                            {
+                                                cliente.Correo = c.Correo.ToLower();
+                                                cliente.ActivaCuenta = 0;
+                                                cliente.Clave = clave;
+                                                context.Entry(cliente).Property(x => x.Clave).IsModified = true;
+                                                context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
+                                                context.Entry(cliente).Property(x => x.Correo).IsModified = true;
+                                                context.SaveChanges();
+                                            }
+
+                                            var envioConError = emailService.EnviaAcceso(item, c.Correo, clave);
+                                            if (envioConError)
+                                            {
+                                                errorEnvio = true;
+                                            }
+                                        }
+                                    }
+
+                                }
+                                else if (contactosFiltrados.Count() == 0 && value[0].EnviarFicha == true)
+                                {
+                                    if (String.IsNullOrWhiteSpace(item.EMail))
+                                    {
+                                        clientesSinDatos.Add(item);
+                                    }
+                                    else
+                                    {
+                                        var clave = RandomPassword.GenerateRandomPassword();
+
+                                        var cliente = context.ClientesPortals.Where(x => x.Rut == item.RutAux && x.CodAux == item.CodAux && x.Correo == item.EMail).FirstOrDefault();
+                                        if (cliente == null) //NUEVO ACCESO
+                                        {
+                                            var nuevoCliente = new ClientesPortal();
+                                            nuevoCliente.Rut = item.RutAux;
+                                            nuevoCliente.CodAux = item.CodAux;
+                                            nuevoCliente.Nombre = item.NomAux;
+                                            nuevoCliente.Correo = item.EMail.ToLower();
+                                            nuevoCliente.Clave = clave;
+                                            nuevoCliente.ActivaCuenta = 0;
+                                            context.ClientesPortals.Add(nuevoCliente);
+                                            context.SaveChanges();
+
+                                        }
+                                        else //ACTUALIZA ACCESO
+                                        {
+                                            cliente.Correo = item.EMail.ToLower();
+                                            cliente.ActivaCuenta = 0;
+                                            cliente.Clave = clave;
+                                            context.Entry(cliente).Property(x => x.Clave).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.ActivaCuenta).IsModified = true;
+                                            context.Entry(cliente).Property(x => x.Correo).IsModified = true;
+                                            context.SaveChanges();
+                                        }
+
+                                        var envioConError = emailService.EnviaAcceso(item, item.EMail, clave);
+                                        if (envioConError)
+                                        {
+                                            errorEnvio = true;
+                                            clientesSinDatos.Add(item);
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    clientesSinDatos.Add(item);
+                                }
+                            }
+
+
+                            emailService.EnviaNotificacionEjecucionAccesos(clientesSinDatos);
+                        }
+
+                    }
+                } 
+                
+            }
+            catch (Exception e)
+            {
+
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "enviaAccesoAsync"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
             }
         }
 
@@ -437,24 +490,20 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPost("GetClienteByMailAndRut"), Authorize]
+        [HttpPost("GetClienteByMailAndRut")]
         public async Task<ActionResult> GetClienteByMailAndRut(ClientesPortalVm cliente)
         {
             ClienteDTO retorno = new ClienteDTO();
 
             try
             {
-                var clientePortal = _context.ClientesPortals.Where(x => x.CodAux == cliente.CodAux && x.Correo == cliente.Correo).FirstOrDefault();
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                retorno = await sf.GetClienteSoftlandAsync(cliente.CodAux);
-                if (clientePortal != null)
-                {
-                    retorno.IdCliente = clientePortal.IdCliente;
-                }
+                retorno = await sf.GetClienteSoftlandAsync(string.Empty, cliente.Rut);
+
 
                 if (!string.IsNullOrEmpty(retorno.Rut))
                 {
-                    List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(cliente.CodAux);
+                    List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(retorno.CodAux);
                     retorno.Contactos = contactos;
                 }
 
@@ -532,78 +581,10 @@ namespace ApiPortal.Controllers
                     _context.Entry(cliente).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
 
-
-                    var logCorreo = new LogCorreo();
-                    logCorreo.Fecha = DateTime.Now;
-                    logCorreo.Rut = cliente.Rut;
-                    logCorreo.CodAux = cliente.CodAux;
-                    logCorreo.Tipo = "Acceso";
-                    logCorreo.Estado = "PENDIENTE";
-
-                    _context.LogCorreos.Add(logCorreo);
-                    _context.SaveChanges();
-
-                    var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioClave.component.html")))
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    bool error = emailService.EnviaCambioContrasena(cliente, claveEnvio);
+                    if (error)
                     {
-                        body = reader.ReadToEnd();
-                    }
-
-                    body = body.Replace("{NOMBRE}", cliente.Nombre);
-                    body = body.Replace("{CLAVE}", claveEnvio);
-                    body = body.Replace("{logo}", configEmpresa.UrlPortal + "/" + configEmpresa.Logo);
-                    body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                    body = body.Replace("{Titulo}", configCorreo.TituloCambioClave);
-                    body = body.Replace("{Texto}", configCorreo.TextoCambioClave);
-                    try
-                    {
-                        using (MailMessage mailMessage = new MailMessage())
-                        {
-                            mailMessage.To.Add(cliente.Correo);
-
-                            mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                            mailMessage.Subject = configCorreo.AsuntoAccesoCliente;
-                            mailMessage.Body = body;
-                            mailMessage.IsBodyHtml = true;
-                            SmtpClient smtp = new SmtpClient();
-                            smtp.Host = configCorreo.SmtpServer;
-                            smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                            System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                            NetworkCred.UserName = configCorreo.Usuario;
-                            NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave);
-                            smtp.UseDefaultCredentials = false;
-                            smtp.Credentials = NetworkCred;
-                            smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                            smtp.Send(mailMessage);
-                        }
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 4;
-                        registro.IdUsuario = cliente.IdCliente;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Error al enviar correo";
-                        logCorreo.Error = ex.Message;
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
                         errorEnvio = true;
                     }
                 }
@@ -658,50 +639,9 @@ namespace ApiPortal.Controllers
             {
                 string utilizaApiSoftland = "1";
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<DashboardDocumentosVm> retorno = new List<DashboardDocumentosVm>();
+                DashboardDocumentosVm retorno = new DashboardDocumentosVm();
 
-                List<ClienteSaldosDTO> documentosVencidos = await sf.GetDocumentosVencidosAsync(codAux);
-                List<ClienteSaldosDTO> documentosPorVencer = await sf.GetDocumentosPorVencerAsync(codAux);
-                List<ClienteSaldosDTO> documentosPendientes = await sf.GetDocumentosPendientesAsync(codAux);
-
-                if (documentosVencidos.Count > 0)
-                {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosVencidos)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.SaldoBase);
-                    }
-
-                    d.Estado = "VENCIDO";
-                    retorno.Add(d);
-                }
-
-                if (documentosPorVencer.Count > 0)
-                {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosPorVencer)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.SaldoBase);
-                    }
-
-                    d.Estado = "PORVENCER";
-                    retorno.Add(d);
-                }
-
-                if (documentosPendientes.Count > 0)
-                {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosPendientes)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.SaldoBase);
-                    }
-
-                    d.Estado = "PENDIENTES";
-                    retorno.Add(d);
-                }
+                retorno = await sf.GetMontosDashboardAdmin(codAux);
 
                 return Ok(retorno);
             }
@@ -719,14 +659,42 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetDocumentosVencidos/{codAux}"), Authorize]
-        public async Task<ActionResult> GetDocumentosVencidos(string codAux)
+        [HttpPost("GetDocumentosVencidos"), Authorize]
+        public async Task<ActionResult> GetDocumentosVencidos(FilterVm filter)
         {
 
             try
             {
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ClienteSaldosDTO> documentosVencidos = await sf.GetDocumentosVencidosAsync(codAux);
+                var documentos = await sf.GetDocumentosVencidosAsync(filter);
+
+                var monedas = await sf.GetMonedasAsync();
+                List<ClienteSaldosDTO> documentosVencidos = documentos.ConvertAll(d =>
+                             new ClienteSaldosDTO
+                             {
+                                 //item.comprobanteContable = reader["Comprobante"].ToString();
+                                 Documento = d.DesDoc,
+                                 Nro = (double)d.Numdoc,
+                                 FechaEmision = Convert.ToDateTime(d.Movfe),
+                                 FechaVcto = Convert.ToDateTime(d.Movfv),
+                                 Debe = (double)d.MovMontoMa,
+                                 Haber = d.Saldoadic,
+                                 Saldo = (double)d.Saldoadic,
+                                 Detalle = "", // reader["Detalle"].ToString();
+                                 Estado = d.Estado,
+                                 Pago = "", // reader["Pago"].ToString();
+                                 TipoDoc = d.Ttdcod,
+                                 RazonSocial = "",
+                                 CodigoMoneda = d.MonCod,
+                                 MontoOriginalBase = d.MontoOriginalBase,
+                                 DesMon = monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault().DesMon : "",
+                                 CodAux = d.CodAux,
+                                 MontoBase = d.MovMonto,
+                                 SaldoBase = d.Saldobase,
+                                 EquivalenciaMoneda = d.Equivalencia,
+                                 MovEqui = d.MovEquiv,
+                             }
+                         );
 
                 return Ok(documentosVencidos);
             }
@@ -744,14 +712,42 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetDocumentosPorVencer/{codAux}"), Authorize]
-        public async Task<ActionResult> GetDocumentosPorVencer(string codAux)
+        [HttpPost("GetDocumentosPorVencer"), Authorize]
+        public async Task<ActionResult> GetDocumentosPorVencer(FilterVm filter)
         {
 
             try
             {
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ClienteSaldosDTO> documentosPorVencer = await sf.GetDocumentosPorVencerAsync(codAux);
+                var documentos = await sf.GetDocumentosPorVencerAsync(filter);
+
+                var monedas = await sf.GetMonedasAsync();
+                List<ClienteSaldosDTO> documentosPorVencer = documentos.ConvertAll(d =>
+                             new ClienteSaldosDTO
+                             {
+                                 //item.comprobanteContable = reader["Comprobante"].ToString();
+                                 Documento = d.DesDoc,
+                                 Nro = (double)d.Numdoc,
+                                 FechaEmision = Convert.ToDateTime(d.Movfe),
+                                 FechaVcto = Convert.ToDateTime(d.Movfv),
+                                 Debe = (double)d.MovMontoMa,
+                                 Haber = d.Saldoadic,
+                                 Saldo = (double)d.Saldoadic,
+                                 Detalle = "", // reader["Detalle"].ToString();
+                                 Estado = d.Estado,
+                                 Pago = "", // reader["Pago"].ToString();
+                                 TipoDoc = d.Ttdcod,
+                                 RazonSocial = "",
+                                 CodigoMoneda = d.MonCod,
+                                 MontoOriginalBase = d.MontoOriginalBase,
+                                 DesMon = monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault().DesMon : "",
+                                 CodAux = d.CodAux,
+                                 MontoBase = d.MovMonto,
+                                 SaldoBase = d.Saldobase,
+                                 EquivalenciaMoneda = d.Equivalencia,
+                                 MovEqui = d.MovEquiv,
+                             }
+                         );
 
                 return Ok(documentosPorVencer);
             }
@@ -769,14 +765,43 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetDocumentosPendientes/{codAux}"), Authorize]
-        public async Task<ActionResult> GetDocumentosPendientes(string codAux)
+        [HttpPost("GetDocumentosPendientes"), Authorize]
+        public async Task<ActionResult> GetDocumentosPendientes(FilterVm filter)
         {
 
             try
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                List<ClienteSaldosDTO> documentosPendientes = await sf.GetDocumentosPendientesAsync(codAux);
+
+                var documentos = await sf.GetDocumentosPendientesAsync(filter);
+
+                var monedas = await sf.GetMonedasAsync();
+                List<ClienteSaldosDTO> documentosPendientes = documentos.ConvertAll(d =>
+                             new ClienteSaldosDTO
+                             {
+                                 //item.comprobanteContable = reader["Comprobante"].ToString();
+                                 Documento = d.DesDoc,
+                                 Nro = (double)d.Numdoc,
+                                 FechaEmision = Convert.ToDateTime(d.Movfe),
+                                 FechaVcto = Convert.ToDateTime(d.Movfv),
+                                 Debe = (double)d.MovMontoMa,
+                                 Haber = d.Saldoadic,
+                                 Saldo = (double)d.Saldoadic,
+                                 Detalle = "", // reader["Detalle"].ToString();
+                                 Estado = d.Estado,
+                                 Pago = "", // reader["Pago"].ToString();
+                                 TipoDoc = d.Ttdcod,
+                                 RazonSocial = "",
+                                 CodigoMoneda = d.MonCod,
+                                 MontoOriginalBase = d.MontoOriginalBase,
+                                 DesMon = monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == d.MonCod).FirstOrDefault().DesMon : "",
+                                 CodAux = d.CodAux,
+                                 MontoBase = d.MovMonto,
+                                 SaldoBase = d.Saldobase,
+                                 EquivalenciaMoneda = d.Equivalencia,
+                                 MovEqui = d.MovEquiv,
+                             }
+                         );
 
                 return Ok(documentosPendientes);
             }
@@ -987,9 +1012,8 @@ namespace ApiPortal.Controllers
                 }
                 else
                 {
-                    DocumentoDTO doc = await sf.obtenerDocumentoAPI(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux);
-                    string base64 = await sf.obtenerPDFDocumento(Convert.ToInt32(model.Folio), model.TipoDoc, doc.cabecera.SubTipo);
-                    documento.NombreArchivo = (model.TipoDoc == "B") ? "Boleta " + model.Folio + ".pdf" : (model.TipoDoc == "F") ? "Factura " + model.Folio + ".pdf" : "";
+                    string base64 = await sf.obtenerPDFDocumento((int)model.Folio, model.TipoDoc);
+                    documento.NombreArchivo = (model.TipoDoc.Substring(0, 1) == "B") ? "Boleta " + model.Folio + ".pdf" : (model.TipoDoc.Substring(0, 1) == "F") ? "Factura " + model.Folio + ".pdf" : "";
                     documento.Tipo = "PDF";
                     documento.Base64 = base64;
                     return Ok(documento);
@@ -1285,13 +1309,19 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPost("GetClienteEstadoComprasFromSoftland"), Authorize]
+        [HttpPost("GetClienteEstadoComprasFromSoftland")]
         public async Task<ActionResult> GetClienteEstadoComprasFromSoftland(FilterVm model)
         {
 
             try
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+                if (string.IsNullOrEmpty(model.CodAux) && !string.IsNullOrEmpty(model.Rut))
+                {
+                    var datosCliente = await sf.GetClienteSoftlandAsync(string.Empty, model.Rut);
+                    model.CodAux = datosCliente.CodAux;
+                }
+
                 List<ClienteSaldosDTO> clients = await sf.GetClienteEstadoCuentaAsync(model.CodAux);
 
                 if (model.Folio != 0)
@@ -1332,8 +1362,108 @@ namespace ApiPortal.Controllers
                         }
                     }
 
-                    clients = clients.Where(x => foliosDocumentos.Contains(x.Nro.ToString())).ToList();
+                    List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+                    foreach (var folio in foliosDocumentos.Split(';'))
+                    {
+                        var exist = clients.Where(x => x.Nro.ToString() == folio).ToList();
+                        if (exist.Count > 0)
+                        {
+                            foreach (var doc in exist)
+                            {
+                                clientsAux.Add(doc);
+                            }
+                        }
+                    }
+                    clients = clientsAux;
+
+                    foreach (var item in foliosDocumentos.Split(';'))
+                    {
+                        var detalle = documentosCobranzas.Where(x => x.Folio.ToString() == item).FirstOrDefault();
+                        if (detalle != null)
+                        {
+                            var detalleSoftland = clients.Where(x => x.Nro == detalle.Folio).FirstOrDefault();
+                            if (detalleSoftland != null)
+                            {
+                                detalle.Monto = (float?)detalleSoftland.MontoBase;
+                                detalle.Pagado = (float?)(detalleSoftland.MontoBase - detalleSoftland.APagar);
+                                _context.Entry(detalle).State = EntityState.Modified;
+                                _context.SaveChanges();
+                            }
+                        }
+
+                    }
                 }
+
+
+                if (!string.IsNullOrEmpty(model.AutomatizacionJson))
+                {
+
+                    string validaBase64 = Encrypt.EnsureBase64Length(model.AutomatizacionJson);
+                    string jsonDecodificado = Encrypt.Base64Decode(validaBase64);
+
+
+                    AutomatizacionVm automatizacion = JsonConvert.DeserializeObject<AutomatizacionVm>(jsonDecodificado);
+
+                    Nullable<DateTime> fechaHasta = null;
+                    Nullable<DateTime> fechaDesde = null;
+                    if (automatizacion.Anio == null || automatizacion.Anio == 0)
+                    {
+                        automatizacion.Anio = 0;
+                    }
+                    else
+                    {
+                        fechaHasta = new DateTime((int)automatizacion.Anio, 12, 31, 0, 0, 0);
+                        fechaDesde = new DateTime((int)automatizacion.Anio, 01, 01, 0, 0, 0);
+                    }
+
+                    clients = clients.Where(x => automatizacion.TipoDocumentos.Contains(x.TipoDoc)).ToList();
+
+                    if (automatizacion.Anio != 0)
+                    {
+                        clients = clients.Where(x => x.FechaEmision.Value.Year == automatizacion.Anio).ToList();
+                    }
+
+                    if (fechaDesde != null)
+                    {
+                        clients = clients.Where(x => x.FechaEmision.Value.Date >= fechaDesde).ToList();
+                    }
+
+                    if (fechaHasta != null)
+                    {
+                        clients = clients.Where(x => x.FechaEmision.Value.Date <= fechaHasta).ToList();
+                    }
+
+
+
+
+                    switch (automatizacion.IdAutomatizacion)
+                    {
+                        case 1:
+                            if (automatizacion.NumDoc.Count > 0)
+                            {
+                                List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+
+                                foreach (var folio in automatizacion.NumDoc)
+                                {
+                                    var exist = clients.Where(x => x.Nro == folio).ToList();
+                                    if (exist.Count > 0)
+                                    {
+                                        foreach (var doc in exist)
+                                        {
+                                            clientsAux.Add(doc);
+                                        }
+                                    }
+                                }
+                                clients = clientsAux;
+                            }
+                            break;
+                        case 3:
+                            clients = clients.Where(x => (DateTime.Now.Date - x.FechaVcto.Value.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
+                            break;
+                    }
+                }
+
+
 
                 return Ok(clients);
             }
@@ -1351,7 +1481,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetEstadoConexionSoftland"), Authorize]
+        [HttpGet("GetEstadoConexionSoftland")]
         public async Task<ActionResult> GetEstadoConexionSoftland()
         {
 
@@ -1375,7 +1505,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPost("SavePago"), Authorize]
+        [HttpPost("SavePago")]
         public async Task<ActionResult> SavePago(PagoCabeceraVm value)
         {
 
@@ -1753,7 +1883,6 @@ namespace ApiPortal.Controllers
                     cabecera.IdPagoEstado = (int)cabeceraPago.IdPagoEstado;
                     cabecera.MontoPago = (float)cabeceraPago.MontoPago;
                     cabecera.PagosDetalle = detalleCabecera;
-                    cabecera.PagosEstado = estado;
                     cabecera.PasarelaPagoLog = pasarela;
                 }
 
@@ -1820,8 +1949,8 @@ namespace ApiPortal.Controllers
             try
             {
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-
-                string pdfBase64 = await sf.obtenerPDFDocumento(cabecera.Folio, cabecera.Tipo, cabecera.SubTipo);
+                string tipoDoc = cabecera.Tipo + cabecera.SubTipo;
+                string pdfBase64 = await sf.obtenerPDFDocumento(cabecera.Folio, tipoDoc);
                 return Ok(pdfBase64);
             }
             catch (Exception ex)
@@ -1855,7 +1984,8 @@ namespace ApiPortal.Controllers
 
                     if (envio.docsAEnviar == 1 || envio.docsAEnviar == 3)
                     {
-                        string pdfBase64 = await sf.obtenerPDFDocumento(envio.folio, envio.tipoDoc, envio.subTipoDoc);
+                        string tipoDoc = envio.tipoDoc + envio.subTipoDoc;
+                        string pdfBase64 = await sf.obtenerPDFDocumento(envio.folio, tipoDoc);
                         if (!string.IsNullOrEmpty(pdfBase64))
                         {
                             byte[] stemp = Convert.FromBase64String(pdfBase64);
@@ -1867,11 +1997,13 @@ namespace ApiPortal.Controllers
                     if (envio.docsAEnviar == 2 || envio.docsAEnviar == 3)
                     {
                         DocumentosVm xml = await sf.obtenerXMLDTEAsync(envio.folio, envio.codAux, envio.tipoDoc);
+                        byte[] myByte = System.Text.Encoding.UTF8.GetBytes(xml.Base64);
+                        xml.Base64 = Convert.ToBase64String(myByte);
                         if (!string.IsNullOrEmpty(xml.Base64))
                         {
                             byte[] stemp = Convert.FromBase64String(xml.Base64);
                             Stream stream = new MemoryStream(stemp);
-                            adjuntos.Add(new Attachment(stream, Path.GetFileName(xml.NombreArchivo + ".xml"), "text/xml"));
+                            adjuntos.Add(new Attachment(stream, Path.GetFileName(xml.NombreArchivo), "text/xml"));
                         }
 
                     }
@@ -1948,7 +2080,11 @@ namespace ApiPortal.Controllers
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
 
                 string pdfBase64 = await sf.obtenerPDFDocumentoNv(notaVenta.NVNumero, notaVenta.CodAux);
-                return Ok(pdfBase64);
+                var documento = new
+                {
+                    PdfBase64 = pdfBase64
+                };
+                return Ok(documento);
             }
             catch (Exception ex)
             {
@@ -1972,7 +2108,7 @@ namespace ApiPortal.Controllers
             {
 
                 SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                List<ClientesPortal> clients = softlandService.GetClientesSoftlandCobranza(model);
+                List<ClientesPortal> clients = await softlandService.GetClientesSoftlandFiltrosAsync(model);
 
                 return Ok(clients);
             }
@@ -1996,56 +2132,27 @@ namespace ApiPortal.Controllers
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<DashboardDocumentosVm> retorno = new List<DashboardDocumentosVm>();
-                List<ClienteSaldosDTO> documentos = await sf.GetDocumentosDashboardAdminAsync("", 0);
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+                DashboardDocumentosVm documentos = await sf.GetMontosDashboardAdmin(string.Empty);
 
-                var documentosVencidos = documentos.Where(x => x.Estado == "Vencido" || x.Estado == "V").ToList();
-                var documentosPendientes = documentos;
-                var configPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                configPago.DiasPorVencer = configPago.DiasPorVencer == null ? 0 : configPago.DiasPorVencer;
-                var documentosPorVencer = documentos.Where(x => (int)(Convert.ToDateTime(x.FechaVcto).Date - DateTime.Now.Date).TotalDays <= configPago.DiasPorVencer && x.Estado != "V").ToList();
-                if (documentosVencidos.Count > 0)
+                //ULTIMOS PAGOS
+
+                int mes = DateTime.Today.Month;
+                int anio = DateTime.Today.Year;
+
+                var primerDiaMes = new DateTime(anio, mes, 1);
+                var ultimoDiaMes = primerDiaMes.AddMonths(1).AddMilliseconds(-1);
+
+                var pagosTotales = _context.PagosCabeceras.OrderByDescending(x => x.IdPago).Where(x => (x.IdPagoEstado == 2 || x.IdPagoEstado == 4) && x.FechaPago >= primerDiaMes && x.FechaPago <= ultimoDiaMes).ToList();
+
+                if (pagosTotales.Count > 0)
                 {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosVencidos)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.Saldo);
-                    }
-
-                    d.Estado = "VENCIDO"; 
-                    retorno.Add(d);
-                }
-
-                if (documentosPorVencer.Count > 0)
-                {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosPorVencer)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.Saldo);
-                    }
-
-                    d.Estado = "POR VENCER";
-                    retorno.Add(d);
-                }
-
-                if (documentosPendientes.Count > 0)
-                {
-                    DashboardDocumentosVm d = new DashboardDocumentosVm();
-                    foreach (var item in documentosPendientes)
-                    {
-                        d.CantidadDocumentos += 1;
-                        d.TotalDocumentos = d.TotalDocumentos + Convert.ToDecimal(item.Saldo);
-                    }
-
-                    d.Estado = "PENDIENTES";
-                    retorno.Add(d);
+                    documentos.CantidadDocumentosPagados = pagosTotales.Count();
+                    documentos.MontoPagado = (decimal)pagosTotales.Sum(x => x.MontoPago);
                 }
 
 
-                return Ok(retorno);
+                return Ok(documentos);
             }
             catch (Exception ex)
             {
@@ -2079,7 +2186,7 @@ namespace ApiPortal.Controllers
 
                 foreach (var item in documentosAgrupados)
                 {
-                    var cliente = await sf.GetClienteSoftlandAsync(item.Key);
+                    var cliente = await sf.GetClienteSoftlandAsync(item.Key, string.Empty);
                     cliente.Documentos = documentos.Where(x => x.CodAux == item.Key).OrderByDescending(x => x.FechaEmision).ToList();
                     cliente.TotalDocumentos = cliente.Documentos.Sum(x => x.MontoBase);
                     cliente.TotalSaldo = cliente.Documentos.Sum(x => x.SaldoBase);
@@ -2236,12 +2343,13 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPost("RecuperarContrasena"), Authorize]
+        [HttpPost("RecuperarContrasena")]
         public async Task<ActionResult> RecuperarContrasena(ClienteDTO clienteVm)
         {
 
             try
             {
+                MailService emailService = new MailService(_context, _webHostEnvironment);
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 if (clienteVm.Rut == configEmpresa.RutEmpresa)
                 {
@@ -2264,71 +2372,7 @@ namespace ApiPortal.Controllers
 
                         _context.LogCorreos.Add(logCorreo);
                         _context.SaveChanges();
-
-                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                        string body = string.Empty;
-                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/envioClave.component.html")))
-                        {
-                            body = reader.ReadToEnd();
-                        }
-
-                        body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                        body = body.Replace("{Texto}", "Se solicito una recuperacion de clave para su cuenta, debera ingresar con la nueva clave que se indica a continuación");
-                        body = body.Replace("{logo}", configCorreo.LogoCorreo);
-                        body = body.Replace("{NOMBRE}", usuario.Email);
-                        body = body.Replace("{CLAVE}", clave);
-                        body = body.Replace("{Titulo}", "Recuperar Clave");
-                        try
-                        {
-                            using (MailMessage mailMessage = new MailMessage())
-                            {
-                                mailMessage.To.Add(usuario.Email);
-
-                                mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                                mailMessage.Subject = "Recuperar Clave";
-                                mailMessage.Body = body;
-                                mailMessage.IsBodyHtml = true;
-                                SmtpClient smtp = new SmtpClient();
-                                smtp.Host = configCorreo.SmtpServer;
-                                smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                                System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                NetworkCred.UserName = configCorreo.Usuario;
-                                NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave); //Encrypt.DesEncriptar(configCorreo.Clave);
-                                smtp.UseDefaultCredentials = false;
-                                smtp.Credentials = NetworkCred;
-                                smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                                smtp.Send(mailMessage);
-
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _context.LogCorreos.Attach(logCorreo);
-                            logCorreo.Estado = "Error al enviar correo";
-                            logCorreo.Error = ex.Message;
-                            _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                            _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                            _context.SaveChanges();
-                        }
-
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 4;
-                        registro.IdUsuario = usuario.IdUsuario;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
+                        emailService.EnviaRecuperacionContrasenaUsuario(usuario, clave);
 
                         return Ok(1);
                     }
@@ -2349,80 +2393,7 @@ namespace ApiPortal.Controllers
                         _context.SaveChanges();
 
 
-                        var logCorreo = new LogCorreo();
-                        logCorreo.Fecha = DateTime.Now;
-                        logCorreo.Rut = cliente.Rut;
-                        logCorreo.CodAux = cliente.CodAux;
-                        logCorreo.Tipo = "Acceso";
-                        logCorreo.Estado = "PENDIENTE";
-
-                        _context.LogCorreos.Add(logCorreo);
-                        _context.SaveChanges();
-
-                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                        string body = string.Empty;
-                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/envioClave.component.html")))
-                        {
-                            body = reader.ReadToEnd();
-                        }
-
-                        body = body.Replace("{NombreEmpresa}", configEmpresa.NombreEmpresa);
-                        body = body.Replace("{Texto}", configCorreo.TextoRecuperarClave);
-                        body = body.Replace("{logo}", configCorreo.LogoCorreo);
-                        body = body.Replace("{NOMBRE}", cliente.Correo);
-                        body = body.Replace("{CLAVE}", clave);
-                        body = body.Replace("{Titulo}", configCorreo.TituloRecuperarClave);
-                        try
-                        {
-                            using (MailMessage mailMessage = new MailMessage())
-                            {
-                                mailMessage.To.Add(cliente.Correo);
-
-                                mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
-                                mailMessage.Subject = configCorreo.AsuntoRecuperarClave;
-                                mailMessage.Body = body;
-                                mailMessage.IsBodyHtml = true;
-                                SmtpClient smtp = new SmtpClient();
-                                smtp.Host = configCorreo.SmtpServer;
-                                smtp.EnableSsl = (configCorreo.Ssl == 1) ? true : false;
-                                System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                NetworkCred.UserName = configCorreo.Usuario;
-                                NetworkCred.Password = Encrypt.Base64Decode(configCorreo.Clave); 
-                                smtp.UseDefaultCredentials = false;
-                                smtp.Credentials = NetworkCred;
-                                smtp.Port = Convert.ToInt32(configCorreo.Puerto);
-                                smtp.Send(mailMessage);
-
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _context.LogCorreos.Attach(logCorreo);
-                            logCorreo.Estado = "Error al enviar correo";
-                            logCorreo.Error = ex.Message;
-                            _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                            _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                            _context.SaveChanges();
-                        }
-
-
-                        _context.LogCorreos.Attach(logCorreo);
-                        logCorreo.Estado = "Acceso Enviado";
-                        logCorreo.Error = "";
-                        _context.Entry(logCorreo).Property(x => x.Estado).IsModified = true;
-                        _context.Entry(logCorreo).Property(x => x.Error).IsModified = true;
-                        _context.SaveChanges();
-
-
-                        var registro = new RegistroEnvioCorreo();
-
-                        registro.FechaEnvio = DateTime.Today;
-                        registro.HoraEnvio = DateTime.Now.ToString("HH:mm");
-                        registro.IdTipoEnvio = 4;
-                        registro.IdUsuario = cliente.IdCliente;
-
-                        _context.RegistroEnvioCorreos.Add(registro);
-                        _context.SaveChanges();
+                        emailService.EnviaRecuperacionContrasenaCliente(cliente, clave);
 
                         return Ok(1);
                     }
@@ -2465,7 +2436,7 @@ namespace ApiPortal.Controllers
                     pago.EsPagoRapido = (int)item.EsPagoRapido;
                     pago.FechaPago = (DateTime)item.FechaPago;
                     pago.HoraPago = item.HoraPago;
-                    pago.IdCliente = (int)item.IdCliente;
+                    pago.IdCliente = item.IdCliente;
                     pago.IdPago = item.IdPago;
                     pago.IdPagoEstado = (int)item.IdPagoEstado;
                     pago.IdPasarela = (int)item.IdPasarela;
@@ -2474,6 +2445,7 @@ namespace ApiPortal.Controllers
                     pago.Rut = item.Rut;
 
                     List<PagoDetalleVm> detalles = new List<PagoDetalleVm>();
+                    item.PagosDetalles = _context.PagosDetalles.Where(x => x.IdPago == item.IdPago).ToList();
                     foreach (var det in item.PagosDetalles)
                     {
                         PagoDetalleVm detalle = new PagoDetalleVm();
@@ -2491,6 +2463,7 @@ namespace ApiPortal.Controllers
                     }
 
                     List<PasarelaPagoLogVm> logs = new List<PasarelaPagoLogVm>();
+                    item.PasarelaPagoLogs = _context.PasarelaPagoLogs.Where(x => x.IdPago == item.IdPago).ToList();
                     foreach (var log in item.PasarelaPagoLogs)
                     {
                         PasarelaPagoLogVm detalle = new PasarelaPagoLogVm();
@@ -2563,6 +2536,63 @@ namespace ApiPortal.Controllers
             }
         }
 
+
+        [HttpPost("GetResumenDocumentosCliente"), Authorize]
+        public async Task<ActionResult> GetResumenDocumentosXCliente(FilterVm filter)
+        {
+
+            try
+            {
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+
+                var documentos = await sf.GetResumenDocumentosXClienteAsync(filter);
+
+                return Ok(documentos);
+
+
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/GetResumenDocumentosXCliente";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("GetDocumentosContabilizadosXCliente"), Authorize]
+        public async Task<ActionResult> GetDocumentosContabilizadosXCliente(FilterVm filter)
+        {
+
+            try
+            {
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+
+                var documentos = await sf.GetDocumentosClienteAdministrador(filter);
+
+                return Ok(documentos);
+
+
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/GetDocumentosContabilizadosXCliente";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("GetTopDeudores"), Authorize]
         public async Task<ActionResult> GetTopDeudores()
         {
@@ -2570,28 +2600,8 @@ namespace ApiPortal.Controllers
             try
             {
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ClienteSaldosDTO> documentos = await sf.GetDocumentosDeudores("", 0);
-                documentos = documentos.OrderByDescending(x => x.FechaEmision).ToList();
-
-                List<DeudorVm> list = documentos.GroupBy(x => new { x.CodAux }).Select(g => new DeudorVm
-                {
-                    CodAux = g.Key.CodAux,
-                    TotalDeuda = g.Where(j => Convert.ToDouble(j.SaldoBase) > 0).Sum(j => Convert.ToDouble(j.SaldoBase)),
-                    CantidadDocumentos = g.Count(x => x.CodAux == x.CodAux)
-                }).ToList().OrderByDescending(z => z.TotalDeuda).Take(10).ToList();
-
-                SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                foreach (var item in list)
-                {
-                    var cliente = await softlandService.BuscarClienteSoftlandAsync(item.CodAux, "", "");
-                    if (cliente.Count > 0)
-                    {
-                        item.Rut = cliente[0].Rut;
-                        item.RazonSocial = cliente[0].Nombre;
-                    }
-                }
-
-                return Ok(list);
+                List<DeudorApiDTO> retornoDeudores = await sf.GetTopDeudores();
+                return Ok(retornoDeudores);
 
             }
             catch (Exception ex)
@@ -2615,19 +2625,19 @@ namespace ApiPortal.Controllers
             try
             {
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ClienteSaldosDTO> documentos = await sf.GetDocumentosDashboardAdminAsync("", 0);
+                List<DocumentoContabilizadoAPIDTO> documentos = await sf.GetDocumentosDeudaVsPago();
                 var mesAñoAnterior = new DateTime(DateTime.Now.Year - 1, DateTime.Now.Month, 1);
                 DateTime primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 DateTime ultimoDiaMesActual = primerDiaMesActual.AddMonths(1).AddMilliseconds(-1);
-                documentos = documentos.OrderBy(x => x.FechaVcto).Where(x => x.FechaVcto.Value.Date >= mesAñoAnterior.Date && x.FechaVcto.Value.Date <= ultimoDiaMesActual.Date).ToList();
+                var documentosDeudasPago = documentos.OrderBy(x => Convert.ToDateTime(x.Movfv)).Where(x => Convert.ToDateTime(x.Movfv).Date >= mesAñoAnterior.Date && Convert.ToDateTime(x.Movfv).Date <= ultimoDiaMesActual.Date).ToList();
 
 
-                List<DeudaPagosVm> listaDeuda = documentos.GroupBy(x => new { x.FechaVcto.Value.Month, x.FechaVcto.Value.Year }).Select(g => new DeudaPagosVm
+                List<DeudaPagosVm> listaDeuda = documentosDeudasPago.GroupBy(x => new { Convert.ToDateTime(x.Movfv).Month, Convert.ToDateTime(x.Movfv).Year }).Select(g => new DeudaPagosVm
                 {
                     Mes = g.Key.Month,
                     Anio = g.Key.Year,
                     FechaTexto = g.Key.Month.ToString("D2") + "/" + g.Key.Year.ToString().Substring(2),
-                    TotalDeuda = g.Sum(j => Convert.ToDouble(j.MontoBase)),
+                    TotalDeuda = (double)g.Sum(j => j.Saldobase),
                     Fecha = new DateTime(g.Key.Year, g.Key.Month, 1)
                 }).ToList();
 
@@ -2674,6 +2684,8 @@ namespace ApiPortal.Controllers
                         });
                     }
 
+
+
                     ultimoDiaMesActual = ultimoDiaMesActual.AddMonths(-1);
                 }
 
@@ -2695,7 +2707,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpPost("GetClientesByCodAux"), Authorize]
+        [HttpPost("GetClientesByCodAux")]
         public async Task<ActionResult> GetClientesByCodAux(List<ClientesPortalVm> cliente)
         {
 
@@ -2706,7 +2718,7 @@ namespace ApiPortal.Controllers
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 foreach (var item in cliente)
                 {
-                    var c = await sf.GetClienteSoftlandAsync(item.CodAux);
+                    var c = await sf.GetClienteSoftlandAsync(item.CodAux, string.Empty);
                     retorno.Add(c);
                 }
 
@@ -2832,7 +2844,11 @@ namespace ApiPortal.Controllers
                         vm2.mensaje = pago.ComprobanteContable + "|" + pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0").Replace(",", ".") + "|" + cliente.Nombre + "|" + cliente.Rut;
                         vm2.adjuntos = listaAdjuntos2;
                         vm2.email_destinatario = configCorreo.CorreoAvisoPago;
-                        await mail.EnviarCorreosAsync(vm2);
+                        if (!string.IsNullOrEmpty(configCorreo.CorreoAvisoPago))
+                        {
+                            await mail.EnviarCorreosAsync(vm2);
+                        }
+                        
                     }
 
                 }
@@ -2848,6 +2864,253 @@ namespace ApiPortal.Controllers
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ClientesPortal/enviaCorreoComprobante";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("GetClienteByCodAux")]
+        public async Task<ActionResult> GetClienteByCodAux(ClientesPortalVm cliente)
+        {
+            ClienteDTO retorno = new ClienteDTO();
+
+            try
+            {
+                var clientePortal = _context.ClientesPortals.Where(x => x.CodAux == cliente.CodAux && x.Correo == cliente.Correo).FirstOrDefault();
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+                retorno = await sf.GetClienteSoftlandAsync(cliente.CodAux, ""); //FCA 26-06-2022
+                if (clientePortal != null)
+                {
+                    retorno.IdCliente = clientePortal.IdCliente;
+                }
+
+
+                List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(cliente.CodAux); //FCA 26-06-2022
+                retorno.Contactos = contactos;
+
+                return Ok(retorno);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/GetClienteByCodAux";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("getPDFEstadoCuenta")]
+        public async Task<ActionResult> getPDFEstadoCuenta(EstadoCuentaVm model)
+        {
+
+            try
+            {
+                Generador genera = new Generador(_context, _webHostEnvironment);
+                SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
+
+                PdfEstadoCuentaVm pdf = new PdfEstadoCuentaVm();
+                if (model.IdCobranza != 0)
+                {
+                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                    var listaDocPendientes = _context.CobranzaDetalles.Where(x => (x.IdEstado == 3 || x.IdEstado == 1 || x.IdEstado == 4) && x.IdCobranza == model.IdCobranza && x.CodAuxCliente == model.CodAux).ToList();
+                    var documentos = await softlandService.GetAllDocumentosContabilizadosCliente(model.CodAux);
+
+                    foreach (var item in listaDocPendientes)
+                    {
+                        var doc = documentos.Where(x => x.Numdoc == item.Folio).FirstOrDefault();
+
+                        if (doc != null)
+                        {
+                            item.Monto = (float?)doc.MovMonto;
+                            if (doc.Saldobase < doc.MovMonto)
+                            {
+                                item.IdEstado = 4;
+                                if (doc.Saldobase <= 0)
+                                {
+                                    item.Pagado = (float?)doc.MovMonto;
+                                    item.IdEstado = 5;
+                                }
+                                else
+                                {
+                                    item.Pagado = (float?)(doc.MovMonto - doc.Saldobase);
+                                }
+
+                            }
+                            _context.Entry(item).State = EntityState.Modified;
+                        }
+                    }
+
+                    _context.SaveChanges();
+
+                    listaDocPendientes = listaDocPendientes.Where(x => x.IdEstado != 5).ToList();
+                    DetalleEnvioCobranzaVm listaEnvio = new DetalleEnvioCobranzaVm();
+
+                    if (listaDocPendientes.Count > 0)
+                    {
+                        DetalleEnvioCobranzaVm DetalleCobranza = new DetalleEnvioCobranzaVm();
+                        DetalleCobranza.RutCliente = listaDocPendientes[0].RutCliente;
+                        DetalleCobranza.NombreCliente = (string.IsNullOrEmpty(listaDocPendientes[0].NombreCliente)) ? string.Empty : listaDocPendientes[0].NombreCliente;
+                        DetalleCobranza.EmailCliente = listaDocPendientes[0].EmailCliente;
+                        DetalleCobranza.CantidadDocumentosPendientes = listaDocPendientes.Count;
+                        DetalleCobranza.MontoDeuda = Convert.ToInt32(listaDocPendientes.Sum(x => x.Monto));
+                        DetalleCobranza.ListaDocumentos = new List<DocumentosCobranzaVM>();
+
+                        //Agregamos documentos
+                        foreach (var d in listaDocPendientes)
+                        {
+                            DocumentosCobranzaVM aux = new DocumentosCobranzaVM();
+                            aux.Folio = (int)d.Folio;
+                            aux.FechaEmision = (DateTime)d.FechaEmision;
+                            aux.FechaVencimiento = (DateTime)d.FechaVencimiento;
+                            aux.Monto = (int)d.Monto;
+                            aux.TipoDocumento = tiposDocumentos.Where(x => x.CodDoc == d.TipoDocumento).FirstOrDefault().DesDoc;
+                            DetalleCobranza.ListaDocumentos.Add(aux);
+                        }
+
+                        //Agrega detalle para envió
+                        var docStream = genera.generaDetalleCobranza(DetalleCobranza);
+                        string base64 = Convert.ToBase64String(docStream);
+
+                        pdf.Nombre = "Estado de Cuenta.pdf";
+                        pdf.Base64 = base64;
+
+                        return Ok(pdf);
+                    }
+                    else
+                    {
+                        return Ok("0");
+                    }
+
+                }
+                else
+                {
+                    string validaBase64 = Encrypt.EnsureBase64Length(model.Automatizacion);
+                    string jsonDecodificado = Encrypt.Base64Decode(validaBase64);
+
+
+                    AutomatizacionVm automatizacion = JsonConvert.DeserializeObject<AutomatizacionVm>(jsonDecodificado);
+
+                    Nullable<DateTime> fechaHasta = null;
+                    Nullable<DateTime> fechaDesde = null;
+                    if (automatizacion.Anio == null || automatizacion.Anio == 0)
+                    {
+                        automatizacion.Anio = 0;
+                    }
+                    else
+                    {
+                        fechaHasta = new DateTime((int)automatizacion.Anio, 12, 31, 0, 0, 0);
+                        fechaDesde = new DateTime((int)automatizacion.Anio, 01, 01, 0, 0, 0);
+                    }
+
+                    var documentos = await softlandService.ObtenerDocumentosAutomaizacion((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, model.CodAux, 0);
+
+                    switch (automatizacion.IdAutomatizacion)
+                    {
+                        case 1:
+                            if (automatizacion.NumDoc.Count > 0)
+                            {
+                                List<DocumentosCobranzaVm> clientsAux = new List<DocumentosCobranzaVm>();
+
+                                foreach (var folio in automatizacion.NumDoc)
+                                {
+                                    var exist = documentos.Where(x => x.FolioDocumento == folio).ToList();
+                                    if (exist.Count() > 0)
+                                    {
+                                        foreach (var doc in exist)
+                                        {
+                                            clientsAux.Add(doc);
+                                        }
+                                    }
+                                }
+                                documentos = clientsAux;
+                            }
+                            break;
+                        case 3:
+                            documentos = documentos.Where(x => (DateTime.Now.Date - x.FechaVencimiento.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
+                            break;
+                    }
+
+                    if (documentos.Count() > 0)
+                    {
+
+                        DetalleEnvioCobranzaVm doc = new DetalleEnvioCobranzaVm();
+                        doc.RutCliente = documentos[0].RutCliente;
+                        doc.NombreCliente = (string.IsNullOrEmpty(documentos[0].NombreCliente)) ? string.Empty : documentos[0].NombreCliente;
+                        doc.EmailCliente = documentos[0].EmailCliente;
+                        doc.CantidadDocumentosPendientes = documentos.Count();
+                        doc.MontoDeuda = Convert.ToInt32(documentos[0].MontoDocumento);
+                        doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
+
+                        foreach (var item in documentos)
+                        {
+                            DocumentosCobranzaVM aux = new DocumentosCobranzaVM();
+                            aux.Folio = (int)item.FolioDocumento;
+                            aux.FechaEmision = (DateTime)item.FechaEmision;
+                            aux.FechaVencimiento = (DateTime)item.FechaVencimiento;
+                            aux.Monto = (int)item.MontoDocumento;
+                            aux.TipoDocumento = item.TipoDocumento;
+                            doc.ListaDocumentos.Add(aux);
+                        }
+
+                        var docStream = genera.generaDetalleCobranza(doc);
+                        string base64 = Convert.ToBase64String(docStream);
+
+                        pdf.Nombre = "Estado de Cuenta.pdf";
+                        pdf.Base64 = base64;
+
+                        return Ok(pdf);
+                    }
+                    else
+                    {
+                        return Ok("0");
+                    }
+
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/getPDFEstadoCuenta";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("getPagosDocumento")]
+        public async Task<ActionResult> getPagosDocumento(FilterVm model)
+        {
+
+            try
+            {
+                SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
+
+                List<ClienteSaldosDTO> clients = await softlandService.GetPagosDocumento(model);
+
+                return Ok(clients);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.IdTipoProceso = -1;
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/getPagosDocumento";
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
                 return BadRequest(ex.Message);

@@ -50,15 +50,12 @@ export class AuthService {
     return this.http.post(this.apiUrl + '/authenticate', body, this.utils.getHeaders(false));
   }
 
+
   signinPayment(credentials: any) {    
     const data = {
       rut: credentials.rutLogin,
       email: credentials.correo,
-      password: credentials.pass,
-      token: '',
-      nombre: '',
-      codAux: '',
-      esUsuario: true
+      password: credentials.pass
     };
 
     const body = JSON.stringify(data);
@@ -96,7 +93,7 @@ export class AuthService {
   }
 
   async signoutExpiredToken(){
-    const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Sera redirigido al inicio de sesión');
+    const response = await this.notificationService.sesionExpiredMsg('SesiÃ³n Expirada', 'Sera redirigido al inicio de sesiÃ³n');
     if (response.isConfirmed) {
       this.signout();
     }

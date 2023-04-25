@@ -46,7 +46,6 @@ export class ActivateAccountComponent implements OnInit {
     private activatedRoute: ActivatedRoute
   ) { 
     this.activatedRoute.params.subscribe(params => {
-      debugger
       if (params['id'] != null) {
         this.cliente = atob(params['id']);
       }

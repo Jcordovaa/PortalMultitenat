@@ -6,6 +6,7 @@ import { ForgotComponent } from './forgot/forgot.component';
 import { ActivateAccountComponent } from './activate-account/activate-account.component';
 import { PaymentPortalComponent } from './payment-portal/payment-portal.component';
 import { PayComponent } from './fasy-payment/pay.component';
+import { AcountStateViewComponent } from './account-state-view/account-state-view.component';
 
 const routes: Routes = [
   {
@@ -41,8 +42,16 @@ const routes: Routes = [
     component: PaymentPortalComponent
   },
   {
-    path: 'pay/:rut/:numDoc/:idCobranza',
+    path: 'pay/:rut/:numDoc/:idCobranza/:automatizacion',
     component: PayComponent
+  },
+  {
+    path: 'account-state-view',
+    component: AcountStateViewComponent
+  },
+  {
+    path: 'account-state-view/:codAux/:idCobranza/:automatizacion',
+    component: AcountStateViewComponent
   }
 ];
 

@@ -28,6 +28,7 @@
     display: flex;   
     justify-content: flex-end;
     align-items: center; 
+    height: 100%;
 }
 .section0 {
     width: 100px;
@@ -274,7 +275,12 @@ p{
     .contenedor{
         flex-direction: column-reverse;
         margin: 0px auto;
-        height: 100%;        
+        min-height: 100vh;
+        display: flex;
+        align-items: center; /* centra verticalmente el formulario */
+        justify-content: center; /* centra horizontalmente el formulario */
+        
+        // height: 697px;        
     }
     .contenedortaita{
         background-image:url("/assets/images/login/fondo-movil.jpg");
@@ -339,6 +345,12 @@ p{
 
     }
 
+    .border-form{
+        border-radius: 20px;
+        width: 280px;
+        
+    }
+
     .section1{
         width: 280px;
         height: auto;
@@ -371,14 +383,15 @@ p{
     
     
     }
+
     .form{
         height: 350px;
         
 
     }
     .form2{
-        height: 400px
-        
+        height: 478px;
+        margin-top: -34px !important;
 
     }
     .logo{
