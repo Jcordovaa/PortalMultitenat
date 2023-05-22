@@ -34,7 +34,7 @@ namespace ApiPortal.Controllers
                 logApi.Inicio = DateTime.Now;
                 var configuracionPortal = _context.ConfiguracionPortals.FirstOrDefault();
                 logApi.Termino = DateTime.Now;
-                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 _context.LogApis.Add(logApi);
                 _context.SaveChanges();
                

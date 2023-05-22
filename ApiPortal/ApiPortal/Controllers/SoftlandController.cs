@@ -508,7 +508,7 @@ namespace ApiPortal.Controllers
                 }
 
                 logApi.Termino = DateTime.Now;
-                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
 
                 _context.Entry(logApi).State = EntityState.Modified;
                 _context.SaveChanges();

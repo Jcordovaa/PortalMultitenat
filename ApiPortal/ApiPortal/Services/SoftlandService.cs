@@ -7019,6 +7019,8 @@ namespace ApiPortal.Services
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
                     logApiDetalle.Termino = DateTime.Now;
                     logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    _context.LogApiDetalles.Add(logApiDetalle);
+                    _context.SaveChanges();
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -7368,6 +7370,9 @@ namespace ApiPortal.Services
 
                         logApiDetalle.Termino = DateTime.Now;
                         logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        _context.LogApiDetalles.Add(logApiDetalle);
+                        _context.SaveChanges();
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
