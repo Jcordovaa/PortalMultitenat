@@ -433,11 +433,9 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     this.totalPorVencer = this.dashboardAdmin.saldoxvencer;
                     this.totalPagados = this.dashboardAdmin.cantidadDocumentosPagados;
                     this.cantidadPagados = this.dashboardAdmin.montoPagado;
-                    this.softlandService.getAllTipoDocSoftland().subscribe((res: any) => {
-                        this.tiposDocumentos = res;
-
                         this.softlandConfigService.getExistModuloInventario().subscribe(res => {
                             this.existModuloInventario = res;
+                   
                             this.configuracionService.getConfigPortal().subscribe(res => {
                                 this.configuracion = res;
                                 this.spinner.hide();
@@ -445,7 +443,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                                 this.getTopDeudores();
                             }, err => { this.spinner.hide(); });
                         }, err => { this.spinner.hide(); });
-                    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
+                
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
             } else {
                 this.spinner.hide();
@@ -1000,7 +998,10 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
 
     verDetalleDocumentoPagado(pago: any) {
-debugger
+        this.spinner.show();
+        this.softlandService.getAllTipoDocSoftland().subscribe((res: any) => {
+            this.tiposDocumentos = res;
+       
         this.docPagado = pago;
         this.docPagado.pagosDetalle.forEach(element => {
             let doc = this.tiposDocumentos.filter(x => x.codDoc == element.tipoDocumento);
@@ -1009,6 +1010,8 @@ debugger
             }
         });
         this.showDetail = true;
+        this.spinner.hide();
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
     }
 
 

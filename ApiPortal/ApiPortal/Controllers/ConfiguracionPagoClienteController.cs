@@ -27,8 +27,16 @@ namespace ApiPortal.Controllers
 
             try
             {
+                LogApi logApi = new LogApi();
+                logApi.Api = "api/ConfiguracionPago/GetConfiguracion";
+                logApi.Inicio = DateTime.Now;
                 var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+                _context.LogApis.Add(logApi);
+                _context.SaveChanges();
                 return Ok(configuracionPortal);
+               
             }
             catch (Exception ex)
             {

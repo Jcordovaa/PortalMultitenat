@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 
+
 namespace ApiPortal.Controllers
 {
     [EnableCors()]
@@ -641,7 +642,7 @@ namespace ApiPortal.Controllers
                 SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 DashboardDocumentosVm retorno = new DashboardDocumentosVm();
 
-                retorno = await sf.GetMontosDashboardAdmin(codAux);
+                retorno = await sf.GetMontosDashboardAdmin(codAux, 0);
 
                 return Ok(retorno);
             }
@@ -2129,11 +2130,16 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDocumentosDashboarddAdmin"), Authorize]
         public async Task<ActionResult> GetDocumentosDashboarddAdmin()
         {
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosDashboarddAdmin";
+            logApi.Inicio = DateTime.Now;
 
+            _context.LogApis.Add(logApi);
+            _context.SaveChanges();
             try
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                DashboardDocumentosVm documentos = await sf.GetMontosDashboardAdmin(string.Empty);
+                DashboardDocumentosVm documentos = await sf.GetMontosDashboardAdmin(string.Empty, logApi.Id);
 
                 //ULTIMOS PAGOS
 
@@ -2151,6 +2157,11 @@ namespace ApiPortal.Controllers
                     documentos.MontoPagado = (decimal)pagosTotales.Sum(x => x.MontoPago);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+
+                _context.Entry(logApi).State = EntityState.Modified;
+                _context.SaveChanges();
 
                 return Ok(documentos);
             }

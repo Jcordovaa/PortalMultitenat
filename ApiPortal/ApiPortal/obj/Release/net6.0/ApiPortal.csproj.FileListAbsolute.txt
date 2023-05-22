@@ -849,3 +849,5 @@ C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\refint\Api
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\ApiPortal.pdb
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\ApiPortal.genruntimeconfig.cache
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\ref\ApiPortal.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Diagnostics.DiagnosticSource.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Reflection.MetadataLoadContext.dll

@@ -87,8 +87,10 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\n
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Composition.Runtime.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Composition.TypedParts.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Configuration.ConfigurationManager.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Diagnostics.DiagnosticSource.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Drawing.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Reflection.MetadataLoadContext.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Runtime.Caching.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Security.Cryptography.ProtectedData.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Security.Permissions.dll

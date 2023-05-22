@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using ApiPortal.Dal.Models_Portal;
 using ApiPortal.ModelSoftland;
 using System.Data;
 using System.Net;
@@ -10,6 +9,7 @@ using System.Net.Mail;
 using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Packaging;
+using ApiPortal.Dal.Models_Portal;
 
 namespace ApiPortal.Services
 {
@@ -6992,7 +6992,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene vendedores de softland
-        public async Task<List<ModulosAPIDTO>> GetModulosSoftlandAsync()
+        public async Task<List<ModulosAPIDTO>> GetModulosSoftlandAsync(int logApiId)
         {
             List<ModulosAPIDTO> item = new List<ModulosAPIDTO>();
             try
@@ -7008,7 +7008,17 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "ObtieneModulos";
+
+
+                   
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -7317,7 +7327,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<DashboardDocumentosVm> GetMontosDashboardAdmin(string codAux)
+        public async Task<DashboardDocumentosVm> GetMontosDashboardAdmin(string codAux, int logApiId)
         {
             DashboardDocumentosVm retorno = new DashboardDocumentosVm();
             try
@@ -7330,7 +7340,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
+
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "0101";
                         var api = _context.ApiSoftlands.FirstOrDefault();
@@ -7348,7 +7358,16 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizadosResumen";
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -7554,11 +7573,10 @@ namespace ApiPortal.Services
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                     int cantidad = 100;
                     int pagina = 1;
-                    while (anio <= DateTime.Now.Date.Year)
-                    {
+
                         using (var client = new HttpClient())
                         {
-                            var fecha = anio.ToString() + "-01-01";
+                            var fecha = configPortal.AnioTributario + "-01-01";
                             string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
 
@@ -7620,22 +7638,16 @@ namespace ApiPortal.Services
                                     }
                                     documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
                                     retorno.AddRange(documentos[0]);
-                                    anio = anio + 1;
                                 }
-                                else
-                                {
-                                    anio = anio + 1;
-                                }
-                            }
                             else
                             {
-                                var content = await response.Content.ReadAsStringAsync();
+                                var content2 = await response.Content.ReadAsStringAsync();
                                 LogProceso log = new LogProceso
                                 {
                                     Excepcion = response.StatusCode.ToString(),
                                     Fecha = DateTime.Now.Date,
                                     Hora = DateTime.Now.ToString("HH:mm:ss"),
-                                    Mensaje = content,
+                                    Mensaje = content2,
                                     Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
                                 };
                                 _context.LogProcesos.Add(log);

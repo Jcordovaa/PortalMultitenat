@@ -29,7 +29,15 @@ namespace ApiPortal.Controllers
 
             try
             {
+                LogApi logApi = new LogApi();
+                logApi.Api = "api/ConfiguracionPorta/GetConfiguracionPortal";
+                logApi.Inicio = DateTime.Now;
                 var configuracionPortal = _context.ConfiguracionPortals.FirstOrDefault();
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+                _context.LogApis.Add(logApi);
+                _context.SaveChanges();
+               
                 return Ok(configuracionPortal);
             }
             catch (Exception ex)
@@ -83,7 +91,7 @@ namespace ApiPortal.Controllers
                 var configuracionPortal = _context.ConfiguracionPortals.FirstOrDefault();
                 var configuracionPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
 
-                var modulos = await sf.GetModulosSoftlandAsync();
+                var modulos = await sf.GetModulosSoftlandAsync(0);
                 bool existModuloInventario = false;
                 bool existModuloNotaVenta = false;
                 bool existModuloContabilidad = false;

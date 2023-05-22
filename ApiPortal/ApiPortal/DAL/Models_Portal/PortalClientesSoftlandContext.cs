@@ -43,6 +43,8 @@ namespace ApiPortal.Dal.Models_Portal
         public virtual DbSet<CorreoDte> CorreoDtes { get; set; } = null!;
         public virtual DbSet<EstadoCobranza> EstadoCobranzas { get; set; } = null!;
         public virtual DbSet<Feriado> Feriados { get; set; } = null!;
+        public virtual DbSet<LogApi> LogApis { get; set; } = null!;
+        public virtual DbSet<LogApiDetalle> LogApiDetalles { get; set; } = null!;
         public virtual DbSet<LogCobranza> LogCobranzas { get; set; } = null!;
         public virtual DbSet<LogCorreo> LogCorreos { get; set; } = null!;
         public virtual DbSet<LogProceso> LogProcesos { get; set; } = null!;
@@ -1111,6 +1113,28 @@ namespace ApiPortal.Dal.Models_Portal
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<LogApi>(entity =>
+            {
+                entity.ToTable("LogApi");
+
+                entity.Property(e => e.Api).IsUnicode(false);
+
+                entity.Property(e => e.Inicio).HasColumnType("datetime");
+
+                entity.Property(e => e.Termino).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<LogApiDetalle>(entity =>
+            {
+                entity.ToTable("LogApiDetalle");
+
+                entity.Property(e => e.Inicio).HasColumnType("datetime");
+
+                entity.Property(e => e.Metodo).IsUnicode(false);
+
+                entity.Property(e => e.Termino).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<LogCobranza>(entity =>

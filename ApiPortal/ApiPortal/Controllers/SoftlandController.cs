@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 
 namespace ApiPortal.Controllers
@@ -488,12 +489,17 @@ namespace ApiPortal.Controllers
         [HttpGet("GetExistModuloInventario"), Authorize]
         public async Task<ActionResult> GetExistModuloInventario()
         {
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Softland/GetExistModuloInventario";
+            logApi.Inicio = DateTime.Now;
 
+            _context.LogApis.Add(logApi);
+            _context.SaveChanges();
             try
             {
                 bool existModulo = false;
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                var modulos = await sf.GetModulosSoftlandAsync();
+                var modulos = await sf.GetModulosSoftlandAsync(logApi.Id);
 
                 var m = modulos.Where(x => x.Codi == "IW").FirstOrDefault();
                 if (m != null)
@@ -501,6 +507,11 @@ namespace ApiPortal.Controllers
                     existModulo = true;
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
+
+                _context.Entry(logApi).State = EntityState.Modified;
+                _context.SaveChanges();
                 return Ok(existModulo);
             }
             catch (Exception ex)
@@ -525,7 +536,7 @@ namespace ApiPortal.Controllers
             {
                 bool existModulo = false;
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                var modulos = await sf.GetModulosSoftlandAsync();
+                var modulos = await sf.GetModulosSoftlandAsync(0);
 
                 var m = modulos.Where(x => x.Codi == "NW").FirstOrDefault();
                 if (m != null)
@@ -557,7 +568,7 @@ namespace ApiPortal.Controllers
             {
                 bool existModulo = false;
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                var modulos = await sf.GetModulosSoftlandAsync();
+                var modulos = await sf.GetModulosSoftlandAsync(0);
 
                 var m = modulos.Where(x => x.Codi == "CW").FirstOrDefault();
                 if (m != null)
