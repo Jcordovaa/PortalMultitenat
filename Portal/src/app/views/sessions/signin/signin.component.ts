@@ -163,7 +163,11 @@ export class SigninComponent implements OnInit {
                       }, err => { this.spinner.hide(); });
                     //this.spinner.hide();
                 } else {
-                    this.router.navigateByUrl('/dashboard/administrador');
+                    this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
+                        this.ls.setItem("configuracionCompletaPortal", res2);
+                        this.router.navigateByUrl('/dashboard/administrador');
+                      }, err => { this.spinner.hide(); });
+                    
                     //this.spinner.hide();
                 }
 

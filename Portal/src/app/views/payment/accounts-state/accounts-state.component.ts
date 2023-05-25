@@ -78,6 +78,8 @@ export class AccountsStateComponent implements OnInit {
   bloqueaBotonPago: boolean = false;
   public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno();
   varloUfOrigen: number = 0;
+  load: boolean = false;
+  noResultText: string = 'No existen resultados para la consulta'
 
   constructor(private ngbDatepickerConfig: NgbDatepickerConfig, private disenoSerivce: ConfiguracionDisenoService,
     private clientesService: ClientesService,
@@ -197,7 +199,7 @@ export class AccountsStateComponent implements OnInit {
           }
         });
 
-
+        this.load = true;
         this.spinner.hide();
       }, err => { this.spinner.hide(); });
 

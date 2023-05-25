@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using ApiPortal.ViewModelsPortal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -25,10 +26,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPerfiles"), Authorize]
         public async Task<ActionResult> GetPerfiles()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/GetPerfiles";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
                 var perfiles = _context.Perfils.ToList();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(perfiles);
             }
             catch (Exception ex)
@@ -48,6 +60,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPerfilId/{idPerfil}"), Authorize]
         public async Task<ActionResult> GetPerfilId(int idPerfil)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/GetPerfilId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -56,6 +74,10 @@ namespace ApiPortal.Controllers
                 {
                     return NotFound();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(perfil);
             }
@@ -76,10 +98,21 @@ namespace ApiPortal.Controllers
         [HttpPut("ActualizaPerfil"), Authorize]
         public async Task<ActionResult> ActualizaPerfil(Perfil perfil)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/ActualizaPerfil";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 _context.Entry(perfil).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(perfil);
             }
@@ -100,10 +133,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GuardarPerfil"), Authorize]
         public async Task<ActionResult> GuardarPerfil(Perfil perfil)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/GuardarPerfil";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 _context.Perfils.Add(perfil);
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(perfil);
             }
@@ -124,6 +168,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetPerfilesByPage"), Authorize]
         public async Task<ActionResult> GetPerfilesByPage(PaginadorVm pVm)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/GetPerfilesByPage";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 var cantidad = pVm.EndRow - pVm.StartRow;
@@ -156,6 +207,10 @@ namespace ApiPortal.Controllers
                     mappedPerfiles[0].TotalFilas = perfiles.Count();
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(mappedPerfiles);
             }
             catch (Exception ex)
@@ -175,6 +230,13 @@ namespace ApiPortal.Controllers
         [HttpDelete("EliminaPerfilId/{idPerfil}"), Authorize]
         public async Task<ActionResult> EliminaPerfilId(int idPerfil)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Perfiles/EliminaPerfilId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 Perfil perfil = _context.Perfils.Find(idPerfil);
@@ -185,6 +247,10 @@ namespace ApiPortal.Controllers
 
                 _context.Perfils.Remove(perfil);
                 _context.SaveChanges();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(perfil);
             }

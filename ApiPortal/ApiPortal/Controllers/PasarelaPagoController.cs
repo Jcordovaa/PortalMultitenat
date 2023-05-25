@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using ApiPortal.ViewModelsPortal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -25,6 +26,12 @@ namespace ApiPortal.Controllers
         [HttpGet]
         public async Task<ActionResult> GetPasarelas()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/PasarelaPago/GetPasarelas";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -52,6 +59,10 @@ namespace ApiPortal.Controllers
                     };
                     pasarelas.Add(p);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(pasarelas);
             }
@@ -72,6 +83,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetAllPasarelas")]
         public async Task<ActionResult> GetAllPasarelas()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/PasarelaPago/GetAllPasarelas";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -100,6 +117,10 @@ namespace ApiPortal.Controllers
                     pasarelas.Add(p);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(pasarelas);
             }
             catch (Exception ex)
@@ -119,11 +140,21 @@ namespace ApiPortal.Controllers
         [HttpPost("ActualizaPasarelas"), Authorize]
         public async Task<ActionResult> ActualizaPasarelas(PasarelaPago model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/PasarelaPago/ActualizaPasarelas";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 _context.Entry(model).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok();
             }
@@ -144,6 +175,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetLog/{idPago}")]
         public async Task<ActionResult> GetLog(int idPago)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/PasarelaPago/GetLog";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -183,6 +220,10 @@ namespace ApiPortal.Controllers
                 pasarelaLog.ComprobanteContable = pago.ComprobanteContable;
                 pasarelaLog.ArchivoComprobante64 = "";
                 pasarelaLog.TipoArchivo = "PDF";
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(pasarelaLog);
             }

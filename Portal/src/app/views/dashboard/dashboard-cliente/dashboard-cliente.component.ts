@@ -141,20 +141,18 @@ export class DashboardClienteComponent implements OnInit {
 
             this.spinner.show();
 
-            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {
-                this.spinner.show();
-                this.topCompras = res;
-                this.clienteService.getDashboardDocumentos(user.codAux).subscribe((res: any) => {
-                    this.spinner.show();
+            this.clienteService.getDashboardDocumentos(user.codAux).subscribe((res: any) => {
+                this.cantidadVencidos = res.cantidadVencida;
+                this.totalVencidos = res.montoVencido;
+                this.cantidadPendiente = res.cantidadDocPendiente;
+                this.totalPendiente = res.saldoPendiente;
+                this.cantidadPorVencer = res.cantidadxVencer;
+                this.totalPorVencer = res.saldoxvencer;              
+                this.spinner.hide();
+            }, err => { this.spinner.hide(); });
 
-                    this.cantidadVencidos = res.cantidadVencida;
-                    this.totalVencidos = res.montoVencido;
-                    this.cantidadPendiente = res.cantidadDocPendiente;
-                    this.totalPendiente = res.saldoPendiente;
-                    this.cantidadPorVencer = res.cantidadxVencer;
-                    this.totalPorVencer = res.saldoxvencer;
-                    this.spinner.hide();
-                }, err => { this.spinner.hide(); });
+            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {                 
+                this.topCompras = res;
             }, err => { this.spinner.hide(); });
 
 
@@ -468,9 +466,9 @@ export class DashboardClienteComponent implements OnInit {
 
         this.documentosPorPagina = this.documentosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
 
-        this.dateDesde = null;
-        this.dateHasta = null;
-        this.folio = null;
+        // this.dateDesde = null;
+        // this.dateHasta = null;
+        // this.folio = null;
     }
 
     limpiarFiltros() {

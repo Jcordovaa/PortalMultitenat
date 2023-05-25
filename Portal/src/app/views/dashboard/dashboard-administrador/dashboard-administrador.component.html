@@ -132,7 +132,7 @@
                         size = "default"
                         color = "#263db5"
                         type = "ball-spin"
-                        [fullScreen] = "false" style="z-index: 999;" name="spinnerDeudores" ><h3 style="color: #263db5;">GENERANDO...</h3></ngx-spinner>
+                        [fullScreen] = "false" name="spinnerDeudores"><h3 style="color: #263db5;">GENERANDO...</h3></ngx-spinner>
                     </div>
                     <div *ngIf="graphicDeudoresLoad" echarts [options]="salesChartBar" [autoResize]="true" style="height: 600px;"></div>
                 </div>
@@ -185,7 +185,7 @@
 
                             <div class="col-md-4 form-group mb-3">
                                 <label for="firstName">Número Documento</label>
-                                <input type="number" min="0" class="form-control" id="folio" name="folio"
+                                <input type="text" min="0" inputmode="numeric" pattern="[0-9]*"  min="0" class="form-control" id="folio" name="folio"
                                     [(ngModel)]="folio" placeholder="0">
                             </div>
 
@@ -537,7 +537,7 @@
                             <div class="col-md-4 form-group mb-3">
                                 <label *ngIf="selectedEstadoPagos != 3" for="firstName">Número
                                     Comprobante</label>
-                                <input *ngIf="selectedEstadoPagos != 3" type="number" min="0" class="form-control"
+                                <input *ngIf="selectedEstadoPagos != 3" type="text" min="0" inputmode="numeric" pattern="[0-9]*"  min="0" class="form-control"
                                     id="folio" name="folio" [(ngModel)]="folio" placeholder="0">
                             </div>
 

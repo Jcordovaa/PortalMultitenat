@@ -44,5 +44,6 @@ namespace ApiPortal.Dal.Models_Portal
         public string? TransbankRegistrarCliente { get; set; }
         public string? DocContabilizadosResumenxRut { get; set; }
         public string? PagosxDocumento { get; set; }
+        public int? HabilitaLogApi { get; set; }
     }
 }

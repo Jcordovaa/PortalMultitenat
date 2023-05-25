@@ -29,6 +29,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetUsuarioByMail"), Authorize]
         public async Task<ActionResult> GetUsuarioByMail(ClientesPortalVm cliente)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/GetUsuarioByMail";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 UsuariosVm retorno = new UsuariosVm();
@@ -43,6 +50,10 @@ namespace ApiPortal.Controllers
                     retorno.IdPerfil = (int)usuariosPortal.IdPerfil;
                     retorno.NombrePerfil = _context.Perfils.Where(x => x.IdPerfil == retorno.IdPerfil).FirstOrDefault().Nombre;
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -63,11 +74,22 @@ namespace ApiPortal.Controllers
         [HttpGet("getEmpresa"), Authorize]
         public async Task<ActionResult> getEmpresa()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/getEmpresa";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
 
             try
             {
                 string retorno = string.Empty;
                 retorno = _context.ConfiguracionEmpresas.FirstOrDefault().NombreEmpresa;
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -87,6 +109,13 @@ namespace ApiPortal.Controllers
         [HttpPost("ChangePassword"), Authorize]
         public async Task<ActionResult> ChangePassword(UsuariosVm c)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/ChangePassword";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 var usuario = await _context.Usuarios.Where(x => x.IdUsuario == c.IdUsuario).FirstOrDefaultAsync();
@@ -112,6 +141,10 @@ namespace ApiPortal.Controllers
                     MailService emailService = new MailService(_context, _webHostEnvironment);
                     emailService.EnviaCorreoCambioClaveUsuario(usuario, claveEnvio);
 
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
+
                     return Ok();
                 }
                 return BadRequest();
@@ -133,6 +166,13 @@ namespace ApiPortal.Controllers
         [HttpPost("ChangeCorreo"), Authorize]
         public async Task<ActionResult> ChangeCorreo(UsuariosVm c)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/ChangeCorreo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var usuario = _context.Usuarios.Where(x => x.IdUsuario == c.IdUsuario).FirstOrDefault();
@@ -148,6 +188,10 @@ namespace ApiPortal.Controllers
 
                     MailService emailService = new MailService(_context, _webHostEnvironment);
                     emailService.EnviaCambioCorreoUsuario(usuario, c, correoAntiguo);
+
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
 
                     return Ok();
                 }
@@ -171,6 +215,13 @@ namespace ApiPortal.Controllers
         [HttpPut("ActualizaUsuario"), Authorize]
         public async Task<ActionResult> ActualizaUsuario(UsuariosVm usuarios)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/ActualizaUsuario";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             try
             {
                 if (!ModelState.IsValid)
@@ -207,8 +258,13 @@ namespace ApiPortal.Controllers
 
                         errorEnvio = emailService.EnviaCorreoDatosUsuario(user, usuarios.Password);
 
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
+
                         if (errorEnvio)
                         {
+
                             return Ok(0);
                         }
                         else
@@ -219,6 +275,11 @@ namespace ApiPortal.Controllers
                     }
 
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(usuarios);
             }
             catch (Exception ex)
@@ -238,6 +299,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GuardarUsuario"), Authorize]
         public async Task<ActionResult> GuardarUsuario(UsuariosVm usuarios)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/GuardarUsuario";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var existUser = _context.Usuarios.Where(x => x.Email == usuarios.Email).FirstOrDefault();
@@ -273,6 +341,9 @@ namespace ApiPortal.Controllers
                 errorEnvio = emailService.EnviaAccesoUsuario(user, pass);
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 if (errorEnvio)
                 {
@@ -301,16 +372,31 @@ namespace ApiPortal.Controllers
         [HttpDelete("EliminaUsuarioId/{idUsuario}"), Authorize]
         public async Task<ActionResult> EliminaUsuarioId(int idUsuario)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/EliminaUsuarioId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
             try
             {
                 Usuario usuario = _context.Usuarios.Find(idUsuario);
                 if (usuario == null)
                 {
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
+
                     return NotFound();
                 }
 
                 _context.Usuarios.Remove(usuario);
                 _context.SaveChanges();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
 
                 return Ok(usuario);
             }
@@ -331,6 +417,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetUsuariosByPage"), Authorize]
         public async Task<ActionResult> GetUsuariosByPage(PaginadorVm pVm)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/GetUsuariosByPage";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var cantidad = pVm.EndRow - pVm.StartRow;
@@ -382,6 +475,10 @@ namespace ApiPortal.Controllers
                     mappedusuarios[0].TotalFilas = usuarios.Count();
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(mappedusuarios);
             }
             catch (Exception ex)
@@ -401,13 +498,27 @@ namespace ApiPortal.Controllers
         [HttpGet("GetUsuarioId/{idUsuario}"), Authorize]
         public async Task<ActionResult> GetUsuarioId(int idUsuario)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/GetUsuarioId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 Usuario usuario = _context.Usuarios.Find(idUsuario);
+
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 if (usuario == null)
                 {
                     return NotFound();
                 }
+
 
                 return Ok(usuario);
             }
@@ -428,6 +539,12 @@ namespace ApiPortal.Controllers
         [HttpPost("RestablecerContraseña"), Authorize]
         public async Task<ActionResult> RestablecerContraseña(UsuariosVm usuarios)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Usuarios/RestablecerContraseña";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
             try
             {
                 var existUser = _context.Usuarios.Where(x => x.Email == usuarios.Email).FirstOrDefault();
@@ -445,6 +562,11 @@ namespace ApiPortal.Controllers
                     errorEnvio = emailService.EnviaAccesoUsuario(existUser, pass);
 
 
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
+
+
                     if (errorEnvio)
                     {
                         return Ok(0);
@@ -457,6 +579,11 @@ namespace ApiPortal.Controllers
                 }
                 else
                 {
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
+
+
                     return Ok(-1);
                 }
             }

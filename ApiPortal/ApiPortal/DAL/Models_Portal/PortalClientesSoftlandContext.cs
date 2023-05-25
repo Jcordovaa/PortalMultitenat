@@ -1119,6 +1119,10 @@ namespace ApiPortal.Dal.Models_Portal
             {
                 entity.ToTable("LogApi");
 
+                entity.Property(e => e.Id)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Api).IsUnicode(false);
 
                 entity.Property(e => e.Inicio).HasColumnType("datetime");
@@ -1129,6 +1133,10 @@ namespace ApiPortal.Dal.Models_Portal
             modelBuilder.Entity<LogApiDetalle>(entity =>
             {
                 entity.ToTable("LogApiDetalle");
+
+                entity.Property(e => e.IdLogApi)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Inicio).HasColumnType("datetime");
 

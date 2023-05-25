@@ -686,13 +686,6 @@ C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\refint\ApiPo
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.pdb
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.genruntimeconfig.cache
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ref\ApiPortal.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.csproj.AssemblyReference.cache
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.GeneratedMSBuildEditorConfig.editorconfig
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.AssemblyInfoInputs.cache
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.AssemblyInfo.cs
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.csproj.CoreCompileInputs.cache
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.MvcApplicationPartsAssemblyInfo.cs
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.MvcApplicationPartsAssemblyInfo.cache
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Select.Html.dep
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\appsettings.Development.json
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\appsettings.json
@@ -961,6 +954,13 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.csproj.AssemblyReference.cache
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.GeneratedMSBuildEditorConfig.editorconfig
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.AssemblyInfoInputs.cache
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.AssemblyInfo.cs
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.csproj.CoreCompileInputs.cache
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.MvcApplicationPartsAssemblyInfo.cs
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\ApiPortal.MvcApplicationPartsAssemblyInfo.cache
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\staticwebassets\msbuild.ApiPortal.Microsoft.AspNetCore.StaticWebAssets.props
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\staticwebassets\msbuild.build.ApiPortal.props
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.ApiPortal.props

@@ -32,7 +32,17 @@ namespace ApiPortal.Controllers
         {
             try
             {
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+                LogApi logApi = new LogApi();
+                logApi.Api = "api/Automatizacion/GetAutomatizaciones";
+                logApi.Inicio = DateTime.Now;
+                logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
                 var automatizaciones = _context.Automatizacions.ToList();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(automatizaciones);
             }
             catch (Exception ex)
@@ -53,6 +63,11 @@ namespace ApiPortal.Controllers
         [HttpGet("EnviaAutomatizaciones"), Authorize]
         public async Task<ActionResult<object>> EnviaAutomatizacionesAsync()
         {
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/EnviaAutomatizaciones";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             int horaActual = DateTime.Now.Hour;
             string estadoLogC = string.Empty;
@@ -75,7 +90,7 @@ namespace ApiPortal.Controllers
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
                 //Obtenemos tipos de documentos
-                var tiposDocumentos = await sf.GetAllTipoDocSoftlandAsync();
+                var tiposDocumentos = await sf.GetAllTipoDocSoftlandAsync(logApi.Id);
 
                 #region COBRANZA CLASICA
                 //Genera envio de cobranzas, la ejecución la realiza algun procedimiento externo
@@ -157,7 +172,7 @@ namespace ApiPortal.Controllers
 
 
 
-                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos);
+                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, logApi.Id);
 
                     if (automatizacion.ExcluyeClientes == 1)
                     {
@@ -185,7 +200,7 @@ namespace ApiPortal.Controllers
                     //Recorremes y seleccionamos los documentos por clientes
                     foreach (var al in clientes)
                     {
-                        var clienteApi = await sf.BuscarClienteSoftland2Async(string.Empty, al, string.Empty);
+                        var clienteApi = await sf.BuscarClienteSoftland2Async(string.Empty, al, string.Empty, logApi.Id);
 
                         if (clienteApi.Count == 0)
                         {
@@ -285,7 +300,7 @@ namespace ApiPortal.Controllers
 
                         var docCliente = documentos.Where(x => x.RutCliente == al).ToList();
 
-                        var contactos = await sf.GetContactosClienteAsync(clienteApi[0].CodAux);
+                        var contactos = await sf.GetContactosClienteAsync(clienteApi[0].CodAux, logApi.Id);
                         string correos = string.Empty;
                         if (automatizacion.EnviaTodosContactos == 1)
                         {
@@ -485,6 +500,9 @@ namespace ApiPortal.Controllers
                 _context.SaveChanges();
                 #endregion
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(1);
             }
             catch (Exception ex)
@@ -511,6 +529,12 @@ namespace ApiPortal.Controllers
         [HttpPost("GuardaAutomatizacion"), Authorize]
         public async Task<ActionResult<AuthenticateVm>> GuardaAutomatizacionAsync(AutomatizacionVm automatizacion)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/GuardaAutomatizacion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
             try
             {
                 var aut = _context.Automatizacions.Where(x => x.IdAutomatizacion == automatizacion.IdAutomatizacion).FirstOrDefault();
@@ -547,6 +571,9 @@ namespace ApiPortal.Controllers
                 await _context.SaveChangesAsync();
                 automatizacion.IdAutomatizacion = aut.IdAutomatizacion;
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(automatizacion);
             }
             catch (Exception ex)
@@ -569,9 +596,18 @@ namespace ApiPortal.Controllers
         [HttpGet("GetTipos"), Authorize]
         public ActionResult<object> GetTipos()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/GetTipos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
             try
             {
                 var tipos = _context.TipoAutomatizacions.ToList();
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(tipos);
             }
             catch (Exception ex)

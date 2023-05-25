@@ -27,6 +27,13 @@ namespace ApiPortal.Controllers
         [HttpPost("actualizaConfiguracionCorreo"), Authorize]
         public async Task<ActionResult> actualizaConfiguracionCorreo(ConfiguracionCorreo model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionCorreo/actualizaConfiguracionCorreo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 string encrypt = Encrypt.Base64Encode(model.Clave);
@@ -59,6 +66,9 @@ namespace ApiPortal.Controllers
                 //db.Entry(model).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok();
             }
@@ -79,6 +89,13 @@ namespace ApiPortal.Controllers
         [HttpPost("actualizaTextos/{tipo}"), Authorize]
         public async Task<ActionResult> actualizaTextos(int tipo, [FromBody]ConfiguracionCorreo model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionCorreo/actualizaTextos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var config = _context.ConfiguracionCorreos.FirstOrDefault();
@@ -202,6 +219,9 @@ namespace ApiPortal.Controllers
                 await _context.SaveChangesAsync();
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok();
             }
@@ -222,6 +242,13 @@ namespace ApiPortal.Controllers
         [HttpPost("uploadLogo"), Authorize]
         public async Task<ActionResult> uploadLogo()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionCorreo/uploadLogo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var empresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -270,6 +297,11 @@ namespace ApiPortal.Controllers
                     }
 
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(configuracionCorreo);
             }
             catch (Exception ex)
@@ -290,6 +322,13 @@ namespace ApiPortal.Controllers
         [HttpPost("getTemplate/{tipo}"), Authorize]
         public async Task<ActionResult> getTemplate(int tipo, [FromBody] ConfiguracionCorreo model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionCorreo/getTemplate";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 string body = string.Empty;
@@ -458,6 +497,11 @@ namespace ApiPortal.Controllers
                 {
                     body = body
                 };
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(html);
             }
             catch (Exception ex)
@@ -477,6 +521,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetConfiguracionCorreo"), Authorize]
         public async Task<ActionResult> GetConfiguracionCorreo()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionCorreo/GetConfiguracionCorreo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -485,6 +535,11 @@ namespace ApiPortal.Controllers
                 {
                     item.Clave = Encrypt.Base64Decode(item.Clave);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(conf);
             }
             catch (Exception ex)

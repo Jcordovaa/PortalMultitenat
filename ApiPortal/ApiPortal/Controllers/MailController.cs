@@ -25,6 +25,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCantidadPorDia/{casilla}"), Authorize]
         public async Task<ActionResult> GetCantidadPorDia(string casilla)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Mail/GetCantidadPorDia";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -32,6 +38,10 @@ namespace ApiPortal.Controllers
                 int casillas = 0;
                 MailService ms = new MailService(_context,_webHostEnvironment);
                 casillas = ms.calculaDisponiblesPorDia(casilla);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(casillas);
 
@@ -53,10 +63,22 @@ namespace ApiPortal.Controllers
         [HttpPost("EnviarCorreo"), Authorize]
         public async Task<ActionResult> EnviarCorreo(MailViewModel model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Mail/EnviarCorreo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 MailService ms = new MailService(_context,_webHostEnvironment);
                 ms.EnviarCorreosAsync(model);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(model);
 
             }
@@ -77,11 +99,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCorreosDisponiblesCobranza"), Authorize]
         public async Task<ActionResult> GetCorreosDisponiblesCobranza()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Mail/GetCorreosDisponiblesCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
                 MailService mailService = new MailService(_context,_webHostEnvironment);
                 var disponibles = mailService.calculaDisponiblesCobranza();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(disponibles);
             }
@@ -102,6 +134,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCantdidEnviada"), Authorize]
         public async Task<ActionResult> GetCantdidEnviada()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Mail/GetCantdidEnviada";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+         
 
             try
             {
@@ -113,6 +151,11 @@ namespace ApiPortal.Controllers
                 {
                     retorno = cantidad.Count();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
 
             }

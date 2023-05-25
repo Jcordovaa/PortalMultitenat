@@ -9,6 +9,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfiguracionDiseno } from 'src/app/shared/models/configuraciondiseno.model';
 import { ConfiguracionDisenoService } from 'src/app/shared/services/configuraciondiseno.service';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { LocalStoreService } from 'src/app/shared/services/local-store.service';
 
 interface AutoCompleteModel {
   value: any;
@@ -88,7 +89,7 @@ export class ConfigComponent implements OnInit {
   constructor(private configuracionPagoClientesService: ConfiguracionPagoClientesService, private _sanitizer: DomSanitizer,
     private notificationService: NotificationService,
     private spinner: NgxSpinnerService, private configuracionDisenoService: ConfiguracionDisenoService,
-    private configuracionSoftlandService: ConfiguracionSoftlandService, private modalService: NgbModal,) { }
+    private configuracionSoftlandService: ConfiguracionSoftlandService, private modalService: NgbModal,  private ls: LocalStoreService,  private configuracionService: ConfiguracionPagoClientesService) { }
 
   ngOnInit(): void {
     this.getConfigPagoClientes();
@@ -213,8 +214,8 @@ export class ConfigComponent implements OnInit {
         // this.configAll = res;
 
         this.getMonedas();
-        this.configPagoClientes = res;      
-        this.cantidadDiasPorVencer = this.configPagoClientes.diasPorVencer == null ? 0: this.configPagoClientes.diasPorVencer;
+        this.configPagoClientes = res;
+        this.cantidadDiasPorVencer = this.configPagoClientes.diasPorVencer == null ? 0 : this.configPagoClientes.diasPorVencer;
         this.anioTributario = this.configPagoClientes.anioTributario;
 
       } else {
@@ -310,34 +311,34 @@ export class ConfigComponent implements OnInit {
   }
 
   savePagos() {
-   
+
 
     let cuentasContables = null;
-    if( this.selectedCuen != null){
-       cuentasContables = this.selectedCuen.length > 0 ? this.selectedCuen.reduce((accumulator, item) => {
+    if (this.selectedCuen != null) {
+      cuentasContables = this.selectedCuen.length > 0 ? this.selectedCuen.reduce((accumulator, item) => {
         return `${accumulator};${item}`;
       }) : null;
     }
-   
+
     let tiposDocumentos = null;
-    if(this.tiposDctosSelected != null){
+    if (this.tiposDctosSelected != null) {
       tiposDocumentos = this.tiposDctosSelected.length > 0 ? this.tiposDctosSelected.reduce((accumulator, item) => {
         return `${accumulator};${item}`;
       }) : null;
     }
-  
-    
-    if(this.anioTributario == null || this.anioTributario == ''){
+
+
+    if (this.anioTributario == null || this.anioTributario == '') {
       this.notificationService.warning('Debe ingresar un año tributario', '', true);
       return;
     }
 
-    if(this.configPagoClientes.monedaUtilizada == null || this.configPagoClientes.monedaUtilizada == ''){
+    if (this.configPagoClientes.monedaUtilizada == null || this.configPagoClientes.monedaUtilizada == '') {
       this.notificationService.warning('Debe ingresar Moneda Nacional', '', true);
       return;
     }
 
-    if(cuentasContables == '' || cuentasContables == null){
+    if (cuentasContables == '' || cuentasContables == null) {
       this.notificationService.warning('Debe ingresar almenos una cuenta contable', '', true);
       return;
     }
@@ -354,6 +355,12 @@ export class ConfigComponent implements OnInit {
     this.configPagoClientes.anioTributario = this.anioTributario;
 
     this.configuracionPagoClientesService.edit(this.configPagoClientes).subscribe(res => {
+
+      const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+      if (configuracionCompletaPortal != null) {
+        configuracionCompletaPortal.configuracionPagoCliente = this.configPagoClientes;
+        this.ls.setItem("configuracionCompletaPortal", configuracionCompletaPortal);
+      }
 
       this.notificationService.success('Configuración de pagos actualizada correctamente', '', true);
       this.spinner.hide();
@@ -373,9 +380,15 @@ export class ConfigComponent implements OnInit {
     this.configPortal.permiteExportarExcel = this.configPortal.permiteExportarExcel ? 1 : 0;
     this.configPortal.permiteAbonoParcial = this.configPortal.permiteAbonoParcial ? 1 : 0;
     this.configPortal.utilizaDocumentoPagoRapido = this.configPortal.utilizaDocumentoPagoRapido ? 1 : 0;
-    this.cantidadDiasPorVencer = (this.cantidadDiasPorVencer == null || this.cantidadDiasPorVencer == '')? 0: this.cantidadDiasPorVencer;
+    this.cantidadDiasPorVencer = (this.cantidadDiasPorVencer == null || this.cantidadDiasPorVencer == '') ? 0 : this.cantidadDiasPorVencer;
     this.configuracionPagoClientesService.editPortal(this.configPortal, this.cantidadDiasPorVencer).subscribe(res => {
       this.configPagoClientes.diasPorVencer = this.cantidadDiasPorVencer;
+      const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+      if (configuracionCompletaPortal != null) {
+        configuracionCompletaPortal.configuracionPortal = this.configPortal;
+        configuracionCompletaPortal.configPagoClientes.diasPorVencer = this.cantidadDiasPorVencer;
+        this.ls.setItem("configuracionCompletaPortal", configuracionCompletaPortal);
+      }
       this.notificationService.success('Configuración actualizada correctamente', '', true);
       this.spinner.hide();
     }, err => {
@@ -1861,11 +1874,11 @@ export class ConfigComponent implements OnInit {
     return this._sanitizer.bypassSecurityTrustUrl(url);
   }
 
-  validaAnio(){
+  validaAnio() {
     const currentDate = new Date();
     var anioActual = currentDate.getFullYear();
 
-    if(this.anioTributario > anioActual){
+    if (this.anioTributario > anioActual) {
       this.anioTributario = anioActual;
     }
   }

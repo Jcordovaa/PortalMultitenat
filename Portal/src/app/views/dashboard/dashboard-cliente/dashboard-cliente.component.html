@@ -136,7 +136,7 @@
                                             <th>Nro. Doc.</th>
                                             <th>Fecha Emisión</th>
                                             <th >Monto $</th>
-                                            <th >Detalle</th>
+                                            <!-- <th >Detalle</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -286,7 +286,7 @@
                         <div class="row">
                             <div class="col-md-4 form-group mb-3">
                                 <label for="firstName">Número Documento</label>
-                                <input type="number" min="0" class="form-control" id="folio" name="Numero Documento"
+                                <input type="text" min="0" inputmode="numeric" pattern="[0-9]*" class="form-control" id="folio" name="Numero Documento"
                                     [(ngModel)]="folio" placeholder="0">
                             </div>
 
@@ -379,7 +379,7 @@
                                                                 <th>Fecha Vcto.</th>
                                                                 <th class="alinearTexto">Monto $</th>
                                                                 <th class="alinearTexto">Saldo $</th>
-                                                                <th *ngIf="existModuloInventario">Detalle</th>
+                                                                <!-- <th *ngIf="existModuloInventario">Detalle</th> -->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -393,7 +393,7 @@
                                                                 <td class="alinearTexto">{{documento.debe | monto}}</td>
                                                                 <td class="alinearTexto">{{documento.saldo | monto}}
                                                                 </td>
-                                                                <td *ngIf="existModuloInventario"
+                                                                <!-- <td *ngIf="existModuloInventario"
                                                                     style="vertical-align:middle;">
                                                                     <div ngbDropdown>
                                                                         <button (click)="verDetalle(documento)"
@@ -413,7 +413,7 @@
                                                                                 <circle cx="12" cy="19" r="1"></circle>
                                                                             </svg></button>
                                                                     </div>
-                                                                </td>
+                                                                </td> -->
                                                             </tr>
                                                         </tbody>
                                                     </table>
@@ -431,8 +431,8 @@
                                                             <tr>
                                                                 <!-- <th class="TableIcon" scope="col"> </th> -->
                                                                 <th scope="col"> </th>
-                                                                <th scope="col" *ngIf="existModuloInventario">Detalle
-                                                                </th>
+                                                                <!-- <th scope="col" *ngIf="existModuloInventario">Detalle
+                                                                </th> -->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -457,7 +457,7 @@
                                                                     <strong>Saldo $: </strong>{{documento.saldo |
                                                                     monto}}<br />
                                                                 </td>
-                                                                <td style="vertical-align:middle;"
+                                                                <!-- <td style="vertical-align:middle;"
                                                                     *ngIf="existModuloInventario">
                                                                     <div ngbDropdown>
                                                                         <button (click)="verDetalle(documento)"
@@ -477,7 +477,7 @@
                                                                                 <circle cx="12" cy="19" r="1"></circle>
                                                                             </svg></button>
                                                                     </div>
-                                                                </td>
+                                                                </td> -->
                                                             </tr>
                                                         </tbody>
                                                     </table>

@@ -41,8 +41,14 @@ namespace ApiPortal.Controllers
         [HttpPost("GeneraPagoElectronico")]
         public async Task<IActionResult> GeneraPagoElectronico([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ProcesaPagos/GeneraPagoElectronico";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             string rutEncriptado = "";
-            SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
             if (redirectTo == TbkRedirect.PagoRapido)
             {
                 if (string.IsNullOrEmpty(rutCliente))
@@ -277,7 +283,7 @@ namespace ApiPortal.Controllers
 
 
                                 //Genera comprobante contable por el pago realizado
-                                sf.GeneraComprobantesContablesAsync(idPago, log.Codigo);
+                                sf.GeneraComprobantesContablesAsync(idPago, log.Codigo, logApi.Id);
                             }
                             else //Si el pago es rechazado en cualquiera de sus codigos
                             {
@@ -472,7 +478,7 @@ namespace ApiPortal.Controllers
                             vm.BuyOrder = ventaId;
 
                             //Generamos comprobante contable
-                            sf.GeneraComprobantesContablesAsync(idPago, log.Codigo);
+                            sf.GeneraComprobantesContablesAsync(idPago, log.Codigo, logApi.Id);
 
                             //Retorna al portal en base 64 el state de finalizado 1 y el id del pago
                             ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
@@ -699,7 +705,7 @@ namespace ApiPortal.Controllers
                                 if (responseVal.status == 2) //Pagada
                                 {
                                     //Genera comprobante contable por el pago realizado
-                                    sf.GeneraComprobantesContablesAsync(idPago, log.Codigo);
+                                    sf.GeneraComprobantesContablesAsync(idPago, log.Codigo, logApi.Id);
 
                                     ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
                                     return Redirect($"{redirectUrl}?state={ruta64}");
@@ -838,6 +844,10 @@ namespace ApiPortal.Controllers
 
                                     var retorno = new { estado = 1, enlacePago = vm.Url };
                                     //return Redirect(vm.Url);
+                                    logApi.Termino = DateTime.Now;
+                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                    sf.guardarLogApi(logApi);
+
                                     return Ok(retorno);
                                 }
                                 else
@@ -869,6 +879,9 @@ namespace ApiPortal.Controllers
                                         ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("5;" + idPago));
                                     }
 
+                                    logApi.Termino = DateTime.Now;
+                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                    sf.guardarLogApi(logApi);
 
                                     return Redirect($"{redirectUrl}?state={ruta64}");
                                 }
@@ -935,7 +948,7 @@ namespace ApiPortal.Controllers
                                                 await _context.SaveChangesAsync();
 
                                                 //Genera comprobante contable por el pago realizado
-                                                string numComprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token);
+                                                string numComprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
 
                                                 if (string.IsNullOrEmpty(numComprobante))
                                                 {
@@ -975,6 +988,10 @@ namespace ApiPortal.Controllers
                                                         ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
                                                     }
 
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
+
                                                     return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
                                                 else
@@ -985,7 +1002,7 @@ namespace ApiPortal.Controllers
                                                         var detallesPago = _context.PagosDetalles.Where(x => x.IdPago == idPago).ToList();
                                                         string rutDesencriptado = Encrypt.Base64Decode(rutCliente);
                                                         var detallesCobranza = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza && x.RutCliente == rutDesencriptado).ToList();
-                                                        var docsCliente = await sf.GetAllDocumentosContabilizadosCliente(pago.CodAux);
+                                                        var docsCliente = await sf.GetAllDocumentosContabilizadosCliente(pago.CodAux, logApi.Id);
                                                         foreach (var detalleCobranza in detallesCobranza)
                                                         {
                                                             var detPago = detallesPago.OrderByDescending(x => x.IdPagoDetalle).Where(x => x.Folio == detalleCobranza.Folio && detalleCobranza.TipoDocumento == x.TipoDocumento).FirstOrDefault();
@@ -1038,6 +1055,11 @@ namespace ApiPortal.Controllers
                                                         ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
 
                                                     }
+
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
+
                                                     return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
 
@@ -1083,8 +1105,14 @@ namespace ApiPortal.Controllers
                                     else
                                     {
                                         ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago));
-                                        return Redirect($"{redirectUrl}?state={ruta64}");
+                                       
                                     }
+
+                                    logApi.Termino = DateTime.Now;
+                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                    sf.guardarLogApi(logApi);
+
+                                    return Redirect($"{redirectUrl}?state={ruta64}");
 
                                 }
 

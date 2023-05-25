@@ -1,19 +1,12 @@
 import { ChangeDetectorRef, Component, DoCheck, EventEmitter, OnInit } from '@angular/core';
 import { EChartOption } from 'echarts';
-import { echartStyles } from '../../../shared/echart-styles';
-import { DashboardEcommerce, DashboardVentas } from '../../../shared/models/dashboards.model';
 import { DashboardsService } from '../../../shared/services/dashboards.service';
-import { TipoDashboards } from '../../../shared/enums/TipoDashboards';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
 import { AuthService } from 'src/app/shared/services/auth.service';
 import { NgxSpinnerService } from "ngx-spinner";
 import { NotificationService } from '../../../shared/services/notificacion.service';
-import { NgbModal, NgbDatepickerI18n, NgbDatepickerConfig, NgbDateStruct, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
-import { mainModule } from 'process';
-import { number } from 'ngx-custom-validators/src/app/number/validator';
-import { date } from 'ngx-custom-validators/src/app/date/validator';
+import { NgbModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Paginator } from 'src/app/shared/models/paginator.model';
-import { Documento } from 'src/app/shared/models/documentos.model';
 import * as FileSaver from "file-saver";
 import * as XLSX from 'xlsx';
 import { Utils } from 'src/app/shared/utils';
@@ -21,7 +14,6 @@ import { ConfiguracionSoftlandService } from 'src/app/shared/services/configurac
 import { SoftlandService } from 'src/app/shared/services/softland.service';
 import { ConfiguracionPortal } from 'src/app/shared/models/configuracioncobranza.model';
 import { ConfiguracionPagoClientesService } from 'src/app/shared/services/configuracionpagoclientes.service';
-import { MontoPipe } from 'src/app/shared/pipes/monto.pipe';
 import { SharedAnimations } from 'src/app/shared/animations/shared-animations';
 
 
@@ -127,8 +119,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     ngOnInit() {
 
         this.getCantidadDocumentos();
-
-
+        this.getTopDeudores();
+        this.getDeudaVsPagos();
     }
 
     ngDoCheck() {
@@ -376,7 +368,6 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             }
             this.graphicResumenLoad = true;
             this.spinner.hide(this.spinnerResumen);
-            this.getTopDeudores();
         }, err => { this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
     }
 
@@ -418,13 +409,19 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     // }
 
     getCantidadDocumentos() {
+
         this.spinner.show();
-        this.configuracionService.getConfigPagoClientes().subscribe((res: any) => {
-            if (res.cuentasContablesDeuda = ! '' && res.cuentasContablesDeuda != null) {
+        const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+        if (configuracionCompletaPortal != null) {
+
+            this.configuracion = configuracionCompletaPortal.configuracionPortal;
+            this.existModuloInventario = configuracionCompletaPortal.existModuloInventario;
+
+            if (configuracionCompletaPortal.configuracionPagoCliente.cuentasContablesDeuda = ! '' && configuracionCompletaPortal.configuracionPagoCliente.cuentasContablesDeuda != null) {
                 this.clienteService.getDocumentosDashboardAdministrador().subscribe((res: any) => {
-
+    
                     this.dashboardAdmin = res;
-
+    
                     this.cantidadVencidos = this.dashboardAdmin.cantidadVencida;
                     this.totalVencidos = this.dashboardAdmin.montoVencido;
                     this.cantidadPendiente = this.dashboardAdmin.cantidadDocPendiente;
@@ -433,28 +430,17 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     this.totalPorVencer = this.dashboardAdmin.saldoxvencer;
                     this.totalPagados = this.dashboardAdmin.cantidadDocumentosPagados;
                     this.cantidadPagados = this.dashboardAdmin.montoPagado;
-                        this.softlandConfigService.getExistModuloInventario().subscribe(res => {
-                            this.existModuloInventario = res;
-                   
-                            this.configuracionService.getConfigPortal().subscribe(res => {
-                                this.configuracion = res;
-                                this.spinner.hide();
-                                this.getDeudaVsPagos();
-                                this.getTopDeudores();
-                            }, err => { this.spinner.hide(); });
-                        }, err => { this.spinner.hide(); });
-                
+                    this.spinner.hide();
+    
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
             } else {
                 this.spinner.hide();
                 this.notificationService.warning('No se encontraron cuentas contables configuradas para el portal.', '', true);
             }
-
-        }, err => {
+        }else{
             this.spinner.hide();
-            this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
-        });
-
+            this.authService.signoutExpiredToken();
+        }
     }
 
     verDetalle(pago: any) {
@@ -1001,17 +987,17 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         this.spinner.show();
         this.softlandService.getAllTipoDocSoftland().subscribe((res: any) => {
             this.tiposDocumentos = res;
-       
-        this.docPagado = pago;
-        this.docPagado.pagosDetalle.forEach(element => {
-            let doc = this.tiposDocumentos.filter(x => x.codDoc == element.tipoDocumento);
-            if (doc.length > 0) {
-                element.desDoc = doc[0].desDoc;
-            }
-        });
-        this.showDetail = true;
-        this.spinner.hide();
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
+
+            this.docPagado = pago;
+            this.docPagado.pagosDetalle.forEach(element => {
+                let doc = this.tiposDocumentos.filter(x => x.codDoc == element.tipoDocumento);
+                if (doc.length > 0) {
+                    element.desDoc = doc[0].desDoc;
+                }
+            });
+            this.showDetail = true;
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener tipos de  documentos.', '', true); });
     }
 
 

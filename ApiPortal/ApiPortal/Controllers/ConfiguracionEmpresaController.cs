@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -23,10 +24,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetConfiguracionEmpresa")]
         public async Task<ActionResult> GetConfiguracionEmpresa()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionEmpresa/GetConfiguracionEmpresa";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
                 var config = _context.ConfiguracionEmpresas.FirstOrDefault();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(config);
             }
             catch (Exception ex)

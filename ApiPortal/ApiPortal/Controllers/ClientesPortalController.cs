@@ -39,6 +39,12 @@ namespace ApiPortal.Controllers
         [HttpPost("SendAccesosCliente"), Authorize]
         public async Task<ActionResult<int>> SendAccesosClienteAsync(EnvioAccesoClienteVm envio)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/SendAccesosCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
             try
             {
                 if (envio == null)
@@ -48,6 +54,9 @@ namespace ApiPortal.Controllers
                 PortalClientesSoftlandContext aux = new PortalClientesSoftlandContext(_contextAccessor);
                      this.enviaAccesoAsync(envio, aux, _webHostEnvironment);
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok();
             }
             catch (Exception e)
@@ -68,6 +77,12 @@ namespace ApiPortal.Controllers
 
         private async Task enviaAccesoAsync(EnvioAccesoClienteVm envio, PortalClientesSoftlandContext _context, IWebHostEnvironment _webHostEnvironment)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/enviaAccesoAsync";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
             try
             {
                 using (var context = _context)
@@ -91,7 +106,7 @@ namespace ApiPortal.Controllers
                             foreach (var item in value)
                             {
 
-                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux);
+                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux, logApi.Id);
                                 List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
                                 foreach (var c in contactos)
                                 {
@@ -220,7 +235,7 @@ namespace ApiPortal.Controllers
                         string[] cargos = value[0].CodCargo.Split(';');
                         string body = string.Empty;
 
-                        var clientes = await softlandService.BuscarClienteSoftlandAccesosAsync(envio.CodAux, envio.Rut, envio.Nombre, envio.Vendedor, envio.CondicionVenta, envio.CategoriaCliente, envio.ListaPrecio, 100, null).ConfigureAwait(false);
+                        var clientes = await softlandService.BuscarClienteSoftlandAccesosAsync(envio.CodAux, envio.Rut, envio.Nombre, envio.Vendedor, envio.CondicionVenta, envio.CategoriaCliente, envio.ListaPrecio, 100, null, logApi.Id).ConfigureAwait(false);
 
                         foreach (var item in envio.Eliminados)
                         {
@@ -232,7 +247,7 @@ namespace ApiPortal.Controllers
                             foreach (var item in clientes)
                             {
 
-                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux).ConfigureAwait(false);
+                                var contactos = await softlandService.GetAllContactosAsync(item.CodAux, logApi.Id).ConfigureAwait(false);
                                 List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
                                 foreach (var c in contactos)
                                 {
@@ -354,8 +369,10 @@ namespace ApiPortal.Controllers
                         }
 
                     }
-                } 
-                
+                }
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
             }
             catch (Exception e)
             {
@@ -376,6 +393,12 @@ namespace ApiPortal.Controllers
         [HttpPost("CanActivateAccount")]
         public async Task<ActionResult> CanActivateAccount(ClientesPortalVm user)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/CanActivateAccount";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
             try
             {
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -422,6 +445,9 @@ namespace ApiPortal.Controllers
                     }
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok();
             }
             catch (Exception ex)
@@ -441,6 +467,12 @@ namespace ApiPortal.Controllers
         [HttpPost("ActivateAccount")]
         public async Task<ActionResult> ActivateAccount(ClientesPortalVm user)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/ActivateAccount";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
             try
             {
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -475,6 +507,9 @@ namespace ApiPortal.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok();
             }
             catch (Exception ex)
@@ -494,20 +529,29 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteByMailAndRut")]
         public async Task<ActionResult> GetClienteByMailAndRut(ClientesPortalVm cliente)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteByMailAndRut";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             ClienteDTO retorno = new ClienteDTO();
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                retorno = await sf.GetClienteSoftlandAsync(string.Empty, cliente.Rut);
+                retorno = await sf.GetClienteSoftlandAsync(string.Empty, cliente.Rut, logApi.Id);
 
 
                 if (!string.IsNullOrEmpty(retorno.Rut))
                 {
-                    List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(retorno.CodAux);
+                    List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(retorno.CodAux, logApi.Id);
                     retorno.Contactos = contactos;
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -527,12 +571,15 @@ namespace ApiPortal.Controllers
         [HttpPost("ActualizaClienteSoftland"), Authorize]
         public async Task<ActionResult> ActualizaClienteSoftland(ClienteDTO cliente)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/ActualizaClienteSoftland";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
             
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-
-                await sf.UpdateAuxiliarPortalPagoAsync(cliente);
+                await sf.UpdateAuxiliarPortalPagoAsync(cliente, logApi.Id);
 
                 MailViewModel mailVm = new MailViewModel();
                 mailVm.email_destinatario = cliente.CorreoUsuario;
@@ -540,6 +587,9 @@ namespace ApiPortal.Controllers
                 MailService mail = new MailService(_context,_webHostEnvironment);
                 await mail.EnviarCorreosAsync(mailVm);
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(cliente);
             }
             catch (Exception ex)
@@ -559,7 +609,13 @@ namespace ApiPortal.Controllers
         [HttpPost("ChangePassword"), Authorize]
         public async Task<ActionResult> ChangePassword(ClientesPortalVm c)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/ChangePassword";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
             
+
             try
             {
                 Boolean errorEnvio = false;
@@ -589,6 +645,10 @@ namespace ApiPortal.Controllers
                         errorEnvio = true;
                     }
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok();
             }
             catch (Exception ex)
@@ -608,14 +668,22 @@ namespace ApiPortal.Controllers
         [HttpGet("GetUltimasCompras/{codAux}"), Authorize]
         public async Task<ActionResult> GetUltimasCompras(string codAux)
         {
-
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetUltimasCompras";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 var conf = _context.ConfiguracionPortals.FirstOrDefault();
                 int top = (conf != null) ? (int)conf.CantidadUltimasCompras : 0;
-                List<ComprasSoftlandDTO> compras = await sf.GetTopComprasAsync(codAux, top);
+                List<ComprasSoftlandDTO> compras = await sf.GetTopComprasAsync(codAux, top, logApi.Id);
                 compras = compras.OrderByDescending(x => x.FechaEmision).ToList();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(compras);
             }
             catch (Exception ex)
@@ -635,15 +703,23 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDashboardDocumentosVencidos/{codAux}"), Authorize]
         public async Task<ActionResult> GetDashboardDocumentosVencidos(string codAux)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDashboardDocumentosVencidos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
                 string utilizaApiSoftland = "1";
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 DashboardDocumentosVm retorno = new DashboardDocumentosVm();
 
-                retorno = await sf.GetMontosDashboardAdmin(codAux, 0);
+                retorno = await sf.GetMontosDashboardAdmin(codAux,logApi.Id);
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -663,13 +739,18 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosVencidos"), Authorize]
         public async Task<ActionResult> GetDocumentosVencidos(FilterVm filter)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosVencidos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                var documentos = await sf.GetDocumentosVencidosAsync(filter);
+                var documentos = await sf.GetDocumentosVencidosAsync(filter, logApi.Id);
 
-                var monedas = await sf.GetMonedasAsync();
+                var monedas = await sf.GetMonedasAsync(logApi.Id);
                 List<ClienteSaldosDTO> documentosVencidos = documentos.ConvertAll(d =>
                              new ClienteSaldosDTO
                              {
@@ -697,6 +778,9 @@ namespace ApiPortal.Controllers
                              }
                          );
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(documentosVencidos);
             }
             catch (Exception ex)
@@ -716,13 +800,18 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosPorVencer"), Authorize]
         public async Task<ActionResult> GetDocumentosPorVencer(FilterVm filter)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosPorVencer";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                var documentos = await sf.GetDocumentosPorVencerAsync(filter);
+                var documentos = await sf.GetDocumentosPorVencerAsync(filter, logApi.Id);
 
-                var monedas = await sf.GetMonedasAsync();
+                var monedas = await sf.GetMonedasAsync(logApi.Id);
                 List<ClienteSaldosDTO> documentosPorVencer = documentos.ConvertAll(d =>
                              new ClienteSaldosDTO
                              {
@@ -750,6 +839,9 @@ namespace ApiPortal.Controllers
                              }
                          );
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(documentosPorVencer);
             }
             catch (Exception ex)
@@ -769,14 +861,19 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosPendientes"), Authorize]
         public async Task<ActionResult> GetDocumentosPendientes(FilterVm filter)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosPendientes";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
 
-                var documentos = await sf.GetDocumentosPendientesAsync(filter);
+                var documentos = await sf.GetDocumentosPendientesAsync(filter, logApi.Id);
 
-                var monedas = await sf.GetMonedasAsync();
+                var monedas = await sf.GetMonedasAsync(logApi.Id);
                 List<ClienteSaldosDTO> documentosPendientes = documentos.ConvertAll(d =>
                              new ClienteSaldosDTO
                              {
@@ -804,6 +901,9 @@ namespace ApiPortal.Controllers
                              }
                          );
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(documentosPendientes);
             }
             catch (Exception ex)
@@ -823,11 +923,19 @@ namespace ApiPortal.Controllers
         [HttpGet("GetAllDocumentosContabilizados/{codAux}"), Authorize]
         public async Task<ActionResult> GetAllDocumentosContabilizados(string codAux)
         {
-
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetAllDocumentosContabilizados";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                List<ClienteSaldosDTO> documentosContabilizados = await sf.GetAllDocumentosContabilizadosAsync(codAux);
+                List<ClienteSaldosDTO> documentosContabilizados = await sf.GetAllDocumentosContabilizadosAsync(codAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(documentosContabilizados);
             }
@@ -849,14 +957,20 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetDashboardCompras(string codAux)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDashboardCompras";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 List<DashboardComprasVm> retorno = new List<DashboardComprasVm>();
-                List<DocumentosFacturadosDTO> compras = await sf.GetClientesComprasSoftlandAsync(codAux);
-                List<NotaVentaClienteDTO> nv = await sf.GetNotasVentasPendientesAsync(codAux);
-                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(codAux); 
-                List<GuiaDespachoDTO> guias = await sf.GetGuiasPendientes(codAux);
+                List<DocumentosFacturadosDTO> compras = await sf.GetClientesComprasSoftlandAsync(codAux, logApi.Id);
+                List<NotaVentaClienteDTO> nv = await sf.GetNotasVentasPendientesAsync(codAux, logApi.Id);
+                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(codAux, logApi.Id); 
+                List<GuiaDespachoDTO> guias = await sf.GetGuiasPendientes(codAux, logApi.Id);
 
                 if (compras.Count > 0)
                 {
@@ -910,6 +1024,10 @@ namespace ApiPortal.Controllers
                     retorno.Add(d);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -929,11 +1047,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteComprasFromSoftland"), Authorize]
         public async Task<ActionResult> GetClienteComprasFromSoftland(ClientesPortalVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteComprasFromSoftland";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<DocumentosFacturadosDTO> clients = await sf.GetClientesComprasSoftlandAsync(model.CodAux);
+                List<DocumentosFacturadosDTO> clients = await sf.GetClientesComprasSoftlandAsync(model.CodAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(clients);
             }
             catch (Exception ex)
@@ -953,13 +1081,23 @@ namespace ApiPortal.Controllers
         [HttpGet("GetEstadoBloqueoCliente/{codAux}"), Authorize]
         public async Task<ActionResult> GetEstadoBloqueoCliente(string codAux)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetEstadoBloqueoCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try 
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                Boolean estado = await sf.GetEstadoBloqueoClienteAsync(codAux); 
+                Boolean estado = await sf.GetEstadoBloqueoClienteAsync(codAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 if (estado)
                 {
+
                     return Ok(1);
                 }
                 else
@@ -984,10 +1122,16 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteDocumento"), Authorize]
         public async Task<ActionResult> GetClienteDocumento(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteDocumento";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             DocumentosVm documento = new DocumentosVm();
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 string utilizaApiSoftland = "true";
                 if (utilizaApiSoftland == "false")
                 {
@@ -1009,14 +1153,22 @@ namespace ApiPortal.Controllers
                     documento.NombreArchivo = (tipoDoc == "B") ? "Boleta " + model.Folio + ".pdf" : (tipoDoc == "F") ? "Factura " + model.Folio + ".pdf" : "";
                     documento.Tipo = "PDF";
                     documento.Base64 = archivo64;
+
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
                     return Ok(documento);
                 }
                 else
                 {
-                    string base64 = await sf.obtenerPDFDocumento((int)model.Folio, model.TipoDoc);
+                    string base64 = await sf.obtenerPDFDocumento((int)model.Folio, model.TipoDoc, logApi.Id);
                     documento.NombreArchivo = (model.TipoDoc.Substring(0, 1) == "B") ? "Boleta " + model.Folio + ".pdf" : (model.TipoDoc.Substring(0, 1) == "F") ? "Factura " + model.Folio + ".pdf" : "";
                     documento.Tipo = "PDF";
                     documento.Base64 = base64;
+
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
                     return Ok(documento);
                 }
             }
@@ -1037,11 +1189,17 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentoXML"), Authorize]
         public async Task<ActionResult> GetDocumentoXML(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetAutomatizaciones";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             DocumentosVm documento = new DocumentosVm();
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                DocumentosVm dtResultado = await sf.obtenerXMLDTEAsync(Convert.ToInt32(model.Folio), model.CodAux, model.TipoDoc);
+                DocumentosVm dtResultado = await sf.obtenerXMLDTEAsync(Convert.ToInt32(model.Folio), model.CodAux, model.TipoDoc, logApi.Id);
 
                 if (!string.IsNullOrEmpty(dtResultado.Base64))
                 {
@@ -1055,6 +1213,11 @@ namespace ApiPortal.Controllers
                     documento.Base64 = xmlDocBase64;
                     documento.NombreArchivo = dtResultado.NombreArchivo;
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(documento);
             }
             catch (Exception ex)
@@ -1074,18 +1237,23 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDetalleCompra"), Authorize]
         public async Task<ActionResult> GetDetalleCompra(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDetalleCompra";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
            
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 DocumentoDTO documento = new DocumentoDTO();
 
                 string utilizaApiSoftland = "true";
 
                 if (utilizaApiSoftland == "false")
                 {
-                    CabeceraDocumentoDTO dtResultado = sf.obtenerCabecera(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux);
-                    List<DetalleDocumentoDTO> dtDetalle = sf.obtenerDetalle(Convert.ToInt32(model.Folio), dtResultado.Tipo, model.CodAux);
+                    CabeceraDocumentoDTO dtResultado = sf.obtenerCabecera(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux, logApi.Id);
+                    List<DetalleDocumentoDTO> dtDetalle = sf.obtenerDetalle(Convert.ToInt32(model.Folio), dtResultado.Tipo, model.CodAux, logApi.Id);
 
 
                     documento.cabecera = dtResultado;
@@ -1093,9 +1261,12 @@ namespace ApiPortal.Controllers
                 }
                 else
                 {
-                    documento = await sf.obtenerDocumentoAPI(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux);
+                    documento = await sf.obtenerDocumentoAPI(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux, logApi.Id);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(documento);
             }
@@ -1116,22 +1287,27 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDetalleDespacho"), Authorize]
         public async Task<ActionResult> GetDetalleDespacho(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDetalleDespacho";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
                 string utilizaApiSoftland = "true";
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 List<DespachosDTO> listaRetorno = new List<DespachosDTO>();
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
                 {
-                    listaRetorno = sf.GetDespachosDocumento(Convert.ToInt32(model.Folio));
+                    listaRetorno = sf.GetDespachosDocumento(Convert.ToInt32(model.Folio), logApi.Id);
                     if (listaRetorno.Count > 0)
                     {
                         foreach (var item in listaRetorno)
                         {
                             if (item.Documento == "Guia Despacho")
                             {
-                                item.Detalle = sf.GetDetalleDespacho(item.NroInt);
+                                item.Detalle = sf.GetDetalleDespacho(item.NroInt, logApi.Id);
                             }
 
                         }
@@ -1139,10 +1315,13 @@ namespace ApiPortal.Controllers
                 }
                 else
                 {
-                    listaRetorno = await sf.GetDepachoDocumentoAPIAsync(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux);
+                    listaRetorno = await sf.GetDepachoDocumentoAPIAsync(Convert.ToInt32(model.Folio), model.TipoDoc, model.CodAux, logApi.Id);
                 }
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(listaRetorno);
             }
@@ -1163,6 +1342,12 @@ namespace ApiPortal.Controllers
         [HttpPost("EnvioDocumentos"), Authorize]
         public async Task<ActionResult> EnvioDocumentos(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/EnvioDocumentos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -1192,7 +1377,9 @@ namespace ApiPortal.Controllers
                     _context.SaveChanges();
                 }
 
-
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(model);
             }
             catch (Exception ex)
@@ -1212,11 +1399,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetContactosClienteSoftland/{codAux}"), Authorize]
         public async Task<ActionResult> GetContactosClienteSoftland(string codAux)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetContactosClienteSoftland";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(codAux);
+                List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(codAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(contactos);
             }
             catch (Exception ex)
@@ -1236,11 +1433,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetNotaVentaCliente/{codAux}"), Authorize]
         public async Task<ActionResult> GetNotaVentaCliente(string codAux)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetNotaVentaCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                List<NotaVentaClienteDTO> nv = await sf.GetNotasVentasPendientesAsync(codAux);
+                List<NotaVentaClienteDTO> nv = await sf.GetNotasVentasPendientesAsync(codAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(nv);
             }
             catch (Exception ex)
@@ -1260,14 +1467,23 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDetalleCompraNv"), Authorize]
         public async Task<ActionResult> GetDetalleCompraNv(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDetalleCompraNv";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
 
                 NotaVentaClienteDTO detalle = new NotaVentaClienteDTO();
-                detalle = await sf.GetNotaVentaAsync(Convert.ToInt32(model.Folio), model.CodAux);
-                detalle.detalle = await sf.GetNotaVentaDetalleAsync(Convert.ToInt32(model.Folio));
+                detalle = await sf.GetNotaVentaAsync(Convert.ToInt32(model.Folio), model.CodAux, logApi.Id);
+                detalle.detalle = await sf.GetNotaVentaDetalleAsync(Convert.ToInt32(model.Folio), logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(detalle);
             }
@@ -1289,11 +1505,20 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetProductosComprados(FilterVm model)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetProductosComprados";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(model.CodAux);
+                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(model.CodAux, logApi.Id);
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(productos);
             }
             catch (Exception ex)
@@ -1313,17 +1538,22 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteEstadoComprasFromSoftland")]
         public async Task<ActionResult> GetClienteEstadoComprasFromSoftland(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteEstadoComprasFromSoftland";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 if (string.IsNullOrEmpty(model.CodAux) && !string.IsNullOrEmpty(model.Rut))
                 {
-                    var datosCliente = await sf.GetClienteSoftlandAsync(string.Empty, model.Rut);
+                    var datosCliente = await sf.GetClienteSoftlandAsync(string.Empty, model.Rut, logApi.Id);
                     model.CodAux = datosCliente.CodAux;
                 }
 
-                List<ClienteSaldosDTO> clients = await sf.GetClienteEstadoCuentaAsync(model.CodAux);
+                List<ClienteSaldosDTO> clients = await sf.GetClienteEstadoCuentaAsync(model.CodAux, logApi.Id);
 
                 if (model.Folio != 0)
                 {
@@ -1465,6 +1695,9 @@ namespace ApiPortal.Controllers
                 }
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(clients);
             }
@@ -1486,10 +1719,21 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetEstadoConexionSoftland()
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetEstadoConexionSoftland";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                Boolean estado = await sf.verificaEstadoConexionSoftlandAsync();
+                Boolean estado = await sf.verificaEstadoConexionSoftlandAsync(logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(estado);
             }
             catch (Exception ex)
@@ -1509,6 +1753,12 @@ namespace ApiPortal.Controllers
         [HttpPost("SavePago")]
         public async Task<ActionResult> SavePago(PagoCabeceraVm value)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/SavePago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+         
 
             try
             {
@@ -1568,6 +1818,9 @@ namespace ApiPortal.Controllers
 
                 _context.SaveChanges();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(pagoEstado.IdPago);
             }
@@ -1588,6 +1841,12 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDashboardAdministrador"), Authorize]
         public async Task<ActionResult> GetDashboardAdministrador(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDashboardAdministrador";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -1688,6 +1947,10 @@ namespace ApiPortal.Controllers
                     dashboard.Add(da);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(dashboard);
             }
             catch (Exception ex)
@@ -1707,6 +1970,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetExistCompras"), Authorize]
         public async Task<ActionResult> GetExistCompras()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetExistCompras";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -1759,6 +2028,10 @@ namespace ApiPortal.Controllers
                     dashboard.Anio = true;
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(dashboard);
             }
             catch (Exception ex)
@@ -1779,12 +2052,18 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetDetallePago(int idPago)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDetallePago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 string tipoDocumento = string.Empty;
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
 
-                List<CondicionVentaDTO> condVenta = await sf.GetCondVentaAsync();
+                List<CondicionVentaDTO> condVenta = await sf.GetCondVentaAsync(logApi.Id);
 
                 PagoCabeceraVm cabecera = new PagoCabeceraVm();
                 List<PagoDetalleVm> detalleCabecera = new List<PagoDetalleVm>();
@@ -1801,7 +2080,7 @@ namespace ApiPortal.Controllers
                     foreach (var item in cabeceraPago.PagosDetalles)
                     {
 
-                        item.TipoDocumento = sf.GetDescDocumento(item.TipoDocumento);
+                        item.TipoDocumento = sf.GetDescDocumento(item.TipoDocumento, logApi.Id);
                         PagoDetalleVm detalles = new PagoDetalleVm
                         {
                             APagar = (float)item.Apagar,
@@ -1845,7 +2124,7 @@ namespace ApiPortal.Controllers
                         cliente.Nombre = cabeceraPago.IdClienteNavigation.Nombre;
                         cliente.Rut = cabeceraPago.IdClienteNavigation.Rut;
 
-                        List<ClienteDTO> listaClientes = await sf.BuscarClienteSoftland2Async(cabeceraPago.IdClienteNavigation.CodAux, "", "");
+                        List<ClienteDTO> listaClientes = await sf.BuscarClienteSoftland2Async(cabeceraPago.IdClienteNavigation.CodAux, "", "", logApi.Id);
                         var aux = listaClientes.FirstOrDefault();
                         if (aux != null)
                         {
@@ -1887,6 +2166,10 @@ namespace ApiPortal.Controllers
                     cabecera.PasarelaPagoLog = pasarela;
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(cabecera);
             }
             catch (Exception ex)
@@ -1906,13 +2189,18 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDatosPagoRapido/{idPago}"), Authorize]
         public async Task<ActionResult> GetDatosPagoRapido(int idPago)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDatosPagoRapido";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
                 string tipoDocumento = string.Empty;
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
 
-                List<CondicionVentaDTO> condVenta = await sf.GetCondVentaAsync();
+                List<CondicionVentaDTO> condVenta = await sf.GetCondVentaAsync(logApi.Id);
 
                 PagoCabeceraVm cabecera = new PagoCabeceraVm();
 
@@ -1926,6 +2214,10 @@ namespace ApiPortal.Controllers
                     cabecera.Nombre = cabecera.Nombre;
 
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(cabecera);
             }
@@ -1947,11 +2239,22 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetDocumentoPDF(CabeceraDocumentoDTO cabecera)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentoPDF";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 string tipoDoc = cabecera.Tipo + cabecera.SubTipo;
-                string pdfBase64 = await sf.obtenerPDFDocumento(cabecera.Folio, tipoDoc);
+                string pdfBase64 = await sf.obtenerPDFDocumento(cabecera.Folio, tipoDoc, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(pdfBase64);
             }
             catch (Exception ex)
@@ -1971,10 +2274,15 @@ namespace ApiPortal.Controllers
         [HttpPost("EnviaDocumentoPDF"), Authorize]
         public async Task<ActionResult> EnviaDocumentoPDF(EnvioDocumento envio)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/EnviaDocumentoPDF";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
 
                 MailService mc = new MailService(_context, _webHostEnvironment);
                 MailViewModel mv = new MailViewModel();
@@ -1986,7 +2294,7 @@ namespace ApiPortal.Controllers
                     if (envio.docsAEnviar == 1 || envio.docsAEnviar == 3)
                     {
                         string tipoDoc = envio.tipoDoc + envio.subTipoDoc;
-                        string pdfBase64 = await sf.obtenerPDFDocumento(envio.folio, tipoDoc);
+                        string pdfBase64 = await sf.obtenerPDFDocumento(envio.folio, tipoDoc, logApi.Id);
                         if (!string.IsNullOrEmpty(pdfBase64))
                         {
                             byte[] stemp = Convert.FromBase64String(pdfBase64);
@@ -1997,7 +2305,7 @@ namespace ApiPortal.Controllers
 
                     if (envio.docsAEnviar == 2 || envio.docsAEnviar == 3)
                     {
-                        DocumentosVm xml = await sf.obtenerXMLDTEAsync(envio.folio, envio.codAux, envio.tipoDoc);
+                        DocumentosVm xml = await sf.obtenerXMLDTEAsync(envio.folio, envio.codAux, envio.tipoDoc, logApi.Id);
                         byte[] myByte = System.Text.Encoding.UTF8.GetBytes(xml.Base64);
                         xml.Base64 = Convert.ToBase64String(myByte);
                         if (!string.IsNullOrEmpty(xml.Base64))
@@ -2011,7 +2319,7 @@ namespace ApiPortal.Controllers
                 }
                 if (envio.TipoDocAEnviar == 2)
                 {
-                    string pdfBase64 = await sf.obtenerPDFDocumentoNv(envio.folio.ToString(), envio.codAux);
+                    string pdfBase64 = await sf.obtenerPDFDocumentoNv(envio.folio.ToString(), envio.codAux, logApi.Id);
                     if (!string.IsNullOrEmpty(pdfBase64))
                     {
                         byte[] stemp = Convert.FromBase64String(pdfBase64);
@@ -2027,10 +2335,17 @@ namespace ApiPortal.Controllers
                     mv.adjuntos = adjuntos;
                     mv.tipo = 4;
                     await mc.EnviarCorreosAsync(mv);
+
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
                     return Ok(1);
                 }
                 else
                 {
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
                     return Ok(0);
                 }
             }
@@ -2052,10 +2367,20 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetResumenContable(string codAux)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetResumenContable";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                ResumenContableDTO resumen = await sf.obtenerResumenContable(codAux);
+                ResumenContableDTO resumen = await sf.obtenerResumenContable(codAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(resumen);
             }
             catch (Exception ex)
@@ -2075,16 +2400,26 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentoPDFNv"), Authorize]
         public async Task<ActionResult> GetDocumentoPDFNv(NotaVentaClienteDTO notaVenta)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentoPDFNv";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
 
-                string pdfBase64 = await sf.obtenerPDFDocumentoNv(notaVenta.NVNumero, notaVenta.CodAux);
+                string pdfBase64 = await sf.obtenerPDFDocumentoNv(notaVenta.NVNumero, notaVenta.CodAux, logApi.Id);
                 var documento = new
                 {
                     PdfBase64 = pdfBase64
                 };
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(documento);
             }
             catch (Exception ex)
@@ -2105,11 +2440,22 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetClientesFiltro(FilterVm model)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClientesFiltro";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
 
                 SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                List<ClientesPortal> clients = await softlandService.GetClientesSoftlandFiltrosAsync(model);
+                List<ClientesPortal> clients = await softlandService.GetClientesSoftlandFiltrosAsync(model, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(clients);
             }
@@ -2130,15 +2476,15 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDocumentosDashboarddAdmin"), Authorize]
         public async Task<ActionResult> GetDocumentosDashboarddAdmin()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
             logApi.Api = "api/ClientesPortal/GetDocumentosDashboarddAdmin";
             logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+         
 
-            _context.LogApis.Add(logApi);
-            _context.SaveChanges();
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 DashboardDocumentosVm documentos = await sf.GetMontosDashboardAdmin(string.Empty, logApi.Id);
 
                 //ULTIMOS PAGOS
@@ -2159,9 +2505,7 @@ namespace ApiPortal.Controllers
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-
-                _context.Entry(logApi).State = EntityState.Modified;
-                _context.SaveChanges();
+                sf.guardarLogApi(logApi);
 
                 return Ok(documentos);
             }
@@ -2183,6 +2527,13 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetDocumentosAdmin(string codAux, int estado)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosAdmin";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+        
+
             try
             {
                 if (codAux == "0")
@@ -2191,13 +2542,12 @@ namespace ApiPortal.Controllers
                 }
 
                 List<ClienteDTO> clientes = new List<ClienteDTO>();
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<ClienteSaldosDTO> documentos = await sf.GetDocumentosDashboardAdminAsync(codAux, estado);
+                List<ClienteSaldosDTO> documentos = await sf.GetDocumentosDashboardAdminAsync(codAux, estado, logApi.Id);
                 var documentosAgrupados = documentos.GroupBy(x => x.CodAux).ToList();
 
                 foreach (var item in documentosAgrupados)
                 {
-                    var cliente = await sf.GetClienteSoftlandAsync(item.Key, string.Empty);
+                    var cliente = await sf.GetClienteSoftlandAsync(item.Key, string.Empty, logApi.Id);
                     cliente.Documentos = documentos.Where(x => x.CodAux == item.Key).OrderByDescending(x => x.FechaEmision).ToList();
                     cliente.TotalDocumentos = cliente.Documentos.Sum(x => x.MontoBase);
                     cliente.TotalSaldo = cliente.Documentos.Sum(x => x.SaldoBase);
@@ -2205,6 +2555,9 @@ namespace ApiPortal.Controllers
                     clientes.Add(cliente);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(clientes);
             }
@@ -2225,11 +2578,22 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCorreosDTE/{rut}"), Authorize]
         public async Task<ActionResult> GetCorreosDTE(string rut)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetCorreosDTE";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
 
             try
             {
                 string rutFormateado = rut.Replace(".", "");
                 var correos = _admin.CsvEmpresasSiis.Where(x => x.Rut == rutFormateado).ToList();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(correos);
             }
             catch (Exception ex)
@@ -2249,11 +2613,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteGuiasDespacho"), Authorize]
         public async Task<ActionResult> GetClienteGuiasDespacho(ClientesPortalVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteGuiasDespacho";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<GuiaDespachoDTO> guias = await sf.GetGuiasPendientes(model.CodAux);
+                List<GuiaDespachoDTO> guias = await sf.GetGuiasPendientes(model.CodAux, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(guias);
             }
             catch (Exception ex)
@@ -2273,6 +2647,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPDFPago/{numComprobante}")]
         public async Task<ActionResult> GetPDFPago(string numComprobante)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/        [HttpGet(\"GetPDFPago/{numComprobante}\")]\r\n";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -2301,7 +2681,7 @@ namespace ApiPortal.Controllers
                     string reemplazoDetalle = string.Empty;
 
                     SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
 
                     //Obtenemos detalle
                     var pagosDetalle = _context.PagosDetalles.Where(x => x.IdPago == pagoCabecera.IdPago).ToList();
@@ -2338,6 +2718,11 @@ namespace ApiPortal.Controllers
                     }
                     doc2.Close();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(base64);
             }
             catch (Exception ex)
@@ -2357,6 +2742,12 @@ namespace ApiPortal.Controllers
         [HttpPost("RecuperarContrasena")]
         public async Task<ActionResult> RecuperarContrasena(ClienteDTO clienteVm)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/RecuperarContrasena";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -2385,10 +2776,16 @@ namespace ApiPortal.Controllers
                         _context.SaveChanges();
                         emailService.EnviaRecuperacionContrasenaUsuario(usuario, clave);
 
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(1);
                     }
                     else
                     {
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(-1);
                     }
                 }
@@ -2406,10 +2803,16 @@ namespace ApiPortal.Controllers
 
                         emailService.EnviaRecuperacionContrasenaCliente(cliente, clave);
 
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(1);
                     }
                     else
                     {
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(-1);
                     }
                 }
@@ -2431,6 +2834,13 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDocumentosPagados"), Authorize]
         public async Task<ActionResult> GetDocumentosPagados()
         {
+
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosPagados";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -2529,6 +2939,11 @@ namespace ApiPortal.Controllers
 
                     retorno.Add(pago);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
 
 
@@ -2551,12 +2966,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GetResumenDocumentosCliente"), Authorize]
         public async Task<ActionResult> GetResumenDocumentosXCliente(FilterVm filter)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetResumenDocumentosCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
 
-                var documentos = await sf.GetResumenDocumentosXClienteAsync(filter);
+                var documentos = await sf.GetResumenDocumentosXClienteAsync(filter, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(documentos);
 
@@ -2580,11 +3004,21 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetDocumentosContabilizadosXCliente(FilterVm filter)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosContabilizadosXCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
 
-                var documentos = await sf.GetDocumentosClienteAdministrador(filter);
+                var documentos = await sf.GetDocumentosClienteAdministrador(filter, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(documentos);
 
@@ -2608,10 +3042,21 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> GetTopDeudores()
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetTopDeudores";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<DeudorApiDTO> retornoDeudores = await sf.GetTopDeudores();
+                List<DeudorApiDTO> retornoDeudores = await sf.GetTopDeudores(logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retornoDeudores);
 
             }
@@ -2632,11 +3077,16 @@ namespace ApiPortal.Controllers
         [HttpGet("GetDeudaVsPagos"), Authorize]
         public async Task<ActionResult> GetDeudaVsPagos()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDeudaVsPagos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<DocumentoContabilizadoAPIDTO> documentos = await sf.GetDocumentosDeudaVsPago();
+                List<DocumentoContabilizadoAPIDTO> documentos = await sf.GetDocumentosDeudaVsPago(logApi.Id);
                 var mesAñoAnterior = new DateTime(DateTime.Now.Year - 1, DateTime.Now.Month, 1);
                 DateTime primerDiaMesActual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                 DateTime ultimoDiaMesActual = primerDiaMesActual.AddMonths(1).AddMilliseconds(-1);
@@ -2702,6 +3152,10 @@ namespace ApiPortal.Controllers
 
                 listaDeuda = listaDeuda.OrderBy(x => x.Fecha).ToList();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(listaDeuda);
             }
             catch (Exception ex)
@@ -2721,17 +3175,25 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClientesByCodAux")]
         public async Task<ActionResult> GetClientesByCodAux(List<ClientesPortalVm> cliente)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClientesByCodAux";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
                 List<ClienteDTO> retorno = new List<ClienteDTO>();
-
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 foreach (var item in cliente)
                 {
-                    var c = await sf.GetClienteSoftlandAsync(item.CodAux, string.Empty);
+                    var c = await sf.GetClienteSoftlandAsync(item.CodAux, string.Empty, logApi.Id);
                     retorno.Add(c);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -2752,6 +3214,13 @@ namespace ApiPortal.Controllers
         [HttpGet("EnviaCorreoComprobante/{idPago}"), Authorize]
         public async Task<ActionResult> EnviaCorreoComprobante(int idPago)
         {
+
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/EnviaCorreoComprobante";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -2782,7 +3251,7 @@ namespace ApiPortal.Controllers
                         string reemplazoDetalle = string.Empty;
 
                         SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                        var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                        var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
                         foreach (var det in pago.PagosDetalles)
                         {
                             var tipoDoc = tiposDocumentos.Where(x => x.CodDoc == det.TipoDocumento).FirstOrDefault();
@@ -2864,7 +3333,9 @@ namespace ApiPortal.Controllers
 
                 }
 
-
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok();
             }
             catch (Exception ex)
@@ -2885,22 +3356,31 @@ namespace ApiPortal.Controllers
         [HttpPost("GetClienteByCodAux")]
         public async Task<ActionResult> GetClienteByCodAux(ClientesPortalVm cliente)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetClienteByCodAux";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             ClienteDTO retorno = new ClienteDTO();
 
             try
             {
                 var clientePortal = _context.ClientesPortals.Where(x => x.CodAux == cliente.CodAux && x.Correo == cliente.Correo).FirstOrDefault();
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                retorno = await sf.GetClienteSoftlandAsync(cliente.CodAux, ""); //FCA 26-06-2022
+                retorno = await sf.GetClienteSoftlandAsync(cliente.CodAux, "", logApi.Id); //FCA 26-06-2022
                 if (clientePortal != null)
                 {
                     retorno.IdCliente = clientePortal.IdCliente;
                 }
 
 
-                List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(cliente.CodAux); //FCA 26-06-2022
+                List<ContactoDTO> contactos = await sf.GetContactosClienteAsync(cliente.CodAux, logApi.Id); //FCA 26-06-2022
                 retorno.Contactos = contactos;
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -2921,6 +3401,13 @@ namespace ApiPortal.Controllers
         public async Task<ActionResult> getPDFEstadoCuenta(EstadoCuentaVm model)
         {
 
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/getPDFEstadoCuenta";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             try
             {
                 Generador genera = new Generador(_context, _webHostEnvironment);
@@ -2929,9 +3416,9 @@ namespace ApiPortal.Controllers
                 PdfEstadoCuentaVm pdf = new PdfEstadoCuentaVm();
                 if (model.IdCobranza != 0)
                 {
-                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
                     var listaDocPendientes = _context.CobranzaDetalles.Where(x => (x.IdEstado == 3 || x.IdEstado == 1 || x.IdEstado == 4) && x.IdCobranza == model.IdCobranza && x.CodAuxCliente == model.CodAux).ToList();
-                    var documentos = await softlandService.GetAllDocumentosContabilizadosCliente(model.CodAux);
+                    var documentos = await softlandService.GetAllDocumentosContabilizadosCliente(model.CodAux, logApi.Id);
 
                     foreach (var item in listaDocPendientes)
                     {
@@ -2992,10 +3479,16 @@ namespace ApiPortal.Controllers
                         pdf.Nombre = "Estado de Cuenta.pdf";
                         pdf.Base64 = base64;
 
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(pdf);
                     }
                     else
                     {
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok("0");
                     }
 
@@ -3020,7 +3513,7 @@ namespace ApiPortal.Controllers
                         fechaDesde = new DateTime((int)automatizacion.Anio, 01, 01, 0, 0, 0);
                     }
 
-                    var documentos = await softlandService.ObtenerDocumentosAutomaizacion((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, model.CodAux, 0);
+                    var documentos = await softlandService.ObtenerDocumentosAutomaizacion((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, model.CodAux, 0, logApi.Id);
 
                     switch (automatizacion.IdAutomatizacion)
                     {
@@ -3076,10 +3569,16 @@ namespace ApiPortal.Controllers
                         pdf.Nombre = "Estado de Cuenta.pdf";
                         pdf.Base64 = base64;
 
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok(pdf);
                     }
                     else
                     {
+                        logApi.Termino = DateTime.Now;
+                        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                        sf.guardarLogApi(logApi);
                         return Ok("0");
                     }
 
@@ -3105,12 +3604,22 @@ namespace ApiPortal.Controllers
         [HttpPost("getPagosDocumento")]
         public async Task<ActionResult> getPagosDocumento(FilterVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/getPagosDocumento";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
 
             try
             {
                 SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
 
-                List<ClienteSaldosDTO> clients = await softlandService.GetPagosDocumento(model);
+                List<ClienteSaldosDTO> clients = await softlandService.GetPagosDocumento(model, logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(clients);
             }

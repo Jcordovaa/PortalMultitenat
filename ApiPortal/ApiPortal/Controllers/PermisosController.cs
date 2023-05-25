@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using ApiPortal.ViewModelsPortal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -25,6 +26,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPermisos"), Authorize]
         public async Task<ActionResult> GetPermisos()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GetPermisos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -40,6 +47,10 @@ namespace ApiPortal.Controllers
                     p.Perfil = new PerfilVm { IdPerfil = item.IdPerfilNavigation.IdPerfil, Nombre = item.IdPerfilNavigation.Nombre, Descripcion = item.IdPerfilNavigation.Descripcion };
                     p.Acceso = new AccesosVm { IdAcceso = item.IdAccesoNavigation.IdAcceso, Nombre = item.IdAccesoNavigation.Nombre, MenuPadre = item.IdAccesoNavigation.MenuPadre, Activo = item.IdAccesoNavigation.Activo };
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(permisos);
             }
@@ -60,6 +71,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPermisoId/{idPermiso}"), Authorize]
         public async Task<ActionResult> GetPermisoId(int idPermiso)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GetPermisoId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -68,6 +85,10 @@ namespace ApiPortal.Controllers
                 {
                     return NotFound();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(permiso);
             }
@@ -88,10 +109,22 @@ namespace ApiPortal.Controllers
         [HttpPut("ActualizaPermisos"), Authorize]
         public async Task<ActionResult> ActualizaPermisos(Permiso permisos)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/ActualizaPermisos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 _context.Entry(permisos).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(permisos);
             }
             catch (Exception ex)
@@ -111,10 +144,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GuardarPermiso"), Authorize]
         public async Task<ActionResult> GuardarPermiso(Permiso permisos)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GuardarPermiso";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 _context.Permisos.Add(permisos);
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(permisos);
             }
@@ -135,6 +179,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetPermisosByPage"), Authorize]
         public async Task<ActionResult> GetPermisosByPage(PaginadorVm pVm)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GetPermisosByPage";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var cantidad = pVm.EndRow - pVm.StartRow;
@@ -172,6 +223,10 @@ namespace ApiPortal.Controllers
                     perm[0].TotalFilas = perm.Count();
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(perm);
             }
             catch (Exception ex)
@@ -191,6 +246,13 @@ namespace ApiPortal.Controllers
         [HttpDelete("EliminaPermisosId/{idPermiso}"), Authorize]
         public async Task<ActionResult> EliminaPermisosId(int idPermiso)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/EliminaPermisosId";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 var permiso = _context.Permisos.Find(idPermiso);
@@ -201,6 +263,10 @@ namespace ApiPortal.Controllers
 
                 _context.Permisos.Remove(permiso);
                 _context.SaveChanges();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(permiso);
             }
@@ -221,6 +287,13 @@ namespace ApiPortal.Controllers
         [HttpGet("GetPermisosByPerfil/{idPerfil}"), Authorize]
         public async Task<ActionResult> GetPermisosByPerfil(int idPerfil)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GetPermisosByPerfil";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var acc = await _context.Accesos.Where(x => x.Activo == 1).ToListAsync();
@@ -250,6 +323,10 @@ namespace ApiPortal.Controllers
                     }
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(accesos);
             }
             catch (Exception ex)
@@ -269,6 +346,13 @@ namespace ApiPortal.Controllers
         [HttpPost("PostPermisosMasivo/{idPerfil}"), Authorize]
         public async Task<ActionResult> PostPermisosMasivo(int idPerfil, List<PermisosVm> permisos)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/PostPermisosMasivo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 var permisosActuales = await _context.Permisos.Where(x => x.IdPerfil == idPerfil).ToListAsync();
@@ -290,6 +374,11 @@ namespace ApiPortal.Controllers
                 }
 
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(permisos);
             }
             catch (Exception ex)
@@ -310,6 +399,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetPermisosByEmail"), Authorize]
         public async Task<ActionResult> GetPermisosByEmail(AuthenticateVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Permisos/GetPermisosByEmail";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 var permisos = new List<Permiso>();
@@ -329,6 +425,10 @@ namespace ApiPortal.Controllers
                     //Perfil 2: Usuario cliente
                     permisos = await _context.Permisos.Where(x => x.IdPerfil == 2).ToListAsync();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(permisos);
             }

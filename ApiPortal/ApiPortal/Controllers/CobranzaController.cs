@@ -34,6 +34,13 @@ namespace ApiPortal.Controllers
 
         private async Task<List<DocumentoClienteCobranzaVm>> GetDocumentosClientes2Async(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetDocumentosClientes2Async";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             List<DocumentoClienteCobranzaVm> retorno = new List<DocumentoClienteCobranzaVm>();
 
             try
@@ -42,9 +49,8 @@ namespace ApiPortal.Controllers
                 MailService mail = new MailService(_context,_webHostEnvironment);
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, model.Estado);
+                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
 
                 //Retorna
 
@@ -65,7 +71,7 @@ namespace ApiPortal.Controllers
 
                     //var cliente = db.ClientesPortal.Where(x => x.Rut == item).FirstOrDefault();
 
-                    var cliente = await sf.GetClienteSoftlandAsync(string.Empty, doc.RutCliente);
+                    var cliente = await sf.GetClienteSoftlandAsync(string.Empty, doc.RutCliente, logApi.Id);
                     if (cliente == null)
                     {
                         doc.Selected = false;
@@ -88,6 +94,7 @@ namespace ApiPortal.Controllers
                         doc.NombreCliente = cliente.Nombre;
                     }
 
+                 
                     retorno.Add(doc);
                 }
 
@@ -106,6 +113,11 @@ namespace ApiPortal.Controllers
                 _context.SaveChanges();
 
             }
+
+            logApi.Termino = DateTime.Now;
+            logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+            sf.guardarLogApi(logApi);
+
             return retorno;
         }
 
@@ -113,6 +125,13 @@ namespace ApiPortal.Controllers
         [HttpPost("SaveCobranza"), Authorize]
         public async Task<ActionResult> SaveCobranza(CobranzaCabeceraVM model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/SaveCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 //INSERTA CABECERA
@@ -191,6 +210,10 @@ namespace ApiPortal.Controllers
 
                 _context.SaveChanges();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(idCabecera);
             }
             catch (Exception ex)
@@ -210,13 +233,20 @@ namespace ApiPortal.Controllers
         [HttpGet("EnviaCobranza"), Authorize]
         public async Task<ActionResult> EnviaCobranza()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/EnviaCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             string estadoLogC = string.Empty;
             LogCobranza lc = new LogCobranza();
             lc.FechaInicio = DateTime.Now;
             lc.Estado = "PROCESANDO";
             _context.LogCobranzas.Add(lc);
             _context.SaveChanges();
-            SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
+
 
             try
             {
@@ -238,7 +268,7 @@ namespace ApiPortal.Controllers
 
 
                 //Obtenemos tipos de documentos
-                var tiposDocumentos = await sf.GetAllTipoDocSoftlandAsync();
+                var tiposDocumentos = await sf.GetAllTipoDocSoftlandAsync(logApi.Id);
 
                 #region COBRANZA CLASICA
                 //Genera envio de cobranzas, la ejecución la realiza algun procedimiento externo
@@ -269,8 +299,8 @@ namespace ApiPortal.Controllers
                     {
                         var docCliente = listaDocPendientes.Where(x => x.RutCliente == al).ToList();
 
-                        var contactos = await sf.GetContactosClienteAsync(docCliente[0].CodAuxCliente);
-                        var cliente = await sf.GetClienteSoftlandAsync(docCliente[0].CodAuxCliente, string.Empty);
+                        var contactos = await sf.GetContactosClienteAsync(docCliente[0].CodAuxCliente, logApi.Id);
+                        var cliente = await sf.GetClienteSoftlandAsync(docCliente[0].CodAuxCliente, string.Empty, logApi.Id);
                         if (item.EnviaTodosCargos == 1)
                         {
 
@@ -425,6 +455,9 @@ namespace ApiPortal.Controllers
                 #endregion
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(1);
             }
@@ -451,6 +484,12 @@ namespace ApiPortal.Controllers
         [HttpPost("GetCobranzaCliente"), Authorize]
         public async Task<ActionResult> GetCobranzaCliente(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetCobranzaCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
             try
             {
                 var tiposDocumentos = _context.TipoPagos.ToList();
@@ -481,6 +520,11 @@ namespace ApiPortal.Controllers
                     retorno.CobranzaDetalle.Add(det);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+
                 return Ok(retorno);
 
             }
@@ -501,11 +545,17 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosPendientes"), Authorize]
         public async Task<ActionResult> GetDocumentosPendientes(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetDocumentosPendientes";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+        
+
             try
             {
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
                 List<DocumentosCobranzaVm> listaDocumentos = new List<DocumentosCobranzaVm>();
-                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento);
+                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, logApi.Id);
 
                 if (!string.IsNullOrEmpty(model.Estado))
                 {
@@ -518,6 +568,10 @@ namespace ApiPortal.Controllers
                         return Ok(listaDocumentos.Where(x => x.Estado == "VENCIDO").ToList());
                     }
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(listaDocumentos);
 
@@ -541,6 +595,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetAnioPagos"), Authorize]
         public async Task<ActionResult> GetAnioPagos()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetAnioPagos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -552,6 +612,10 @@ namespace ApiPortal.Controllers
                 {
                     años.Add(i);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(años);
             }
@@ -572,12 +636,23 @@ namespace ApiPortal.Controllers
         [HttpGet("GetHorariosEnvio"), Authorize]
         public async Task<ActionResult> GetHorariosEnvio()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetHorariosEnvio";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
                 var horarios = _context.CobranzaHorarios.ToList();
 
                 var retorno = new { horarios = horarios };
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -598,6 +673,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosCobranzaFiltro"), Authorize]
         public async Task<ActionResult> GetDocumentosCobranzaFiltro(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetDocumentosCobranzaFiltro";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             if (model == null)
             {
                 return BadRequest();
@@ -605,9 +687,13 @@ namespace ApiPortal.Controllers
 
             try
             {
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, model.Estado);
+                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(documentos);
             }
             catch (Exception ex)
@@ -627,15 +713,21 @@ namespace ApiPortal.Controllers
         [HttpPost("GetDocumentosClientes"), Authorize]
         public async Task<ActionResult> GetDocumentosClientes(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetDocumentosClientes";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 //Obtiene cantidad correos disponibles 
                 MailService mail = new MailService(_context,_webHostEnvironment);
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
-                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, model.Estado);
+                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
 
                 //Retorna
                 List<DocumentoClienteCobranzaVm> retorno = new List<DocumentoClienteCobranzaVm>();
@@ -673,6 +765,10 @@ namespace ApiPortal.Controllers
                     retorno.Add(doc);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -692,6 +788,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetTipoCobranza"), Authorize]
         public async Task<ActionResult> GetTipoCobranza()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetTipoCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -706,6 +808,10 @@ namespace ApiPortal.Controllers
 
                     retorno.Add(tipo);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -726,6 +832,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetEstadosCobranza"), Authorize]
         public async Task<ActionResult> GetEstadosCobranza()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetEstadosCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -741,6 +853,9 @@ namespace ApiPortal.Controllers
                     retorno.Add(c);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -761,6 +876,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetCobranzasTipo"), Authorize]
         public async Task<ActionResult> GetCobranzasTipo(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetCobranzasTipo";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             try
             {
                 List<CobranzaCabeceraVM> retorno = new List<CobranzaCabeceraVM>();
@@ -833,6 +955,10 @@ namespace ApiPortal.Controllers
                     retorno.Add(cob);
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -852,6 +978,13 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCobranzaGraficos/{id}"), Authorize]
         public async Task<ActionResult> GetCobranzaGraficos(int id)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetCobranzaGraficos";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
+
             try
             {
                 CobranzaCabeceraVM retorno = new CobranzaCabeceraVM();
@@ -914,6 +1047,9 @@ namespace ApiPortal.Controllers
                     }
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
 
@@ -937,6 +1073,13 @@ namespace ApiPortal.Controllers
         [HttpPost("GetCobranzasDetalle"), Authorize]
         public async Task<ActionResult> GetCobranzasDetalle(FiltroCobranzaVm model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetCobranzasDetalle";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
+
             try
             {
                 if(model == null)
@@ -944,14 +1087,14 @@ namespace ApiPortal.Controllers
                     return BadRequest();
                 }
                 SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
-                var tiposDocs = await softlandService.GetAllTipoDocSoftlandAsync();
+                var tiposDocs = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
                 List<CobranzaDetalleVm> retorno = new List<CobranzaDetalleVm>();
                 var detalles = _context.CobranzaDetalles.Where(x => x.IdCobranza == model.IdCobranza).ToList();
                 List<DocumentoContabilizadoAPIDTO> documentosActualizados = new List<DocumentoContabilizadoAPIDTO>();
                 var codigosAuxiliares = detalles.GroupBy(x => x.CodAuxCliente).Distinct().ToList();
                 foreach (var item in codigosAuxiliares)
                 {
-                    var documentos = await softlandService.GetAllDocumentosContabilizadosCliente(item.Key);
+                    var documentos = await softlandService.GetAllDocumentosContabilizadosCliente(item.Key, logApi.Id);
                     documentosActualizados.AddRange(documentos);
                 }
 
@@ -1018,6 +1161,9 @@ namespace ApiPortal.Controllers
 
 
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -1038,6 +1184,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetCobranzaPeriocidad"), Authorize]
         public async Task<ActionResult> GetCobranzaPeriocidad()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetCobranzaPeriocidad";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -1053,6 +1205,10 @@ namespace ApiPortal.Controllers
                     pe.Estado = (int)item.Estado;
                     retorno.Add(pe);
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(retorno);
             }
@@ -1073,13 +1229,18 @@ namespace ApiPortal.Controllers
         [HttpGet("GetTiposDocumentosPago"), Authorize]
         public async Task<ActionResult> GetTiposDocumentosPago()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetTiposDocumentosPago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
                 var configuracion = _context.ConfiguracionPagoClientes.FirstOrDefault();
                 var tipoDocumento = new List<TipoDocSoftlandDTO>();
-                SoftlandService sf = new SoftlandService(_context,_webHostEnvironment);
-                List<TipoDocSoftlandDTO> docsSoftland = await sf.GetAllTipoDocSoftlandAsync();
+                List<TipoDocSoftlandDTO> docsSoftland = await sf.GetAllTipoDocSoftlandAsync(logApi.Id);
                 if(!string.IsNullOrEmpty(configuracion.TiposDocumentosDeuda))
                 {
                     foreach (var item in configuracion.TiposDocumentosDeuda.Split(';'))
@@ -1096,8 +1257,11 @@ namespace ApiPortal.Controllers
                 {
                     tipoDocumento.AddRange(docsSoftland);
                 }
-             
 
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(tipoDocumento);
             }
@@ -1118,6 +1282,12 @@ namespace ApiPortal.Controllers
         [HttpGet("GetTiposDocumentosPagoCliente"), Authorize]
         public async Task<ActionResult> GetTiposDocumentosPagoCliente()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetTiposDocumentosPagoCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -1133,6 +1303,9 @@ namespace ApiPortal.Controllers
                     }
                 }
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(tipoDocumento);
             }

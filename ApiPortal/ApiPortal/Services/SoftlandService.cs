@@ -25,7 +25,7 @@ namespace ApiPortal.Services
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
-        public async Task<List<TipoDocSoftlandDTO>> GetAllTipoDocSoftlandAsync()
+        public async Task<List<TipoDocSoftlandDTO>> GetAllTipoDocSoftlandAsync(string logApiId)
         {
             List<TipoDocSoftlandDTO> retorno = new List<TipoDocSoftlandDTO>();
             try
@@ -67,7 +67,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaTiposDeDocumentos";
+
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -123,7 +135,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesSoftlandAsync()
+        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesSoftlandAsync(string logApiId)
         {
             List<CuentasContablesSoftlandDTO> retorno = new List<CuentasContablesSoftlandDTO>();
             try
@@ -163,7 +175,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaPlanDeCuentas";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -220,7 +244,7 @@ namespace ApiPortal.Services
 
         }
 
-        public async Task<List<ContactoDTO>> GetAllContactosAsync(string codAux)
+        public async Task<List<ContactoDTO>> GetAllContactosAsync(string codAux, string logApiId)
         {
             List<ContactoDTO> retorno = new List<ContactoDTO>();
             try
@@ -267,7 +291,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ContactosXauxiliar";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -321,7 +357,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ClienteDTO>> BuscarClienteSoftlandAsync(string codAux, string rut, string nombre)
+        public async Task<List<ClienteDTO>> BuscarClienteSoftlandAsync(string codAux, string rut, string nombre, string logApiId)
         {
             List<ClienteDTO> retorno = new List<ClienteDTO>();
             try
@@ -420,7 +456,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaCliente";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -474,7 +522,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<RegionDTO>> GetRegionesSoftland()
+        public async Task<List<RegionDTO>> GetRegionesSoftland(string logApiId)
         {
             List<RegionDTO> retorno = new List<RegionDTO>();
 
@@ -513,7 +561,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaRegiones";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -569,7 +629,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ComunaDTO>> GetComunasSoftlandAsync()
+        public async Task<List<ComunaDTO>> GetComunasSoftlandAsync(string logApiId)
         {
             List<ComunaDTO> retorno = new List<ComunaDTO>();
 
@@ -609,7 +669,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaComunas";
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -665,7 +737,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<GiroDTO>> GetGirosSoftlandAsync()
+        public async Task<List<GiroDTO>> GetGirosSoftlandAsync(string logApiId)
         {
             List<GiroDTO> item = new List<GiroDTO>();
             try
@@ -703,7 +775,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaGiros";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -758,7 +842,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public async Task<List<CargoDTO>> GetCargosAsync()
+        public async Task<List<CargoDTO>> GetCargosAsync(string logApiId)
         {
             List<CargoDTO> retorno = new List<CargoDTO>();
             try
@@ -799,7 +883,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaCargos";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -847,7 +943,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public List<CentroCostoDTO> GetCentrosCostoActivos()
+        public List<CentroCostoDTO> GetCentrosCostoActivos(string logApiId)
         {
             List<CentroCostoDTO> retorno = new List<CentroCostoDTO>();
             try
@@ -897,7 +993,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public List<AreaNegocioDTO> GetAreaNegocio()
+        public List<AreaNegocioDTO> GetAreaNegocio(string logApiId)
         {
             List<AreaNegocioDTO> retorno = new List<AreaNegocioDTO>();
             try
@@ -945,7 +1041,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<ClienteDTO> GetClienteSoftlandAsync(string codAux, string rut)
+        public async Task<ClienteDTO> GetClienteSoftlandAsync(string codAux, string rut, string logApiId)
         {
             ClienteDTO retorno = new ClienteDTO();
 
@@ -1010,7 +1106,18 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaCliente";
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -1078,7 +1185,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<bool> UpdateAuxiliarPortalPagoAsync(ClienteDTO cliente)
+        public async Task<bool> UpdateAuxiliarPortalPagoAsync(ClienteDTO cliente, string logApiId)
         {
             try
             {
@@ -1128,7 +1235,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ActualizaCliente";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             return true;
@@ -1173,7 +1292,7 @@ namespace ApiPortal.Services
             return true;
         }
 
-        public async Task<List<DocumentosFacturadosDTO>> GetClientesComprasSoftlandAsync(string rutCliente)
+        public async Task<List<DocumentosFacturadosDTO>> GetClientesComprasSoftlandAsync(string rutCliente, string logApiId)
         {
             List<DocumentosFacturadosDTO> retorno = new List<DocumentosFacturadosDTO>();
             try
@@ -1254,7 +1373,19 @@ namespace ApiPortal.Services
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "DocumentosFacturados";
+
+
                             HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
+
                             if (response.IsSuccessStatusCode)
                             {
                                 var content = await response.Content.ReadAsStringAsync();
@@ -1316,7 +1447,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<NotaVentaClienteDTO>> GetNotasVentasPendientesAsync(string codAux)
+        public async Task<List<NotaVentaClienteDTO>> GetNotasVentasPendientesAsync(string codAux, string logApiId)
         {
             List<NotaVentaClienteDTO> retorno = new List<NotaVentaClienteDTO>();
             try
@@ -1374,7 +1505,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "PendientesPorFacturar";
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -1433,7 +1576,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ProductoDTO>> GetProductosCompradosAsync(string codAux)
+        public async Task<List<ProductoDTO>> GetProductosCompradosAsync(string codAux, string logApiId)
         {
             List<ProductoDTO> retorno = new List<ProductoDTO>();
             try
@@ -1498,7 +1641,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ProductosComprados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -1787,7 +1942,7 @@ namespace ApiPortal.Services
             return dtResultado;
         }
 
-        public async Task<DocumentosVm> obtenerXMLDTEAsync(int folio, string codAux, string tipoDoc)
+        public async Task<DocumentosVm> obtenerXMLDTEAsync(int folio, string codAux, string tipoDoc, string logApiId)
         {
 
             DocumentosVm dtResultado = new DocumentosVm();
@@ -1838,7 +1993,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DetalleDocumento";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -1889,7 +2056,7 @@ namespace ApiPortal.Services
             return dtResultado;
         }
 
-        public List<DespachosDTO> GetDespachosDocumento(int folio)
+        public List<DespachosDTO> GetDespachosDocumento(int folio, string logApiId)
         {
             List<DespachosDTO> retorno = new List<DespachosDTO>();
             try
@@ -1961,7 +2128,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DespachosDTO>> GetDepachoDocumentoAPIAsync(int folio, string tipoDoc, string codaux)
+        public async Task<List<DespachosDTO>> GetDepachoDocumentoAPIAsync(int folio, string tipoDoc, string codaux, string logApiId)
         {
             List<DespachosDTO> retorno = new List<DespachosDTO>();
             try
@@ -1970,20 +2137,32 @@ namespace ApiPortal.Services
                 {
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
-                    string url = api.Url + api.DespachoDeDocumento.Replace("{TIPO}", tipoDoc.Substring(0,1)).Replace("{FOLIO}", folio.ToString()).Replace("{CODAUX}", codaux).Replace("{AREADATOS}", api.AreaDatos);
+                    string url = api.Url + api.DespachoDeDocumento.Replace("{TIPO}", tipoDoc.Substring(0, 1)).Replace("{FOLIO}", folio.ToString()).Replace("{CODAUX}", codaux).Replace("{AREADATOS}", api.AreaDatos);
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DespachoDeDocumento";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         List<List<DespachoAPIDTO>> listaDespachos = JsonConvert.DeserializeObject<List<List<DespachoAPIDTO>>>(content);
 
 
-                        var documentoOriginal = await this.obtenerDocumentoAPI(folio, tipoDoc, codaux);
+                        var documentoOriginal = await this.obtenerDocumentoAPI(folio, tipoDoc, codaux, logApiId);
                         foreach (var detalleDespacho in listaDespachos[1])
                         {
                             DespachosDTO item = new DespachosDTO();
@@ -2051,7 +2230,7 @@ namespace ApiPortal.Services
 
         }
 
-        public List<DespachoDetalleDTO> GetDetalleDespacho(int nroInt)
+        public List<DespachoDetalleDTO> GetDetalleDespacho(int nroInt, string logApiId)
         {
             List<DespachoDetalleDTO> retorno = new List<DespachoDetalleDTO>();
             try
@@ -2098,7 +2277,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ContactoDTO>> GetContactosClienteAsync(string codaux)
+        public async Task<List<ContactoDTO>> GetContactosClienteAsync(string codaux, string logApiId)
         {
             List<ContactoDTO> retorno = new List<ContactoDTO>();
 
@@ -2142,7 +2321,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ContactosXauxiliar";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -2197,7 +2388,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<NotaVentaClienteDTO> GetNotaVentaAsync(int nvNumero, string codAux)
+        public async Task<NotaVentaClienteDTO> GetNotaVentaAsync(int nvNumero, string codAux, string logApiId)
         {
             NotaVentaClienteDTO item = new NotaVentaClienteDTO();
             try
@@ -2261,7 +2452,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "PendientesPorFacturar";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -2327,7 +2530,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public async Task<List<NotaVentaDetalleDTO>> GetNotaVentaDetalleAsync(int nvNumero)
+        public async Task<List<NotaVentaDetalleDTO>> GetNotaVentaDetalleAsync(int nvNumero, string logApiId)
         {
             List<NotaVentaDetalleDTO> retorno = new List<NotaVentaDetalleDTO>();
             try
@@ -2370,7 +2573,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DetalleNotaDeVenta";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -2428,7 +2643,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ClienteSaldosDTO>> GetClienteEstadoCuentaAsync(string codaux)
+        public async Task<List<ClienteSaldosDTO>> GetClienteEstadoCuentaAsync(string codaux, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             string tablaTemporal = string.Empty;
@@ -2583,7 +2798,7 @@ namespace ApiPortal.Services
                     using (var client = new HttpClient())
                     {
 
-                        var monedas = await this.GetMonedasAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
@@ -2604,7 +2819,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
 
@@ -2629,7 +2856,19 @@ namespace ApiPortal.Services
                                         client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                         client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "DocumentosContabilizados";
+
+
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
+
                                         if (response.IsSuccessStatusCode)
                                         {
                                             var content2 = await response2.Content.ReadAsStringAsync();
@@ -2736,7 +2975,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<bool> verificaEstadoConexionSoftlandAsync()
+        public async Task<bool> verificaEstadoConexionSoftlandAsync(string logApiId)
         {
             bool conexionExitosa = false;
             try
@@ -2760,7 +2999,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneModulos";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             conexionExitosa = true;
@@ -2799,7 +3050,7 @@ namespace ApiPortal.Services
             return conexionExitosa;
         }
 
-        public async Task<string> GeneraComprobantesContablesAsync(int idPago, string codigoAutorizacionPasarela)
+        public async Task<string> GeneraComprobantesContablesAsync(int idPago, string codigoAutorizacionPasarela, string logApiId)
         {
             string numeroComprobante = string.Empty;
 
@@ -2876,7 +3127,7 @@ namespace ApiPortal.Services
                             string reemplazoDetalle = string.Empty;
 
                             SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
-                            var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                            var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApiId);
                             foreach (var det in item.PagosDetalles)
                             {
                                 var tipoDoc = tiposDocumentos.Where(x => x.CodDoc == det.TipoDocumento).FirstOrDefault();
@@ -3005,8 +3256,18 @@ namespace ApiPortal.Services
                             multipart.Add(new StringContent(jsonString), "vJson");
                             multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
 
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "ContabilizaPagos";
+
 
                             HttpResponseMessage response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
+
 
                             if (response.IsSuccessStatusCode)
                             {
@@ -3125,14 +3386,14 @@ namespace ApiPortal.Services
                     {
                         mail.EnviarCorreosAsync(vm2);
                     }
-                    
+
                 }
 
             }
             return numeroComprobante;
         }
 
-        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosVencidosAsync(FilterVm filter)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosVencidosAsync(FilterVm filter, string logApiId)
         {
             List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             string tablaTemporal = string.Empty;
@@ -3140,7 +3401,7 @@ namespace ApiPortal.Services
             {
                 if (utilizaApiSoftland == "false")
                 {
-                   
+
                 }
                 else //FCA 16-06-2022
                 {
@@ -3166,7 +3427,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -3217,14 +3490,14 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPorVencerAsync(FilterVm filter)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPorVencerAsync(FilterVm filter, string logApiId)
         {
             List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             string tablaTemporal = string.Empty;
             try
             {
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
-                { 
+                {
 
                 }
                 else //FCA 16-06-2022
@@ -3251,7 +3524,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -3301,7 +3586,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPendientesAsync(FilterVm filter)
+        public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosPendientesAsync(FilterVm filter, string logApiId)
         {
             List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             try
@@ -3327,7 +3612,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocumentosContabilizados";
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -3355,7 +3652,7 @@ namespace ApiPortal.Services
                 }
             }
             catch (Exception e)
-            {              
+            {
                 LogProceso log = new LogProceso
                 {
                     Excepcion = e.ToString(),
@@ -3371,7 +3668,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetAllDocumentosContabilizadosAsync(string codAux)
+        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetAllDocumentosContabilizadosAsync(string codAux, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             string tablaTemporal = string.Empty;
@@ -3529,7 +3826,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
@@ -3541,7 +3838,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var configPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
@@ -3643,7 +3952,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<ComprasSoftlandDTO>> GetTopComprasAsync(string codAux, int top)
+        public async System.Threading.Tasks.Task<List<ComprasSoftlandDTO>> GetTopComprasAsync(string codAux, int top, string logApiId)
         {
             List<ComprasSoftlandDTO> item = new List<ComprasSoftlandDTO>();
             try
@@ -3699,7 +4008,19 @@ namespace ApiPortal.Services
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "DocumentosFacturados";
+
+
                             HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
+
                             if (response.IsSuccessStatusCode)
                             {
                                 var content = await response.Content.ReadAsStringAsync();
@@ -3760,7 +4081,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public async System.Threading.Tasks.Task<bool> GetEstadoBloqueoClienteAsync(string codAux) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<bool> GetEstadoBloqueoClienteAsync(string codAux, string logApiId) //FCA 16-06-2022
         {
             Boolean estado = false;
             try
@@ -3803,7 +4124,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ResumenContable";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -3857,7 +4190,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene vendedores de softland
-        public async Task<List<VendedorDTO>> GetVenedoresSoftlandAsync()
+        public async Task<List<VendedorDTO>> GetVenedoresSoftlandAsync(string logApiId)
         {
             List<VendedorDTO> item = new List<VendedorDTO>();
             try
@@ -3898,7 +4231,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneVendedores";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -3952,7 +4297,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene categorias de clientes de softland
-        public async Task<List<CategoriaClienteDTO>> GetCategoriasClienteAsync()
+        public async Task<List<CategoriaClienteDTO>> GetCategoriasClienteAsync(string logApiId)
         {
             List<CategoriaClienteDTO> item = new List<CategoriaClienteDTO>();
             try
@@ -3990,7 +4335,18 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneCategoriaClientes";
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -4043,7 +4399,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene condiciones de venta de softland
-        public async Task<List<CondicionVentaDTO>> GetCondVentaAsync()
+        public async Task<List<CondicionVentaDTO>> GetCondVentaAsync(string logApiId)
         {
             List<CondicionVentaDTO> item = new List<CondicionVentaDTO>();
             try
@@ -4083,7 +4439,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneCondicionesVenta";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -4137,7 +4505,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene  listas de precio de softland
-        public async Task<List<ListaPrecioDTO>> GetListPrecioAsync()
+        public async Task<List<ListaPrecioDTO>> GetListPrecioAsync(string logApiId)
         {
             List<ListaPrecioDTO> item = new List<ListaPrecioDTO>();
             try
@@ -4175,7 +4543,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneListasPrecio";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -4228,7 +4608,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene  codigo de moneda de softland
-        public async Task<List<MonedaDTO>> GetMonedasAsync()
+        public async Task<List<MonedaDTO>> GetMonedasAsync(string logApiId)
         {
             List<MonedaDTO> item = new List<MonedaDTO>();
             try
@@ -4266,7 +4646,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaMonedas";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -4314,7 +4706,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public List<CanalVentaDTO> GetCanalesVenta()
+        public List<CanalVentaDTO> GetCanalesVenta(string logApiId)
         {
             List<CanalVentaDTO> item = new List<CanalVentaDTO>();
             try
@@ -4356,7 +4748,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public List<CobradorDTO> GetCobradores()
+        public List<CobradorDTO> GetCobradores(string logApiId)
         {
             List<CobradorDTO> item = new List<CobradorDTO>();
             try
@@ -4398,7 +4790,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public async Task<List<ClienteAPIDTO>> BuscarClienteSoftlandAccesosAsync(string codAux, string rut, string nombre, string vendedor, string condicionVenta, string categoriaCliente, string listaPrecio, int cantidad, Nullable<int> pagina)
+        public async Task<List<ClienteAPIDTO>> BuscarClienteSoftlandAccesosAsync(string codAux, string rut, string nombre, string vendedor, string condicionVenta, string categoriaCliente, string listaPrecio, int cantidad, Nullable<int> pagina, string logApiId)
         {
             List<ClienteAPIDTO> retorno = new List<ClienteAPIDTO>();
             try
@@ -4478,7 +4870,19 @@ namespace ApiPortal.Services
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "ConsultaCliente";
+
+
                             HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
+
                             if (response.IsSuccessStatusCode)
                             {
                                 var content = await response.Content.ReadAsStringAsync();
@@ -4517,7 +4921,19 @@ namespace ApiPortal.Services
                             client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "ConsultaCliente";
+
+
                             HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
+
                             if (response.IsSuccessStatusCode)
                             {
                                 var content = await response.Content.ReadAsStringAsync();
@@ -4539,7 +4955,19 @@ namespace ApiPortal.Services
                                             client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                             client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                            LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                            logApiDetalle2.IdLogApi = logApiId;
+                                            logApiDetalle2.Inicio = DateTime.Now;
+                                            logApiDetalle2.Metodo = "ConsultaCliente";
+
+
                                             HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+
+                                            logApiDetalle2.Termino = DateTime.Now;
+                                            logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                            this.guardarDetalleLogApi(logApiDetalle2);
+
                                             if (response2.IsSuccessStatusCode)
                                             {
                                                 var content2 = await response2.Content.ReadAsStringAsync();
@@ -4611,7 +5039,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 25-08-2021 Obtiene descripcion documento  de softland
-        public string GetDescDocumento(string codigo)
+        public string GetDescDocumento(string codigo, string logApiId)
         {
             string retorno = string.Empty;
             List<MonedaDTO> item = new List<MonedaDTO>();
@@ -4653,7 +5081,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 05-07-2022
-        public CabeceraDocumentoDTO obtenerCabecera(int folio, string tipoDoc, string codAux)
+        public CabeceraDocumentoDTO obtenerCabecera(int folio, string tipoDoc, string codAux, string logApiId)
         {
             CabeceraDocumentoDTO dtResultado = new CabeceraDocumentoDTO();
             try
@@ -4746,7 +5174,7 @@ namespace ApiPortal.Services
             return dtResultado;
         }
 
-        public List<DetalleDocumentoDTO> obtenerDetalle(int folio, string tipoDoc, string codAux) //FCA 05-07-2022
+        public List<DetalleDocumentoDTO> obtenerDetalle(int folio, string tipoDoc, string codAux, string logApiId) //FCA 05-07-2022
         {
             List<DetalleDocumentoDTO> dtResultado = new List<DetalleDocumentoDTO>(); //FCA 05-07-2022
             try
@@ -4819,7 +5247,7 @@ namespace ApiPortal.Services
         }
 
         //fca 05-07-2022
-        public async System.Threading.Tasks.Task<DocumentoDTO> obtenerDocumentoAPI(int folio, string tipoDoc, string codAux) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<DocumentoDTO> obtenerDocumentoAPI(int folio, string tipoDoc, string codAux, string logApiId) //FCA 16-06-2022
         {
             DocumentoDTO doc = new DocumentoDTO();
             CabeceraDocumentoDTO cab = new CabeceraDocumentoDTO();
@@ -4837,7 +5265,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DetalleDocumento";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -4933,7 +5373,7 @@ namespace ApiPortal.Services
             return doc;
         }
 
-        public async System.Threading.Tasks.Task<string> obtenerPDFDocumento(int folio, string tipoDoc) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<string> obtenerPDFDocumento(int folio, string tipoDoc, string logApiId) //FCA 16-06-2022
         {
             string base64 = string.Empty;
             try
@@ -4949,7 +5389,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "ObtenerPdfDocumento";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -4992,7 +5444,7 @@ namespace ApiPortal.Services
             return base64;
         }
 
-        public async System.Threading.Tasks.Task<ResumenContableDTO> obtenerResumenContable(string codAux) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<ResumenContableDTO> obtenerResumenContable(string codAux, string logApiId) //FCA 16-06-2022
         {
             ResumenContableDTO resumen = new ResumenContableDTO();
             try
@@ -5009,7 +5461,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "ResumenContable";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -5051,7 +5515,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 06-07-2022 OBTIENE DOCUMENTOS FACTURADOS PARA RDASHBOARD
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosDashboard(string codAux) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosDashboard(string codAux, string logApiId) //FCA 16-06-2022
         {
             List<ClienteSaldosDTO> documentos = new List<ClienteSaldosDTO>();
             try
@@ -5067,7 +5531,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocumentosFacturados";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -5108,7 +5584,7 @@ namespace ApiPortal.Services
             return documentos;
         }
 
-        public async System.Threading.Tasks.Task<string> obtenerPDFDocumentoNv(string nvNumero, string codaux) //FCA 16-06-2022
+        public async System.Threading.Tasks.Task<string> obtenerPDFDocumentoNv(string nvNumero, string codaux, string logApiId) //FCA 16-06-2022
         {
             string base64 = string.Empty;
             try
@@ -5124,7 +5600,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "ObtenerPdf";
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
+
                     if (response.IsSuccessStatusCode)
                     {
                         base64 = await response.Content.ReadAsStringAsync();
@@ -5165,7 +5653,7 @@ namespace ApiPortal.Services
             return base64;
         }
 
-        public async System.Threading.Tasks.Task<List<GuiaDespachoDTO>> GetGuiasPendientes(string codaux)
+        public async System.Threading.Tasks.Task<List<GuiaDespachoDTO>> GetGuiasPendientes(string codaux, string logApiId)
         {
             List<GuiaDespachoDTO> retorno = new List<GuiaDespachoDTO>();
             try
@@ -5187,7 +5675,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ObtieneGuiasPendientes";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -5244,7 +5744,7 @@ namespace ApiPortal.Services
         }
 
         #region METODOS COBRANZA AUTOMATICA
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, int diasVencimiento, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes, string canalesVenta, string cobradores, string estadoTipoCobranza = "")
+        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, int diasVencimiento, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes, string canalesVenta, string cobradores, string logApiId, string estadoTipoCobranza = "")
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
 
@@ -5594,8 +6094,8 @@ namespace ApiPortal.Services
                     {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                        var monedas = await this.GetMonedasAsync();
-                        var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
+                        var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync(logApiId);
                         //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var fechaActual = DateTime.Now;
                         string fecha = string.Empty;
@@ -5622,7 +6122,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -5645,7 +6157,19 @@ namespace ApiPortal.Services
                                         client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                         client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "ConsultaTiposDeDocumentos";
+
+
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
+
                                         if (response2.IsSuccessStatusCode)
                                         {
                                             var content2 = await response2.Content.ReadAsStringAsync();
@@ -5735,7 +6259,19 @@ namespace ApiPortal.Services
                                     client3.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                     client3.DefaultRequestHeaders.Add("SApiKey", accesToken); //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                    LogApiDetalle logApiDetalle3 = new LogApiDetalle();
+                                    logApiDetalle3.IdLogApi = logApiId;
+                                    logApiDetalle3.Inicio = DateTime.Now;
+                                    logApiDetalle3.Metodo = "ConsultaCliente";
+
+
                                     HttpResponseMessage response3 = await client3.GetAsync(client3.BaseAddress);
+
+                                    logApiDetalle3.Termino = DateTime.Now;
+                                    logApiDetalle3.Segundos = (int?)Math.Round((logApiDetalle3.Termino - logApiDetalle3.Inicio).Value.TotalSeconds);
+                                    this.guardarDetalleLogApi(logApiDetalle3);
+
                                     if (response3.IsSuccessStatusCode)
                                     {
                                         var content3 = await response3.Content.ReadAsStringAsync();
@@ -5873,7 +6409,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento)
+        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
 
@@ -6007,8 +6543,8 @@ namespace ApiPortal.Services
                     {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                        var monedas = await this.GetMonedasAsync();
-                        var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
+                        var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync(logApiId);
                         //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var fechaActual = new DateTime();
                         string fecha = string.Empty;
@@ -6035,7 +6571,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -6058,7 +6606,19 @@ namespace ApiPortal.Services
                                         client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                         client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "DocumentosContabilizados";
+
+
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
+
                                         if (response2.IsSuccessStatusCode)
                                         {
                                             var content2 = await response2.Content.ReadAsStringAsync();
@@ -6116,7 +6676,19 @@ namespace ApiPortal.Services
                                     //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                     client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
                                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                    LogApiDetalle logApiDetalle3 = new LogApiDetalle();
+                                    logApiDetalle3.IdLogApi = logApiId;
+                                    logApiDetalle3.Inicio = DateTime.Now;
+                                    logApiDetalle3.Metodo = "ConsultaTiposDeDocumentos";
+
+
                                     HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+
+                                    logApiDetalle3.Termino = DateTime.Now;
+                                    logApiDetalle3.Segundos = (int?)Math.Round((logApiDetalle3.Termino - logApiDetalle3.Inicio).Value.TotalSeconds);
+                                    this.guardarDetalleLogApi(logApiDetalle3);
+
                                     if (response2.IsSuccessStatusCode)
                                     {
                                         var content2 = await response2.Content.ReadAsStringAsync();
@@ -6207,7 +6779,7 @@ namespace ApiPortal.Services
 
 
 
-        public async Task<List<ClientesPortal>> GetClientesSoftlandFiltrosAsync(FilterVm filtros)
+        public async Task<List<ClientesPortal>> GetClientesSoftlandFiltrosAsync(FilterVm filtros, string logApiId)
         {
             List<ClientesPortal> retorno = new List<ClientesPortal>();
             try
@@ -6337,7 +6909,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaCliente";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -6357,7 +6941,18 @@ namespace ApiPortal.Services
                                         client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                         client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
                                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "ConsultaTiposDeDocumentos";
+
+
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
 
                                         if (response2.IsSuccessStatusCode)
                                         {
@@ -6438,7 +7033,7 @@ namespace ApiPortal.Services
         }
         #endregion
 
-        public async Task<List<ClienteSaldosDTO>> GetDocumentosDashboardAdminAsync(string codAux, int estado)
+        public async Task<List<ClienteSaldosDTO>> GetDocumentosDashboardAdminAsync(string codAux, int estado, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             try
@@ -6531,7 +7126,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var api = _context.ApiSoftlands.FirstOrDefault();
@@ -6552,7 +7147,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -6657,14 +7264,14 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DocumentoContabilizadoAPIDTO>> GetAllDocumentosContabilizadosCliente(string codAux)
+        public async Task<List<DocumentoContabilizadoAPIDTO>> GetAllDocumentosContabilizadosCliente(string codAux, string logApiId)
         {
             List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             try
             {
                 using (var client = new HttpClient())
                 {
-                    var monedas = await this.GetMonedasAsync();
+                    var monedas = await this.GetMonedasAsync(logApiId);
                     var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                     var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                     var api = _context.ApiSoftlands.FirstOrDefault();
@@ -6684,7 +7291,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -6709,7 +7328,19 @@ namespace ApiPortal.Services
                                     client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                     client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                    LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                    logApiDetalle2.IdLogApi = logApiId;
+                                    logApiDetalle2.Inicio = DateTime.Now;
+                                    logApiDetalle2.Metodo = "DocumentosContabilizados";
+
+
                                     HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                    logApiDetalle2.Termino = DateTime.Now;
+                                    logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                    this.guardarDetalleLogApi(logApiDetalle2);
+
                                     if (response2.IsSuccessStatusCode)
                                     {
                                         var content2 = await response2.Content.ReadAsStringAsync();
@@ -6772,7 +7403,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<ClienteSaldosDTO>> GetDocumentosDeudores(string codAux, int estado)
+        public async Task<List<ClienteSaldosDTO>> GetDocumentosDeudores(string codAux, int estado, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             try
@@ -6865,7 +7496,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var api = _context.ApiSoftlands.FirstOrDefault();
@@ -6886,7 +7517,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -6992,7 +7635,7 @@ namespace ApiPortal.Services
         }
 
         //FCA 19-08-2021 Obtiene vendedores de softland
-        public async Task<List<ModulosAPIDTO>> GetModulosSoftlandAsync(int logApiId)
+        public async Task<List<ModulosAPIDTO>> GetModulosSoftlandAsync(string logApiId)
         {
             List<ModulosAPIDTO> item = new List<ModulosAPIDTO>();
             try
@@ -7015,12 +7658,13 @@ namespace ApiPortal.Services
                     logApiDetalle.Metodo = "ObtieneModulos";
 
 
-                   
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
                     logApiDetalle.Termino = DateTime.Now;
                     logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
-                    _context.LogApiDetalles.Add(logApiDetalle);
-                    _context.SaveChanges();
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -7060,7 +7704,7 @@ namespace ApiPortal.Services
             return item;
         }
 
-        public async Task<string> ReprocesaPago(int idPago)
+        public async Task<string> ReprocesaPago(int idPago, string logApiId)
         {
 
             string numComprobante = string.Empty;
@@ -7124,8 +7768,17 @@ namespace ApiPortal.Services
                             multipart.Add(new StringContent(jsonString), "vJson");
                             multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
 
+                            LogApiDetalle logApiDetalle = new LogApiDetalle();
+                            logApiDetalle.IdLogApi = logApiId;
+                            logApiDetalle.Inicio = DateTime.Now;
+                            logApiDetalle.Metodo = "ContabilizaPagos";
+
 
                             HttpResponseMessage response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
+
+                            logApiDetalle.Termino = DateTime.Now;
+                            logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle);
 
                             if (response.IsSuccessStatusCode)
                             {
@@ -7169,7 +7822,7 @@ namespace ApiPortal.Services
                                         string reemplazoDetalle = string.Empty;
 
                                         SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
-                                        var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync();
+                                        var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApiId);
                                         foreach (var det in pago.PagosDetalles)
                                         {
                                             var tipoDoc = tiposDocumentos.Where(x => x.CodDoc == det.TipoDocumento).FirstOrDefault();
@@ -7329,7 +7982,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<DashboardDocumentosVm> GetMontosDashboardAdmin(string codAux, int logApiId)
+        public async Task<DashboardDocumentosVm> GetMontosDashboardAdmin(string codAux, string logApiId)
         {
             DashboardDocumentosVm retorno = new DashboardDocumentosVm();
             try
@@ -7360,18 +8013,18 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                        LogApiDetalle logApiDetalle = new LogApiDetalle();
 
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
                         logApiDetalle.IdLogApi = logApiId;
                         logApiDetalle.Inicio = DateTime.Now;
                         logApiDetalle.Metodo = "DocumentosContabilizadosResumen";
+
 
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
 
                         logApiDetalle.Termino = DateTime.Now;
                         logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
-                        _context.LogApiDetalles.Add(logApiDetalle);
-                        _context.SaveChanges();
+                        this.guardarDetalleLogApi(logApiDetalle);
 
                         if (response.IsSuccessStatusCode)
                         {
@@ -7415,7 +8068,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<List<DeudorApiDTO>> GetTopDeudores()
+        public async Task<List<DeudorApiDTO>> GetTopDeudores(string logApiId)
         {
             List<DeudorApiDTO> retorno = new List<DeudorApiDTO>();
             try
@@ -7429,7 +8082,6 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        var monedas = await this.GetMonedasAsync();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "0101";
                         var api = _context.ApiSoftlands.FirstOrDefault();
@@ -7444,7 +8096,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "TopDeudores";
+
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -7486,7 +8150,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosDeudaVsPago()
+        public async Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosDeudaVsPago(string logApiId)
         {
             List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
             try
@@ -7563,7 +8227,6 @@ namespace ApiPortal.Services
                 else //FCA 16-06-2022
                 {
 
-                    var monedas = await this.GetMonedasAsync();
                     var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                     int anio = DateTime.Now.Date.Year - 2;
 
@@ -7579,71 +8242,95 @@ namespace ApiPortal.Services
                     int cantidad = 100;
                     int pagina = 1;
 
-                        using (var client = new HttpClient())
+                    using (var client = new HttpClient())
+                    {
+                        var fecha = configPortal.AnioTributario + "-01-01";
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                       .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizados";
+
+
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
+                        if (response.IsSuccessStatusCode)
                         {
-                            var fecha = configPortal.AnioTributario + "-01-01";
-                            string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                           .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
 
-
-                            client.BaseAddress = new Uri(url);
-                            client.DefaultRequestHeaders.Accept.Clear();
-                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                            client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                            HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
-                            if (response.IsSuccessStatusCode)
+                            if (documentos[0].Count > 0)
                             {
-                                var content = await response.Content.ReadAsStringAsync();
-                                List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+                                pagina = pagina + 1;
 
-                                if (documentos[0].Count > 0)
+                                while (documentos[0].Count < documentos[0][0].total)
                                 {
-                                    pagina = pagina + 1;
-
-                                    while (documentos[0].Count < documentos[0][0].total)
+                                    using (var client2 = new HttpClient())
                                     {
-                                        using (var client2 = new HttpClient())
+
+                                        string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+
+                                        client2.BaseAddress = new Uri(url3);
+                                        client2.DefaultRequestHeaders.Accept.Clear();
+                                        client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "DocumentosContabilizados";
+                                       
+
+                                        HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
+
+                                        if (response2.IsSuccessStatusCode)
                                         {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
 
-                                            string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                                .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
-
-                                            client2.BaseAddress = new Uri(url3);
-                                            client2.DefaultRequestHeaders.Accept.Clear();
-                                            client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                                            client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                                            HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
-                                            if (response2.IsSuccessStatusCode)
-                                            {
-                                                var content2 = await response2.Content.ReadAsStringAsync();
-                                                List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
-
-                                                documentos[0].AddRange(documentos2[0]);
-                                                pagina = pagina + 1;
-                                            }
-                                            else
-                                            {
-                                                var content2 = await response2.Content.ReadAsStringAsync();
-                                                LogProceso log = new LogProceso
-                                                {
-                                                    Excepcion = response.StatusCode.ToString(),
-                                                    Fecha = DateTime.Now.Date,
-                                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
-                                                    Mensaje = content2,
-                                                    Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
-                                                };
-                                                _context.LogProcesos.Add(log);
-                                                _context.SaveChanges();
-                                                break;
-                                            }
-
+                                            documentos[0].AddRange(documentos2[0]);
+                                            pagina = pagina + 1;
                                         }
+                                        else
+                                        {
+                                            var content2 = await response2.Content.ReadAsStringAsync();
+                                            LogProceso log = new LogProceso
+                                            {
+                                                Excepcion = response.StatusCode.ToString(),
+                                                Fecha = DateTime.Now.Date,
+                                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                                Mensaje = content2,
+                                                Ruta = "SoftlandService/GetDocumentosDeudaVsPago"
+                                            };
+                                            _context.LogProcesos.Add(log);
+                                            _context.SaveChanges();
+                                            break;
+                                        }
+
                                     }
-                                    documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                                    retorno.AddRange(documentos[0]);
                                 }
+                                documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                                retorno.AddRange(documentos[0]);
+                            }
                             else
                             {
                                 var content2 = await response.Content.ReadAsStringAsync();
@@ -7682,7 +8369,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async System.Threading.Tasks.Task<List<ResumenDocumentosClienteApiDTO>> GetResumenDocumentosXClienteAsync(FilterVm filter)
+        public async System.Threading.Tasks.Task<List<ResumenDocumentosClienteApiDTO>> GetResumenDocumentosXClienteAsync(FilterVm filter, string logApiId)
         {
 
             List<ResumenDocumentosClienteApiDTO> retorno = new List<ResumenDocumentosClienteApiDTO>();
@@ -7725,7 +8412,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocContabilizadosResumenxRut";
+                   
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -7769,7 +8468,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosClienteAdministrador(FilterVm filter)
+        public async System.Threading.Tasks.Task<List<ClienteSaldosDTO>> GetDocumentosClienteAdministrador(FilterVm filter, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             try
@@ -7811,7 +8510,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocumentosContabilizados";
+                  
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -7888,7 +8599,7 @@ namespace ApiPortal.Services
 
 
 
-        public async Task<List<ClienteDTO>> BuscarClienteSoftland2Async(string codAux, string rut, string nombre)
+        public async Task<List<ClienteDTO>> BuscarClienteSoftland2Async(string codAux, string rut, string nombre, string logApiId)
         {
             List<ClienteDTO> retorno = new List<ClienteDTO>();
             try
@@ -7998,7 +8709,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "ConsultaCliente";
+                        
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
@@ -8039,7 +8762,19 @@ namespace ApiPortal.Services
                                     clientWhile.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                     clientWhile.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                    LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                    logApiDetalle2.IdLogApi = logApiId;
+                                    logApiDetalle2.Inicio = DateTime.Now;
+                                    logApiDetalle2.Metodo = "ConsultaCliente";
+                                    
+
                                     HttpResponseMessage responseWhile = await clientWhile.GetAsync(clientWhile.BaseAddress);
+
+                                    logApiDetalle2.Termino = DateTime.Now;
+                                    logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                    this.guardarDetalleLogApi(logApiDetalle2);
+
                                     if (responseWhile.IsSuccessStatusCode)
                                     {
                                         var contentWhile = await responseWhile.Content.ReadAsStringAsync();
@@ -8124,7 +8859,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string codAux, Nullable<int> numDoc)
+        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string codAux, Nullable<int> numDoc, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
             try
@@ -8134,8 +8869,8 @@ namespace ApiPortal.Services
                 {
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                    var monedas = await this.GetMonedasAsync();
-                    var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync();
+                    var monedas = await this.GetMonedasAsync(logApiId);
+                    var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync(logApiId);
                     //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                     var fechaActual = new DateTime();
                     string fecha = string.Empty;
@@ -8163,7 +8898,19 @@ namespace ApiPortal.Services
                     client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                     client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    LogApiDetalle logApiDetalle = new LogApiDetalle();
+                    logApiDetalle.IdLogApi = logApiId;
+                    logApiDetalle.Inicio = DateTime.Now;
+                    logApiDetalle.Metodo = "DocumentosContabilizados";
+                    
+
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    logApiDetalle.Termino = DateTime.Now;
+                    logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                    this.guardarDetalleLogApi(logApiDetalle);
+
                     if (response.IsSuccessStatusCode)
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -8186,7 +8933,19 @@ namespace ApiPortal.Services
                                     client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                     client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                     System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                    LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                    logApiDetalle2.IdLogApi = logApiId;
+                                    logApiDetalle2.Inicio = DateTime.Now;
+                                    logApiDetalle2.Metodo = "DocumentosContabilizados";
+                                    
+
                                     HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                    logApiDetalle2.Termino = DateTime.Now;
+                                    logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                    this.guardarDetalleLogApi(logApiDetalle2);
+
                                     if (response2.IsSuccessStatusCode)
                                     {
                                         var content2 = await response2.Content.ReadAsStringAsync();
@@ -8218,7 +8977,7 @@ namespace ApiPortal.Services
                                 documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
                             }
 
-                           // documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
+                            // documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
                             if (fechaHasta != null)
                             {
                                 documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
@@ -8239,7 +8998,19 @@ namespace ApiPortal.Services
                             //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                             client2.DefaultRequestHeaders.Add("SApiKey", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                            LogApiDetalle logApiDetalle3 = new LogApiDetalle();
+                            logApiDetalle3.IdLogApi = logApiId;
+                            logApiDetalle3.Inicio = DateTime.Now;
+                            logApiDetalle3.Metodo = "ConsultaTiposDeDocumentos";
+                            
+
                             HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
+
+                            logApiDetalle3.Termino = DateTime.Now;
+                            logApiDetalle3.Segundos = (int?)Math.Round((logApiDetalle3.Termino - logApiDetalle3.Inicio).Value.TotalSeconds);
+                            this.guardarDetalleLogApi(logApiDetalle3);
+
                             if (response2.IsSuccessStatusCode)
                             {
                                 var content2 = await response2.Content.ReadAsStringAsync();
@@ -8324,7 +9095,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<List<ClienteSaldosDTO>> GetPagosDocumento(FilterVm filter)
+        public async Task<List<ClienteSaldosDTO>> GetPagosDocumento(FilterVm filter, string logApiId)
         {
             List<ClienteSaldosDTO> retorno = new List<ClienteSaldosDTO>();
             string tablaTemporal = string.Empty;
@@ -8339,7 +9110,7 @@ namespace ApiPortal.Services
                     using (var client = new HttpClient())
                     {
 
-                        var monedas = await this.GetMonedasAsync();
+                        var monedas = await this.GetMonedasAsync(logApiId);
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
@@ -8370,7 +9141,19 @@ namespace ApiPortal.Services
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                         client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "PagosxDocumento";
+                        
+
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
                         if (response.IsSuccessStatusCode)
                         {
 
@@ -8394,7 +9177,19 @@ namespace ApiPortal.Services
                                         client2.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                         client2.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                                         System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        LogApiDetalle logApiDetalle2 = new LogApiDetalle();
+                                        logApiDetalle2.IdLogApi = logApiId;
+                                        logApiDetalle2.Inicio = DateTime.Now;
+                                        logApiDetalle2.Metodo = "PagosxDocumento";
+                                        
+
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
+
+                                        logApiDetalle2.Termino = DateTime.Now;
+                                        logApiDetalle2.Segundos = (int?)Math.Round((logApiDetalle2.Termino - logApiDetalle2.Inicio).Value.TotalSeconds);
+                                        this.guardarDetalleLogApi(logApiDetalle2);
+
                                         if (response.IsSuccessStatusCode)
                                         {
                                             var content2 = await response2.Content.ReadAsStringAsync();
@@ -8485,6 +9280,30 @@ namespace ApiPortal.Services
             }
 
             return retorno;
+        }
+
+        public void guardarLogApi(LogApi logApi)
+        {
+            var configApi = _context.ApiSoftlands.FirstOrDefault();
+
+            if (configApi.HabilitaLogApi == 1)
+            {
+                _context.Add(logApi);
+                _context.SaveChanges();
+            }
+
+        }
+
+        public void guardarDetalleLogApi(LogApiDetalle logApiDetalle)
+        {
+            var configApi = _context.ApiSoftlands.FirstOrDefault();
+
+            if (configApi.HabilitaLogApi == 1)
+            {
+                _context.Add(logApiDetalle);
+                _context.SaveChanges();
+            }
+
         }
     }
 }

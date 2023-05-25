@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -24,17 +25,22 @@ namespace ApiPortal.Controllers
         [HttpGet("GetConfiguracion")]
         public async Task<ActionResult> GetConfiguracion()
         {
-
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionPago/GetConfiguracion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+        
             try
             {
-                LogApi logApi = new LogApi();
-                logApi.Api = "api/ConfiguracionPago/GetConfiguracion";
-                logApi.Inicio = DateTime.Now;
                 var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+
                 logApi.Termino = DateTime.Now;
-                logApi.Segundos = (int?)Math.Round((logApi.Inicio - logApi.Termino).Value.TotalSeconds);
-                _context.LogApis.Add(logApi);
-                _context.SaveChanges();
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+
+                sf.guardarLogApi(logApi);
+
+
                 return Ok(configuracionPortal);
                
             }
@@ -55,10 +61,22 @@ namespace ApiPortal.Controllers
         [HttpPost("actualizaConfiguracionPago"), Authorize]
         public async Task<ActionResult> actualizaConfiguracionPago(ConfiguracionPagoCliente model)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionPago/actualizaConfiguracionPago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+          
+
             try
             {
                 _context.Entry(model).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok();
 
             }

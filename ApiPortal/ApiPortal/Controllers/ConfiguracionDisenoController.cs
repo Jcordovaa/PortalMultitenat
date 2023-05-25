@@ -1,4 +1,5 @@
 ﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -28,10 +29,21 @@ namespace ApiPortal.Controllers
         [HttpGet("GetConfiguracion")]
         public async Task<ActionResult> GetConfiguracion()
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionDiseno/GetConfiguracion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
                 var configuracion = _context.ConfiguracionDisenos.FirstOrDefault();
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(configuracion);
             }
             catch (Exception ex)
@@ -52,6 +64,12 @@ namespace ApiPortal.Controllers
         [HttpPost("SaveConfiguracion/{seccion}"), Authorize]
         public async Task<ActionResult> SaveConfiguracion(int seccion, [FromBody] ConfiguracionDiseno config)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionDiseno/SaveConfiguracion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            
 
             try
             {
@@ -150,6 +168,10 @@ namespace ApiPortal.Controllers
 
                 _context.SaveChanges();
 
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
                 return Ok(config);
             }
             catch (Exception ex)
@@ -171,6 +193,12 @@ namespace ApiPortal.Controllers
         [HttpPost("UploadImages/{numeroImagen}"), Authorize]
         public async Task<ActionResult> UploadImages(int numeroImagen)
         {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ConfiguracionDiseno/UploadImages";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+           
 
             try
             {
@@ -309,6 +337,10 @@ namespace ApiPortal.Controllers
                     }
                     await _context.SaveChangesAsync();
                 }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
 
                 return Ok(configuracionDiseno);
             }
