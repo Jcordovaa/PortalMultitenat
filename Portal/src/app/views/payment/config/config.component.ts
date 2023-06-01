@@ -386,7 +386,7 @@ export class ConfigComponent implements OnInit {
       const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
       if (configuracionCompletaPortal != null) {
         configuracionCompletaPortal.configuracionPortal = this.configPortal;
-        configuracionCompletaPortal.configPagoClientes.diasPorVencer = this.cantidadDiasPorVencer;
+        configuracionCompletaPortal.configuracionPagoCliente.diasPorVencer = this.cantidadDiasPorVencer;
         this.ls.setItem("configuracionCompletaPortal", configuracionCompletaPortal);
       }
       this.notificationService.success('Configuración actualizada correctamente', '', true);

@@ -4350,14 +4350,31 @@ namespace ApiPortal.Services
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
-                            List<List<CategoriaClienteAPIDTO>> categorias = JsonConvert.DeserializeObject<List<List<CategoriaClienteAPIDTO>>>(content);
-                            foreach (var categoria in categorias[0])
+                            if (content.Contains("404"))
                             {
-                                CategoriaClienteDTO aux = new CategoriaClienteDTO();
-                                aux.CatCod = categoria.codigo;
-                                aux.CatDes = categoria.descripcion;
-                                item.Add(aux);
+                                LogProceso log = new LogProceso
+                                {
+                                    Excepcion = response.StatusCode.ToString(),
+                                    Fecha = DateTime.Now.Date,
+                                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                    Mensaje = content,
+                                    Ruta = "SoftlandService/GetCategoriasClienteAsync"
+                                };
+                                _context.LogProcesos.Add(log);
+                                _context.SaveChanges();
                             }
+                            else
+                            {
+                                List<List<CategoriaClienteAPIDTO>> categorias = JsonConvert.DeserializeObject<List<List<CategoriaClienteAPIDTO>>>(content);
+                                foreach (var categoria in categorias[0])
+                                {
+                                    CategoriaClienteDTO aux = new CategoriaClienteDTO();
+                                    aux.CatCod = categoria.codigo;
+                                    aux.CatDes = categoria.descripcion;
+                                    item.Add(aux);
+                                }
+                            }
+                            
                         }
                         else
                         {

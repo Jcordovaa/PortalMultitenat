@@ -358,7 +358,7 @@
                                                         <th>Fecha Emisión</th>
                                                         <th>Fecha Vcto.</th>
                                                         <th style="text-align: right;">Monto $</th>
-                                                        <th *ngIf="existModuloInventario">Detalle</th>
+                                                        <!-- <th *ngIf="existModuloInventario">Detalle</th> -->
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -372,7 +372,7 @@
                                                         <td style="text-align: right;">{{documento.saldoBase |
                                                             monto}}
                                                         </td>
-                                                        <td style="vertical-align:middle;"
+                                                        <!-- <td style="vertical-align:middle;"
                                                             *ngIf="existModuloInventario">
                                                             <div ngbDropdown (click)="verDetalleDocumento(documento)">
                                                                 <button ngbDropdownToggle aria-haspopup="true"
@@ -389,7 +389,7 @@
                                                                         <circle cx="12" cy="19" r="1"></circle>
                                                                     </svg></button>
                                                             </div>
-                                                        </td>
+                                                        </td> -->
                                                     </tr>
                                                 </tbody>
                                             </table>

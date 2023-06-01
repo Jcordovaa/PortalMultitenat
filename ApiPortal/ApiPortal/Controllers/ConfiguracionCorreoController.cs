@@ -530,7 +530,7 @@ namespace ApiPortal.Controllers
 
             try
             {
-                var conf = await _context.ConfiguracionCorreos.ToListAsync();
+                var conf = await _context.ConfiguracionCorreos.AsNoTracking().ToListAsync();
                 foreach (var item in conf)
                 {
                     item.Clave = Encrypt.Base64Decode(item.Clave);

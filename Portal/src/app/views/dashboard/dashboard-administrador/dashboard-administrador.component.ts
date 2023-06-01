@@ -435,7 +435,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
             } else {
                 this.spinner.hide();
-                this.notificationService.warning('No se encontraron cuentas contables configuradas para el portal.', '', true);
+                this.notificationService.info('', 'Portal no ha sido inicializado, favor ir al módulo de administración y realizar las configuraciones correspondientes.', false);
             }
         }else{
             this.spinner.hide();

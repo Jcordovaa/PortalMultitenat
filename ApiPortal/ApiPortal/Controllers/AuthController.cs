@@ -50,7 +50,7 @@ namespace ApiPortal.Controllers
                     var usuario = _context.Usuarios.Where(x => x.Email == model.Email && x.Password == hashPassword).FirstOrDefault();
 
                     if (usuario == null)
-                        return BadRequest();
+                        return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
 
                     if (usuario.CuentaActivada == null || usuario.CuentaActivada == 0)
                         return BadRequest("Cuenta ingresada aún no ha sido activada por el usuario.");
@@ -77,7 +77,10 @@ namespace ApiPortal.Controllers
 
 
                     if (cliente == null)
-                        return BadRequest();
+                        return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
+
+                    if (cliente.ActivaCuenta == null || cliente.ActivaCuenta == 0)
+                        return BadRequest("Cuenta ingresada aún no ha sido activada.");
 
                     fullName = $"{cliente.Nombre}";
                     email = cliente.Correo;
