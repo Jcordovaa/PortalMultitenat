@@ -45,5 +45,7 @@ namespace ApiPortal.Dal.Models_Portal
         public string? DocContabilizadosResumenxRut { get; set; }
         public string? PagosxDocumento { get; set; }
         public int? HabilitaLogApi { get; set; }
+        public string? CadenaAlmacenamientoAzure { get; set; }
+        public string? UrlAlmacenamientoArchivos { get; set; }
     }
 }

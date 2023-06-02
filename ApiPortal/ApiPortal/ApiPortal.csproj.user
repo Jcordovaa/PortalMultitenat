@@ -11,7 +11,7 @@
     <WebStackScaffolding_DbContextTypeFullName>ApiPortal.Dal.Models_Portal.PortalClientesSoftlandContext</WebStackScaffolding_DbContextTypeFullName>
     <WebStackScaffolding_IsAsyncSelected>False</WebStackScaffolding_IsAsyncSelected>
     <WebStackScaffolding_IsViewGenerationSelected>True</WebStackScaffolding_IsViewGenerationSelected>
-    <NameOfLastUsedPublishProfile>D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\Properties\PublishProfiles\SOFCLUES-PD-APS-PORTAL-API - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
+    <NameOfLastUsedPublishProfile>C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\Properties\PublishProfiles\SOFCLUES-PD-APS-PORTAL-API - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
     <ActiveDebugProfile>ApiPortal</ActiveDebugProfile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

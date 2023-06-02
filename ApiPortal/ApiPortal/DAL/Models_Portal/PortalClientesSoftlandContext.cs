@@ -9,6 +9,7 @@ namespace ApiPortal.Dal.Models_Portal
     public partial class PortalClientesSoftlandContext : DbContext
     {
         private readonly IHttpContextAccessor _contextAccessor;
+
         public PortalClientesSoftlandContext()
         {
         }
@@ -101,6 +102,10 @@ namespace ApiPortal.Dal.Models_Portal
 
                 entity.Property(e => e.AreaDatos)
                     .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CadenaAlmacenamientoAzure)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.CapturaComprobantes)
@@ -242,6 +247,10 @@ namespace ApiPortal.Dal.Models_Portal
                     .IsUnicode(false);
 
                 entity.Property(e => e.Url)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UrlAlmacenamientoArchivos)
                     .HasMaxLength(500)
                     .IsUnicode(false);
             });

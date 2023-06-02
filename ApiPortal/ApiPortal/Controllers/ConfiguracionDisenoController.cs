@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Collections.Specialized.BitVector32;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace ApiPortal.Controllers
 {
@@ -204,136 +206,158 @@ namespace ApiPortal.Controllers
             {
                 var empresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 var configuracionDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
-                string rutSinFormato = empresa.RutEmpresa.Replace(".", "");
+                var apiSoftland = _context.ApiSoftlands.FirstOrDefault();
+
+                string rutSinFormato = apiSoftland.UrlAlmacenamientoArchivos.Split('/')[apiSoftland.UrlAlmacenamientoArchivos.Split('/').Length -2].ToString();
                 HttpResponseMessage response = new HttpResponseMessage();
                 var httpRequest = _httpContextAccessor.HttpContext.Request;
                 if (httpRequest.Form.Files.Count > 0)
                 {
                     foreach (var file in httpRequest.Form.Files)
                     {
-                        if (numeroImagen != 15)
+                       
+                        var postedFile = file;
+
+                        //JCA 01-06-2023: Cambio por Blob service de azure
+                        //Instanciamos BlobServiceClient con la cadena de conexion donde almacenaremos los archivos
+                        string connectionString = apiSoftland.CadenaAlmacenamientoAzure;
+                        BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
+                        //Validamos si contenedor para empresa existe
+                        string containerName = rutSinFormato;
+                        BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                        bool exists = await containerClient.ExistsAsync();
+                        if (!exists) 
                         {
-                            var postedFile = file;
-                            var folderPath = AppDomain.CurrentDomain.BaseDirectory + @"Uploads\" + rutSinFormato;
-
-
-                            if (!Directory.Exists(folderPath))
-                            {
-                                //Si no existe lo creamos
-                                Directory.CreateDirectory(folderPath);
-                            }
-
-
-                            var filePath = folderPath + "/" + postedFile.FileName;
-
-
-                            if (System.IO.File.Exists(filePath))
-                            {
-                                System.IO.File.Delete(filePath);
-                            }
-
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await postedFile.CopyToAsync(stream);
-                            }
-
-
-
-                            var finalUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}" + "/Uploads/" + rutSinFormato + "/" + postedFile.FileName;
-
-                            switch (numeroImagen)
-                            {
-                                case 1:
-                                    configuracionDiseno.LogoPortada = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.LogoPortada).IsModified = true;
-                                    break;
-                                case 2:
-                                    configuracionDiseno.ImagenPortada = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.ImagenPortada).IsModified = true;
-                                    break;
-                                case 3:
-                                    configuracionDiseno.LogoSidebar = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.LogoSidebar).IsModified = true;
-                                    break;
-                                case 4:
-                                    configuracionDiseno.LogoMinimalistaSidebar = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.LogoMinimalistaSidebar).IsModified = true;
-                                    break;
-                                case 5:
-                                    configuracionDiseno.BannerPagoRapido = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.BannerPagoRapido).IsModified = true;
-                                    break;
-                                case 6:
-                                    configuracionDiseno.ImagenUltimasCompras = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.ImagenUltimasCompras).IsModified = true;
-                                    break;
-                                case 7:
-                                    configuracionDiseno.IconoMisCompras = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.IconoMisCompras).IsModified = true;
-                                    break;
-                                case 8:
-                                    configuracionDiseno.BannerMisCompras = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.BannerMisCompras).IsModified = true;
-                                    break;
-                                case 9:
-                                    configuracionDiseno.ImagenUsuario = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.ImagenUsuario).IsModified = true;
-                                    break;
-                                case 10:
-                                    configuracionDiseno.BannerPortal = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.BannerPortal).IsModified = true;
-                                    break;
-                                case 11:
-                                    configuracionDiseno.IconoContactos = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.IconoContactos).IsModified = true;
-                                    break;
-                                case 12:
-                                    configuracionDiseno.IconoClavePerfil = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.IconoClavePerfil).IsModified = true;
-                                    break;
-                                case 13:
-                                    configuracionDiseno.IconoEditarPerfil = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.IconoEditarPerfil).IsModified = true;
-                                    break;
-                                case 14:
-                                    configuracionDiseno.IconoEstadoPerfil = finalUrl;
-                                    _context.Entry(configuracionDiseno).Property(x => x.IconoEstadoPerfil).IsModified = true;
-                                    break;
-                            }
+                            //Contenedor no existe, debemos crearlo con acceso publico
+                            containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName, PublicAccessType.Blob);
                         }
-                        else
+                            
+
+                        //Cambiamos nombre archivo
+                        Utils util = new Utils();
+                        string nombreArchivo = util.nombreArchivo(postedFile.FileName, numeroImagen);
+
+                        using (var stream = System.IO.File.Create(nombreArchivo))
                         {
-                            //CODIGO PARA SUBIR UN FAVICON, SE NECESITA VER LOGICA PARA REALIZAR ESTO CON EL MULTITENANT Y EL FTP PARA ACCEDER A LAS CARPETAS DEL PROYECTOa
-                            //var fileAux = httpRequest.Form.Files[0];
-                            //string ftpServer = "ftps://waws-prod-blu-333.ftp.azurewebsites.windows.net";
-                            //string ftpUsername = @"SOFCLUES-PD-APS-PORTALCLIENTE-FRONTEND\$SOFCLUES-PD-APS-PORTALCLIENTE-FRONTEND";
-                            //string ftpPassword = "CtkjXJQHqusmCMCTfJ9kD6tyC8btZn8u6SAgJW8AllprKsiqoG1Wwhyx2ima";
-                            //string filePath = @"C:\example.txt";
+                            postedFile.CopyTo(stream);
 
-                            //FtpClient client = new FtpClient();
-                            //client.Host = ftpServer;
-                            //client.Credentials = new NetworkCredential(ftpUsername, "/site/wwwroot/" + ftpPassword);
-                            //client.Connect();
+                            //Obtenemos archivo para sobrescribir en caso de que exista
+                            BlobClient blobClient = containerClient.GetBlobClient(nombreArchivo);
 
-                            //Stream requestStream = fileAux.InputStream;
+                            //var stream2 = postedFile.OpenReadStream();
+                            //var memoryStream = new MemoryStream();
+                            //await stream2.CopyToAsync(memoryStream);
 
-                            //client.UploadStream(fileAux.InputStream, "favicon.ico");
-                            //client.Disconnect();
-                            //if (client.GetReply().Code == "226")
-                            //{
-                            //    configuracionDiseno.IconoEstadoPerfil = empresa.UrlPortal + "/" + fileAux.FileName;
-                            //    db.Entry(configuracionDiseno).Property(x => x.Favicon).IsModified = true;
-                            //}
-                            //else
-                            //{
-                            //    return BadRequest();
-                            //}
 
+                            //using FileStream nuevoFileStream = memoryStream;
+                            stream.Position = 0;
+                            await blobClient.UploadAsync(stream, overwrite: true);
+                            //nuevoFileStream.Close();
                         }
 
+                        //Obtenemos archivo para sobrescribir en caso de que exista
+                        //BlobClient blobClient = containerClient.GetBlobClient(nombreAchivo);
+
+                        //var stream2 = postedFile.OpenReadStream();
+                        //var memoryStream = new MemoryStream();
+                        //await stream2.CopyToAsync(memoryStream);
+
+
+                        //using FileStream nuevoFileStream = memoryStream;
+                        //await blobClient.UploadAsync(postedFile.OpenReadStream(), overwrite: true);
+                        //nuevoFileStream.Close();
 
 
 
+                        //var folderPath = AppDomain.CurrentDomain.BaseDirectory + @"Uploads\" + rutSinFormato;
+
+
+                        //if (!Directory.Exists(folderPath))
+                        //{
+                        //    //Si no existe lo creamos
+                        //    Directory.CreateDirectory(folderPath);
+                        //}
+
+
+                        //var filePath = folderPath + "/" + postedFile.FileName;
+
+
+                        //if (System.IO.File.Exists(filePath))
+                        //{
+                        //    System.IO.File.Delete(filePath);
+                        //}
+
+                        //using (var stream = new FileStream(filePath, FileMode.Create))
+                        //{
+                        //    await postedFile.CopyToAsync(stream);
+                        //}
+
+
+
+                        var finalUrl = apiSoftland.UrlAlmacenamientoArchivos + nombreArchivo;
+
+                        switch (numeroImagen)
+                        {
+                            case 1:
+                                configuracionDiseno.LogoPortada = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.LogoPortada).IsModified = true;
+                                break;
+                            case 2:
+                                configuracionDiseno.ImagenPortada = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.ImagenPortada).IsModified = true;
+                                break;
+                            case 3:
+                                configuracionDiseno.LogoSidebar = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.LogoSidebar).IsModified = true;
+                                break;
+                            case 4:
+                                configuracionDiseno.LogoMinimalistaSidebar = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.LogoMinimalistaSidebar).IsModified = true;
+                                break;
+                            case 5:
+                                configuracionDiseno.BannerPagoRapido = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.BannerPagoRapido).IsModified = true;
+                                break;
+                            case 6:
+                                configuracionDiseno.ImagenUltimasCompras = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.ImagenUltimasCompras).IsModified = true;
+                                break;
+                            case 7:
+                                configuracionDiseno.IconoMisCompras = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.IconoMisCompras).IsModified = true;
+                                break;
+                            case 8:
+                                configuracionDiseno.BannerMisCompras = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.BannerMisCompras).IsModified = true;
+                                break;
+                            case 9:
+                                configuracionDiseno.ImagenUsuario = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.ImagenUsuario).IsModified = true;
+                                break;
+                            case 10:
+                                configuracionDiseno.BannerPortal = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.BannerPortal).IsModified = true;
+                                break;
+                            case 11:
+                                configuracionDiseno.IconoContactos = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.IconoContactos).IsModified = true;
+                                break;
+                            case 12:
+                                configuracionDiseno.IconoClavePerfil = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.IconoClavePerfil).IsModified = true;
+                                break;
+                            case 13:
+                                configuracionDiseno.IconoEditarPerfil = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.IconoEditarPerfil).IsModified = true;
+                                break;
+                            case 14:
+                                configuracionDiseno.IconoEstadoPerfil = finalUrl;
+                                _context.Entry(configuracionDiseno).Property(x => x.IconoEstadoPerfil).IsModified = true;
+                                break;
+                        }
+                        
                     }
                     await _context.SaveChangesAsync();
                 }
