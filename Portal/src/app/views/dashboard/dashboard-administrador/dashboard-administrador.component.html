@@ -178,7 +178,7 @@
                                     placeholder="Rut"> -->
 
                                     <label for="firstName">RUT</label>
-                                <input type="text" autocomplete="off"  required 
+                                <input type="text" autocomplete="off"  required  (blur)="validaRut()"
                                     class="form-control" id="rutA" name="rutA" [(ngModel)]="searchRut"
                                     placeholder="Rut">
                             </div>

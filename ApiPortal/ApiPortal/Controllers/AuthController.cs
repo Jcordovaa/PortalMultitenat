@@ -91,7 +91,18 @@ namespace ApiPortal.Controllers
 
                 if (isCredentialValid)
                 {
-                    var token = this.CrearToken(model.Email);
+                    //Obtiene cantidad de horas duración token
+                    var parametros = _context.Parametros.Where(x => x.Nombre == "HorasToken").FirstOrDefault();
+                    int horas = 1; //Por defecto en caso de error o que parametro no este configurado sera de 1 hora duraciín
+                    if (parametros!= null)
+                    {
+                        if (!string.IsNullOrEmpty(parametros.Valor))
+                        {
+                            horas = Convert.ToInt32(parametros.Valor);
+                        }                        
+                    }
+
+                    var token = this.CrearToken(model.Email, horas);
                     return Ok(new
                     {
                         Email = email,
@@ -124,7 +135,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        private TokenUsuario CrearToken(string email)
+        private TokenUsuario CrearToken(string email, int horas)
         {
 
 
@@ -138,7 +149,7 @@ namespace ApiPortal.Controllers
                 _configuration.GetSection("AppSettings:Token").Value));
 
             var fechaCreacion = DateTime.Now;
-            var fechaExpiracion = fechaCreacion.AddDays(1);
+            var fechaExpiracion = fechaCreacion.AddHours(horas);
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(

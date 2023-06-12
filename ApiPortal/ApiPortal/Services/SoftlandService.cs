@@ -1028,7 +1028,7 @@ namespace ApiPortal.Services
                     Fecha = DateTime.Now.Date,
                     Hora = DateTime.Now.ToString("HH:mm:ss"),
                     Mensaje = e.Message,
-                    Ruta = "SoftlandService/GetCentrosCostoActivos"
+                    Ruta = "SoftlandService/GetAreaNegocio"
                 };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();

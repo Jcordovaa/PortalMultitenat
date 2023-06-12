@@ -95,7 +95,7 @@ export class ConfigComponent implements OnInit {
     this.getConfigPagoClientes();
     this.getConfigPortal();
     //this.getCentrosCostos();
-    this.getAreasNegocio();
+    // this.getAreasNegocio();
     this.getConfigDiseno();
   }
 
@@ -230,11 +230,11 @@ export class ConfigComponent implements OnInit {
   }
 
   getMonedas() {
-    this.configuracionSoftlandService.getMonedas().subscribe((res: any) => {
-      this.monedas = res;
-    }, err => {
-      this.notificationService.error('Ocurrio un error al obtener codigo de monedas.', '', true);
-    });
+    // this.configuracionSoftlandService.getMonedas().subscribe((res: any) => {
+    //   this.monedas = res;
+    // }, err => {
+    //   this.notificationService.error('Ocurrio un error al obtener codigo de monedas.', '', true);
+    // });
   }
 
   getCentrosCostos() {
@@ -329,14 +329,14 @@ export class ConfigComponent implements OnInit {
 
 
     if (this.anioTributario == null || this.anioTributario == '') {
-      this.notificationService.warning('Debe ingresar un año tributario', '', true);
+      this.notificationService.warning('El año tributario es obligatorio, debe ingresarlo.', '', true);
       return;
     }
 
-    if (this.configPagoClientes.monedaUtilizada == null || this.configPagoClientes.monedaUtilizada == '') {
-      this.notificationService.warning('Debe ingresar Moneda Nacional', '', true);
-      return;
-    }
+    // if (this.configPagoClientes.monedaUtilizada == null || this.configPagoClientes.monedaUtilizada == '') {
+    //   this.notificationService.warning('Debe ingresar Moneda Nacional', '', true);
+    //   return;
+    // }
 
     if (cuentasContables == '' || cuentasContables == null) {
       this.notificationService.warning('Debe ingresar almenos una cuenta contable', '', true);

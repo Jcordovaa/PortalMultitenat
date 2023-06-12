@@ -125,7 +125,7 @@ namespace ApiPortal.Controllers
                 string action = !String.IsNullOrEmpty(HttpContext.Request.Query["action"]) ? HttpContext.Request.Query["action"] : "init";
 
                 //Creamos las url completas con el protocolo configurado http o https
-                string sample_baseurl = pasarela.Protocolo + "://" + httpHost + selfURL;
+                string sample_baseurl = pasarela.Protocolo + httpHost + selfURL;
                 string completeUrl = pasarela.Protocolo + httpHost;
 
                 //Creamos url que se enviara a tbk y una vez finalizada la transacción retornara para poder identificar en que flujo se ejecuta
@@ -139,7 +139,7 @@ namespace ApiPortal.Controllers
 
                 //Definimos el flujo por pasarela
                 #region WEBPAY
-                if (pasarela.IdPasarela == 1) //WEBPAY
+                if (pasarela.IdPasarela == -1) //WEBPAY
                 {
                     //Asignamos valores de empresa          
                     string _commerceCode = "";
