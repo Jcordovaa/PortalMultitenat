@@ -153,14 +153,15 @@ export class AccountsStateComponent implements OnInit {
         this.comprasResp.forEach(element => {
           element.bloqueadoPago = false;
           if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
-            element.bloqueadoPago = true;
+            
+            //element.bloqueadoPago = true;
           }
 
           if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
             let folios = this.foliosErrorComprobate.split('-');
             folios.forEach(folio => {
               if (element.nro == folio) {
-                element.bloqueadoPago = true;
+                //element.bloqueadoPago = true;
               }
             });
           }
@@ -248,6 +249,12 @@ export class AccountsStateComponent implements OnInit {
     }
 
     this.compras = data;
+
+    this.selected = [];
+    this.compras.forEach(element => {
+      element.checked =  false;
+  });
+  this.calcularTotalCuentas();
   }
 
 
@@ -440,11 +447,10 @@ export class AccountsStateComponent implements OnInit {
     this.selectedEstado = this.estados[0];
     this.selectedTipoDoc = this.tiposDocs[0];
     this.selected = [];
-    this.compras = this.comprasResp;
     this.folio = null;
     this.dateDesde = null;
     this.dateHasta = null;
-    this.calcularTotalCuentas();
+    
 
     // var x = document.getElementById("tbDetalle");
 
@@ -503,12 +509,15 @@ export class AccountsStateComponent implements OnInit {
   }
 
   onChangeAPagar(val: any, data: any, content) {
-
+debugger
     if (val == "" || val == 0) {
-      content.target.value = this.montoPipe.transform2(data.saldoBase);
+      val = data.saldoBase;
+      val = val.replace(new RegExp('\\.', 'g'), '')
+       val = val.replace(new RegExp(',', 'g'), '\\.')
+      content.target.value = this.montoPipe.transform2(val);
     } else {
-      val = val.replace('.', '')
-      val = val.replace(',', '.')
+      val = val.replace(new RegExp('\\.', 'g'), '')
+      val = val.replace(new RegExp(',', 'g'), '\\.')
       if (val > data.saldoBase) {
         this.notificationService.warning('El monto ingresado es mayor al saldo pendiente, favor volver a ingresar', '', true);
         content.target.value = this.montoPipe.transform2(data.saldoBase);

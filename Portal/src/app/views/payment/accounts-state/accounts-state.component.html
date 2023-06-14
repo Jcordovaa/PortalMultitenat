@@ -27,16 +27,16 @@
                         <label for="firstName">Número</label>
                         <input type="number" min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
                             placeholder="0">
-                    </div>
+                    </div> -->
 
-                    <div class="col-md-4 form-group mb-3">
+                    <div class="col-md-3 form-group mb-3">
                         <label for="lastName">Estado</label>
                         <select [(ngModel)]="selectedEstado" class="form-control" name="tipoD" #tipoD="ngModel">
                             <option *ngFor="let e of estados" [ngValue]="e">
                                 {{ e.nombre }}
                             </option>
                         </select>
-                    </div> -->
+                    </div> 
 
                     <div class="col-md-9 form-group mb-3">
 
@@ -294,7 +294,7 @@
 
 
                         <!--TABLA SIN MONEDAS ADICIONALES-->
-                        <div class="desktop" *ngIf="!existDocSegundaMoneda">
+                        <div class="desktop" *ngIf="!existDocSegundaMoneda && compras?.length > 0">
                             <div class="card o-hidden mt-3" style="max-height: 400px;">
                                 <div class="table-responsive">
                                     <table id="tbDetalle" class="table table-hover table-bordered">
@@ -367,7 +367,7 @@
                         </div>
 
                         <!--MOVIL-->
-                        <div class="movil" *ngIf="!existDocSegundaMoneda">
+                        <div class="movil" *ngIf="!existDocSegundaMoneda && compras?.length > 0">
                             <div class="card o-hidden mt-3" style="max-height: 800px; ">
                                 <div class="table-responsive">
                                     <table id="tbDetalle" class="table table-hover table-bordered">

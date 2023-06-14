@@ -32,7 +32,8 @@ export class SigninComponent implements OnInit {
         pass: ''
     };
 
-
+    public verContraseña: number = 0; //FCA 10-03-2022
+    public icon: string = 'assets/images/icon/view.png'
     public muestraPago: boolean = false;
     public muestraInicio: boolean = false;
     public esPagoRapido: boolean = false;
@@ -306,4 +307,21 @@ export class SigninComponent implements OnInit {
             this.pagar();
         }
     }
+
+    verPass() {
+        if (this.verContraseña == 1) {
+          this.verContraseña = 0;
+        } else {
+          this.verContraseña = 1;
+        }
+    
+    
+        if (this.verContraseña == 0) {
+          this.icon = 'assets/images/icon/view.png';
+          document.getElementsByName("passLogin")[0].setAttribute('type', 'password');
+        } else {
+          this.icon = 'assets/images/icon/invisible.png';
+          document.getElementsByName("passLogin")[0].setAttribute('type', 'text');
+        }
+      }
 }

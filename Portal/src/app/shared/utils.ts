@@ -10,14 +10,14 @@ import { ITipoApi } from '../shared/enums/TipoApi';
 })
 export class Utils {
      //public Server: string = 'https://localhost:44375';
-    public Server: string = 'https://localhost:7043'; //NET CORE
+    //public Server: string = 'https://localhost:7043'; //NET CORE
     //public Server: string = 'https://apiportal.intgra.cl/';
     //public Server: string = 'https://apiportal.intgra.cl/';  //BERRYLION
     //APP SERVICE:
     // public Server: string = 'https://apiportalclientedemo2.softlandcloud.cl';
     //public Server: string = 'https://apiportalclientedemo1.softlandcloud.cl';
     //public Server: string = 'https://apiportalcliente.softlandcloud.cl'; 
-//    public Server: string = 'https://apiportal.softlandcloud.cl';
+    public Server: string = 'https://apiportal.softlandcloud.cl';
     
     public ApiUrl: string = 'api/';
     public ServerWithApiUrl = this.Server + '/' + this.ApiUrl;

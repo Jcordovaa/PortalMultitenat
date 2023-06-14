@@ -17,6 +17,11 @@ import { ClientesService } from 'src/app/shared/services/clientes.service';
 })
 export class ActivateAccountComponent implements OnInit {
 
+  public verContraseña: number = 0; //FCA 10-03-2022
+  public icon: string = 'assets/images/icon/view.png';
+  public verContraseña2: number = 0; //FCA 10-03-2022
+  public icon2: string = 'assets/images/icon/view.png';
+
   public signInModel: any = {
     correo: '',
     password: ''
@@ -44,7 +49,7 @@ export class ActivateAccountComponent implements OnInit {
     private securityService: ClientesService,
     private router: Router,
     private activatedRoute: ActivatedRoute
-  ) { 
+  ) {
     this.activatedRoute.params.subscribe(params => {
       if (params['id'] != null) {
         this.cliente = atob(params['id']);
@@ -52,11 +57,11 @@ export class ActivateAccountComponent implements OnInit {
     });
   }
 
-  checkPasswords() { 
+  checkPasswords() {
     let pass = this.newPassForm.get('password1').value;
     let confirmPass = this.newPassForm.get('password2').value;
 
-    return pass === confirmPass ? null : { notSame: true }     
+    return pass === confirmPass ? null : { notSame: true }
   }
 
   ngOnInit(): void {
@@ -94,21 +99,20 @@ export class ActivateAccountComponent implements OnInit {
     }
 
     var datos = this.cliente.split(";");
-    
-    if (this.signinForm.get('correo').value != datos[1])
-    {
-      this.ns.warning('Correo ingresado no corresponde a la activación de esta cuenta' ,'' , true); 
+
+    if (this.signinForm.get('correo').value != datos[1]) {
+      this.ns.warning('Correo ingresado no corresponde a la activación de esta cuenta', '', true);
       return
     }
 
-    const model = { codAux: datos[0], correo: datos[1], clave: this.signinForm.get('pass').value}
+    const model = { codAux: datos[0], correo: datos[1], clave: this.signinForm.get('pass').value }
 
 
     this.loading = true;
     this.loadingText = 'Validando...';
     this.securityService.canActivateAccount(model)
       .subscribe(res => {
-        this.mail = model.correo;        
+        this.mail = model.correo;
         this.loading = false;
         this.step = 2;
       }, err => {
@@ -116,8 +120,8 @@ export class ActivateAccountComponent implements OnInit {
         if (err && err.error != null && err.error != "") {
           this.ns.error(err.error.message, '', true);
         } else {
-          this.ns.error('Ocurrió un error al validar cuenta.' ,'' , true); 
-        }  
+          this.ns.error('Ocurrió un error al validar cuenta.', '', true);
+        }
       });
   }
 
@@ -129,7 +133,7 @@ export class ActivateAccountComponent implements OnInit {
     var datos = this.cliente.split(";");
 
     if (this.newPassForm.get('pass2').value != this.newPassForm.get('pass3').value) {
-      this.ns.warning('Contraseñas no coinciden.' ,'' , true); 
+      this.ns.warning('Contraseñas no coinciden.', '', true);
       return
     }
     var datos = this.cliente.split(";");
@@ -143,7 +147,7 @@ export class ActivateAccountComponent implements OnInit {
       .subscribe(res => {
 
         this.ns.success('Cuenta activada correctamente.', '', true);
-        this.loading = false;        
+        this.loading = false;
         this.router.navigate(['/sessions/signin']);
 
       }, err => {
@@ -151,9 +155,46 @@ export class ActivateAccountComponent implements OnInit {
         if (err && err.error != null && err.error != "") {
           this.ns.error(err.error, '', true);
         } else {
-          this.ns.error('Ocurrió un error al validar cuenta.' ,'' , true); 
-        }  
+          this.ns.error('Ocurrió un error al validar cuenta.', '', true);
+        }
       });
   }
+
+  verPass() {
+    if (this.verContraseña == 1) {
+      this.verContraseña = 0;
+    } else {
+      this.verContraseña = 1;
+    }
+
+
+    if (this.verContraseña == 0) {
+      this.icon = 'assets/images/icon/view.png';
+      document.getElementsByName("clave")[0].setAttribute('type', 'password');
+    } else {
+      this.icon = 'assets/images/icon/invisible.png';
+      document.getElementsByName("clave")[0].setAttribute('type', 'text');
+    }
+  }
+
+  verPass2() {
+    if (this.verContraseña2 == 1) {
+      this.verContraseña2 = 0;
+    } else {
+      this.verContraseña2 = 1;
+    }
+
+
+    if (this.verContraseña2 == 0) {
+      this.icon2 = 'assets/images/icon/view.png';
+      document.getElementsByName("pass3")[0].setAttribute('type', 'password');
+      document.getElementsByName("pass2")[0].setAttribute('type', 'password');
+    } else {
+      this.icon2 = 'assets/images/icon/invisible.png';
+      document.getElementsByName("pass3")[0].setAttribute('type', 'text');
+      document.getElementsByName("pass2")[0].setAttribute('type', 'text');
+    }
+  }
+
 
 }

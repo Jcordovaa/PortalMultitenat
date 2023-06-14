@@ -112,6 +112,7 @@ namespace ApiPortal.Controllers
                 var configuracionDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
                 var configuracionPortal = _context.ConfiguracionPortals.FirstOrDefault();
                 var configuracionPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                configuracionDiseno.TituloUltimasCompras = "Últimas " + configuracionPortal.CantidadUltimasCompras + " Compras Facturadas";
 
                 var modulos = await sf.GetModulosSoftlandAsync(logApi.Id);
                 bool existModuloInventario = false;

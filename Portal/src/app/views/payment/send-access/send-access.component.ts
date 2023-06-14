@@ -233,7 +233,7 @@ export class SendAccessComponent implements OnInit {
 
   }
 
-  onSel(val: any, c: any) {
+  async onSel(val: any, c: any) {
     if (this.checkAll) {
       if (!val.target.checked) {
         let exist = this.clientesEliminados.find(x => x.rutAux == c.rutAux && x.codAux == c.codAux);
@@ -253,6 +253,7 @@ export class SendAccessComponent implements OnInit {
       }
     }
     const added = this.clientesSeleccionados.find(x => x.rutAux == c.rutAux && x.codAux == c.codAux);
+
     if (added != null) {
       //remueve
       for (let i = 0; i <= this.clientesSeleccionados.length - 1; i++) {
@@ -262,12 +263,33 @@ export class SendAccessComponent implements OnInit {
         }
       }
     } else {
-      this.clientesRes.forEach(element => {
-        if (c.rutAux == element.rutAux && c.codAux == element.codAux) {
-          element.checked = val.target.checked
-        }
-      });
-      this.clientesSeleccionados.push(c);
+
+      if (val.target.checked == true) {
+        this.clientesRes.forEach(async element => {
+
+          if (c.rutAux == element.rutAux && c.codAux == element.codAux) {
+            if (element.accesoEnviado == 1) {
+              const response = await this.notificationService.confirmation('', 'El cliente ya posee credenciales de acceso, al ejecutar el proceso, estas se sobrescribirán por las nuevas. ¿Desea continuar?');
+              if (response.isConfirmed) {
+
+                element.checked = val.target.checked
+                this.clientesSeleccionados.push(c);
+
+              } else {
+                element.checked = false;
+                val.target.checked = false;
+              }
+            } else {
+              element.checked = val.target.checked
+              this.clientesSeleccionados.push(c);
+            }
+          }
+
+        });
+
+      }
+
+
     }
 
     if (this.clientesSeleccionados.length == 0) {
@@ -275,7 +297,6 @@ export class SendAccessComponent implements OnInit {
     }
 
     if (this.checkAll) {
-      debugger
       this.cantidadSeleccionados = this.clientesRes[0].total - this.clientesEliminados.length;
     } else {
       this.cantidadSeleccionados = this.clientesSeleccionados.length;
@@ -347,7 +368,8 @@ export class SendAccessComponent implements OnInit {
 
 
     this.spinner.hide();
-    const response = await this.notificationService.confirmation('Enviar accesos', 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice, ¿Desea continuar?');
+    let msg = this.checkAll ? 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice. Si alguno de los clientes ya posee credenciales de acceso, estas se sobrescribirán por las nuevas. ¿Desea continuar?' : 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice. ¿Desea continuar?';
+    const response = await this.notificationService.confirmation('Enviar accesos', msg);
     if (response.isConfirmed) {
       this.spinner.show();
       let model = {

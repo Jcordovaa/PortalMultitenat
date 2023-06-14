@@ -1,23 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {}
+    "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {}
   },
   "projects": {
-    "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {
+    "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
+        "projectUniqueName": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
         "projectName": "ApiPortal",
-        "projectPath": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
-        "packagesPath": "C:\\Users\\javie\\.nuget\\packages\\",
-        "outputPath": "C:\\DevtechGit\\PortalMultitenat\\ApiPortal\\ApiPortal\\obj\\",
+        "projectPath": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\ApiPortal.csproj",
+        "packagesPath": "C:\\Users\\Felipe\\.nuget\\packages\\",
+        "outputPath": "D:\\Devtech\\MultiTenant Portal\\PortalMultitenat\\ApiPortal\\ApiPortal\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\javie\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Felipe\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -93,10 +95,29 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[6.0.16, 6.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.16, 6.0.16]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -105,7 +126,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.302\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }

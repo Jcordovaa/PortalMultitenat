@@ -1,4 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <sitemanifest>
-  <IisApp path="C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\" />
+  <IisApp path="D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\" />
 </sitemanifest>

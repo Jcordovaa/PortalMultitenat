@@ -43,7 +43,7 @@
         <div class="section0">
         </div>
 
-        <div  class="section1 animate__animated animate__fadeInRight">
+        <div class="section1 animate__animated animate__fadeInRight">
 
             <div class="form ">
                 <ul>
@@ -68,12 +68,14 @@
                     <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
                 <form>
-                    <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()" [disabled]="numDocPagoRapido != '' && numDocPagoRapido != null"
-                        [(ngModel)]="rutPagoRapido" (keydown)="onKeydownPagoRapido($event)">
+                    <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()"
+                        [disabled]="numDocPagoRapido != '' && numDocPagoRapido != null" [(ngModel)]="rutPagoRapido"
+                        (keydown)="onKeydownPagoRapido($event)">
                     <p *ngIf="configuracion.utilizaDocumentoPagoRapido == 1"
                         style="color: #ffffff; text-align: center;">O</p>
-                    <input *ngIf="configuracion.utilizaDocumentoPagoRapido == 1" class="place" type="number" [disabled]="rutPagoRapido != '' && rutPagoRapido != null"
-                        placeholder="Número documento" name="docPago" [(ngModel)]="numDocPagoRapido" (keydown)="onKeydownPagoRapido($event)">
+                    <input *ngIf="configuracion.utilizaDocumentoPagoRapido == 1" class="place" type="number"
+                        [disabled]="rutPagoRapido != '' && rutPagoRapido != null" placeholder="Número documento"
+                        name="docPago" [(ngModel)]="numDocPagoRapido" (keydown)="onKeydownPagoRapido($event)">
                 </form>
                 <a class="boton3" [ngStyle]="{'background-color': configDiseno.colorBotonPagar}"
                     style="cursor: pointer; color: #ffffff;" (click)="pagar()">PAGAR </a>
@@ -96,12 +98,21 @@
                     <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
                 <form>
-                    <input class="place" (blur)="validaRut()" id="rut" name="rut" [(ngModel)]="signInModel.rutLogin" (keydown)="onKeydownInicioSesion($event)"
-                        type="text" placeholder="Escribe tu Rut">
-                    <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email" (keydown)="onKeydownInicioSesion($event)"
-                        placeholder="Correo electrónico">
-                    <input class="place" id="pass" name="pass" [(ngModel)]="signInModel.pass" type="password" (keydown)="onKeydownInicioSesion($event)"
-                        placeholder="Password">
+                    <input class="place" (blur)="validaRut()" id="rut" name="rut" [(ngModel)]="signInModel.rutLogin"
+                        (keydown)="onKeydownInicioSesion($event)" type="text" placeholder="Escribe tu Rut">
+                    <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email"
+                        (keydown)="onKeydownInicioSesion($event)" placeholder="Correo electrónico">
+                    <div class="row align-items-center">
+                        <div class="col-md-10">
+                            <input class="place" id="pass" name="pass" name="passLogin" [(ngModel)]="signInModel.pass" type="password"
+                                (keydown)="onKeydownInicioSesion($event)" placeholder="Password">
+                        </div>
+                        <div class="col-md-2">
+                            <button style="height: 35px; width: 50px; margin-left: 5px;" class="btn btn-secondary" type="button"
+                                (click)="verPass()"><img [src]="icon"></button>
+                        </div>
+                    </div>
+
                 </form>
                 <a (click)="iniciarSesion()" class="boton3" style="cursor: pointer; color: #ffffff;">INICIAR SESIÓN
                 </a>

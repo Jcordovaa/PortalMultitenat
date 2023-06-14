@@ -5,6 +5,9 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\n
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\ApiPortal.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\ApiPortal.runtimeconfig.json
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\ApiPortal.pdb
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\Azure.Core.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\Azure.Storage.Blobs.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\Azure.Storage.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\Humanizer.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\itext.barcodes.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\itext.forms.dll
@@ -90,6 +93,8 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\n
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Diagnostics.DiagnosticSource.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Drawing.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.IO.Hashing.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Memory.Data.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Reflection.MetadataLoadContext.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Runtime.Caching.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\obj\Release\net6.0\PubTmp\Out\System.Security.Cryptography.ProtectedData.dll

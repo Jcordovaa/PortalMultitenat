@@ -213,7 +213,7 @@
         public string TipoOrigen { get; set; }
         public string TipoDestino { get; set; }
         public string AuxTipo { get; set; }
-        public int? CodAux { get; set; }
+        public string CodAux { get; set; }
         public string CodiCC { get; set; }
         public int? Orden { get; set; }
         public int? ocCorrela { get; set; }

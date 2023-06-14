@@ -858,3 +858,8 @@ C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Dia
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.IO.Hashing.dll
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Memory.Data.dll
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Reflection.MetadataLoadContext.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\Azure.Core.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\Azure.Storage.Blobs.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\Azure.Storage.Common.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.IO.Hashing.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Release\net6.0\System.Memory.Data.dll
