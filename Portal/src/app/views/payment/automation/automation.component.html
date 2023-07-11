@@ -8,720 +8,148 @@
 
 <div class="separator-breadcrumb border-top"></div>
 
-<div class="card mb-4">
+<div class="card mb-4" *ngIf="!esCreacion">
     <div class="card-body">
-        <button id="sss1" (click)="enviaAutomatizaciones()"
-            class="btn btn-success justify-content-between align-items-center mr-3">
-            <i class="i-Cash-register-2 mr-3"></i> <span class="mr-3">Enviar Cobranza</span>
-        </button>
-        A continuación podra configurar envios automaticos para precobranzas, estados de cuenta y cobranzas.
-        <div class="row" style="margin-top: 20px;">
+        <div class="row">
+
+            <div class="col-md-4 form-group mb-3">
+                <label for="firstName">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="Nombre" [(ngModel)]="paginador.search"
+                    placeholder="Nombre">
+            </div>
+
+            <div class="col-md-3 form-group mb-3">
+                <label for="lastName">Tipo</label>
+                <select [(ngModel)]="selectedTipoFiltro" class="form-control" name="tipo" #tipo="ngModel">
+                    <option *ngFor="let e of tiposAutomatizacionesFiltro" [ngValue]="e.idTipo">
+                        {{ e.nombre }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3 form-group mb-3">
+                <label for="lastName">Estado</label>
+                <select [(ngModel)]="selectedEstadoFiltro" class="form-control" name="tipoD" #tipoD="ngModel">
+                    <option *ngFor="let e of estadosFiltro" [ngValue]="e.id">
+                        {{ e.nombre }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 form-group mb-4 align-self-end">
+                <button id="sss" (click)="getAutomatizaciones()" style="margin-top: 20px;"
+                    class="btn btn-primary justify-content-between align-items-center mr-3"> <i
+                        class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span>
+                </button>
+                <button id="sss2" (click)="limpiarFiltros()" class="btn btn-secondary mr-3"
+                    style="margin-top: 20px;"><span><i class="i-Paint-Brush"></i>
+                        Limpiar</span></button>
+
+                <button type="button" class="btn btn-success mr-3" style="background-color: #263db5;"
+                    style="margin-top: 20px;" (click)="openModal(null)">
+                    <i class="i-Add mt-3 mr-1"></i> Nueva Automatización</button>
+                <button id="sss1" (click)="enviaAutomatizaciones()" class="btn btn-success mr-3"
+                    style="margin-top: 20px;">
+                    <i class="i-Cash-register-2 mr-3"></i> <span class="mr-3">Ejecutar Envio</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="separator-breadcrumb border-top" style="margin-top: 50px;"></div>
+
+        <div *ngIf="listaAutomatizaciones.length> 0 && loaded" class="row"
+            [ngClass]="{'list-horizontal': viewMode === 'list', 'list-grid': viewMode === 'grid'}">
+            <!-- SINGLE LIST ITEM -->
+            <div *ngFor="let item of listaAutomatizaciones | paginate: config; let i = index" class="list-item"
+                [ngClass]="{'col-md-12': viewMode === 'list', 'col-md-3': viewMode === 'grid'}"
+                [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+                <div class="card o-hidden mb-2 d-flex"
+                    [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
+                    <div class="flex-grow-1"
+                        [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
+                        <div class="card-body align-self-center d-flex flex-column justify-content-between align-items-lg-center"
+                            [ngClass]="{'flex-lg-row': viewMode === 'list'}">
+                            <!-- OTHER DATA -->
+                            <a class="w-15 w-sm-60" style="flex-basis:400px">
+                                <div class="item-title"><strong>Nombre:</strong><span>{{item.nombre}}</span></div>
+                            </a>
+                            <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
+                                <strong>Tipo: </strong>
+                                <span *ngIf="item.idTipoAutomatizacion == 1">Recordatorio</span>
+                                <span *ngIf="item.idTipoAutomatizacion == 2">Estado de Cuenta</span>
+                                <span *ngIf="item.idTipoAutomatizacion == 3">Cobranza</span>
+                            </p>
+
+                            <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
+                                <strong>Dia de envio: </strong>
+                                <span *ngIf="item.idPerioricidad == null">Todos los días</span>
+                                <span *ngIf="item.idPerioricidad == 1">Primer día del mes</span>
+                                <span *ngIf="item.idPerioricidad == 2">Mitad de mes</span>
+                                <span *ngIf="item.idPerioricidad == 3">Ultimo día del mes</span>
+                                <span *ngIf="item.idPerioricidad == 4">{{item.diaEnvio}} de cada mes</span>
+                                <span *ngIf="item.idPerioricidad == 5">Cada
+                                    <span *ngIf="item.diaEnvio == 1">Lunes</span>
+                                    <span *ngIf="item.diaEnvio == 2">Martes</span>
+                                    <span *ngIf="item.diaEnvio == 3">Miercoles</span>
+                                    <span *ngIf="item.diaEnvio == 4">Jueves</span>
+                                    <span *ngIf="item.diaEnvio == 5">Viernes</span>
+                                    <span *ngIf="item.diaEnvio == 6">Sabado</span>
+                                    <span *ngIf="item.diaEnvio == 7">Domingo</span>
+                                </span>
+                            </p>
+
+                            <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
+                                <strong>Hora de envio: </strong><span>{{item.horaEnvio}} hrs.</span>
+                            </p>
+
+
+                            <p class="m-0 text-muted w-15 w-sm-100 d-none d-lg-block item-badges"
+                                style="flex-basis:100px">
+                                <span *ngIf="item.estado == 1" class="badge badge-success">Activo</span>
+                                <span *ngIf="item.estado == 0" class="badge badge-danger">Inactivo</span>
+                            </p>
+
+                            <!-- <p class="m-0 text-muted w-15 w-sm-100">    -->
+
+                            <div ngbDropdown container="body">
+                                <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                    class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                    id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                        height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="text-body align-middle mr-25 feather feather-more-vertical">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                    </svg></button>
+                                <div ngbDropdownMenu>
+                                    <button (click)="openModal(item)" style="cursor: pointer; " ngbDropdownItem><i
+                                            class="i-Edit"
+                                            style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Editar</button>
+                                    <button (click)="delete(item.idAutomatizacion)" style="cursor: pointer;"
+                                        ngbDropdownItem><i class="i-Remove"
+                                            style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- PAGINATION CONTROL -->
+            <div class="col-md-12 mt-3" *ngIf="listaAutomatizaciones?.length > 0">
+                <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true" previousLabel=""
+                    nextLabel="">
+                </pagination-controls>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="listaAutomatizaciones.length == 0 && loaded">
             <div class="col-md-12">
-                <!--RECORDATORIO-->
-                <div class="card mb-4">
-                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(1)">
-                        ENVIO PRE COBRANZA
-                        <i [ngClass]="muestaRecordatorio == 0 ? 'i-Arrow-Down' :'i-Arrow-Up' "></i>
-
-                    </div>
-                    <div class="card-body" *ngIf="muestaRecordatorio == 1">
-                        <p>El envio de las pre cobranzas corresponde al envio de los documentos que se encuentran
-                            cercanos a vencer calculado segun los dias antes del vencimiento y filtros indicados a
-                            continuación.</p>
-                        <p>Este envio se realizara todos los dias a la hora indicada.</p>
-                        <form>
-                            <div class="borderRow">
-                                <h4 class="paddingRow">Configuración Envio</h4>
-                                <div class="row paddingRow">
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Horario de envio</label>
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important; max-height: 120px;"
-                                            [items]="horarios" bindLabel="horario" placeholder="Horas" #ccR="ngModel"
-                                            name="ccR" [(ngModel)]="recordatorio.idHorario" bindValue="idHorario">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Periodicidad</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="periocidades" bindLabel="nombre"
-                                            placeholder="Seleccione periocidad" #ppC="ngModel" name="ppC"
-                                            [(ngModel)]="recordatorio.idPerioricidad" bindValue="idPeriocidad"
-                                            (change)="changePeriodicidad(1)">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="recordatorio.idPerioricidad == 4">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <div class="input-group">
-                                            <input type="number" min="1" max="30" class="form-control"
-                                                placeholder="Dia de envio" (blur)="validaNumeros()" name="diasEnvioC"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="recordatorio.diaEnvio" #diasEnvioC="ngModel" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="recordatorio.idPerioricidad == 5">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="diasSemana" appendTo="body" bindLabel="nombre" required
-                                            placeholder="Dia de envio" #diasSemanaC="ngModel" name="diasSemanaC"
-                                            [(ngModel)]="recordatorio.diaEnvio" bindValue="id">
-                                        </ng-select>
-                                    </div>
-
-                                </div>
-
-                                <div class="row  paddingRow">
-
-
-                                    <div class="col-md-5 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar a todos los cargos</span>
-                                            <input type="checkbox" name="chkContactoR"
-                                                [(ngModel)]="recordatorio.enviaTodosContactos">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-7 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar al correo de la ficha si no se encuentran contactos</span>
-                                            <input type="checkbox" name="chkFichaR"
-                                                [(ngModel)]="recordatorio.enviaCorreoFicha">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group col-md-12" *ngIf="!recordatorio.enviaTodosContactos">
-                                    <label for="picker1" class="text-lbl">Cargo Contacto</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
-                                        bindLabel="carNom" placeholder="Cargo" #carR="ngModel" name="carR"
-                                        [(ngModel)]="selectedCargosRecordatorio" bindValue="carCod" [multiple]="true"
-                                        [closeOnSelect]="false">
-                                    </ng-select>
-                                </div>
-
-                            </div>
-                            <div class="borderRow marginRow">
-                                <h4 class="paddingRow">Configuración Filtros</h4>
-                                <div class="row paddingRow">
-                                    <div class="col-md-4 form-group">
-                                        <label for="picker1">Año</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="anios" appendTo="body" bindLabel="anioMatricula" required
-                                            placeholder="Año" #aniosm="ngModel" name="aniosm"
-                                            [(ngModel)]="selectedAnioRecordatorio" bindValue="id">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1">Dias antes del vencimiento</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Cantidad de dias"
-                                                name="diasR"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="recordatorio.diasVencimiento" #diasR="ngModel" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Lista de precios</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="listasPrecio" bindLabel="desLista" placeholder="Lista de precio"
-                                            #listasPreciosR="ngModel" name="listasPreciosR"
-                                            [(ngModel)]="selectedListasPrecioRecordatorio" bindValue="codLista"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Categoría cliente</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="categoriasCliente" bindLabel="catDes"
-                                            placeholder="Categoria Cliente" #categoriasClientesR="ngModel"
-                                            name="categoriasClientesR"
-                                            [(ngModel)]="selectedCategoriasClienteRecordatorio" bindValue="catCod"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Vendedor</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="vendedores" bindLabel="venDes" placeholder="Vendedores"
-                                            #vendedoressR="ngModel" name="vendedoressR"
-                                            [(ngModel)]="selectedVendedoresRecordatorio" bindValue="venCod"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Condición de venta</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="condicionesVenta" bindLabel="cveDes"
-                                            placeholder="Condición de venta" #condicionesVentasR="ngModel"
-                                            name="condicionesVentasR" [(ngModel)]="selectedCondicionesVentaRecordatorio"
-                                            bindValue="cveCod" [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <!-- <div class="col-md-12 form-group">
-                                        <label for="picker1">Canal de venta</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="canalesVenta" bindLabel="canDes" placeholder="Canal de venta"
-                                                #cVentaR="ngModel" name="cVentaR"
-                                                [(ngModel)]="selectedCanalesVentaRecordatorio" bindValue="canCod"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1">Cobrador</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="cobradores" bindLabel="cobDes" placeholder="Cobrador"
-                                                #cobradorR="ngModel" name="cobradorR"
-                                                [(ngModel)]="selectedCobradoresRecordatorio" bindValue="cobCod"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div> -->
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1">Tipos de documentos</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="tiposDocumento" bindLabel="desDoc"
-                                                placeholder="Tipos de documento" #tDocsR="ngModel" name="tDocsR"
-                                                [(ngModel)]="selectedTiposDocumentosRecordatorio" bindValue="codDoc"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row paddingRow">
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary r-3">
-                                            <span>Excluye Festivos</span>
-                                            <input #inputEl2R [(ngModel)]="recordatorio.excluyeFestivos" type="checkbox"
-                                                id="exampleCheck4R" name="exampleCheck4R" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary r-3">
-                                            <span>Excluye Clientes</span>
-                                            <input #inputEl1R [(ngModel)]="recordatorio.excluyeClientes" type="checkbox"
-                                                id="exampleCheck5R" name="exampleCheck5R" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary r-3">
-                                            <span>Estado</span>
-                                            <input #inputEl3R [(ngModel)]="recordatorio.estado" type="checkbox"
-                                                id="exampleCheck3R" name="exampleCheck3R" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="col-md-12 mt-3 text-center">
-                            <button class="btn btn-primary" (click)="save(recordatorio)">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!--ESTADO DE CUENTA-->
-                <div class="card mb-4">
-                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(2)">
-                        ENVIO ESTADO DE CUENTA
-                        <i [ngClass]="muestraEstadoCuenta == 0 ? 'i-Arrow-Down' :'i-Arrow-Up' "></i>
-
-                    </div>
-                    <div class="card-body" *ngIf="muestraEstadoCuenta == 1">
-                        <p>El envio de estado de cuenta corresponde al envio de los documentos vencidos y pendientes
-                            segun los filtros indicados a continuación.</p>
-                        <p>Este envio se realizara segun la perioricidad indicada.</p>
-                        <form>
-
-                            <div class="borderRow">
-                                <h4 class="paddingRow">Configuración Envio</h4>
-                                <div class="row paddingRow">
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Horario de envio</label>
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important; max-height: 120px;"
-                                            [items]="horarios" bindLabel="horario" placeholder="Horas" #ccE="ngModel"
-                                            name="ccE" [(ngModel)]="estadoCuenta.idHorario" bindValue="idHorario">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Periodicidad</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="periocidades" bindLabel="nombre"
-                                            placeholder="Seleccione periocidad" #ppE="ngModel" name="ppE"
-                                            [(ngModel)]="estadoCuenta.idPerioricidad" bindValue="idPeriocidad"
-                                            (change)="changePeriodicidad(2)">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="estadoCuenta.idPerioricidad == 4">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <div class="input-group">
-                                            <input type="number" min="1" max="30" class="form-control"
-                                                placeholder="Dia de envio" (blur)="validaNumeros()" name="diasEnvioE"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="estadoCuenta.diaEnvio" #diasEnvioE="ngModel" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="estadoCuenta.idPerioricidad == 5">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="diasSemana" appendTo="body" bindLabel="nombre" required
-                                            placeholder="Dia de envio" #diasSemanaE="ngModel" name="diasSemanaE"
-                                            [(ngModel)]="estadoCuenta.diaEnvio" bindValue="id">
-                                        </ng-select>
-                                    </div>
-
-                                </div>
-                                <div class="row  paddingRow">
-
-
-                                    <div class="col-md-5 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar a todos los cargos</span>
-                                            <input type="checkbox" name="chkContactoE"
-                                                [(ngModel)]="estadoCuenta.enviaTodosContactos">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-7 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar al correo de la ficha si no se encuentran contactos</span>
-                                            <input type="checkbox" name="chkFichaE"
-                                                [(ngModel)]="estadoCuenta.enviaCorreoFicha">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-
-
-                                <div class="form-group col-md-12" *ngIf="!estadoCuenta.enviaTodosContactos">
-                                    <label for="picker1" class="text-lbl">Cargo Contacto</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
-                                        bindLabel="carNom" placeholder="Cargo" #carE="ngModel" name="carE"
-                                        [(ngModel)]="selectedCargosEstadoCuenta" bindValue="carCod" [multiple]="true"
-                                        [closeOnSelect]="false">
-                                    </ng-select>
-                                </div>
-                            </div>
-
-
-
-                            <div class="borderRow marginRow">
-                                <h4 class="paddingRow">Configuración Filtros</h4>
-
-                                <div class="row paddingRow">
-                                    <div class="col-md-4 form-group">
-                                        <label for="picker1">Año</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="anios" appendTo="body" bindLabel="anioMatricula" required
-                                            placeholder="Año" #aniosE="ngModel" name="aniosE"
-                                            [(ngModel)]="selectedAnioEstadoCuenta" bindValue="id">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-
-                                        <label for="picker1" class="text-lbl">Lista de precios</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="listasPrecio" bindLabel="desLista" placeholder="Lista de precio"
-                                            #listasPreciosE="ngModel" name="listasPreciosE"
-                                            [(ngModel)]="selectedListasPrecioEstadoCuenta" bindValue="codLista"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Categoría cliente</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="categoriasCliente" bindLabel="catDes"
-                                            placeholder="Categoria Cliente" #categoriasClientesE="ngModel"
-                                            name="categoriasClientesE"
-                                            [(ngModel)]="selectedCategoriasClienteEstadoCuenta" bindValue="catCod"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Vendedor</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="vendedores" bindLabel="venDes" placeholder="Vendedores"
-                                            #vendedoressE="ngModel" name="vendedoressE"
-                                            [(ngModel)]="selectedVendedoresEstadoCuenta" bindValue="venCod"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Condición de venta</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="condicionesVenta" bindLabel="cveDes"
-                                            placeholder="Condición de venta" #condicionesVentasE="ngModel"
-                                            name="condicionesVentasE" [(ngModel)]="selectedCondicionesVentaEstadoCuenta"
-                                            bindValue="cveCod" [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1">Canal de venta</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="canalesVenta" bindLabel="canDes" placeholder="Canal de venta"
-                                                #cVentaEC="ngModel" name="cVentaEC"
-                                                [(ngModel)]="selectedCanalesVentaEstadoCuenta" bindValue="canCod"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div>
-
-                                    <!-- <div class="col-md-12 form-group">
-                                        <label for="picker1">Cobrador</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="cobradores" bindLabel="cobDes" placeholder="Cobrador"
-                                                #cobradorEC="ngModel" name="cobradorEC"
-                                                [(ngModel)]="selectedCobradoresEstadoCuenta" bindValue="cobCod"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div> -->
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1">Tipos de documentos</label>
-                                        <div class="input-group">
-                                            <ng-select class="customAC"
-                                                style="border-radius: 40px !important;  width: 100%;"
-                                                [items]="tiposDocumento" bindLabel="desDoc"
-                                                placeholder="Tipos de documento" #tDocsE="ngModel" name="tDocsE"
-                                                [(ngModel)]="selectedTiposDocumentosEstadoCuenta" bindValue="codDoc"
-                                                [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row paddingRow" style="margin-top: 20px;">
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Excluye Festivos</span>
-                                            <input #inputEl2R [(ngModel)]="estadoCuenta.excluyeFestivos" type="checkbox"
-                                                id="exampleCheck4E" name="exampleCheck4E" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary  mr-3">
-                                            <span>Excluye Clientes</span>
-                                            <input #inputEl1R [(ngModel)]="estadoCuenta.excluyeClientes" type="checkbox"
-                                                id="exampleCheck5E" name="exampleCheck5E" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-4 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Estado</span>
-                                            <input #inputEl3R [(ngModel)]="estadoCuenta.estado" type="checkbox"
-                                                id="exampleCheck3E" name="exampleCheck3E" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-
-                        <div class="col-md-12 mt-3 text-center">
-                            <button class="btn btn-primary" (click)="save(estadoCuenta)">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-                <!--COBRANZA-->
-                <div class="card mb-4">
-                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(3)">
-                        ENVIO COBRANZA
-                        <i [ngClass]="muestraCobranza == 0 ? 'i-Arrow-Down' :'i-Arrow-Up' "></i>
-
-                    </div>
-                    <div class="card-body" *ngIf="muestraCobranza == 1">
-                        <p>El envio de cobranza corresponde al envio de los documentos vencidos segun los dias que lleva
-                            vencido el documento y filtros indicados a continuación.</p>
-                        <p>Este envio se realizara segun la perioricidad indicada.</p>
-                        <form>
-                            <div class="borderRow">
-                                <h4 class="paddingRow">Configuración Envio</h4>
-                                <div class="row paddingRow">
-
-                                    <!-- <div class="form-group col-md-4">
-                                        <label for="picker1">Dias enviar recordatorio</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Cantidad de dias"
-                                                name="diasRC"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="cobranza.diasRecordatorio" #diasRC="ngModel" required>
-                                        </div>
-                                    </div> -->
-
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Horario de envio</label>
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important; max-height: 120px;"
-                                            [items]="horarios" bindLabel="horario" placeholder="Horas" #ccC="ngModel"
-                                            name="ccC" [(ngModel)]="cobranza.idHorario" bindValue="idHorario">
-                                        </ng-select>
-                                    </div>
-
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1" class="text-lbl">Periodicidad</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="periocidades" bindLabel="nombre"
-                                            placeholder="Seleccione periocidad" #ppC="ngModel" name="ppC"
-                                            [(ngModel)]="cobranza.idPerioricidad" bindValue="idPeriocidad"
-                                            (change)="changePeriodicidad(3)">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="cobranza.idPerioricidad == 4">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <div class="input-group">
-                                            <input type="number" min="1" max="30" class="form-control"
-                                                placeholder="Dia de envio" (blur)="validaNumeros()" name="diasEnvioC"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="cobranza.diaEnvio" #diasEnvioC="ngModel" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group col-md-4" *ngIf="cobranza.idPerioricidad == 5">
-                                        <label for="picker1" class="text-lbl">Dia de envio</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="diasSemana" appendTo="body" bindLabel="nombre" required
-                                            placeholder="Dia de envio" #diasSemanaC="ngModel" name="diasSemanaC"
-                                            [(ngModel)]="cobranza.diaEnvio" bindValue="id">
-                                        </ng-select>
-                                    </div>
-                                </div>
-
-
-                                <div class="row  paddingRow">
-
-
-                                    <div class="col-md-5 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar a todos los cargos</span>
-                                            <input type="checkbox" name="chkContactofa-stack"
-                                                [(ngModel)]="cobranza.enviaTodosContactos">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-7 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Enviar al correo de la ficha si no se encuentran contactos</span>
-                                            <input type="checkbox" name="chkFichaC"
-                                                [(ngModel)]="cobranza.enviaCorreoFicha">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-
-
-
-
-                                <div class="form-group col-md-12" *ngIf="!cobranza.enviaTodosContactos">
-                                    <label for="picker1" class="text-lbl">Cargo Contacto</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
-                                        bindLabel="carNom" placeholder="Cargo" #carC="ngModel" name="carC"
-                                        [(ngModel)]="selectedCargosCobranza" bindValue="carCod" [multiple]="true"
-                                        [closeOnSelect]="false">
-                                    </ng-select>
-                                </div>
-
-                            </div>
-
-
-                            <div class="borderRow marginRow">
-                                <h4 class="paddingRow">Configuración Filtros</h4>
-                                <div class="row paddingRow">
-                                    <div class="col-md-4 form-group">
-                                        <label for="picker1">Año</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="anios" appendTo="body" bindLabel="anioMatricula" required
-                                            placeholder="Año" #aniosC="ngModel" name="aniosC"
-                                            [(ngModel)]="selectedAnioCobranza" bindValue="id">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="form-group col-md-4">
-                                        <label for="picker1">Dias despues del vencimiento</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Cantidad de dias"
-                                                name="diasC"
-                                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                                                [(ngModel)]="cobranza.diasVencimiento" #diasC="ngModel" required>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Lista de precios</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="listasPrecio" bindLabel="desLista" placeholder="Lista de precio"
-                                            #listasPreciosC="ngModel" name="listasPreciosC"
-                                            [(ngModel)]="selectedListasPrecioCobranza" bindValue="codLista"
-                                            [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-
-                                    <div class="col-md-12 form-group">
-                                        <label for="picker1" class="text-lbl">Categoría cliente</label>
-                                        <ng-select class="customAC" style="border-radius: 40px !important;"
-                                            [items]="categoriasCliente" bindLabel="catDes"
-                                            placeholder="Categoria Cliente" #categoriasClientesC="ngModel"
-                                            name="categoriasClientesC" [(ngModel)]="selectedCategoriasClienteCobranza"
-                                            bindValue="catCod" [multiple]="true" [closeOnSelect]="false">
-                                        </ng-select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-12 form-group">
-                                    <label for="picker1" class="text-lbl">Vendedor</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;"
-                                        [items]="vendedores" bindLabel="venDes" placeholder="Vendedores"
-                                        #vendedoressC="ngModel" name="vendedoressC"
-                                        [(ngModel)]="selectedVendedoresCobranza" bindValue="venCod" [multiple]="true"
-                                        [closeOnSelect]="false">
-                                    </ng-select>
-                                </div>
-
-                                <div class="col-md-12 form-group">
-                                    <label for="picker1" class="text-lbl">Condición de venta</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;"
-                                        [items]="condicionesVenta" bindLabel="cveDes" placeholder="Condición de venta"
-                                        #condicionesVentasC="ngModel" name="condicionesVentasC"
-                                        [(ngModel)]="selectedCondicionesVentaCobranza" bindValue="cveCod"
-                                        [multiple]="true" [closeOnSelect]="false">
-                                    </ng-select>
-                                </div>
-
-                                <div class="col-md-12 form-group">
-                                    <label for="picker1">Canal de venta</label>
-                                    <div class="input-group">
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important;  width: 100%;" [items]="canalesVenta"
-                                            bindLabel="canDes" placeholder="Canal de venta" #cVentaC="ngModel"
-                                            name="cVentaC" [(ngModel)]="selectedCanalesVentaCobranza" bindValue="canCod"
-                                            [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                    </div>
-                                </div>
-
-                                <!-- <div class="col-md-12 form-group">
-                                    <label for="picker1">Cobrador</label>
-                                    <div class="input-group">
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important;  width: 100%;" [items]="cobradores"
-                                            bindLabel="cobDes" placeholder="Cobrador" #cobradorC="ngModel"
-                                            name="cobradorC" [(ngModel)]="selectedCobradoresCobranza" bindValue="cobCod"
-                                            [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                    </div>
-                                </div> -->
-
-                                <div class="col-md-12 form-group">
-                                    <label for="picker1" class="text-lbl">Mostrar en pago</label>
-                                    <ng-select class="customAC" style="border-radius: 40px !important;"
-                                        [items]="mostrarEnPago" bindLabel="nombre" placeholder="Mostrar en pago"
-                                        #mostrarPagoC="ngModel" name="mostrarPagoC"
-                                        [(ngModel)]="cobranza.muestraSoloVencidos" bindValue="id">
-                                    </ng-select>
-                                </div>
-
-                                <div class="col-md-12 form-group">
-                                    <label for="picker1">Tipos de documentos</label>
-                                    <div class="input-group">
-                                        <ng-select class="customAC"
-                                            style="border-radius: 40px !important;  width: 100%;"
-                                            [items]="tiposDocumento" bindLabel="desDoc" placeholder="Tipos de documento"
-                                            #tDocsC="ngModel" name="tDocsC"
-                                            [(ngModel)]="selectedTiposDocumentosCobranza" bindValue="codDoc"
-                                            [multiple]="true" [closeOnSelect]="false"></ng-select>
-                                    </div>
-                                </div>
-
-
-
-                                <div class="row  paddingRow">
-
-                                    <div class="col-md-3 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Agrupa Cobranza</span>
-                                            <input #inputEl5C [(ngModel)]="cobranza.agrupaCobranza" type="checkbox"
-                                                id="exampleCheck6C" name="exampleCheck6C" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Excluye Festivos</span>
-                                            <input #inputEl2R [(ngModel)]="cobranza.excluyeFestivos" type="checkbox"
-                                                id="exampleCheck4C" name="exampleCheck4C" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Excluye Clientes</span>
-                                            <input #inputEl1R [(ngModel)]="cobranza.excluyeClientes" type="checkbox"
-                                                id="exampleCheck5C" name="exampleCheck5C" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label class="switch switch-primary mr-3">
-                                            <span>Estado</span>
-                                            <input #inputEl3R [(ngModel)]="cobranza.estado" type="checkbox"
-                                                id="exampleCheck3C" name="exampleCheck3C" />
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-
-                        <div class="col-md-12 mt-3 text-center">
-                            <button class="btn btn-primary" (click)="save(cobranza)">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-
+                <ngb-alert class="alert-card text-center" [dismissible]="false">
+                    {{noResultsText}}
+                </ngb-alert>
             </div>
         </div>
     </div>
@@ -731,15 +159,15 @@
 
 <!-- DATA LIST -->
 
-
-<ng-template #modalBasic let-modal>
-    <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-        </button>
+<div class="card mb-4" *ngIf="esCreacion">
+    <div class="card-header">
+        {{modalTitle}}
     </div>
-    <div class="modal-body">
+    <div class="card-body">
+        <div class="d-sm-flex mb-5">
+            <span class="m-auto"></span>
+            <button class="btn btn-outline-secondary mr-3 mb-sm-0 mb-3" (click)="volver()">Volver</button>
+        </div>
         <form>
             <div class="form-group">
                 <label for="picker1">Tipo</label>
@@ -751,6 +179,25 @@
                 </div>
             </div>
 
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">la pre cobranza corresponde al envio de los
+                documentos que se encuentran
+                cercanos a vencer calculado segun los dias antes del vencimiento y filtros indicados a
+                continuación.</p>
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">Este envio se realizara todos los dias a la hora
+                indicada.</p>
+
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">El estado de cuenta corresponde al envio de los
+                documentos vencidos y pendientes
+                segun los filtros indicados a continuación.</p>
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">Este envio se realizara segun la perioricidad
+                indicada.</p>
+
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">La cobranza corresponde al envio de los documentos
+                vencidos segun los dias que lleva
+                vencido el documento y filtros indicados a continuación.</p>
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">Este envio se realizara segun la perioricidad
+                indicada.</p>
+
             <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                 <label for="picker1">Nombre</label>
                 <div class="input-group">
@@ -759,142 +206,223 @@
                 </div>
             </div>
 
-            <div class="form-group"
-                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && (nuevaAutomaetizacion.idTipoAutomatizacion == 1 || nuevaAutomaetizacion.idTipoAutomatizacion == 3)">
-                <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1" for="picker1">Dias antes del
-                    vencimiento</label>
-                <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3" for="picker1">Dias despues del
-                    vencimiento</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Cantidad de dias" name="dias"
-                        onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                        [(ngModel)]="nuevaAutomaetizacion.diasVencimiento" #dias="ngModel" required>
+            <div class="borderRow" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null" style="margin-top: 10px;">
+                <h4 class="paddingRow">Configuración Envio</h4>
+                <div class="row paddingRow">
+                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Horario de envio</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important; max-height: 120px;"
+                            (open)="handleFocus()" [items]="horarios" bindLabel="horario" placeholder="Horas"
+                            #cc="ngModel" name="cc" [(ngModel)]="nuevaAutomaetizacion.idHorario" bindValue="idHorario">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-4"
+                        *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Periodicidad</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="periocidades"
+                            bindLabel="nombre" placeholder="Seleccione periocidad" #pp="ngModel" name="pp"
+                            [(ngModel)]="nuevaAutomaetizacion.idPerioricidad" bindValue="idPeriocidad">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idPerioricidad == 4">
+                        <label for="picker1" class="text-lbl">Dia de envio</label>
+                        <div class="input-group">
+                            <input type="number" min="1" max="30" class="form-control" placeholder="Dia de envio"
+                                (blur)="validaNumeros()" name="diasEnvioC"
+                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                [(ngModel)]="nuevaAutomaetizacion.diaEnvio" #diasEnvioC="ngModel" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idPerioricidad == 5">
+                        <label for="picker1" class="text-lbl">Dia de envio</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="diasSemana"
+                            appendTo="body" bindLabel="nombre" required placeholder="Dia de envio"
+                            #diasSemanaC="ngModel" name="diasSemanaC" [(ngModel)]="nuevaAutomaetizacion.diaEnvio"
+                            bindValue="id">
+                        </ng-select>
+                    </div>
+                </div>
+
+                <div class="row paddingRow">
+
+
+                    <div class="col-md-5 form-group">
+                        <label class="switch switch-primary mr-3">
+                            <span>Enviar a todos los cargos</span>
+                            <input type="checkbox" name="chkContactofa-stack"
+                                [(ngModel)]="nuevaAutomaetizacion.enviaTodosContactos">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="col-md-7 form-group">
+                        <label class="switch switch-primary mr-3">
+                            <span>Enviar al correo de la ficha si no se encuentran contactos</span>
+                            <input type="checkbox" name="chkFichaC" [(ngModel)]="nuevaAutomaetizacion.enviaCorreoFicha">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+
+
+                    <div class="form-group col-md-12" *ngIf="!nuevaAutomaetizacion.enviaTodosContactos">
+                        <label for="picker1" class="text-lbl">Cargo Contacto</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
+                            bindLabel="carNom" placeholder="Cargo" #carC="ngModel" name="carC"
+                            [(ngModel)]="selectedCargos" bindValue="carCod" [multiple]="true" [closeOnSelect]="true">
+                        </ng-select>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1">Tipos de documentos</label>
-                <div class="input-group">
-                    <ng-select class="customAC" style="border-radius: 40px !important;  width: 100%;"
-                        [items]="tiposDocumento" bindLabel="desDoc" placeholder="Tipos de documento" #lpo="ngModel"
-                        name="lpo" [(ngModel)]="selectedTiposDocumentos" bindValue="codDoc" [multiple]="true"
-                        [closeOnSelect]="false"></ng-select>
+
+
+            <div class="borderRow" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null" style="margin-top: 10px;">
+                <h4 class="paddingRow">Configuración Filtros</h4>
+                <div class="row paddingRow">
+                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1">Año</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
+                            appendTo="body" bindLabel="anioMatricula" required placeholder="Año" #aniosm="ngModel"
+                            name="aniosm" [(ngModel)]="selectedAnio" bindValue="id">
+                        </ng-select>
+                    </div>
+
+
+                    <div class="form-group col-md-4"
+                        *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && (nuevaAutomaetizacion.idTipoAutomatizacion == 1 || nuevaAutomaetizacion.idTipoAutomatizacion == 3)">
+                        <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1" for="picker1">Dias antes del
+                            vencimiento</label>
+                        <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3" for="picker1">Dias despues del
+                            vencimiento</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Cantidad de dias" name="dias"
+                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                [(ngModel)]="nuevaAutomaetizacion.diasVencimiento" #dias="ngModel" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1">Tipos de documentos</label>
+                        <div class="input-group">
+                            <ng-select class="customAC" style="border-radius: 40px !important;  width: 100%;"
+                                [items]="tiposDocumento" bindLabel="desDoc" placeholder="Tipos de documento"
+                                #lpo="ngModel" name="lpo" [(ngModel)]="selectedTiposDocumentos" bindValue="codDoc"
+                                [multiple]="true" [closeOnSelect]="true"></ng-select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Lista de precios</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
+                            bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel"
+                            name="listasPrecios" [(ngModel)]="selectedListasPrecio" [multiple]="true"
+                            [closeOnSelect]="true" bindValue="codLista">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Categoría cliente</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
+                            bindLabel="catDes" placeholder="Categoria Cliente" #categoriasClientes="ngModel"
+                            name="categoriasClientes" [(ngModel)]="selectedCategoriasCliente" [multiple]="true"
+                            [closeOnSelect]="true" bindValue="catCod">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Vendedor</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
+                            bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
+                            [(ngModel)]="selectedVendedores" bindValue="venCod" [multiple]="true"
+                            [closeOnSelect]="true">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                        <label for="picker1" class="text-lbl">Condición de venta</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
+                            bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
+                            name="condicionesVentas" [(ngModel)]="selectedCondicionesVenta" [multiple]="true"
+                            [closeOnSelect]="true" bindValue="cveCod">
+                        </ng-select>
+                    </div>
+
+                    <div class="form-group col-md-12"
+                        *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
+                        <label for="picker1" class="text-lbl">Mostrar en pago</label>
+                        <ng-select class="customAC" style="border-radius: 40px !important;" [items]="mostrarEnPago"
+                            bindLabel="nombre" placeholder="Seleccione periocidad" #mostrarPago="ngModel"
+                            name="mostrarPago" [(ngModel)]="nuevaAutomaetizacion.muestraSoloVencidos" bindValue="id">
+                        </ng-select>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1">Año</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios" appendTo="body"
-                    bindLabel="anioMatricula" required placeholder="Año" #aniosm="ngModel" name="aniosm"
-                    [(ngModel)]="nuevaAutomaetizacion.anio" bindValue="id">
-                </ng-select>
+
+
+
+            <div class="row paddingRow" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+
+                <div class="col-md-3 form-group"
+                    *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
+                    <label class="switch switch-primary mr-3">
+                        <span>Agrupa Cobranza</span>
+                        <input #inputEl5C [(ngModel)]="nuevaAutomaetizacion.agrupaCobranza" type="checkbox"
+                            id="exampleCheck6C" name="exampleCheck6C" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <label class="switch switch-primary mr-3">
+                        <span>Excluye Festivos</span>
+                        <input #inputEl2R [(ngModel)]="nuevaAutomaetizacion.excluyeFestivos" type="checkbox"
+                            id="exampleCheck4C" name="exampleCheck4C" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <label class="switch switch-primary mr-3">
+                        <span>Excluye Clientes</span>
+                        <input #inputEl1R [(ngModel)]="nuevaAutomaetizacion.excluyeClientes" type="checkbox"
+                            id="exampleCheck5C" name="exampleCheck5C" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <label class="switch switch-primary mr-3">
+                        <span>Estado</span>
+                        <input #inputEl3R [(ngModel)]="nuevaAutomaetizacion.estado" type="checkbox" id="exampleCheck3C"
+                            name="exampleCheck3C" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
-
-            <div class="form-group"
-                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
-                <label for="picker1">Dias para reenviar</label>
-                <input type="text" class="form-control" placeholder="Cantidad de dias" name="diasR"
-                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                    [(ngModel)]="nuevaAutomaetizacion.diasRecordatorio" #diasR="ngModel" required>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1" class="text-lbl">Lista de precios</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
-                    bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel" name="listasPrecios"
-                    [(ngModel)]="nuevaAutomaetizacion.codListaPrecios" bindValue="codLista">
-                </ng-select>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1" class="text-lbl">Categoría cliente</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
-                    bindLabel="catDes" placeholder="Categoria Cliente" #categoriasClientes="ngModel"
-                    name="categoriasClientes" [(ngModel)]="nuevaAutomaetizacion.codCategoriaCliente" bindValue="catCod">
-                </ng-select>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1" class="text-lbl">Vendedor</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
-                    bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
-                    [(ngModel)]="nuevaAutomaetizacion.codVendedor" bindValue="venCod">
-                </ng-select>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1" class="text-lbl">Condición de venta</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
-                    bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
-                    name="condicionesVentas" [(ngModel)]="nuevaAutomaetizacion.codCondicionVenta" bindValue="cveCod">
-                </ng-select>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label for="picker1" class="text-lbl">Horario de envio</label>
-                <ng-select class="customAC" style="border-radius: 40px !important; max-height: 120px;"
-                    (open)="handleFocus()" [items]="horarios" bindLabel="horario" placeholder="Horas" #cc="ngModel"
-                    name="cc" [(ngModel)]="nuevaAutomaetizacion.idHorario" bindValue="idHorario">
-                </ng-select>
-            </div>
-
-            <div class="form-group"
-                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 2">
-                <label for="picker1" class="text-lbl">Periodicidad</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="periocidades"
-                    bindLabel="nombre" placeholder="Seleccione periocidad" #pp="ngModel" name="pp"
-                    [(ngModel)]="nuevaAutomaetizacion.idPerioricidad" bindValue="idPeriocidad">
-                </ng-select>
-            </div>
-
-            <div class="form-group"
-                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
-                <label for="picker1" class="text-lbl">Mostrar en pago</label>
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="mostrarEnPago"
-                    bindLabel="nombre" placeholder="Seleccione periocidad" #mostrarPago="ngModel" name="mostrarPago"
-                    [(ngModel)]="nuevaAutomaetizacion.muestraSoloVencidos" bindValue="id">
-                </ng-select>
-            </div>
-
-            <div class="form-group"
-                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
-                <label class="switch switch-success mr-3">
-                    <span>Agrupa Cobranza</span>
-                    <input #inputEl5 [(ngModel)]="nuevaAutomaetizacion.agrupaCobranza" type="checkbox"
-                        id="exampleCheck6" name="exampleCheck6" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label class="switch switch-success mr-3">
-                    <span>Excluye Festivos</span>
-                    <input #inputEl2 [(ngModel)]="nuevaAutomaetizacion.excluyeFestivos" type="checkbox"
-                        id="exampleCheck4" name="exampleCheck4" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label class="switch switch-success mr-3">
-                    <span>Excluye Clientes</span>
-                    <input #inputEl1 [(ngModel)]="nuevaAutomaetizacion.excluyeClientes" type="checkbox"
-                        id="exampleCheck5" name="exampleCheck5" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                <label class="switch switch-success mr-3">
-                    <span>Estado</span>
-                    <input #inputEl3 [(ngModel)]="nuevaAutomaetizacion.estado" type="checkbox" id="exampleCheck3"
-                        name="exampleCheck3" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-
         </form>
+        <div class="row justify-content-center">
+            <button type="button" class="btn btn-outline-primary" (click)="save()">Guardar</button>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #modalBasic let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="save(modalConfirmEdit)">Guardar</button>

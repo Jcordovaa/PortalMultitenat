@@ -134,6 +134,7 @@ export class DashboardClienteComponent implements OnInit {
             const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
             if (configuracionCompletaPortal != null) {
                 this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+                
                 this.configuracion = configuracionCompletaPortal.configuracionPortal;
                 this.configuracionPagos = configuracionCompletaPortal.configuracionPagoCliente;
                 this.existModuloInventario = configuracionCompletaPortal.existModuloInventario;
@@ -153,6 +154,10 @@ export class DashboardClienteComponent implements OnInit {
 
             this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {                 
                 this.topCompras = res;
+                if(this.topCompras.length > 0){
+                    this.configDiseno.tituloUltimasCompras = this.configDiseno.tituloUltimasCompras.replace('{cantidad}', this.topCompras.length.toString())
+                }
+                
             }, err => { this.spinner.hide(); });
 
 

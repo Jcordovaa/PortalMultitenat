@@ -61,7 +61,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/GetUsuarioByMail";
@@ -96,7 +96,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/getEmpresa";
@@ -153,7 +153,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/ChangePassword";
@@ -202,7 +202,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/ChangeCorreo";
@@ -286,7 +286,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/ActualizaUsuario";
@@ -359,7 +359,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/GuardarUsuario";
@@ -404,7 +404,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/EliminaUsuarioId";
@@ -485,7 +485,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/GetUsuariosByPage";
@@ -526,7 +526,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/GetUsuarioId";
@@ -591,7 +591,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Usuarios/ChangeCorreo";

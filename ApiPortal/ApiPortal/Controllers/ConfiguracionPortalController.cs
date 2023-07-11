@@ -48,7 +48,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionPorta/GetConfiguracionPortal";
@@ -87,7 +87,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionPorta/GetCobranzaCliente";
@@ -112,7 +112,7 @@ namespace ApiPortal.Controllers
                 var configuracionDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
                 var configuracionPortal = _context.ConfiguracionPortals.FirstOrDefault();
                 var configuracionPago = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                configuracionDiseno.TituloUltimasCompras = "Últimas " + configuracionPortal.CantidadUltimasCompras + " Compras Facturadas";
+                configuracionDiseno.TituloUltimasCompras = "Últimas {cantidad} Compras Facturadas";
 
                 var modulos = await sf.GetModulosSoftlandAsync(logApi.Id);
                 bool existModuloInventario = false;
@@ -145,7 +145,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionPorta/GetCobranzaCliente";

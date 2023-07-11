@@ -1,5 +1,6 @@
 export class Automatizacion {
     idAutomatizacion?: number;
+    nombre?: string;
     idTipoAutomatizacion?: number;
     anio?: number;
     tipoDocumentos?: string;
@@ -23,9 +24,11 @@ export class Automatizacion {
     codCargo?: string;
     enviaTodosContactos?: number;
     enviaCorreoFicha?: number;
+    horaEnvio?: string;
 
     constructor() {
         this.idAutomatizacion = 0;
+        this.nombre = '';
         this.idTipoAutomatizacion = null;
         this.anio = 0;
         this.tipoDocumentos = '';
@@ -49,6 +52,7 @@ export class Automatizacion {
         this.codCargo = '';
         this.enviaCorreoFicha = 0;
         this.enviaTodosContactos = 0;
+        this.horaEnvio = '';
     }
 
 }

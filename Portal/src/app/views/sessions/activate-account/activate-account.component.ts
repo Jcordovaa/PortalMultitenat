@@ -8,6 +8,9 @@ import { NotificationService } from '../../../shared/services/notificacion.servi
 import { Router, RouteConfigLoadStart, ResolveStart, RouteConfigLoadEnd, ResolveEnd, ActivatedRoute } from '@angular/router';
 import { Usuarios } from '../../../shared/models/security.model';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
+import { ConfiguracionDiseno } from 'src/app/shared/models/configuraciondiseno.model';
+import { ConfiguracionDisenoService } from 'src/app/shared/services/configuraciondiseno.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-activate-account',
@@ -21,6 +24,9 @@ export class ActivateAccountComponent implements OnInit {
   public icon: string = 'assets/images/icon/view.png';
   public verContraseña2: number = 0; //FCA 10-03-2022
   public icon2: string = 'assets/images/icon/view.png';
+  public verContraseña3: number = 0; //FCA 10-03-2022
+  public icon3: string = 'assets/images/icon/view.png';
+  public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno();
 
   public signInModel: any = {
     correo: '',
@@ -48,7 +54,7 @@ export class ActivateAccountComponent implements OnInit {
     private fb: FormBuilder,
     private securityService: ClientesService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute, private disenoSerivce: ConfiguracionDisenoService, private spinner: NgxSpinnerService
   ) {
     this.activatedRoute.params.subscribe(params => {
       if (params['id'] != null) {
@@ -65,9 +71,11 @@ export class ActivateAccountComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.spinner.show();
+
     this.router.events.subscribe(event => {
       if (event instanceof RouteConfigLoadStart || event instanceof ResolveStart) {
-        this.loadingText = 'Cargando Dashboard ...';
+        this.loadingText = 'Cargando...';
 
         this.loading = true;
       }
@@ -85,6 +93,11 @@ export class ActivateAccountComponent implements OnInit {
       'pass2': new FormControl(this.newPassModel.password1, [Validators.required, Validators.minLength(6)]),
       'pass3': new FormControl(this.newPassModel.password2, [Validators.required, Validators.minLength(6)])
     });
+    this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
+      this.configDiseno = res;
+      this.spinner.hide();
+    }, err => { this.spinner.hide(); });
+
   }
 
   get correo() { return this.signinForm.get('correo'); }
@@ -105,7 +118,7 @@ export class ActivateAccountComponent implements OnInit {
       return
     }
 
-    const model = { codAux: datos[0], correo: datos[1], clave: this.signinForm.get('pass').value }
+    const model = { codAux: datos[0], correo: datos[1], clave: this.signinForm.get('pass').value.trim() }
 
 
     this.loading = true;
@@ -187,14 +200,33 @@ export class ActivateAccountComponent implements OnInit {
 
     if (this.verContraseña2 == 0) {
       this.icon2 = 'assets/images/icon/view.png';
-      document.getElementsByName("pass3")[0].setAttribute('type', 'password');
       document.getElementsByName("pass2")[0].setAttribute('type', 'password');
     } else {
       this.icon2 = 'assets/images/icon/invisible.png';
-      document.getElementsByName("pass3")[0].setAttribute('type', 'text');
       document.getElementsByName("pass2")[0].setAttribute('type', 'text');
     }
   }
 
+  verPass3() {
+    if (this.verContraseña3 == 1) {
+      this.verContraseña3 = 0;
+    } else {
+      this.verContraseña3 = 1;
+    }
 
+
+    if (this.verContraseña3 == 0) {
+      this.icon3 = 'assets/images/icon/view.png';
+      document.getElementsByName("pass3")[0].setAttribute('type', 'password');
+    } else {
+      this.icon3 = 'assets/images/icon/invisible.png';
+      document.getElementsByName("pass3")[0].setAttribute('type', 'text');
+    }
+  }
+
+  
+
+  eliminarEspacios() {
+
+  }
 }

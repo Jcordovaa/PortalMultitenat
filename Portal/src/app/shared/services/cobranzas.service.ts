@@ -52,6 +52,7 @@ export class CobranzasService {
   }
 
   saveCobranza(data: any) {   
+    debugger
     const body = JSON.stringify(data);
     return this.http.post(`${this.apiUrl}/SaveCobranza`, body, this.utils.getHeaders(true));
   }

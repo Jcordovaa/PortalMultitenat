@@ -1582,7 +1582,7 @@
         <div id="print-area">
           <div class="row">
             <div class="col-md-6">
-              <h4 class="font-weight-bold">Factura</h4>
+              <h4 class="font-weight-bold">{{tituloDetalle}}</h4>
               <p>{{ detalleCab.folio }}</p>
             </div>
             <div class="col-md-6 text-sm-right">
@@ -1622,7 +1622,8 @@
                       <th scope="col">#</th>
                       <th scope="col">Código</th>
                       <th scope="col">Producto</th>
-                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Cantidad Facturada</th>
+                      <th style="text-align: right;" scope="col">Cantidad Despachada</th>
                       <th style="text-align: right;" scope="col">Precio Unitario</th>
                       <th style="text-align: right;" scope="col">Total</th>
                     </tr>
@@ -1633,6 +1634,7 @@
                       <td>{{ c.codigo }}</td>
                       <td>{{ c.desProd }}</td>
                       <td style="text-align: right;">{{ c.cantidad }}</td>
+                      <td style="text-align: right;">{{ c.cantidadDespachada }}</td>
                       <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
                       <td style="text-align: right;">$ {{ c.total | monto }}</td>
                     </tr>
@@ -1705,7 +1707,7 @@
         <div id="print-area">
           <div class="row">
             <div class="col-md-6">
-              <h4 class="font-weight-bold">Factura</h4>
+              <h4 class="font-weight-bold">{{tituloDetalle}}</h4>
               <p>{{ detalleCab.folio }}</p>
             </div>
             <div class="col-md-6 text-sm-right">
@@ -1745,7 +1747,8 @@
                       <th scope="col">#</th>
                       <th scope="col">Código</th>
                       <th scope="col">Producto</th>
-                      <th style="text-align: right;" scope="col">Cantidad</th>
+                      <th style="text-align: right;" scope="col">Cantidad Facturada</th>
+                      <th style="text-align: right;" scope="col">Cantidad Despachada</th>
                       <th style="text-align: right;" scope="col">Precio Unitario $</th>
                       <th style="text-align: right;" scope="col">Total $</th>
                     </tr>
@@ -1763,6 +1766,9 @@
                       <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163); text-align: right; ">{{ c.cantidad
                         }}
                       </td>
+                      <td *ngIf="productoVenta == c.codigo" style="background-color: rgb(162, 163, 163); text-align: right; ">{{ c.cantidadDespachada
+                      }}
+                    </td>
                       <td  *ngIf="productoVenta == c.codigo"
                         style="background-color: rgb(162, 163, 163); text-align: right;">{{
                         c.precioUnitario | monto }}</td>
@@ -1773,6 +1779,7 @@
                       <td *ngIf="productoVenta != c.codigo">{{ c.codigo }}</td>
                       <td *ngIf="productoVenta != c.codigo">{{ c.desProd }}</td>
                       <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.cantidad }}</td>
+                      <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.cantidadDespachada }}</td>
                       <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.precioUnitario | monto }}
                       </td>
                       <td style="text-align: right;" *ngIf="productoVenta != c.codigo">{{ c.total | monto }}</td>

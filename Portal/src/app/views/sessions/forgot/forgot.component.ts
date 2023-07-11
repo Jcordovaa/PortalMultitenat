@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { SharedAnimations } from 'src/app/shared/animations/shared-animations';
+import { ConfiguracionDiseno } from 'src/app/shared/models/configuraciondiseno.model';
 import { ClientesService } from 'src/app/shared/services/clientes.service';
+import { ConfiguracionDisenoService } from 'src/app/shared/services/configuraciondiseno.service';
 import { NotificationService } from 'src/app/shared/services/notificacion.service';
 import { Utils } from 'src/app/shared/utils';
 
@@ -18,10 +20,17 @@ export class ForgotComponent implements OnInit {
 
   rut: string = '';
   email: string = '';
+  public configDiseno: ConfiguracionDiseno = new ConfiguracionDiseno();
 
-  constructor(private utils: Utils, private notificationService: NotificationService,  private clienteService: ClientesService, private spinner: NgxSpinnerService) { }
+  constructor(private utils: Utils, private notificationService: NotificationService,  private clienteService: ClientesService, 
+    private spinner: NgxSpinnerService, private disenoSerivce: ConfiguracionDisenoService) { }
 
   ngOnInit() {
+    this.spinner.show();
+    this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
+      this.configDiseno = res;
+      this.spinner.hide();
+    }, err => { this.spinner.hide(); });
   }
 
 

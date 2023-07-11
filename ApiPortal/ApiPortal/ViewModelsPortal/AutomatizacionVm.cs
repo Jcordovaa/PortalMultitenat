@@ -3,6 +3,7 @@
     public class AutomatizacionVm
     {
         public int? IdAutomatizacion { get; set; }
+        public string? Nombre { get; set; }
         public int? IdTipoAutomatizacion { get; set; }
         public Nullable<int> Anio { get; set; }
         public string? TipoDocumentos { get; set; }
@@ -18,7 +19,6 @@
         public Nullable<int> MuestraSoloVencidos { get; set; }
         public Nullable<int> AgrupaCobranza { get; set; }
         public Nullable<int> Estado { get; set; }
-        public string? Nombre { get; set; }
         public Nullable<int> DiasRecordatorio { get; set; }
         public Nullable<int> DiaEnvio { get; set; }
         public string? CodCanalVenta { get; set; }
@@ -27,5 +27,6 @@
         public int? EnviaTodosContactos { get; set; }
         public int? EnviaCorreoFicha { get; set; }
         public List<int>? NumDoc { get; set; }
+        public int TotalFilas { get; set; }
     }
 }

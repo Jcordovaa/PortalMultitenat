@@ -182,7 +182,7 @@ namespace ApiPortal.Services
         private async Task<string> PopulateBodyEnvioComprobantePago(string titulo, string mensaje, string empresa, string logo)
         {
             string body = string.Empty;
-            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/envioDocumentos.component.html")))
+            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioDocumentos.component.html")))
             {
                 body = reader.ReadToEnd();
             }
@@ -197,7 +197,7 @@ namespace ApiPortal.Services
         private async Task<string> PopulateBodyAvisoPago(string informacion, string titulo, string mensaje, string empresa, string logo)
         {
             string body = string.Empty;
-            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/avisoVenta.component.html")))
+            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/avisoVenta.component.html")))
             {
                 body = reader.ReadToEnd();
             }
@@ -218,7 +218,7 @@ namespace ApiPortal.Services
         private async Task<string> PopulateBodyPagoSinComprobante(string titulo, string mensaje, string empresa, string logo, string datos)
         {
             string body = string.Empty;
-            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/avisoPagoSinComprobante.component.html")))
+            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/avisoPagoSinComprobante.component.html")))
             {
                 body = reader.ReadToEnd();
             }
@@ -1149,7 +1149,7 @@ namespace ApiPortal.Services
                     body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
                     body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
 
-                    if (automatizacion.IdAutomatizacion == 1)
+                    if (automatizacion.IdTipoAutomatizacion == 1)
                     {
                         asunto = auxCorreo.AsuntoPreCobranza;
                         body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
@@ -1158,7 +1158,7 @@ namespace ApiPortal.Services
                         body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
                         body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
                     }
-                    else if (automatizacion.IdAutomatizacion == 2)
+                    else if (automatizacion.IdTipoAutomatizacion == 2)
                     {
                         asunto = auxCorreo.AsuntoEstadoCuenta;
                         body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
@@ -1167,7 +1167,7 @@ namespace ApiPortal.Services
                         body = body.Replace("{TextoCorreo}", auxCorreo.TextoEstadoCuenta);
                         body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
                     }
-                    else if (automatizacion.IdAutomatizacion == 3)
+                    else if (automatizacion.IdTipoAutomatizacion == 3)
                     {
                         asunto = auxCorreo.AsuntoCobranza;
                         if (automatizacion.AgrupaCobranza == 1)

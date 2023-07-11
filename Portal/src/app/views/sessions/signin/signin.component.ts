@@ -70,7 +70,7 @@ export class SigninComponent implements OnInit {
     esPago: boolean = false;
     rutEncriptado: string = '';
     loadingScreen: boolean = false;
-
+    showViewPasswordButton: boolean = false;
 
     constructor(
         private ns: NotificationService,
@@ -92,6 +92,7 @@ export class SigninComponent implements OnInit {
         this.configuracionService.getConfigPortal().subscribe(res => {
 
             this.configuracion = res;
+
             this.getConfigDiseno();
         }, err => { this.spinner.hide(); });
         // this.router.events.subscribe(event => {
@@ -161,14 +162,14 @@ export class SigninComponent implements OnInit {
                     this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
                         this.ls.setItem("configuracionCompletaPortal", res2);
                         this.router.navigateByUrl('/dashboard/cliente');
-                      }, err => { this.spinner.hide(); });
+                    }, err => { this.spinner.hide(); });
                     //this.spinner.hide();
                 } else {
                     this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
                         this.ls.setItem("configuracionCompletaPortal", res2);
                         this.router.navigateByUrl('/dashboard/administrador');
-                      }, err => { this.spinner.hide(); });
-                    
+                    }, err => { this.spinner.hide(); });
+
                     //this.spinner.hide();
                 }
 
@@ -310,18 +311,18 @@ export class SigninComponent implements OnInit {
 
     verPass() {
         if (this.verContraseña == 1) {
-          this.verContraseña = 0;
+            this.verContraseña = 0;
         } else {
-          this.verContraseña = 1;
+            this.verContraseña = 1;
         }
-    
-    
+
+
         if (this.verContraseña == 0) {
-          this.icon = 'assets/images/icon/view.png';
-          document.getElementsByName("passLogin")[0].setAttribute('type', 'password');
+            this.icon = 'assets/images/icon/view.png';
+            document.getElementsByName("passLogin")[0].setAttribute('type', 'password');
         } else {
-          this.icon = 'assets/images/icon/invisible.png';
-          document.getElementsByName("passLogin")[0].setAttribute('type', 'text');
+            this.icon = 'assets/images/icon/invisible.png';
+            document.getElementsByName("passLogin")[0].setAttribute('type', 'text');
         }
-      }
+    }
 }

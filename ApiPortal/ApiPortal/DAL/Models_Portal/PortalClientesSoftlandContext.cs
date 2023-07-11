@@ -261,8 +261,6 @@ namespace ApiPortal.Dal.Models_Portal
 
                 entity.ToTable("Automatizacion");
 
-                entity.Property(e => e.IdAutomatizacion).ValueGeneratedNever();
-
                 entity.Property(e => e.CodCanalVenta).IsUnicode(false);
 
                 entity.Property(e => e.CodCargo).IsUnicode(false);
@@ -276,6 +274,10 @@ namespace ApiPortal.Dal.Models_Portal
                 entity.Property(e => e.CodListaPrecios).IsUnicode(false);
 
                 entity.Property(e => e.CodVendedor).IsUnicode(false);
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.TipoDocumentos)
                     .HasMaxLength(200)

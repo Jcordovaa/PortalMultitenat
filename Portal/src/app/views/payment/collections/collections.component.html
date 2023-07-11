@@ -480,7 +480,7 @@
                         </ng-select> -->
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumento"
                             bindLabel="desDoc" placeholder="Tipos de documento" #lpo="ngModel" name="lpo"
-                            [(ngModel)]="selectedTipoDoc" bindValue="codDoc" [multiple]="true" [closeOnSelect]="false">
+                            [(ngModel)]="selectedTipoDoc" bindValue="codDoc" [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
                     </div>
 
@@ -489,7 +489,7 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
                             bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel"
                             name="listasPrecios" [(ngModel)]="selectedListaPrecio" bindValue="codLista"
-                            [multiple]="true" [closeOnSelect]="false">
+                            [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
                     </div>
                     <div class="form-group col-md-4 mb-3">
@@ -497,14 +497,14 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
                             bindLabel="catDes" placeholder="Categoria Cliente" #categoriasClientes="ngModel"
                             name="categoriasClientes" [(ngModel)]="selectedCatCliente" bindValue="catCod"
-                            [multiple]="true" [closeOnSelect]="false">
+                            [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
                     </div>
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Vendedor</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
                             bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
-                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true" [closeOnSelect]="false">
+                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
                     </div>
 
@@ -513,7 +513,7 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
                             bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
                             name="condicionesVentas" [(ngModel)]="selectedCondicionVenta" bindValue="cveCod"
-                            [multiple]="true" [closeOnSelect]="false">
+                            [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
                     </div>
 
@@ -1005,7 +1005,7 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
                             bindLabel="carNom" placeholder="Cargos" #lpo="ngModel" name="lpo"
                             [(ngModel)]="selectedCargosContactos" bindValue="carCod" [multiple]="true"
-                            [closeOnSelect]="false">
+                            [closeOnSelect]="true">
                         </ng-select>
                     </div>
                 </div>

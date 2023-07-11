@@ -39,3 +39,10 @@ select{
       max-width: 200px;
     }
   }
+
+
+  .textoAdaptable {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }

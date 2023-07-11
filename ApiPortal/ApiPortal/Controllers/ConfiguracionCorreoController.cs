@@ -76,7 +76,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionCorreo/actualizaConfiguracionCorreo";
@@ -229,7 +229,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionCorreo/actualizaTextos";
@@ -308,7 +308,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionCorreo/uploadLogo";
@@ -508,7 +508,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionCorreo/getTemplate";
@@ -546,7 +546,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/ConfiguracionCorreo/GetConfiguracionCorreo";

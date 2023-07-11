@@ -263,25 +263,26 @@ export class SendAccessComponent implements OnInit {
         }
       }
     } else {
-
       if (val.target.checked == true) {
         this.clientesRes.forEach(async element => {
 
           if (c.rutAux == element.rutAux && c.codAux == element.codAux) {
             if (element.accesoEnviado == 1) {
-              const response = await this.notificationService.confirmation('', 'El cliente ya posee credenciales de acceso, al ejecutar el proceso, estas se sobrescribirán por las nuevas. ¿Desea continuar?');
+              const response = await this.notificationService.confirmation('', 'El cliente ya posee credenciales de acceso, al agregarlo al proceso de envio y ejecutarlo, estas se sobrescribirán por las nuevas. ¿Desea continuar?');
               if (response.isConfirmed) {
 
                 element.checked = val.target.checked
                 this.clientesSeleccionados.push(c);
-
+                this.cantidadSeleccionados = this.clientesSeleccionados.length;
               } else {
                 element.checked = false;
                 val.target.checked = false;
+                this.cantidadSeleccionados = this.clientesSeleccionados.length;
               }
             } else {
               element.checked = val.target.checked
               this.clientesSeleccionados.push(c);
+              this.cantidadSeleccionados = this.clientesSeleccionados.length;
             }
           }
 

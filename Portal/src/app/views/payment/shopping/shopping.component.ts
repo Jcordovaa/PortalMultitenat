@@ -45,6 +45,7 @@ const EXCEL_EXTENSION = '.xlsx';
 })
 export class ShoppingComponent implements OnInit {
 
+  tituloDetalle: string = '';
   loading: boolean = false;
   loadingMisCompras: boolean = false;
   configuracion: ConfiguracionPortal = new ConfiguracionPortal();
@@ -533,6 +534,7 @@ export class ShoppingComponent implements OnInit {
         this.estadoDoc = this.detalleCab.estado == 'V' ? 'VENCIDO' : 'PENDIENTE';
         this.showDetail = true;
         this.notaVenta = compra.nvNumero;
+        this.tituloDetalle = compra.documento;
       } else {
         this.notificationService.info('Compra no posee detalle asociado.', '', true);
       }
@@ -561,6 +563,7 @@ export class ShoppingComponent implements OnInit {
         this.detalleDet = res.detalle;
         this.showDetailProducto = true;
         this.notaVenta = producto.nvNumero;
+        this.tituloDetalle = producto.documento;
       } else {
         this.notificationService.info('Compra no posee detalle asociado.', '', true);
       }

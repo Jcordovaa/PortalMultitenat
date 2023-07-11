@@ -12,5 +12,6 @@
         public string? TiposDocumentos { get; set; }
         public string? Vendedor { get; set; }
         public int? Tipo { get; set; }
+        public int? Estado { get; set; }
     }
 }

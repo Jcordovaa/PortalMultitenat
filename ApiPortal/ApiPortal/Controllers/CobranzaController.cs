@@ -102,8 +102,7 @@ namespace ApiPortal.Controllers
             }
             catch (Exception ex)
             {
-                LogProceso log = new LogProceso();
-                log.IdTipoProceso = -1;
+                LogProceso log = new LogProceso();               
                 log.Fecha = DateTime.Now;
                 log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
                 log.Ruta = @"cobranza\GetDocumentosCobranzaFiltro2";
@@ -220,7 +219,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/SaveCobranza";
@@ -273,6 +272,7 @@ namespace ApiPortal.Controllers
                 #region COBRANZA CLASICA
                 //Genera envio de cobranzas, la ejecución la realiza algun procedimiento externo
                 var listaManual = _context.CobranzaCabeceras.Where(x => x.Estado == 1 && x.TipoProgramacion == 1 && x.EsCabeceraInteligente == 0).AsNoTracking().ToList();
+               
 
                 int correosEnviados = 0;
                 //Recorremos una a una las cobranzas
@@ -288,7 +288,7 @@ namespace ApiPortal.Controllers
                     if (item.IdEstado == 2 && item.FechaInicio > DateTime.Now.Date) { continue; }
 
                     //obtenemos documentos pendientes de pago para la cobranza
-                    var listaDocPendientes = item.CobranzaDetalles.Where(x => x.IdEstado == 1).ToList();
+                    var listaDocPendientes = _context.CobranzaDetalles.Where(x => x.IdEstado == 1 && x.IdCobranza == item.IdCobranza).ToList();
 
                     //Obtenemos los clientes a los que se le enviara la cobranza
                     var clientes = listaDocPendientes.Select(x => x.RutCliente).Distinct().ToList();
@@ -379,7 +379,7 @@ namespace ApiPortal.Controllers
                                     }
                                 }
 
-                                if (!string.IsNullOrEmpty(correos) && item.EnviaCorreoFicha == 1)
+                                if (string.IsNullOrEmpty(correos) && item.EnviaCorreoFicha == 1)
                                 {
                                     correos = cliente.Correo;
                                 }
@@ -465,7 +465,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/EnviaCobranza";
@@ -532,7 +532,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetCobranzaCliente";
@@ -580,7 +580,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetDocumentosPendientes";
@@ -623,7 +623,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetAnioPagos";
@@ -659,7 +659,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetHorariosEnvio";
@@ -700,7 +700,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetDocumentosCobranzaFiltro";
@@ -775,7 +775,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetDocumentosClientes";
@@ -819,7 +819,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetTipoCobranza";
@@ -863,7 +863,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetEstadosCobranza";
@@ -945,8 +945,8 @@ namespace ApiPortal.Controllers
                     cob.NombreEstado = estadoCobranza.Nombre;
                     cob.Anio = (int)item.Anio;
                     cob.TipoDocumento = item.TipoDocumento;
-                    cob.FechaDesde = (DateTime)item.FechaDesde;
-                    cob.FechaHasta = (DateTime)item.FechaHasta;
+                    cob.FechaDesde = item.FechaDesde == null ? null : (DateTime)item.FechaDesde;
+                    cob.FechaHasta = item.FechaHasta == null ? null : (DateTime)item.FechaHasta;
                     cob.AplicaClientesExcluidos = (int)item.AplicaClientesExcluidos;
                     cob.EsCabeceraInteligente = (int)item.EsCabeceraInteligente;
                     cob.IdCabecera = (int)item.IdCabecera;
@@ -965,7 +965,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetCobranzasTipo";
@@ -1022,8 +1022,8 @@ namespace ApiPortal.Controllers
                     retorno.NombreEstado = estadoCobranza.Nombre;
                     retorno.Anio = (int)cobranza.Anio;
                     retorno.TipoDocumento = cobranza.TipoDocumento;
-                    retorno.FechaDesde = (DateTime)cobranza.FechaDesde;
-                    retorno.FechaHasta = (DateTime)cobranza.FechaHasta;
+                    retorno.FechaDesde = cobranza.FechaDesde == null ? null : (DateTime)cobranza.FechaDesde;
+                    retorno.FechaHasta = cobranza.FechaHasta == null ? null : (DateTime)cobranza.FechaHasta;
                     retorno.AplicaClientesExcluidos = (int)cobranza.AplicaClientesExcluidos;
                     retorno.EsCabeceraInteligente = (int)cobranza.EsCabeceraInteligente;
                     retorno.IdCabecera = (int)cobranza.IdCabecera;
@@ -1057,7 +1057,6 @@ namespace ApiPortal.Controllers
             catch (Exception ex)
             {
                 LogProceso log = new LogProceso();
-                log.IdTipoProceso = -1;
                 log.Fecha = DateTime.Now;
                 log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
                 log.Ruta = @"cobranza\GetCobranzaGraficos";
@@ -1171,7 +1170,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetCobranzasDetalle";
@@ -1216,7 +1215,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetCobranzaPeriocidad";
@@ -1269,7 +1268,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetTiposDocumentosPago";
@@ -1313,7 +1312,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetTiposDocumentosPagoCliente";

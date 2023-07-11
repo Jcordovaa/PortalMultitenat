@@ -109,7 +109,7 @@
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                         [items]="tipoDocumentos" bindLabel="desDoc" placeholder="Documento"
                                         #td="ngModel" name="td" [(ngModel)]="pasarela.tipoDocumento" bindValue="codDoc"
-                                        [multiple]="false" [closeOnSelect]="false">
+                                        [multiple]="false" [closeOnSelect]="true">
                                     </ng-select>
                                 </div>
 
@@ -118,7 +118,7 @@
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                     [items]="cuentasContables" bindLabel="nombre" placeholder="Cuenta Contable"
                                     #cc="ngModel" name="cc" [(ngModel)]="pasarela.cuentaContable" bindValue="codigo"
-                                    [multiple]="false" [closeOnSelect]="false">
+                                    [multiple]="false" [closeOnSelect]="true">
                                 </ng-select>
                                 </div>
                                                

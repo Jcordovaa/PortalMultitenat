@@ -58,7 +58,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GetPermisos";
@@ -96,7 +96,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GetPermisoId";
@@ -131,7 +131,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/ActualizaPermisos";
@@ -166,7 +166,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GuardarPermiso";
@@ -233,7 +233,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GetPermisosByPage";
@@ -274,7 +274,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/EliminaPermisosId";
@@ -333,7 +333,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GetPermisosByPerfil";
@@ -385,7 +385,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/PostPermisosMasivo";
@@ -436,7 +436,7 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Permisos/GetPermisosByEmail";

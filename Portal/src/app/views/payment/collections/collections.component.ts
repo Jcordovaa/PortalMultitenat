@@ -255,18 +255,27 @@ export class CollectionsComponent implements OnInit {
   getcargos() {
     this.configSoftlandService.getCargos().subscribe((res: any) => {
       this.cargos = res;
+      this.cargos.forEach(element => {
+        element.carNom = element.carCod + ' - ' + element.carNom;
+      });
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar cargos', '', true); });
   }
 
   getCanalesVenta() {
     this.softlandService.getCanalesVenta().subscribe((res: CanalVenta[]) => {
       this.canalesVenta = res;
+      this.canalesVenta.forEach(element => {
+        element.canDes = element.canCod + ' - ' + element.canDes;
+      });
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar canales de venta', '', true); });
   }
 
   getCobradores() {
     this.softlandService.getCobradores().subscribe((res: Cobrador[]) => {
       this.cobradores = res;
+      this.cobradores.forEach(element => {
+        element.cobDes = element.cobCod + ' - ' + element.cobDes;
+      });
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar canales de venta', '', true); });
   }
 
@@ -274,6 +283,9 @@ export class CollectionsComponent implements OnInit {
     this.spinner.show();
     this.softlandService.getCategoriasCliente().subscribe((resp: CategoriaClienteDTO[]) => {
       this.categoriasCliente = resp;
+      this.categoriasCliente.forEach(element => {
+        element.catDes = element.catCod + ' - ' + element.catDes;
+      });
     }, err => {
       this.spinner.hide();
     });
@@ -283,6 +295,9 @@ export class CollectionsComponent implements OnInit {
     this.spinner.show();
     this.cobranzaService.getTipoDocumentosPagos().subscribe((resp: TipoDocumento[]) => {
       this.tiposDocumento = resp;
+      this.tiposDocumento.forEach(element => {
+        element.desDoc = element.codDoc + ' - ' + element.desDoc;
+      });
     }, err => {
       this.spinner.hide();
     });
@@ -293,6 +308,10 @@ export class CollectionsComponent implements OnInit {
     this.softlandService.getListasPrecio().subscribe((resp: ListaPrecioDTO[]) => {
 
       this.listasPrecio = resp;
+
+      this.listasPrecio.forEach(element => {
+        element.desLista = element.codLista + ' - ' + element.desLista;
+      });
     }, err => {
       this.spinner.hide();
     });
@@ -302,6 +321,9 @@ export class CollectionsComponent implements OnInit {
     this.spinner.show();
     this.softlandService.getVendedores().subscribe((resp: VendedorDTO[]) => {
       this.vendedores = resp;
+      this.vendedores.forEach(element => {
+        element.venDes = element.venCod + ' - ' + element.venDes;
+      });
     }, err => {
       this.spinner.hide();
     });
@@ -311,6 +333,9 @@ export class CollectionsComponent implements OnInit {
     this.spinner.show();
     this.softlandService.getCondicionesVenta().subscribe((resp: CondicionVentaDTO[]) => {
       this.condicionesVenta = resp;
+      this.condicionesVenta.forEach(element => {
+        element.cveDes = element.cveCod + ' - ' + element.cveDes;
+      });
     }, err => {
       this.spinner.hide();
     });
@@ -403,6 +428,7 @@ export class CollectionsComponent implements OnInit {
   }
 
   get IsStepOneOk() {
+    debugger
     if (this.selectedTipoCobranza == null || this.selectedProgramacion == null) {
       return false
     }
@@ -434,6 +460,7 @@ export class CollectionsComponent implements OnInit {
 
 
 
+    debugger
     const currentDate = new Date();
     var fechaActual = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() };
 
@@ -441,10 +468,10 @@ export class CollectionsComponent implements OnInit {
     let actual: string = fechaActual.year.toString() + '/' + fechaActual.month.toString() + '/' + fechaActual.day.toString();
 
 
-    if (Date.parse(actual) > Date.parse(fechaInicio)) {
+    if (Date.parse(actual) >= Date.parse(fechaInicio)) {
       return false;
     }
- 
+
     let val2: string = this.fechaVencimiento.year.toString() + '/' + this.fechaVencimiento.month.toString() + '/' + this.fechaVencimiento.day.toString();
     if (Date.parse(val2) < Date.parse(fechaInicio)) {
       return false;
@@ -483,6 +510,7 @@ export class CollectionsComponent implements OnInit {
 
 
   async onComplete(e) {
+
 
     if (this.paso == 4) {
       if (this.nombreCobranza == null) {
@@ -533,7 +561,7 @@ export class CollectionsComponent implements OnInit {
         } else {
 
           cargosContactos = this.selectedCargosContactos.length > 0 ? this.selectedCargosContactos.reduce((accumulator, item) => {
-            return `${accumulator};${item.carCod}`;
+            return `${accumulator};${item}`;
           }) : null;
 
         }
@@ -563,7 +591,15 @@ export class CollectionsComponent implements OnInit {
         //cobranza.diaSemanaEnvio para cobranza programada
         cobranza.diasToleranciaVencimiento = this.diasVencimiento;
         cobranza.idEstado = 1; //Estado Pendiente
-        cobranza.anio = this.selectedAnio;
+
+        let SelAnio = 0;
+        if (this.selectedAnio == 'TODOS') {
+          SelAnio = 0;
+        } else {
+          SelAnio = this.selectedAnio;
+        }
+
+        cobranza.anio = SelAnio;
         cobranza.tipoDocumento = tiposDocs;
         cobranza.vendedor = vendedor;
         cobranza.categoriaCliente = catCli;
@@ -651,6 +687,7 @@ export class CollectionsComponent implements OnInit {
 
         cobranza.cobranzaDetalle = detalle;
 
+
         this.cobranzaService.saveCobranza(cobranza).subscribe((res: any) => {
           if (res != 0) {
             this.notificationService.success('Cobranza creada correctamente para el día y la hora ingresada', '', true);
@@ -701,6 +738,7 @@ export class CollectionsComponent implements OnInit {
 
       if (this.selectedProgramacion == 1) //Clasica
       {
+
         if (this.fecha == null) {
           this.notificationService.warning('Debe ingresar fecha de programación para envío.', '', true);
           this.paso = 1;
@@ -874,8 +912,8 @@ export class CollectionsComponent implements OnInit {
         this.anios = resAnio;
         this.anios = this.anios.reverse();
         this.anios.unshift('TODOS');
-        this.ngbDatepickerConfig.minDate = { day: 1, month: 1, year: this.anios[0] };
-        this.ngbDatepickerConfig.maxDate = { day: 31, month: 12, year: this.anios[this.anios.length - 1] };
+        // this.ngbDatepickerConfig.minDate = { day: 1, month: 1, year: this.anios[0] };
+        // this.ngbDatepickerConfig.maxDate = { day: 31, month: 12, year: this.anios[this.anios.length - 1] };
       }, err => {
         this.spinner.hide();
       });
@@ -960,6 +998,7 @@ export class CollectionsComponent implements OnInit {
         SelAnio = this.selectedAnio;
       }
       this.spinner.show();
+
 
       const model = {
         tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
@@ -1124,10 +1163,17 @@ export class CollectionsComponent implements OnInit {
       return `${accumulator};${item}`;
     }) : null;
 
+    let SelAnio = 0;
+    if (this.selectedAnio == 'TODOS') {
+      SelAnio = 0;
+    } else {
+      SelAnio = this.selectedAnio;
+    }
+
     this.spinner.show();
 
     const model = {
-      tipoDocumento: tiposDocs, anio: this.selectedAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+      tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
       excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta
     }
     this.cobranzaService.getCantidadDocumentos(model).subscribe((res: any) => {
@@ -1214,10 +1260,17 @@ export class CollectionsComponent implements OnInit {
           return `${accumulator};${item}`;
         }) : null;
 
+        let SelAnio = 0;
+        if (this.selectedAnio == 'TODOS') {
+          SelAnio = 0;
+        } else {
+          SelAnio = this.selectedAnio;
+        }
+
         this.spinner.show();
 
         const model = {
-          tipoDocumento: this.selectedTipoDoc, anio: this.selectedAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+          tipoDocumento: this.selectedTipoDoc, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
           excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta
         }
         this.cobranzaService.getDocumentosFiltros(model).subscribe((res: any) => {
@@ -1481,13 +1534,14 @@ export class CollectionsComponent implements OnInit {
   }
 
   limpiar() {
+    const currentDate = new Date();
     this.chkEstadoNuevo = true;
     this.textoEstado = 'Inactivo';
     this.selectedTipoCobranza = null;
     this.chkClientesExcluidos = true;
-    this.fecha = null;
-    this.horarios = [];
-    this.selectedProgramacion = null;
+    this.fecha = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() + 1 };
+    this.fechaVencimiento = null;
+    this.selectedProgramacion = 1;
     this.selectedFrecuencia = null;
     this.selectedHorario = null;
     this.selectedDia = null;
@@ -1496,8 +1550,6 @@ export class CollectionsComponent implements OnInit {
     this.dateHasta = null;
     this.nombreCobranza = null;
     this.paso = 0;
-    this.anios = [];
-    this.tiposDocumento = [];
     this.selectedTipoDoc = null;
     this.selectedAnio = null;
     this.cantidadDocumentosFiltro = 0;
@@ -1522,11 +1574,14 @@ export class CollectionsComponent implements OnInit {
     this.muestraDetalleClientes = false; //FCA 07-12-2021
   }
 
-  enviarCobranza() {
-    this.cobranzaService.enviaCobranza().subscribe((res: any) => {
-    }, err => {
-      this.spinner.hide();
-    });
+  async enviarCobranza() {
+    const response = await this.notificationService.confirmation('Ejecutar Envio', 'Se ejecutara el proceso de envio, esto puede tardar varios minutos dependiendo de la cantidad de documenos a enviar. ¿Desea continuar?');
+    if (response.isConfirmed) {
+      this.cobranzaService.enviaCobranza().subscribe((res: any) => {
+      }, err => {
+        this.spinner.hide();
+      });
+    }
   }
 
   mostrarFiltro() {
@@ -1549,7 +1604,7 @@ export class CollectionsComponent implements OnInit {
     this.spinner.show();
     const model = { codAux: documento.codAuxCliente, folio: documento.folio, TipoDoc: documento.codTipoDocumento }
     this.clientesService.getPagosDocumento(model).subscribe((res: any) => {
-      debugger
+
       this.abonos = [];
       this.abonos = res;
 
@@ -1562,10 +1617,10 @@ export class CollectionsComponent implements OnInit {
       this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
       this.spinner.hide();
     }, err => { this.spinner.hide(); });
-  
+
   }
 
-  
+
 
   closeModal() {
     this.modalService.dismissAll();
@@ -1745,7 +1800,7 @@ export class CollectionsComponent implements OnInit {
 
     if (tipoFecha == 1) {
       let fechaInicio: string = val.year.toString() + '/' + val.month.toString() + '/' + val.day.toString();
-      if (Date.parse(actual) > Date.parse(fechaInicio)) {
+      if (Date.parse(actual) >= Date.parse(fechaInicio)) {
         this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
       }
 

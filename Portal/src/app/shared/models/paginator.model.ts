@@ -13,6 +13,7 @@ export class Paginator {
     tipo?: number;
     documentos?: any;
     folio?: number;
+    estado?: number;
     fechaDesde?: Date;
     fechaHasta?: Date;
 
@@ -31,6 +32,7 @@ export class Paginator {
       this.folio = 0;
       this.fechaDesde = null;
       this.fechaHasta = null;
+      this.estado = 0;
     }
   
   }

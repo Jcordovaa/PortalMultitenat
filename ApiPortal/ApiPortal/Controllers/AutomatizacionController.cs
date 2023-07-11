@@ -50,7 +50,7 @@ namespace ApiPortal.Controllers
                 //FCA 17-12-2021  Se guarda log
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Automatizacion/GetAutomatizaciones";
@@ -185,7 +185,7 @@ namespace ApiPortal.Controllers
                     switch (automatizacion.IdAutomatizacion)
                     {
                         case 1:
-                            documentos = documentos.Where(x => (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays == automatizacion.DiasVencimiento && (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays > 0).ToList();
+                            documentos = documentos.Where(x => (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays < automatizacion.DiasVencimiento && (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays > 0).ToList();
                             break;
                         case 3:
                             documentos = documentos.Where(x => (DateTime.Now.Date - x.FechaVencimiento.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
@@ -508,9 +508,8 @@ namespace ApiPortal.Controllers
             catch (Exception ex)
             {
                 LogProceso log = new LogProceso();
-                log.IdTipoProceso = -1;
                 log.Fecha = DateTime.Now;
-                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Ruta = @"Automatizacion/EnviaAutomatizaciones";
                 log.Mensaje = ex.Message;
                 log.Excepcion = ex.ToString();
@@ -581,7 +580,7 @@ namespace ApiPortal.Controllers
                 //FCA 17-12-2021  Se guarda log
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Automatizacion/GuardaAutomaticacion";
@@ -594,7 +593,7 @@ namespace ApiPortal.Controllers
     
 
         [HttpGet("GetTipos"), Authorize]
-        public ActionResult<object> GetTipos()
+        public async Task<ActionResult> GetTipos()
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
@@ -614,10 +613,205 @@ namespace ApiPortal.Controllers
             {
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
-                log.IdTipoProceso = -1;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Automatizacion/GetTipos";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("GetAutomatizacionesByPage"), Authorize]
+        public async Task<ActionResult> GetPerfilesByPage(PaginadorVm pVm)
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/GetAutomatizacionesByPage";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+
+            try
+            {
+                var cantidad = pVm.EndRow - pVm.StartRow;
+                var pagina = pVm.StartRow / cantidad + 1;
+
+                var automatizaciones = _context.Automatizacions.AsQueryable();
+
+                if (!String.IsNullOrEmpty(pVm.Search))
+                {
+                    automatizaciones = automatizaciones.Where(x => x.Nombre.ToUpper().Contains(pVm.Search.ToUpper())).AsQueryable();
+                }
+
+                if(pVm.Tipo != null)
+                {
+                    automatizaciones = automatizaciones.Where(x => x.IdTipoAutomatizacion == pVm.Tipo).AsQueryable();
+                }
+
+                if(pVm.Estado != null)
+                {
+                    automatizaciones = automatizaciones.Where(x => x.Estado == pVm.Estado).AsQueryable();
+                }
+
+                var outAutomatizaciones = await automatizaciones.OrderByDescending(x => x.IdAutomatizacion).Skip((Convert.ToInt32(pagina) - 1) * Convert.ToInt32(cantidad))
+                            .Take(Convert.ToInt32(cantidad))
+                            .AsNoTracking()
+                            .ToListAsync();
+
+                List<AutomatizacionVm> mappedAutomatizaciones = outAutomatizaciones.ConvertAll(aut => new AutomatizacionVm
+                {
+
+                   AgrupaCobranza = aut.AgrupaCobranza,
+                   Anio = aut.Anio,
+                   CodCanalVenta = aut.CodCanalVenta,
+                   CodCargo = aut.CodCargo,
+                   CodCategoriaCliente = aut.CodCategoriaCliente,
+                   CodCobrador = aut.CodCobrador,
+                   CodCondicionVenta = aut.CodCondicionVenta,
+                   CodListaPrecios = aut.CodListaPrecios,
+                   CodVendedor = aut.CodVendedor,
+                   DiaEnvio = aut.DiaEnvio,
+                   DiasRecordatorio = aut.DiasRecordatorio,
+                   DiasVencimiento = aut.DiasVencimiento,
+                   EnviaCorreoFicha = aut.EnviaCorreoFicha,
+                   EnviaTodosContactos = aut.EnviaTodosContactos,
+                   Estado = aut.Estado,
+                   ExcluyeClientes = aut.ExcluyeClientes,
+                   ExcluyeFestivos = aut.ExcluyeFestivos,
+                   IdAutomatizacion = aut.IdAutomatizacion,
+                   IdHorario = aut.IdHorario,
+                   IdPerioricidad = aut.IdPerioricidad,
+                   IdTipoAutomatizacion = aut.IdTipoAutomatizacion,
+                   MuestraSoloVencidos = aut.MuestraSoloVencidos,
+                   Nombre = aut.Nombre,//aut.Nombre,
+                   TipoDocumentos = aut.TipoDocumentos
+                });
+
+                if (automatizaciones.Count() > 0)
+                {
+                    mappedAutomatizaciones[0].TotalFilas = automatizaciones.Count();
+                }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+                return Ok(mappedAutomatizaciones);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Automatizacion/GetAutomatizacionesByPage";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("CreaNuevaAutomatizacion"), Authorize]
+        public async Task<ActionResult<AuthenticateVm>> SaveNuevaAutomatizacion(AutomatizacionVm automatizacion)
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/SaveNuevaAutomatizacion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+            try
+            {
+                Automatizacion aut = new Automatizacion
+                {
+                    AgrupaCobranza = automatizacion.AgrupaCobranza,
+                    Anio = automatizacion.Anio,
+                    CodCanalVenta = automatizacion.CodCanalVenta,
+                    CodCargo = automatizacion.CodCargo,
+                    CodCategoriaCliente = automatizacion.CodCategoriaCliente,
+                    CodCobrador = automatizacion.CodCobrador,
+                    CodCondicionVenta = automatizacion.CodCondicionVenta,
+                    CodListaPrecios = automatizacion.CodListaPrecios,
+                    CodVendedor = automatizacion.CodVendedor,
+                    DiaEnvio = automatizacion.DiaEnvio,
+                    DiasRecordatorio = automatizacion.DiasRecordatorio,
+                    DiasVencimiento = automatizacion.DiasVencimiento,
+                    EnviaCorreoFicha = automatizacion.EnviaCorreoFicha,
+                    EnviaTodosContactos = automatizacion.EnviaTodosContactos,
+                    Estado = automatizacion.Estado,
+                    ExcluyeClientes = automatizacion.ExcluyeClientes,
+                    ExcluyeFestivos = automatizacion.ExcluyeFestivos,
+                    IdHorario = automatizacion.IdHorario,
+                    IdPerioricidad = automatizacion.IdPerioricidad,
+                    IdTipoAutomatizacion = (int)automatizacion.IdTipoAutomatizacion,
+                    MuestraSoloVencidos = automatizacion.MuestraSoloVencidos,
+                    Nombre = automatizacion.Nombre,
+                    TipoDocumentos = automatizacion.TipoDocumentos
+                };
+
+                _context.Automatizacions.Add(aut);
+                await _context.SaveChangesAsync();
+                automatizacion.IdAutomatizacion = aut.IdAutomatizacion;
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+                return Ok(automatizacion);
+            }
+            catch (Exception ex)
+            {
+                //FCA 17-12-2021  Se guarda log
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Automatizacion/SaveNuevaAutomatizacion";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpDelete("EliminaAutomizacion/{idAutomatizacion}"), Authorize]
+        public async Task<ActionResult<AuthenticateVm>> EliminaAutomizacion(int idAutomatizacion)
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Automatizacion/EliminaAutomizacion";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+            try
+            {
+                var automatizacion = _context.Automatizacions.Where(x => x.IdAutomatizacion == idAutomatizacion).FirstOrDefault();
+
+                if(automatizacion != null)
+                {
+                    _context.Automatizacions.Remove(automatizacion);
+                    _context.SaveChanges();
+                }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+                return Ok(automatizacion);
+            }
+            catch (Exception ex)
+            {
+                //FCA 17-12-2021  Se guarda log
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Automatizacion/EliminaAutomizacion";
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
                 return BadRequest(ex.Message);

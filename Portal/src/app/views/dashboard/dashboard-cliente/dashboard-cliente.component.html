@@ -741,7 +741,8 @@
                                                 <th scope="col">#</th>
                                                 <th scope="col">Código</th>
                                                 <th scope="col">Producto</th>
-                                                <th style="text-align: right;" scope="col">Cantidad</th>
+                                                <th style="text-align: right;" scope="col">Cantidad Facturada</th>
+                                                <th style="text-align: right;" scope="col">Cantidad Despachada</th>
                                                 <th style="text-align: right;" scope="col">Precio Unitario</th>
                                                 <th style="text-align: right;" scope="col">Total</th>
                                             </tr>
@@ -752,6 +753,7 @@
                                                 <td>{{ c.codigo }}</td>
                                                 <td>{{ c.desProd }}</td>
                                                 <td style="text-align: right;">{{ c.cantidad }}</td>
+                                                <td style="text-align: right;">{{ c.cantidadDespachada }}</td>
                                                 <td style="text-align: right;">{{ c.precioUnitario | monto }}</td>
                                                 <td style="text-align: right;">$ {{ c.total | monto }}</td>
                                             </tr>

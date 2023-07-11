@@ -46,7 +46,7 @@
     
           <a routerLink="{{item.state}}" *ngIf="item.type === 'link'" class="" [ngClass]="{open: item.active}" routerLinkActive="open">
             <i *ngIf="item.icon" [class]="'nav-icon '+ item.icon "></i>
-            <span class="item-name lvl1">{{item?.name}}</span>
+            <span   class="item-name lvl1">{{item?.name}}</span>
           </a>
     
           <div *ngIf="item.type === 'dropDown'">

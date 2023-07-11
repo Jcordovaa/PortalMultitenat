@@ -55,6 +55,7 @@ export class ClientesService {
   }
 
   getPDFEstadoCuenta (cliente: any): Observable<any> {
+    debugger
     const body = JSON.stringify(cliente);
     return this.http.post<any>(`${this.apiUrl}/getPDFEstadoCuenta`, body, this.utils.getHeaders(false));
   }

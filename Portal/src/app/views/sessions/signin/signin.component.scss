@@ -408,11 +408,33 @@ p{
         font-size: 10px;
     }
    
-
+    .password-container {
+        position: relative;
+    }
+    
+ 
 
 
 
 }
 
+.password-container {
+    position: relative;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  
+  .password-toggle img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    /* Agrega otros estilos necesarios para la imagen */
+  }
 
 

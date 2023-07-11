@@ -17,7 +17,7 @@
                         <div class="card-body">
                             <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong> desde donde se obtendrán
                                 los documentos pendientes. <img [container]="'body'"
-                                    ngbTooltip="Debe seleccionar almenos una."
+                                    ngbTooltip="Debe seleccionar al menos una."
                                     style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
                                     width="22" height="22"></h6>
                             <div class="row mt-2">
@@ -25,7 +25,7 @@
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                         [items]="cuentasContables" bindLabel="nombre" placeholder="Cuentas Contables"
                                         #cc="ngModel" name="cc" [(ngModel)]="selectedCuen" bindValue="codigo"
-                                        [multiple]="true" [closeOnSelect]="false">
+                                        [multiple]="true" [closeOnSelect]="true">
                                     </ng-select>
                                 </div>
                             </div>
@@ -40,7 +40,7 @@
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
                                         [items]="tipoDocs" bindLabel="desDoc" placeholder="Tipos de documentos"
                                         #td="ngModel" name="td" [(ngModel)]="tiposDctosSelected" bindValue="codDoc"
-                                        [multiple]="true" [closeOnSelect]="false">
+                                        [multiple]="true" [closeOnSelect]="true">
                                     </ng-select>
                                 </div>
                             </div>

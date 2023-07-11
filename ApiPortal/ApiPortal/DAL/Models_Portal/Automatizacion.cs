@@ -28,6 +28,7 @@ namespace ApiPortal.Dal.Models_Portal
         public string? CodCargo { get; set; }
         public int? EnviaTodosContactos { get; set; }
         public int? EnviaCorreoFicha { get; set; }
+        public string? Nombre { get; set; }
 
         public virtual CobranzaHorario? IdHorarioNavigation { get; set; }
         public virtual CobranzaPeriocidad? IdPerioricidadNavigation { get; set; }

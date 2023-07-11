@@ -1670,7 +1670,7 @@ namespace ApiPortal.Services
                                 item.Documento = producto.DesDoc;
                                 item.Folio = producto.Folio;
                                 item.Fecha = producto.Fecha;
-                                item.TipoDoc = producto.Tipo_Documento;
+                                item.TipoDoc = producto.Tipo + producto.SubTipo;
                                 retorno.Add(item);
                             }
                         }
@@ -2160,7 +2160,7 @@ namespace ApiPortal.Services
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         List<List<DespachoAPIDTO>> listaDespachos = JsonConvert.DeserializeObject<List<List<DespachoAPIDTO>>>(content);
-
+                        listaDespachos[1] = listaDespachos[1].Where(x => x.CantDespachada > 0).ToList();
 
                         var documentoOriginal = await this.obtenerDocumentoAPI(folio, tipoDoc, codaux, logApiId);
                         foreach (var detalleDespacho in listaDespachos[1])
@@ -2345,6 +2345,7 @@ namespace ApiPortal.Services
                                 aux.NombreContacto = item.NomCon;
                                 aux.Correo = item.Email;
                                 aux.CargoContacto = item.CarNom;
+                                aux.CodCargo = item.CarCon;
                                 retorno.Add(aux);
                             }
                         }
@@ -3254,7 +3255,7 @@ namespace ApiPortal.Services
 
                             var multipart = new MultipartFormDataContent();
                             multipart.Add(new StringContent(jsonString), "vJson");
-                            multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
+                            //multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
 
                             LogApiDetalle logApiDetalle = new LogApiDetalle();
                             logApiDetalle.IdLogApi = logApiId;
@@ -3989,7 +3990,7 @@ namespace ApiPortal.Services
                     reader.Close();
                 }
                 else //FCA 16-06-2022
-                {
+               {
                     var configPortal = _context.ConfiguracionPortals.FirstOrDefault();
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
@@ -4374,7 +4375,7 @@ namespace ApiPortal.Services
                                     item.Add(aux);
                                 }
                             }
-                            
+
                         }
                         else
                         {
@@ -4579,10 +4580,14 @@ namespace ApiPortal.Services
                             List<List<ListaPrecioAPIDTO>> listas = JsonConvert.DeserializeObject<List<List<ListaPrecioAPIDTO>>>(content);
                             foreach (var lista in listas[0])
                             {
-                                ListaPrecioDTO aux = new ListaPrecioDTO();
-                                aux.CodLista = lista.CodLista;
-                                aux.DesLista = lista.DesLista;
-                                item.Add(aux);
+                                if (!string.IsNullOrEmpty(lista.CodLista))
+                                {
+                                    ListaPrecioDTO aux = new ListaPrecioDTO();
+                                    aux.CodLista = lista.CodLista;
+                                    aux.DesLista = lista.DesLista;
+                                    item.Add(aux);
+                                }
+                              
                             }
                         }
                         else
@@ -4876,7 +4881,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        if (pagina != null)
+                        if (pagina != null) 
                         {
                             var api = _context.ApiSoftlands.FirstOrDefault();
                             string accesToken = api.Token;
@@ -5331,14 +5336,9 @@ namespace ApiPortal.Services
                             foreach (var item in documento.detalle)
                             {
                                 DetalleDocumentoDTO linea = new DetalleDocumentoDTO();
-                                if (tipoDoc == "S")
-                                {
-                                    linea.Cantidad = (int)item.CantDespachada;
-                                }
-                                else
-                                {
-                                    linea.Cantidad = (int)item.CantFacturada;
-                                }
+
+                                linea.Cantidad = (int)item.CantFacturada;
+                                linea.CantidadDespachada = (int)item.CantDespachada;
 
                                 linea.Codigo = item.CodProd;
                                 linea.CodUmed = item.CodUMed;
@@ -6126,7 +6126,17 @@ namespace ApiPortal.Services
                         }
 
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
-                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+
+                        string listaDocumentos = string.Empty;
+                        if (!string.IsNullOrEmpty(tipoDocumento))
+                        {
+                            listaDocumentos = tipoDocumento.Replace(";", ",");
+                        }
+                        else
+                        {
+                            listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        }
+
                         int cantidad = 100;
                         int pagina = 1;
                         string accesToken = api.Token;
@@ -6233,7 +6243,7 @@ namespace ApiPortal.Services
                                     documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
                                 }
 
-                                documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+                                // documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
 
 
                                 if (estadoTipoCobranza == "VENCIDO")
@@ -6575,9 +6585,19 @@ namespace ApiPortal.Services
                         }
 
                         string accesToken = api.Token;
+                        string listaDocumentos = string.Empty;
                         // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
-                        string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+
+                        if (!string.IsNullOrEmpty(tipoDocumento))
+                        {
+                            listaDocumentos = tipoDocumento.Replace(";", ",");
+                        }
+                        else
+                        {
+                            listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        }
+
                         int cantidad = 100;
                         int pagina = 1;
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
@@ -6674,8 +6694,10 @@ namespace ApiPortal.Services
                                     documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
                                 }
 
-                                documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
-
+                                //if (!string.IsNullOrEmpty(tipoDocumento))
+                                //{
+                                //    documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+                                //}
                             }
 
 
@@ -8311,7 +8333,7 @@ namespace ApiPortal.Services
                                         logApiDetalle2.IdLogApi = logApiId;
                                         logApiDetalle2.Inicio = DateTime.Now;
                                         logApiDetalle2.Metodo = "DocumentosContabilizados";
-                                       
+
 
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
 
@@ -8434,7 +8456,7 @@ namespace ApiPortal.Services
                     logApiDetalle.IdLogApi = logApiId;
                     logApiDetalle.Inicio = DateTime.Now;
                     logApiDetalle.Metodo = "DocContabilizadosResumenxRut";
-                   
+
 
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
 
@@ -8532,7 +8554,7 @@ namespace ApiPortal.Services
                     logApiDetalle.IdLogApi = logApiId;
                     logApiDetalle.Inicio = DateTime.Now;
                     logApiDetalle.Metodo = "DocumentosContabilizados";
-                  
+
 
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
 
@@ -8731,7 +8753,7 @@ namespace ApiPortal.Services
                         logApiDetalle.IdLogApi = logApiId;
                         logApiDetalle.Inicio = DateTime.Now;
                         logApiDetalle.Metodo = "ConsultaCliente";
-                        
+
 
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
 
@@ -8784,7 +8806,7 @@ namespace ApiPortal.Services
                                     logApiDetalle2.IdLogApi = logApiId;
                                     logApiDetalle2.Inicio = DateTime.Now;
                                     logApiDetalle2.Metodo = "ConsultaCliente";
-                                    
+
 
                                     HttpResponseMessage responseWhile = await clientWhile.GetAsync(clientWhile.BaseAddress);
 
@@ -8903,8 +8925,17 @@ namespace ApiPortal.Services
                     string accesToken = api.Token;
                     // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("{CODAUX}", codAux);
 
+                    string listaDocumentos = string.Empty;
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
-                    string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    if (!string.IsNullOrEmpty(tipoDocumento))
+                    {
+                        listaDocumentos = tipoDocumento.Replace(";", ",");
+                    }
+                    else
+                    {
+                        listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                    }
+
                     int cantidad = 100;
                     int pagina = 1;
                     string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
@@ -8920,7 +8951,7 @@ namespace ApiPortal.Services
                     logApiDetalle.IdLogApi = logApiId;
                     logApiDetalle.Inicio = DateTime.Now;
                     logApiDetalle.Metodo = "DocumentosContabilizados";
-                    
+
 
                     HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
 
@@ -8955,7 +8986,7 @@ namespace ApiPortal.Services
                                     logApiDetalle2.IdLogApi = logApiId;
                                     logApiDetalle2.Inicio = DateTime.Now;
                                     logApiDetalle2.Metodo = "DocumentosContabilizados";
-                                    
+
 
                                     HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
 
@@ -9000,7 +9031,10 @@ namespace ApiPortal.Services
                                 documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
                             }
 
-                            documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+                            //if (!string.IsNullOrEmpty(tipoDocumento)){
+                            //    documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
+                            //}
+
                         }
 
                         string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", codAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
@@ -9020,7 +9054,7 @@ namespace ApiPortal.Services
                             logApiDetalle3.IdLogApi = logApiId;
                             logApiDetalle3.Inicio = DateTime.Now;
                             logApiDetalle3.Metodo = "ConsultaTiposDeDocumentos";
-                            
+
 
                             HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress);
 
@@ -9163,7 +9197,7 @@ namespace ApiPortal.Services
                         logApiDetalle.IdLogApi = logApiId;
                         logApiDetalle.Inicio = DateTime.Now;
                         logApiDetalle.Metodo = "PagosxDocumento";
-                        
+
 
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
 
@@ -9199,7 +9233,7 @@ namespace ApiPortal.Services
                                         logApiDetalle2.IdLogApi = logApiId;
                                         logApiDetalle2.Inicio = DateTime.Now;
                                         logApiDetalle2.Metodo = "PagosxDocumento";
-                                        
+
 
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
 

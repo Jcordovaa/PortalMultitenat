@@ -26,7 +26,7 @@ export class AutomatizacionService {
  
   //Obtiene tipos de automatización
   getTipoAutomatizaciones(): Observable<TipoAutomatizacion[]> {
-    return this.http.get<TipoAutomatizacion[]>(`${this.apiTipos}/getTipos`, this.utils.getHeaders(true));
+    return this.http.get<TipoAutomatizacion[]>(`${this.apiUrl}/GetTipos`, this.utils.getHeaders(true));
   }
 
   
@@ -35,20 +35,23 @@ export class AutomatizacionService {
     return this.http.post<any>(`${this.apiUrl}/GuardaAutomatizacion`, body, this.utils.getHeaders(true));
   }
 
-
-  edit (aut: Automatizacion): Observable<any> {
+  create (aut: Automatizacion): Observable<any> {
     const body = JSON.stringify(aut);
-    return this.http.put<Cliente>(`${this.apiUrl}/${aut.idAutomatizacion}`, body, this.utils.getHeaders(true));
+    return this.http.post<any>(`${this.apiUrl}/CreaNuevaAutomatizacion`, body, this.utils.getHeaders(true));
   }
 
   delete (idAutomatizacion: number) {
-    return this.http.delete(`${this.apiUrl}/${idAutomatizacion}`, this.utils.getHeaders(true))
+    return this.http.delete(`${this.apiUrl}/EliminaAutomizacion/${idAutomatizacion}`, this.utils.getHeaders(true))
   }
 
   getAutomatizaciones(): Observable<Automatizacion[]> {
     return this.http.get<Automatizacion[]>(`${this.apiUrl}/GetAutomatizaciones`, this.utils.getHeaders(true));
   }
 
+  getAutomatizacionesByPage(filter: any): Observable<Automatizacion[]> {
+    const body = JSON.stringify(filter);
+    return this.http.post<Automatizacion[]>(`${this.apiUrl}/GetAutomatizacionesByPage`, body, this.utils.getHeaders(true));
+  }
 
   enviaAutomatizaciones() {
     return this.http.get(`${this.apiUrl}/EnviaAutomatizaciones`, this.utils.getHeaders(true));

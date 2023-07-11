@@ -41,6 +41,7 @@
         public float PrecioUnitario { get; set; }
         public float Descuento { get; set; }
         public float Total { get; set; }
+        public int CantidadDespachada { get; set; }
     }
 
     public class EnvioDocumento

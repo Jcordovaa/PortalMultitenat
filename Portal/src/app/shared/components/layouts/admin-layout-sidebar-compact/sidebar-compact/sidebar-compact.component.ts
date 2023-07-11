@@ -43,7 +43,7 @@ export class SidebarCompactComponent implements OnInit {
           sub: [
               { id: 7, icon: 'i-Bar-Chart-3', name: 'Mi Dashboard', state: '/dashboard/cliente', type: 'link' },
               //{ id: 4, icon: 'i-Male', name: 'Mi Perfil', state: '/payment/profile', type: 'link' },
-              { id: 5, icon: 'i-Book', name: 'Estado de Cuenta', state: '/payment/accounts-state', type: 'link' },
+              { id: 5, icon: 'i-Book', name: 'Estado de Cuenta / Paga tu cuenta', state: '/payment/accounts-state', type: 'link' },
               { id: 5, icon: 'i-Shopping-Cart', name: 'Mis Compras', state: '/payment/shopping', type: 'link' },   
                                
           ]

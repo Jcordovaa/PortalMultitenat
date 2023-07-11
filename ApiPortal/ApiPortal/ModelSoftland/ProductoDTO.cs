@@ -24,5 +24,7 @@
         public double PreUniMB { get; set; }
         public double TotalLinea { get; set; }
         public string Tipo_Documento { get; set; }
+        public string Tipo { get; set; }
+        public string SubTipo { get; set; }
     }
 }

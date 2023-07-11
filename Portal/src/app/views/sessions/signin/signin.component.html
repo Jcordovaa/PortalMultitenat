@@ -16,7 +16,7 @@
                     *ngIf="configuracion.habilitaPagoRapido == 1" style="cursor: pointer; color: #ffffff;"
                     class="boton">PAGA TU CUENTA</a>
                 <a (click)="cambioMenu(1)" [ngStyle]="{'background-color': configDiseno.colorBotonInicioSesion}"
-                    style="cursor: pointer; color: #101cad;" class="boton2">INCIAR SESIÓN </a>
+                    style="cursor: pointer; color: #101cad;" class="boton2">INICIAR SESIÓN </a>
                 <a class="botonsimple" style="cursor: pointer; color: #ffffff;"
                     (click)="recuperarContrasena()">¿Olvidaste la contraseña?</a>
             </div>
@@ -103,14 +103,20 @@
                     <input class="place" id="email" name="email" [(ngModel)]="signInModel.correo" type="email"
                         (keydown)="onKeydownInicioSesion($event)" placeholder="Correo electrónico">
                     <div class="row align-items-center">
-                        <div class="col-md-10">
-                            <input class="place" id="pass" name="pass" name="passLogin" [(ngModel)]="signInModel.pass" type="password"
+                        <div class="col-md-12">
+                            <div class="password-container">
+                                 <input class="place" id="pass" name="pass" name="passLogin" [(ngModel)]="signInModel.pass" type="password"
                                 (keydown)="onKeydownInicioSesion($event)" placeholder="Password">
+                                <span *ngIf="!showViewPasswordButton" class="password-toggle" (click)="verPass()">
+                                    <img [src]="icon">
+                                </span>
+                            </div>
+                           
                         </div>
-                        <div class="col-md-2">
+                        <!-- <div class="col-md-2">
                             <button style="height: 35px; width: 50px; margin-left: 5px;" class="btn btn-secondary" type="button"
                                 (click)="verPass()"><img [src]="icon"></button>
-                        </div>
+                        </div> -->
                     </div>
 
                 </form>

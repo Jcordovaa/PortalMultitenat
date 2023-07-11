@@ -120,7 +120,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
         this.getCantidadDocumentos();
         this.getTopDeudores();
-        this.getDeudaVsPagos();
+        // this.getDeudaVsPagos();
     }
 
     ngDoCheck() {
@@ -1046,7 +1046,6 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             idPago: this.idPago
         }
         this.softlandService.actualizaComprobantePago(model).subscribe(res => {
-            this.spinner.hide();
             this.modalService.dismissAll();
             this.obtenerDocumentos(4);
             this.notificationService.success('Se ha actualizado correctamente el Número de comprobante', '', true);

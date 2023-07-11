@@ -96,6 +96,8 @@ export class AuthService {
     const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Sera redirigido al inicio de sesión');
     if (response.isConfirmed) {
       this.signout();
+    }else{
+      this.signout();
     }
    
   }
