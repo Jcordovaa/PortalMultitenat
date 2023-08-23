@@ -121,46 +121,48 @@ export class SendAccessComponent implements OnInit {
           this.condVentas.push({ cveDes: 'SIN DATOS', cveCod: '' })
         }
 
-        this.softlandService.getListasPrecio().subscribe((res3: any) => {
-          this.listasPrecio = res3;
-          this.listasPrecio.forEach(element => {
-            element.desLista = element.codLista + ' - ' + element.desLista;
+        // this.softlandService.getListasPrecio().subscribe((res3: any) => {
+        //   this.listasPrecio = res3;
+        //   this.listasPrecio.forEach(element => {
+        //     element.desLista = element.codLista + ' - ' + element.desLista;
+        //   });
+
+        //   if (this.listasPrecio.length == 0) {
+        //     this.listasPrecio.push({ desLista: 'SIN DATOS', codLista: '' })
+        //   }
+
+        this.softlandService.getVendedores().subscribe((res4: any) => {
+          this.vendedores = res4;
+          this.vendedores.forEach(element => {
+            element.venDes = element.venCod + ' - ' + element.venDes;
           });
 
-          if (this.listasPrecio.length == 0) {
-            this.listasPrecio.push({ desLista: 'SIN DATOS', codLista: '' })
+          if (this.vendedores.length == 0) {
+            this.vendedores.push({ venDes: 'SIN DATOS', venCod: '' })
           }
 
-          this.softlandService.getVendedores().subscribe((res4: any) => {
-            this.vendedores = res4;
-            this.vendedores.forEach(element => {
-              element.venDes = element.venCod + ' - ' + element.venDes;
+          this.softlandService.getCargos().subscribe((res5: any) => {
+            this.cargos = res5;
+            this.cargos.forEach(element => {
+              element.carNom = element.carCod + ' - ' + element.carNom;
             });
 
-            if (this.vendedores.length == 0) {
-              this.vendedores.push({ venDes: 'SIN DATOS', venCod: '' })
+            if (this.cargos.length == 0) {
+              this.cargos.push({ carNom: 'SIN DATOS', carCod: '' })
             }
 
-            this.softlandService.getCargos().subscribe((res5: any) => {
-              this.cargos = res5;
-              this.cargos.forEach(element => {
-                element.carNom = element.carCod + ' - ' + element.carNom;
-              });
-
-              if (this.cargos.length == 0) {
-                this.cargos.push({ carNom: 'SIN DATOS', carCod: '' })
-              }
-
-            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar cargos', '', true); });
-          }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar vendedores', '', true); });
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar listas de precio', '', true); });
+          }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar cargos', '', true); });
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar vendedores', '', true); });
+        // }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar listas de precio', '', true); });
       }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar condiciones de venta', '', true); });
       this.spinner.hide();
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar categorias de cliente', '', true); });
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar categorías de cliente', '', true); });
   }
   search() {
     this.clientesSeleccionados = [];
     this.clientesEliminados = [];
+    this.cantidadSeleccionados = 0;
+    this.checkAll = false;
     this.listaDePrecio = this.selectListaPrecio != null ? this.selectListaPrecio : '';
     this.categoriaCliente = this.selectedCatCliente != null ? this.selectedCatCliente : '';
     this.vendedorCliente = this.selectedVendedor != null ? this.selectedVendedor : '';
@@ -187,6 +189,7 @@ export class SendAccessComponent implements OnInit {
       this.clientes = this.clientesRes.slice(this.paginador.startRow, this.paginador.endRow);
       this.showDetail = true;
       this.checkAll = false;
+      this.cantidadSeleccionados = 0;
       this.spinner.hide();
     }, err => { this.spinner.hide(); });
   }
@@ -268,7 +271,7 @@ export class SendAccessComponent implements OnInit {
 
           if (c.rutAux == element.rutAux && c.codAux == element.codAux) {
             if (element.accesoEnviado == 1) {
-              const response = await this.notificationService.confirmation('', 'El cliente ya posee credenciales de acceso, al agregarlo al proceso de envio y ejecutarlo, estas se sobrescribirán por las nuevas. ¿Desea continuar?');
+              const response = await this.notificationService.confirmation('', 'El cliente ya posee credenciales de acceso, al ejecutar el proceso de envío, estas se sobrescribirán por las nuevas. ¿Desea añadirlo a la lista de envío?', 'SI', 'NO');
               if (response.isConfirmed) {
 
                 element.checked = val.target.checked
@@ -331,7 +334,7 @@ export class SendAccessComponent implements OnInit {
   async send() {
     this.clientesSinDatos = [];
     if (!this.enviarTodosCargos && this.selectedCargos.length == 0) {
-      this.notificationService.warning('Debe seleccionar almenos un cargo para el envio.', '', true);
+      this.notificationService.warning('Debe seleccionar al menos un cargo para el envío.', '', true);
       return;
     }
 
@@ -369,7 +372,7 @@ export class SendAccessComponent implements OnInit {
 
 
     this.spinner.hide();
-    let msg = this.checkAll ? 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice. Si alguno de los clientes ya posee credenciales de acceso, estas se sobrescribirán por las nuevas. ¿Desea continuar?' : 'Se ejecutara el proceso de envio de accesos, se le notificara cuando este finalice. ¿Desea continuar?';
+    let msg = this.checkAll ? 'Se ejecutará el proceso de envío de accesos, se le notificará cuando este finalice. Si alguno de los clientes ya posee credenciales de acceso, estas se sobrescribirán por las nuevas. ¿Desea continuar?' : 'Se ejecutará el proceso de envío de accesos, se le notificará cuando este finalice. ¿Desea continuar?';
     const response = await this.notificationService.confirmation('Enviar accesos', msg);
     if (response.isConfirmed) {
       this.spinner.show();
@@ -462,6 +465,10 @@ export class SendAccessComponent implements OnInit {
     this.searchRut = '';
     this.tipoBusqueda = 1;
     this.clientes = [];
+    this.clientesEliminados = [];
+    this.clientesSeleccionados = [];
+    this.cantidadSeleccionados = 0;
+    this.checkAll = false;
   }
 
   guardarCorreoContacto() {

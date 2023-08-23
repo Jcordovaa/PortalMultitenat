@@ -47,5 +47,7 @@ namespace ApiPortal.Dal.Models_Portal
         public int? HabilitaLogApi { get; set; }
         public string? CadenaAlmacenamientoAzure { get; set; }
         public string? UrlAlmacenamientoArchivos { get; set; }
+        public string? CuentasPasarelaPagos { get; set; }
+        public string? ConsultaAuxiliar { get; set; }
     }
 }

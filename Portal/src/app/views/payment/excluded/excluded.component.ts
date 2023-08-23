@@ -36,7 +36,7 @@ const I18N_VALUES = {
 export class ExcludedComponent implements OnInit {
 
     public viewMode: 'list' | 'grid' = 'list';
-    public img: string = 'assets/images/icon/1790660_cancel_close_delete_discard_exit_icon.png';
+    public img: string = 'assets/images/Clientes-excluidos.png';
     showDetail: boolean = false;
     searchRut: string = '';
     searchRutCliente: string = '';
@@ -102,7 +102,7 @@ export class ExcludedComponent implements OnInit {
         //     const model = { nombre: rut2 }
             this.getClientesExcluidos();
             this.getCategoriasCliente();
-            this.getListasPrecio();
+            //this.getListasPrecio();
             this.getCondicionesVenta();
             this.getVendedores();
         //}
@@ -160,7 +160,7 @@ export class ExcludedComponent implements OnInit {
             this.ClientesExcludios = this.ClientesExcluidosRes.slice(this.paginador.startRow, this.paginador.endRow);
             this.totalItems = res.length;
             this.spinner.hide();
-        }, err => { this.spinner.hide(); this.notificationService.success('Ocurrio un problema al obtener  clientes, intente nuevamente.', '', true); });
+        }, err => { this.spinner.hide(); this.notificationService.success('Ocurrió un problema al obtener  clientes, intente nuevamente.', '', true); });
     }
 
     delete(Cliente: any) {
@@ -169,7 +169,7 @@ export class ExcludedComponent implements OnInit {
             this.getClientesExcluidos();
             this.notificationService.success('Cliente removido de la lista de excluidos', '', true);
             this.spinner.hide();
-        }, err => { this.spinner.hide(); this.notificationService.success('Ocurrio un problema al eliminar , intente nuevamente.', '', true); });
+        }, err => { this.spinner.hide(); this.notificationService.success('Ocurrió un problema al eliminar , intente nuevamente.', '', true); });
     }
 
     changePage(event: any) {
@@ -216,16 +216,13 @@ export class ExcludedComponent implements OnInit {
         if (this.selectedVendedor != null) { validaFiltro = true; }
 
         if (!validaFiltro) {
-            this.notificationService.warning('Debe ingresar al menos un filtro de busqueda', '', true);
+            this.notificationService.warning('Debe ingresar al menos un filtro de búsqueda', '', true);
             return;
         }
         this.spinner.show();
         this.showDetail = false;
 
         var codaux: string = "";
-        if (this.searchRut != "") {
-            codaux = this.searchRut.split('-')[0].replace('.', '').replace('.', '');
-        }
 
 
         var nombreCliente: string = "";
@@ -269,7 +266,7 @@ export class ExcludedComponent implements OnInit {
 
             this.spinner.hide();
 
-        }, err => { this.spinner.hide(); this.notificationService.success('Ocurrio un problema al obtener cliente, intente nuevamente.', '', true); });
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un problema al obtener cliente, intente nuevamente.', '', true); });
 
     }
 
@@ -294,11 +291,11 @@ export class ExcludedComponent implements OnInit {
                     this.notificationService.success('Cliente añadido a la lista de excluidos.', '', true);
                     this.spinner.hide();
                 } else {
-                    this.notificationService.warning('Ocurrio un problema al excluir cliente, intente nuevamente.', '', true);
+                    this.notificationService.warning('Ocurrió un problema al excluir cliente, intente nuevamente.', '', true);
                     this.spinner.hide();
                 }
 
-            }, err => { this.spinner.hide(); this.notificationService.success('Ocurrio un problema al excluir cliente, intente nuevamente.', '', true); });
+            }, err => { this.spinner.hide(); this.notificationService.success('Ocurrió un problema al excluir cliente, intente nuevamente.', '', true); });
         }
 
     }

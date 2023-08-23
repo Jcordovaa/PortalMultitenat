@@ -262,7 +262,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
             this.graphicDeudoresLoad = true;
             this.spinner.hide(this.spinnerDeudores);
-        }, err => { this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
+        }, err => { this.notificationService.error('Ocurrió un error al obtener gráfico.', '', true); });
     }
 
     getDeudaVsPagos() {
@@ -368,7 +368,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             }
             this.graphicResumenLoad = true;
             this.spinner.hide(this.spinnerResumen);
-        }, err => { this.notificationService.error('Ocurrió un error al obtener grafico.', '', true); });
+        }, err => { this.notificationService.error('Ocurrió un error al obtener gráfico.', '', true); });
     }
 
     // getExistenCompras() {
@@ -419,9 +419,9 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
             if (configuracionCompletaPortal.configuracionPagoCliente.cuentasContablesDeuda = ! '' && configuracionCompletaPortal.configuracionPagoCliente.cuentasContablesDeuda != null) {
                 this.clienteService.getDocumentosDashboardAdministrador().subscribe((res: any) => {
-    
+
                     this.dashboardAdmin = res;
-    
+
                     this.cantidadVencidos = this.dashboardAdmin.cantidadVencida;
                     this.totalVencidos = this.dashboardAdmin.montoVencido;
                     this.cantidadPendiente = this.dashboardAdmin.cantidadDocPendiente;
@@ -431,13 +431,13 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     this.totalPagados = this.dashboardAdmin.cantidadDocumentosPagados;
                     this.cantidadPagados = this.dashboardAdmin.montoPagado;
                     this.spinner.hide();
-    
+
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos.', '', true); });
             } else {
                 this.spinner.hide();
                 this.notificationService.info('', 'Portal no ha sido inicializado, favor ir al módulo de administración y realizar las configuraciones correspondientes.', false);
             }
-        }else{
+        } else {
             this.spinner.hide();
             this.authService.signoutExpiredToken();
         }
@@ -486,6 +486,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                 this.spinner.hide();
                 this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
             }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener contactos del cliente', '', true); });
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
     }
@@ -522,7 +524,6 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
 
     obtenerDocumentos(estado: number) {
-
         this.tipoDoc = estado;
         const user = this.authService.getuser();
 
@@ -547,6 +548,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     };
                     this.spinner.hide();
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
+            } else {
+                this.authService.signoutExpiredToken();
             }
         } else {
             switch (estado) {
@@ -616,6 +619,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     this.spinner.hide();
 
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
+            } else {
+                this.authService.signoutExpiredToken();
             }
         }
 
@@ -735,14 +740,14 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         if (this.dateDesde != null) {
             fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
         }
-
+    debugger
         let model = {
             TipoBusqueda: this.tipoDoc,
             fechaDesde: fDesde,
             fechaHasta: fHasta,
             Pagina: 1,
             CodAux: this.searchRut,
-            Folio: this.folio
+            Folio: this.folio == null ? null : this.folio.toString() == '' ? null : this.folio
         }
         this.clienteService.getDocumentosResumenAdministrador(model).subscribe((res: any[]) => {
             this.documentos = res;
@@ -957,28 +962,31 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
             obj.CodAux = compra.codAux;
             obj.TipoDoc = compra.tipoDoc; //FCA 05-07-2022
-        }
 
-        this.compraDetalleAux = obj;
-        this.spinner.show();
 
-        this.clienteService.getDetalleCompra(obj).subscribe((res: any) => {
-            this.spinner.hide();
+            this.compraDetalleAux = obj;
+            this.spinner.show();
 
-            if (res.cabecera != null) {
-                if (res.cabecera.folio != 0) { //FCA 05-07-2022               
-                    this.detalleCab = res.cabecera; //FCA 05-07-2022
-                    this.detalleCab.tipo = obj.TipoDoc;
-                    this.detalleDet = res.detalle;
-                    this.showDetail = true;
-                    this.tituloDetalle = compra.documento;
+            this.clienteService.getDetalleCompra(obj).subscribe((res: any) => {
+                this.spinner.hide();
+
+                if (res.cabecera != null) {
+                    if (res.cabecera.folio != 0) { //FCA 05-07-2022               
+                        this.detalleCab = res.cabecera; //FCA 05-07-2022
+                        this.detalleCab.tipo = obj.TipoDoc;
+                        this.detalleDet = res.detalle;
+                        this.showDetail = true;
+                        this.tituloDetalle = compra.documento;
+                    } else {
+                        this.notificationService.info('Compra no posee detalle asociado.', '', true);
+                    }
                 } else {
                     this.notificationService.info('Compra no posee detalle asociado.', '', true);
                 }
-            } else {
-                this.notificationService.info('Compra no posee detalle asociado.', '', true);
-            }
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+        } else {
+            this.authService.signoutExpiredToken();
+        }
     }
 
 
@@ -1025,17 +1033,15 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
     generarComprobante() {
         this.spinner.show();
-        this.softlandService.generaComprobantePago(this.idPago).subscribe(res => {
-
-            this.spinner.hide();
+        this.softlandService.generaComprobantePago(this.idPago).subscribe((res: any) => {
             this.modalService.dismissAll();
-            if (res == '' || res == null) {
-                this.notificationService.warning('Ocurrio un error al generar comprobante, Reintentelo mas tarde.', '', true);
+            if (res.numero == '' || res.numero == null) {
+                this.notificationService.warning('Ocurrió un error al generar comprobante, Reinténtelo mas tarde.', '', true);
             } else {
-                this.notificationService.success('Se genero el comprobante N° ' + res, '', true);
+                this.notificationService.success('Se genero el comprobante N° ' + res.numero, '', true);
             }
             this.obtenerDocumentos(4);
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener contactos del cliente', '', true); });
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al  generar comprobante', '', true); });
     }
 
 
@@ -1081,33 +1087,36 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             obj.Folio = this.documentoAEnviar.folio;
             obj.TipoDoc = this.documentoAEnviar.tipo;
             obj.CodAux = this.compraDetalleAux.CodAux;
+
+
+
+
+
+
+            this.spinner.show();
+
+            //Obtengo ruta
+            this.clienteService.getClienteDocumento(obj).subscribe(
+                (res: any) => {
+                    if (res.base64 != null && res.base64 != '') {
+                        var link = document.createElement("a");
+                        link.download = res.nombreArchivo;
+                        link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        link.remove();
+                    } else {
+                        this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
+                    }
+
+                    this.spinner.hide();
+                },
+                err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+            );
+        } else {
+            this.authService.signoutExpiredToken();
         }
-
-
-
-
-
-        this.spinner.show();
-
-        //Obtengo ruta
-        this.clienteService.getClienteDocumento(obj).subscribe(
-            (res: any) => {
-                if (res.base64 != null && res.base64 != '') {
-                    var link = document.createElement("a");
-                    link.download = res.nombreArchivo;
-                    link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    link.remove();
-                } else {
-                    this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
-                }
-
-                this.spinner.hide();
-            },
-            err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-        );
     }
 
 
@@ -1126,30 +1135,33 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             }
             debugger
             obj.CodAux = this.compraDetalleAux.CodAux;
+
+
+            this.spinner.show();
+
+            //Obtengo ruta
+            this.clienteService.getClienteXML(obj).subscribe(
+                (res: any) => {
+
+                    if (res.base64 != null && res.base64 != '') {
+                        var link = document.createElement("a");
+                        link.download = res.nombreArchivo;
+                        link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        link.remove();
+                    } else {
+                        this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
+                    }
+
+                    this.spinner.hide();
+                },
+                err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+            );
+        } else {
+            this.authService.signoutExpiredToken();
         }
-
-        this.spinner.show();
-
-        //Obtengo ruta
-        this.clienteService.getClienteXML(obj).subscribe(
-            (res: any) => {
-
-                if (res.base64 != null && res.base64 != '') {
-                    var link = document.createElement("a");
-                    link.download = res.nombreArchivo;
-                    link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    link.remove();
-                } else {
-                    this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
-                }
-
-                this.spinner.hide();
-            },
-            err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-        );
     }
 
 
@@ -1192,7 +1204,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         }
 
         if (!this.enviaPdf && !this.enviaXml) {
-            this.notificationService.warning('Debe seleccionar almenos un tipo de documento.', '', true);
+            this.notificationService.warning('Debe seleccionar al menos un tipo de documento.', '', true);
             return;
         }
 
@@ -1252,6 +1264,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
                     this.notificationService.success('Documentos enviados correctamente.', '', true);
                 }
             }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al enviar correo.', '', true); });
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
 

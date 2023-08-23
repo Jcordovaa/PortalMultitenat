@@ -31,6 +31,15 @@ export class AuthService {
     return null
   }
 
+  getUserAdmin() {
+    var user = localStorage.getItem('currentUserAdminPortal');
+    if (user != null) {
+      
+      return JSON.parse(user);
+    } 
+    return null
+  }
+
   getUserPortal() {
     var user = localStorage.getItem('currentUserAdPortal');
     if (user != null) {
@@ -93,7 +102,7 @@ export class AuthService {
   }
 
   async signoutExpiredToken(){
-    const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Sera redirigido al inicio de sesión');
+    const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Será redirigido al inicio de sesión');
     if (response.isConfirmed) {
       this.signout();
     }else{

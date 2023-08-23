@@ -73,9 +73,10 @@ export class SidebarCompactComponent implements OnInit {
             type: 'dropDown',
             icon: 'i-Management',
             sub: [
-              { id: 15, icon: 'i-Book', name: 'Cobranzas', state: '/payment/collections', type: 'link' } ,
-              { id: 16, icon: 'i-Book', name: 'Clientes Excluidos', state: '/payment/excluded', type: 'link' } ,
-              { id: 17, icon: 'i-Book', name: 'Automatizaciones', state: '/payment/automation', type: 'link' } 
+              { id: 15, icon: 'i-Book', name: 'Asistidas', state: '/payment/collections', type: 'link' } ,
+              { id: 17, icon: 'i-Book', name: 'Automatizadas', state: '/payment/automation', type: 'link' } ,
+              { id: 16, icon: 'i-Book', name: 'Clientes Excluidos', state: '/payment/excluded', type: 'link' } 
+             
             ]
         }
     ];

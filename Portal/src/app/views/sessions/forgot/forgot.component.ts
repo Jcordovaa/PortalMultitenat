@@ -49,7 +49,7 @@ export class ForgotComponent implements OnInit {
       this.notificationService.warning('Debe ingresar los datos para recuperar contraseña.', '', true);
       return;
     }
-    const response = await this.notificationService.confirmation('Recuperar Contraseña', 'Se enviara una nueva contraseña a su correo, para cambiarla debera hacerlo desde Mi Perfil ¿Desea continuar?');
+    const response = await this.notificationService.confirmation('Recuperar Contraseña', 'Se enviará una nueva contraseña a su correo, para cambiarla deberá hacerlo desde Mi Perfil ¿Desea continuar?');
     if (response.isConfirmed) {
       
       this.spinner.show();
@@ -61,7 +61,7 @@ export class ForgotComponent implements OnInit {
 
       this.clienteService.postRecuperarContrasena(cliente).subscribe(res => {
         if(res == 1){
-          this.notificationService.success('Nueva contraseña enviada, Revise su bandeja de correo electronico.', '', true);          
+          this.notificationService.success('Nueva contraseña enviada, Revise su bandeja de correo electrónico.', '', true);          
         }else{
           this.notificationService.error('Usuario no encontrado.', '', true);
         }

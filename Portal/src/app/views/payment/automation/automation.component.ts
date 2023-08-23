@@ -39,7 +39,7 @@ export class AutomationComponent implements OnInit {
   public tiposDocumento: TipoDocumento[] = [];
   public selectedTiposDocumentos: any = []
   public mostrarEnPago: any[] = [{ id: 0, nombre: 'Estado de cuenta' }, { id: 1, nombre: 'Solo documentos vencidos' }];
-  public diasSemana: any[] = [{ id: 1, nombre: 'Lunes' }, { id: 2, nombre: 'Martes' }, { id: 3, nombre: 'Miercoles' }, { id: 4, nombre: 'Jueves' }, { id: 5, nombre: 'Viernes' }, { id: 6, nombre: 'Sabado' }, { id: 0, nombre: 'Domingo' }];
+  public diasSemana: any[] = [{ id: 1, nombre: 'Lunes' }, { id: 2, nombre: 'Martes' }, { id: 3, nombre: 'Miércoles' }, { id: 4, nombre: 'Jueves' }, { id: 5, nombre: 'Viernes' }, { id: 6, nombre: 'Sábado' }, { id: 0, nombre: 'Domingo' }];
   public horarios: any = [];
   private ngbDatepickerConfig: NgbDatepickerConfig;
   private ngbDatepickerI18n: NgbDatepickerI18n;
@@ -85,7 +85,7 @@ export class AutomationComponent implements OnInit {
 
   ngOnInit() {
     this.getCategoriasCliente();
-    this.getListasPrecio();
+    //this.getListasPrecio();
     this.getCondicionesVenta();
     this.getVendedores();
     this.getcargos();
@@ -106,6 +106,9 @@ export class AutomationComponent implements OnInit {
       this.canalesVenta.forEach(element => {
         element.canDes = element.canCod + ' - ' + element.canDes;
       });
+      if(this.canalesVenta.length == 0){
+        this.canalesVenta.push({ canDes: 'Sin Datos', canCod: '', disabled: true })
+      }
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar canales de venta', '', true); });
   }
 
@@ -115,6 +118,9 @@ export class AutomationComponent implements OnInit {
       this.cobradores.forEach(element => {
         element.cobDes = element.cobCod + ' - ' + element.cobDes;
       });
+      if(this.cobradores.length == 0){
+        this.cobradores.push({ cobDes: 'Sin Datos', cobCod: '', disabled: true })
+      }
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar canales de venta', '', true); });
   }
 
@@ -124,6 +130,9 @@ export class AutomationComponent implements OnInit {
       this.cargos.forEach(element => {
         element.carNom = element.carCod + ' - ' + element.carNom;
       });
+      if(this.cargos.length == 0){
+        this.cargos.push({ carNom: 'Sin Datos', carCod: '', disabled: true })
+      }
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al cargar cargos', '', true); });
   }
 
@@ -136,6 +145,10 @@ export class AutomationComponent implements OnInit {
       this.categoriasCliente.forEach(element => {
         element.catDes = element.catCod + ' - ' + element.catDes;
       });
+
+      if(this.categoriasCliente.length == 0){
+        this.categoriasCliente.push({ catDes: 'Sin Datos', catCod: '', disabled: true })
+      }
     }, err => {
       this.spinner.hide();
     });
@@ -148,6 +161,9 @@ export class AutomationComponent implements OnInit {
       this.tiposDocumento.forEach(element => {
         element.desDoc = element.codDoc + ' - ' + element.desDoc;
       });
+      if(this.tiposDocumento.length == 0){
+        this.tiposDocumento.push({ desDoc: 'Sin Datos', codDoc: '', disabled: true })
+      }
     }, err => {
       this.spinner.hide();
     });
@@ -160,6 +176,9 @@ export class AutomationComponent implements OnInit {
       this.listasPrecio.forEach(element => {
         element.desLista = element.codLista + ' - ' + element.desLista;
       });
+      if(this.listasPrecio.length == 0){
+        this.listasPrecio.push({ desLista: 'Sin Datos', codLista: '', disabled: true })
+      }
     }, err => {
       this.spinner.hide();
     });
@@ -172,6 +191,9 @@ export class AutomationComponent implements OnInit {
       this.vendedores.forEach(element => {
         element.venDes = element.venCod + ' - ' + element.venDes;
       });
+      if(this.vendedores.length == 0){
+        this.vendedores.push({ venDes: 'Sin Datos', venCod: '', disabled: true })
+      }
     }, err => {
       this.spinner.hide();
     });
@@ -184,6 +206,9 @@ export class AutomationComponent implements OnInit {
       this.condicionesVenta.forEach(element => {
         element.cveDes = element.cveCod + ' - ' + element.cveDes;
       });
+      if(this.condicionesVenta.length == 0){
+        this.condicionesVenta.push({ cveDes: 'Sin Datos', cveCod: '', disabled: true })
+      }
     }, err => {
       this.spinner.hide();
     });
@@ -288,7 +313,7 @@ export class AutomationComponent implements OnInit {
     }
 
     if ((this.nuevaAutomaetizacion.diaEnvio == null || this.nuevaAutomaetizacion.diaEnvio.toString() == '' || this.nuevaAutomaetizacion.diaEnvio == 0) && (this.nuevaAutomaetizacion.idPerioricidad == 4 || this.nuevaAutomaetizacion.idPerioricidad == 5)) {
-      this.notificationService.warning('Debe ingresar dia de envio', '', true);
+      this.notificationService.warning('Debe ingresar dia de envío', '', true);
       return;
     } else if (this.nuevaAutomaetizacion.idPerioricidad != 4 && this.nuevaAutomaetizacion.idPerioricidad != 5) {
       this.nuevaAutomaetizacion.diaEnvio = null;
@@ -297,16 +322,16 @@ export class AutomationComponent implements OnInit {
     switch (this.nuevaAutomaetizacion.idTipoAutomatizacion) {
       case 1:
 
-        if (this.selectedAnio == null) {
-          this.notificationService.warning('Debe seleccionar un año', '', true);
-          return;
-        }
+        // if (this.selectedAnio == null) {
+        //   this.notificationService.warning('Debe seleccionar un año', '', true);
+        //   return;
+        // }
 
-        if (this.selectedAnio == 'TODOS') {
-          this.nuevaAutomaetizacion.anio = null
-        } else {
-          this.nuevaAutomaetizacion.anio = this.selectedAnio;
-        }
+        // if (this.selectedAnio == 'TODOS') {
+        //   this.nuevaAutomaetizacion.anio = null
+        // } else {
+        //   this.nuevaAutomaetizacion.anio = this.selectedAnio;
+        // }
 
         if (this.nuevaAutomaetizacion.diasVencimiento == null || this.nuevaAutomaetizacion.diasVencimiento.toString() == '') {
           this.notificationService.warning('Debe ingresar cantidad de Dias antes del vencimiento', '', true);
@@ -325,7 +350,7 @@ export class AutomationComponent implements OnInit {
       case 3:
 
         if (this.nuevaAutomaetizacion.diasVencimiento == null || this.nuevaAutomaetizacion.diasVencimiento.toString() == '') {
-          this.notificationService.warning('Debe ingresar cantidad de Dias despues del vencimiento', '', true);
+          this.notificationService.warning('Debe ingresar cantidad de Días después del vencimiento', '', true);
           return;
         }
 
@@ -375,7 +400,7 @@ export class AutomationComponent implements OnInit {
 
 
     if (this.nuevaAutomaetizacion.idHorario == null) {
-      this.notificationService.warning('Debe seleccionar un Horario de envio', '', true);
+      this.notificationService.warning('Debe seleccionar un Horario de envío', '', true);
       return;
     }
 
@@ -438,7 +463,7 @@ export class AutomationComponent implements OnInit {
   }
 
   async enviaAutomatizaciones() {
-    const response = await this.notificationService.confirmation('Ejecutar Envio', 'Se ejecutara el proceso de envio, esto puede tardar varios minutos dependiendo de la cantidad de documenos a enviar. ¿Desea continuar?');
+    const response = await this.notificationService.confirmation('Ejecutar Envío', 'Se ejecutará el proceso de envio, esto puede tardar varios minutos dependiendo de la cantidad de documentos a enviar. ¿Desea continuar?');
     if (response.isConfirmed) {
       this.spinner.show();
       this.spinner.hide();
@@ -514,6 +539,7 @@ export class AutomationComponent implements OnInit {
       this.selectedAnio = this.nuevaAutomaetizacion.anio != null && this.nuevaAutomaetizacion.anio != 0 ? this.nuevaAutomaetizacion.anio : 'TODOS';
     } else {
       this.nuevaAutomaetizacion = new Automatizacion();
+      this.nuevaAutomaetizacion.excluyeClientes = 1;
       this.modalTitle = 'Nueva Automatización';
 
 

@@ -27,6 +27,7 @@ namespace ApiPortal.Controllers
         private readonly PortalClientesSoftlandContext _context;
         private readonly PortalAdministracionSoftlandContext _admin;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IHttpContextAccessor _contextAccessor;
         private string message;
         private string ruta64 = string.Empty;
 
@@ -40,6 +41,7 @@ namespace ApiPortal.Controllers
 
         [HttpPost("GeneraPagoElectronico")]
         public async Task<IActionResult> GeneraPagoElectronico([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
+        
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
@@ -948,9 +950,9 @@ namespace ApiPortal.Controllers
                                                 await _context.SaveChangesAsync();
 
                                                 //Genera comprobante contable por el pago realizado
-                                                string numComprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
+                                                PagoComprobanteVm comprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
 
-                                                if (string.IsNullOrEmpty(numComprobante))
+                                                if (comprobante.PagoId == 0)
                                                 {
                                                     string folios = string.Empty;
                                                     if (pago.PagosDetalles.Count > 0)
@@ -1010,7 +1012,7 @@ namespace ApiPortal.Controllers
                                                             {
                                                                 detalleCobranza.FechaPago = pago.FechaPago;
                                                                 detalleCobranza.HoraPago = pago.HoraPago;
-                                                                detalleCobranza.ComprobanteContable = numComprobante;
+                                                                detalleCobranza.ComprobanteContable = comprobante.NumComprobante;
                                                                 detalleCobranza.IdPago = idPago;
                                                                 detalleCobranza.Pagado += detPago.Apagar;
 
@@ -1037,8 +1039,8 @@ namespace ApiPortal.Controllers
                                                         }
                                                         _context.SaveChanges();
                                                     }
-                                                    //ClientesPortalController clientesController = new ClientesPortalController(_context,_webHostEnvironment,_admin, IHttpContextAccessor contextAccessor);
-                                                    //clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
+                                                    ClientesPortalController clientesController = new ClientesPortalController(_context, _webHostEnvironment, _admin, _contextAccessor);
+                                                    await clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
                                                     if (redirectTo == TbkRedirect.PagoRapido)
                                                     {
                                                         if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")

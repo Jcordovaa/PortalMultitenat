@@ -1,7 +1,7 @@
 <div class="breadcrumb">
     <h1>Cobranzas</h1>
     <ul>
-        <li><a href="">Portal de pagos</a></li>
+        <li><a>Portal de pagos</a></li>
         <li>Cobranzas</li>
     </ul>
 </div>
@@ -9,7 +9,7 @@
 <div class="separator-breadcrumb border-top"></div>
 
 <div class="card user-profile o-hidden mb-4" *ngIf="!muestraDetalle">
-    <div class="header-cover" style="background-image: url('assets/images/photo-wide-4.jpg')"></div>
+    <div class="header-cover" style="background-image: url('assets/images/Banner-Cobranzas.png')"></div>
     <div class="user-info">
         <img class="profile-picture avatar-lg mb-2" src="{{img}}" alt="">
     </div>
@@ -83,7 +83,8 @@
                 <label for="lastName">Fecha Creación Desde</label>
                 <div class="input-group">
                     <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d2"
-                        #c2="ngModel" [(ngModel)]="dateDesdeFiltro" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                        #c2="ngModel" [(ngModel)]="dateDesdeFiltro" ngbDatepicker #d2="ngbDatepicker"
+                        [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                     <div class="input-group-append">
                         <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                             <i class="icon-regular i-Calendar-4"></i>
@@ -95,7 +96,8 @@
                 <label for="lastName">Fecha Creación Hasta</label>
                 <div class="input-group">
                     <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d3"
-                        #c3="ngModel" [(ngModel)]="dateHastaFiltro" ngbDatepicker #d3="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                        #c3="ngModel" [(ngModel)]="dateHastaFiltro" ngbDatepicker #d3="ngbDatepicker"
+                        [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                     <div class="input-group-append">
                         <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
                             <i class="icon-regular i-Calendar-4"></i>
@@ -167,7 +169,8 @@
                             {{item.nombre}}
                         </p>
                         <!--FCA 13-12-2021-->
-                        <p *ngIf="selectedModalidadCobranza == 1" class="m-0 text-muted w-15 w-sm-100" style="flex-basis:200px">
+                        <p *ngIf="selectedModalidadCobranza == 1" class="m-0 text-muted w-15 w-sm-100"
+                            style="flex-basis:200px">
                             <strong>Estado: </strong> {{item.nombreEstado}}
                         </p>
                         <p class="m-0 text-muted w-15 w-sm-100">
@@ -180,11 +183,13 @@
 
 
                         <!--FCA 13-12-2021-->
-                        <p *ngIf="selectedModalidadCobranza == 2" class="m-0 text-muted w-15 w-sm-100" style="flex-basis:100px">
+                        <p *ngIf="selectedModalidadCobranza == 2" class="m-0 text-muted w-15 w-sm-100"
+                            style="flex-basis:100px">
                             <strong>Fecha Hasta: </strong> {{item.fechaFin | date: 'dd/MM/yyyy'}}
                         </p>
 
-                        <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 0" style="flex-basis:100px"> 
+                        <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 0"
+                            style="flex-basis:100px">
                             <strong>Tipo: </strong> {{item.nombreTipoCobranza}}
                         </p>
                         <!-- <p class="m-0 text-muted w-15 w-sm-100" *ngIf="item.enviaEnlacePago == 1">
@@ -202,7 +207,41 @@
                                 class="badge badge-{{item.colorPorcentajeRecaudacion}}">{{item.porcentajeRecaudacion}}%</span>
                         </p> -->
                         <!--FCA 13-12-2021-->
-                        <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:100px">
+                        <div ngbDropdown container="body">
+                            <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                                class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                                id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px"
+                                    height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="text-body align-middle mr-25 feather feather-more-vertical">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg></button>
+                            <div ngbDropdownMenu>
+                                <button *ngIf="selectedModalidadCobranza == 1" (click)="verDetalleCobranza(item)"
+                                    style="cursor: pointer; " ngbDropdownItem><i class="i-Edit"
+                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Ver detalle</button>
+                                <button *ngIf="item.idEstado == 1" (click)="deleteCobranza(item)"
+                                    style="cursor: pointer;" ngbDropdownItem><i class="i-Remove"
+                                        style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
+
+                                <!-- <img *ngIf="selectedModalidadCobranza == 2" (click)="desactivar(item)" container="body"
+                                    ngbTooltip="Desactivar/Activar" style="cursor: pointer;"
+                                    src="https://img.icons8.com/cute-clipart/2x/forgot-password.png" width="25"
+                                    height="25" alt="">
+                                <img *ngIf="selectedModalidadCobranza == 2" (click)="delete(item)" container="body"
+                                    ngbTooltip="Eliminar" style="cursor: pointer;"
+                                    src="https://img.icons8.com/cute-clipart/2x/delete-forever.png" width="25"
+                                    height="25" alt="">
+                                <img *ngIf="item.idEstadoCobranza == 1" (click)="deleteCobranza(item)" container="body"
+                                    ngbTooltip="Eliminar" style="cursor: pointer;"
+                                    src="https://img.icons8.com/cute-clipart/2x/delete-forever.png" width="25"
+                                    height="25" alt=""> -->
+                            </div>
+                        </div>
+
+                        <!-- <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:100px">
                             <img *ngIf="selectedModalidadCobranza == 1" (click)="verDetalleCobranza(item)"
                                 container="body" ngbTooltip="Ver detalle" style="cursor: pointer;"
                                 src="assets/images/show-property.png" width="25" height="25" alt="">
@@ -214,7 +253,7 @@
                                 ngbTooltip="Eliminar" style="cursor: pointer;"
                                 src="https://img.icons8.com/cute-clipart/2x/delete-forever.png" width="25" height="25"
                                 alt="">
-                        </p>
+                        </p> -->
                     </div>
                 </div>
             </div>
@@ -236,7 +275,7 @@
         </div>
     </div>
 </div>
-<div class="row" *ngIf="nuevaCobranza" >
+<div class="row" *ngIf="nuevaCobranza">
     <div class="col-md-12 mt-3 mb-3">
 
         <form-wizard id="wizard1" (onStepChanged)="onStepChangedl(wz, step1, step2, step3, step4, step5)">
@@ -262,7 +301,7 @@
                         <label class="checkbox checkbox-primary">
                             <input type="checkbox" [checked]="chkClientesExcluidos" name="inputName"
                                 [(ngModel)]="chkClientesExcluidos">
-                            <span>Excluir clientes del listado "Clientes excluidos"</span>
+                            <span>Activar el listado de clientes excluidos</span>
                             <span class="checkmark"></span>
                         </label>
                     </div>
@@ -285,16 +324,26 @@
                                 <div class="col-sm-4">
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d1"
-                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c1="ngModel" 
-                                            [(ngModel)]="fecha" ngbDatepicker #d1="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c1="ngModel"
+                                            [(ngModel)]="fecha" ngbDatepicker #d1="ngbDatepicker"
+                                            [navigation]="'select'" [minDate]="{year: 2000, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d1.toggle();" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
                                             </button>
+                                            <button class="btn btn-secondary" (click)="fecha = null" type="button">
+                                                <i class="icon-regular i-Paint-Brush"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class="col-sm-4">
+                                    <ngb-alert *ngIf="mensajeFechaInicioErronea != '' && mensajeFechaInicioErronea != null"
+                                    class="alert-card text-center" [dismissible]="false">
+                                    {{mensajeFechaInicioErronea}}
+                                </ngb-alert>
+                                </div>
+                         
                             </div>
 
                             <div class="form-group row">
@@ -303,26 +352,38 @@
                                     <ng-select class="customAC"
                                         style="border-radius: 40px !important; max-height: 120px;"
                                         (open)="handleFocus()" [items]="horarios" bindLabel="horario"
-                                        placeholder="Horas" #cc="ngModel" name="cc" [(ngModel)]="selectedHorario" 
+                                        placeholder="Horas" #cc="ngModel" name="cc" [(ngModel)]="selectedHorario"
                                         bindValue="hora">
                                     </ng-select>
                                 </div>
                             </div>
 
                             <div class="form-group row mb-4" style="height: 200px;">
-                                <label class="col-sm-4 col-form-label">La cobranza dejara de estar activa el</label>
+                                <label class="col-sm-4 col-form-label">El enlace de pago se deshabilitará el </label>
                                 <div class="col-sm-4">
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="v1"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,2)" #g1="ngModel"
-                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v1="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v1="ngbDatepicker"
+                                            [navigation]="'select'" [minDate]="{year: 2000, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="v1.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
                                             </button>
+                                            <button class="btn btn-secondary" (click)="fechaVencimiento = null" type="button">
+                                                <i class="icon-regular i-Paint-Brush"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-sm-4">
+                                    <ngb-alert
+                                        *ngIf="mensajeFechaTerminoErronea != '' && mensajeFechaTerminoErronea != null"
+                                        class="alert-card text-center" [dismissible]="false">
+                                        {{mensajeFechaTerminoErronea}}
+                                    </ngb-alert>
+                                </div>
+
                             </div>
                         </div>
 
@@ -368,7 +429,7 @@
                                 <label class="col-sm-4 col-form-label">Los días</label>
                                 <div class="col-sm-4">
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
-                                        [items]="frecuenciaDias" bindLabel="dia" placeholder="Seleccione dias"
+                                        [items]="frecuenciaDias" bindLabel="dia" placeholder="Seleccione Días"
                                         multiple="true" #dd="ngModel" name="dd" [(ngModel)]="selectedDia"
                                         bindValue="id">
                                     </ng-select>
@@ -413,7 +474,8 @@
                                     <div class="input-group">
                                         <input class="form-control" placeholder="dd/mm/yyyy" readonly name="d2"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,1)" #c2="ngModel"
-                                            [(ngModel)]="fecha" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            [(ngModel)]="fecha" ngbDatepicker #d2="ngbDatepicker"
+                                            [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -428,9 +490,10 @@
                                 <label class="col-sm-4 col-form-label">La cobranza dejara de estar activa el</label>
                                 <div class="col-sm-4">
                                     <div class="input-group">
-                                        <input class="form-control" placeholder="dd/mm/yyyy" readonly name="v2"
+                                        <input class="form-control" placeholder="dd/mm/yyyy"  name="v2"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,2)" #g2="ngModel"
-                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            [(ngModel)]="fechaVencimiento" ngbDatepicker #v2="ngbDatepicker"
+                                            [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="v2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -451,25 +514,26 @@
 
 
 
-            <wizard-step #step2 id="step2" [title]="'Documentos'" [isValid]="IsStepTwoOk" (onNext)="onStep2Next($event)" >
+            <wizard-step #step2 id="step2" [title]="'Documentos'" [isValid]="IsStepTwoOk"
+                (onNext)="onStep2Next($event)">
 
-                <div class="row">
+                <div class="row" style="padding-bottom: 200px;" >
                     <div class="col-md-12 mb-4 mt-4">
                         <span style="font-size: 16px; font-weight: 600;">1. Ingrese las condiciones para identificar los
-                            documentos que se enviaran en cobranza o precobranza</span>
+                            documentos que se enviarán en cobranza o pre cobranza</span>
                     </div>
-
+<!-- 
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Año (*)</label>
-                        <!-- <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
+                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
                             appendTo="body" bindLabel="anioMatricula" required placeholder="Año" #aniosm="ngModel"
                             name="aniosm" (change)="onChangeSelect(1)" [(ngModel)]="selectedAnio" bindValue="id">
-                        </ng-select> -->
+                        </ng-select> 
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
                             appendTo="body" bindLabel="anioMatricula" required placeholder="Año" #aniosm="ngModel"
                             name="aniosm" [(ngModel)]="selectedAnio" bindValue="id">
                         </ng-select>
-                    </div>
+                    </div> -->
 
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Tipo Documento (*)</label>
@@ -479,32 +543,32 @@
                             [closeOnSelect]="false" (change)="onChangeSelect(2)">
                         </ng-select> -->
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumento"
-                            bindLabel="desDoc" placeholder="Tipos de documento" #lpo="ngModel" name="lpo"
-                            [(ngModel)]="selectedTipoDoc" bindValue="codDoc" [multiple]="true" [closeOnSelect]="true">
+                            bindLabel="desDoc" placeholder="Tipos de documentos" #lpo="ngModel" name="lpo"
+                            [(ngModel)]="selectedTipoDoc" bindValue="codDoc" [multiple]="true" [closeOnSelect]="false">
                         </ng-select>
                     </div>
 
-                    <div class="form-group col-md-4 mb-3">
+                    <!-- <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Lista de precios</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
                             bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel"
                             name="listasPrecios" [(ngModel)]="selectedListaPrecio" bindValue="codLista"
                             [multiple]="true" [closeOnSelect]="true">
                         </ng-select>
-                    </div>
+                    </div> -->
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Categoría cliente</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
-                            bindLabel="catDes" placeholder="Categoria Cliente" #categoriasClientes="ngModel"
+                            bindLabel="catDes" placeholder="Categoría Cliente" #categoriasClientes="ngModel"
                             name="categoriasClientes" [(ngModel)]="selectedCatCliente" bindValue="catCod"
-                            [multiple]="true" [closeOnSelect]="true">
+                            [multiple]="true"  [closeOnSelect]="false">
                         </ng-select>
                     </div>
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Vendedor</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
                             bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
-                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true" [closeOnSelect]="true">
+                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true"  [closeOnSelect]="false">
                         </ng-select>
                     </div>
 
@@ -513,7 +577,7 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
                             bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
                             name="condicionesVentas" [(ngModel)]="selectedCondicionVenta" bindValue="cveCod"
-                            [multiple]="true" [closeOnSelect]="true">
+                            [multiple]="true"  [closeOnSelect]="false" >
                         </ng-select>
                     </div>
 
@@ -535,24 +599,22 @@
                         </ng-select>
                     </div> -->
 
-                    <div class="form-group col-md-4 mb-3">
+                    <!-- <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">{{textoCantidad}}</label>
-                        <!-- <input type="number" min="0" class="form-control mr-2" id="caja" name="dias"
-                            (blur)="onChangeSelect(3)" placeholder="Días vencimiento" [(ngModel)]="diasVencimiento"> -->
+                       <input type="number" min="0" class="form-control mr-2" id="caja" name="dias"
+                            (blur)="onChangeSelect(3)" placeholder="Días vencimiento" [(ngModel)]="diasVencimiento"> 
                         <input type="number" min="0" class="form-control mr-2" id="caja" name="dias"
                             placeholder="Días vencimiento" [(ngModel)]="diasVencimiento">
-                    </div>
-                    
+                    </div> -->
 
 
-                    <div class="col-md-4 form-group mb-3">
+
+                    <!-- <div class="col-md-4 form-group mb-3">
                         <label for="lastName">Desde</label>
                         <div class="input-group">
-                            <!-- <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'"
-                                (dateSelect)="onChangeSelect(4)" name="d2" #c2="ngModel" [(ngModel)]="dateDesde"
-                                ngbDatepicker #d2="ngbDatepicker"> -->
                             <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d2"
-                                #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker"
+                                [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
@@ -563,18 +625,16 @@
                     <div class="col-md-4 form-group mb-3" style="height: 20px;">
                         <label for="lastName">Hasta</label>
                         <div class="input-group">
-                            <!-- <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'"
-                                (dateSelect)="onChangeSelect(5)" name="d3" #c3="ngModel" [(ngModel)]="dateHasta"
-                                ngbDatepicker #d3="ngbDatepicker"> -->
                             <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d3"
-                                #c3="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d3="ngbDatepicker" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                #c3="ngModel" [(ngModel)]="dateHasta" ngbDatepicker #d3="ngbDatepicker"
+                                [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                 </div>
 
@@ -665,14 +725,14 @@
 
                 <div class="row ml-4" *ngIf="enviaLinkPago == 0 && selectedTipoCobranza == 1">
                     <label class="text-danger">*El tipo de documento seleccionado no genera pagos Webpay del cliente,
-                        solo se enviara correo con detalle de la dueda.</label>
+                        solo se enviará correo con detalle de la deuda.</label>
                 </div>
             </wizard-step>
 
-            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)" >
+            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)">
                 <div class="row" *ngIf="selectedProgramacion == 1">
                     <div class="col-md-12 mb-3 mt-3">
-                        <span style="font-size: 16px; font-weight: 600;">Detalle de los correos que se enviaran a los
+                        <span style="font-size: 16px; font-weight: 600;">Detalle de los correos que se enviarán a los
                             clientes.</span>
                     </div>
                     <div class="form-group col-md-3 mb-3">
@@ -722,10 +782,12 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        <label class="checkbox checkbox-outline-primary" style="margin-bottom: 20px;">
-                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll" (change)="onSelAll($event)">
-                                                        <span class="checkmark"></span>
-                                                    </label>
+                                                        <label class="checkbox checkbox-outline-primary"
+                                                            style="margin-bottom: 20px;">
+                                                            <input type="checkbox" name="checkAllSel"
+                                                                [(ngModel)]="checkAll" (change)="onSelAll($event)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
                                                     </th>
                                                     <th scope="col">Rut</th>
                                                     <th scope="col">Cliente</th>
@@ -748,11 +810,13 @@
                                                     <td>{{ c.nombreCliente }}</td>
                                                     <td>{{ c.montoDeuda | monto }}</td>
                                                     <td>{{ c.cantidadDocumentos}}</td>
-                                                    <td> 
-                                                        <span placement="bottom" container="body" ngbTooltip="Estado: Bloqueado" *ngIf="c.bloqueado != 'N'"
-                                                        class="badge badge-danger">Bloqueado</span>
-                                                        <span placement="bottom" container="body" ngbTooltip="Estado: No Bloqueado" *ngIf="c.bloqueado == 'N'"
-                                                        class="badge badge-success">No Bloqueado</span>
+                                                    <td>
+                                                        <span placement="bottom" container="body"
+                                                            ngbTooltip="Estado: Bloqueado" *ngIf="c.bloqueado != 'N'"
+                                                            class="badge badge-danger">Bloqueado</span>
+                                                        <span placement="bottom" container="body"
+                                                            ngbTooltip="Estado: No Bloqueado" *ngIf="c.bloqueado == 'N'"
+                                                            class="badge badge-success">No Bloqueado</span>
                                                     </td>
                                                     <td style="text-align: center;">
                                                         <img *ngIf="c.estadoDatos != -1"
@@ -779,10 +843,12 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        <!-- <label class="checkbox checkbox-outline-primary" style="margin-bottom: 20px;">
-                                                        <input type="checkbox" name="checkAllSel" [(ngModel)]="checkAll" (change)="onSelAll($event)">
-                                                        <span class="checkmark"></span>
-                                                    </label> -->
+                                                        <label class="checkbox checkbox-outline-primary"
+                                                            style="margin-bottom: 20px;">
+                                                            <input type="checkbox" name="checkAllSel"
+                                                                [(ngModel)]="checkAll" (change)="onSelAll($event)">
+                                                            <span class="checkmark"></span>
+                                                        </label>
                                                     </th>
                                                     <th scope="col">Cliente</th>
                                                     <th scope="col">Detalle</th>
@@ -804,10 +870,12 @@
                                                         <strong>Total Deuda: </strong>{{ c.montoDeuda | monto }}<br />
                                                         <strong>Doc. Pendientes: </strong>{{
                                                         c.cantidadDocumentos}}<br />
-                                                        <strong>Estado: <span placement="bottom" container="body" ngbTooltip="Estado: Activo" *ngIf="c.bloqueado == 'N'"
-                                                        class="badge badge-success">Bloqueado</span>
-                                                        <span placement="bottom" container="body" ngbTooltip="Estado: Activo" *ngIf="c.bloqueado != 'N'"
-                                                        class="badge badge-danger">No Bloqueado</span> </strong>
+                                                        <strong>Estado: <span placement="bottom" container="body"
+                                                                ngbTooltip="Estado: Activo" *ngIf="c.bloqueado == 'N'"
+                                                                class="badge badge-success">Bloqueado</span>
+                                                            <span placement="bottom" container="body"
+                                                                ngbTooltip="Estado: Activo" *ngIf="c.bloqueado != 'N'"
+                                                                class="badge badge-danger">No Bloqueado</span> </strong>
                                                         <br />
                                                     </td>
 
@@ -856,7 +924,8 @@
                                                 <i class="i-Mail-Send"></i>
                                                 <div class="content" style="max-width: 90px !important;">
                                                     <p class="text-primary mt-2 mb-0">A Recaudar</p>
-                                                    <p class="lead text-primary text-19 mb-2" style="font-weight: 600;">${{ totalPagar |
+                                                    <p class="lead text-primary text-19 mb-2" style="font-weight: 600;">
+                                                        ${{ totalPagar |
                                                         monto}}</p>
                                                 </div>
                                             </div>
@@ -871,7 +940,7 @@
                 <div class="row" *ngIf="selectedProgramacion == 2">
                     <div class="col-md-12 mb-4 mt-4">
                         <span style="font-size: 16px; font-weight: 600;">3. Ingrese las condiciones para identificar los
-                            clientes a los que se le enviara la cobranza</span>
+                            clientes a los que se le enviará la cobranza</span>
                     </div>
 
                     <div class="col-md-3 form-group mb-3">
@@ -961,7 +1030,7 @@
 
                                 <div class="row ml-4" *ngIf="selectedProgramacion == 2">
                                     <label class="text-danger">*Clientes mostrados corresponden a la fecha actual, puede
-                                        variar al momento del envió.</label>
+                                        variar al momento del envío.</label>
                                 </div>
 
                             </div>
@@ -970,13 +1039,13 @@
                 </div>
             </wizard-step>
 
-            <wizard-step #step4 [title]="'Finalizar'" (onComplete)="onComplete(wz)">
+            <wizard-step #step4 [title]="'Finalizar'" [isValid]="IsStepFinalOk" (onComplete)="onComplete(wz)">
                 <div class="text-center mt-4 mb-5">
                     <img src="https://img.icons8.com/cotton/2x/check-dollar.png" width="50" height="50" alt="">
                     <h5 class="font-weight-light mt-2">{{tituloFinal}}</h5>
                 </div>
 
-                
+
                 <div class="row" style="justify-content: center;">
                     <div class="form-group col-md-4 mb-3">
                         <label for="nombre" class="text-lbl">Nombre Cobranza (*)</label>
@@ -1014,7 +1083,7 @@
                     <div class="form-group col-md-4 mb-3">
                         <div class="input-group">
                             <label class="switch switch-primary mr-3 mt-4">
-                                <span>Si ningun contacto tiene el cargo seleccionado, Enviar a todos los
+                                <span>Si ningún contacto tiene el cargo seleccionado, Enviar a todos los
                                     contactos.</span>
                                 <input type="checkbox" name="chkContactos" [(ngModel)]="enviaTodosContactos">
                                 <span class="slider"></span>
@@ -1023,7 +1092,7 @@
                     </div>
                 </div>
 
-                <div class="row" style="justify-content: center; margin-top: 10px;" >
+                <div class="row" style="justify-content: center; margin-top: 10px;">
                     <div class="form-group col-md-4 mb-3">
                         <div class="input-group">
                             <label class="switch switch-primary mr-3 mt-4">
@@ -1162,7 +1231,7 @@
                             <div class="form-group col-md-3 mb-3" style="margin-top: 20px;">
                                 <label for="rutCliente" class="text-lbl">Rut Cliente</label>
                                 <input type="text" class="form-control" (blur)="validateRut()" id="rutCliente"
-                                    name="rutCliente" [(ngModel)]="searchRut" placeholder="Ingrese Rut Cliente">
+                                    name="rutCliente" [(ngModel)]="searchRutDetalle" placeholder="Ingrese Rut Cliente">
                             </div>
                             <div class="form-group col-md-3 mb-3" style="margin-top: 20px;">
                                 <label for="folioDetalle"
@@ -1184,7 +1253,8 @@
                         </div>
 
 
-                        <div class="row">
+                        <div class="row" *ngIf="cobranzaDetalle.length > 0">
+
                             <div class="col-md-12">
                                 <!--DESKTOP-->
                                 <div class="desktop">
@@ -1216,7 +1286,8 @@
                                                     {{item.comprobanteContable}}
                                                 </td> -->
                                                 <td><button class="btn btn-primary"
-                                                    (click)="openModalAbonos(detalleSaldo,item)">Ver Abonos</button></td>
+                                                        (click)="openModalAbonos(detalleSaldo,item)">Ver Abonos</button>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1260,6 +1331,14 @@
                                 <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
                             </div>
                         </div>
+
+                        <div class="row" *ngIf="cobranzaDetalle.length == 0">
+                            <div class="col-md-12">
+                                <ngb-alert class="alert-card text-center" [dismissible]="false">
+                                    No existen resultados para los filtros ingresados.
+                                </ngb-alert>
+                            </div>
+                        </div>
                     </div>
                     <!--==== / Print Area =====-->
                     <div class="d-sm-flex mb-5">
@@ -1286,10 +1365,10 @@
 
                 <div class="input-group col-md-8 mt-3" style="margin: auto;">
                     <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">Correo Envio Cliente</span>
+                        <span class="input-group-text" id="basic-addon1">Correo Envío Cliente</span>
                     </div>
                     <input type="email" class="form-control" style="text-align: right;" [(ngModel)]="nuevoCorreo"
-                        name="correoApo" placeholder="Ingrese correo electronico" aria-label="correoApo"
+                        name="correoApo" placeholder="Ingrese correo electrónico" aria-label="correoApo"
                         aria-describedby="basic-addon1">
                 </div>
             </div>
@@ -1337,7 +1416,7 @@
                         <tr>
                             <th scope="col">Tipo</th>
                             <th scope="col">Folio</th>
-                            <th scope="col">Fecha Vto</th>
+                            <th scope="col">Fecha Vto.</th>
                             <th scope="col">Saldo</th>
                             <th *ngIf="selectedProgramacion == 1" scope="col">Eliminar</th>
                         </tr>

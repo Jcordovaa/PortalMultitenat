@@ -89,7 +89,7 @@ export class ConfigComponent implements OnInit {
   constructor(private configuracionPagoClientesService: ConfiguracionPagoClientesService, private _sanitizer: DomSanitizer,
     private notificationService: NotificationService,
     private spinner: NgxSpinnerService, private configuracionDisenoService: ConfiguracionDisenoService,
-    private configuracionSoftlandService: ConfiguracionSoftlandService, private modalService: NgbModal,  private ls: LocalStoreService,  private configuracionService: ConfiguracionPagoClientesService) { }
+    private configuracionSoftlandService: ConfiguracionSoftlandService, private modalService: NgbModal, private ls: LocalStoreService, private configuracionService: ConfiguracionPagoClientesService) { }
 
   ngOnInit(): void {
     this.getConfigPagoClientes();
@@ -202,7 +202,7 @@ export class ConfigComponent implements OnInit {
       }
     }, err => {
       this.spinner.hide();
-      this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener la configuración.', '', true);
     });
   }
 
@@ -225,7 +225,7 @@ export class ConfigComponent implements OnInit {
 
     }, err => {
       this.spinner.hide();
-      this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener la configuración.', '', true);
     });
   }
 
@@ -241,7 +241,7 @@ export class ConfigComponent implements OnInit {
     this.configuracionSoftlandService.getCentrosCostosActivos().subscribe((res: any) => {
       this.centrosCostos = res;
     }, err => {
-      this.notificationService.error('Ocurrio un error al obtener centros de costos.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener centros de costos.', '', true);
     });
   }
 
@@ -249,7 +249,7 @@ export class ConfigComponent implements OnInit {
     this.configuracionSoftlandService.getAreasNegocio().subscribe((res: any) => {
       this.areasNegocio = res;
     }, err => {
-      this.notificationService.error('Ocurrio un error al obtener areas de negocio.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener areas de negocio.', '', true);
     });
   }
 
@@ -264,7 +264,7 @@ export class ConfigComponent implements OnInit {
       }
     }, err => {
       this.spinner.hide();
-      this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener la configuración.', '', true);
     });
   }
 
@@ -274,6 +274,9 @@ export class ConfigComponent implements OnInit {
       this.tipoDocs.forEach(element => {
         element.desDoc = element.codDoc + ' - ' + element.desDoc;
       });
+      if(this.tipoDocs.length == 0){
+        this.tipoDocs.push({ desDoc: 'Sin Datos', codDoc: '', disabled: true })
+      }
       let ccs = []
       const documentos = this.configPagoClientes.tiposDocumentosDeuda ? this.configPagoClientes.tiposDocumentosDeuda.split(';') : [];
 
@@ -296,6 +299,9 @@ export class ConfigComponent implements OnInit {
       this.cuentasContables.forEach(element => {
         element.nombre = element.codigo + ' - ' + element.nombre;
       });
+      if(this.cuentasContables.length == 0){
+        this.cuentasContables.push({ nombre: 'Sin Datos', codigo: '', disabled: true })
+      }
       let ccs = []
       const cuentasContables = this.configPagoClientes.cuentasContablesDeuda ? this.configPagoClientes.cuentasContablesDeuda.split(';') : [];
 
@@ -328,10 +334,10 @@ export class ConfigComponent implements OnInit {
     }
 
 
-    if (this.anioTributario == null || this.anioTributario == '') {
-      this.notificationService.warning('El año tributario es obligatorio, debe ingresarlo.', '', true);
-      return;
-    }
+    // if (this.anioTributario == null || this.anioTributario == '') {
+    //   this.notificationService.warning('El año tributario es obligatorio, debe ingresarlo.', '', true);
+    //   return;
+    // }
 
     // if (this.configPagoClientes.monedaUtilizada == null || this.configPagoClientes.monedaUtilizada == '') {
     //   this.notificationService.warning('Debe ingresar Moneda Nacional', '', true);
@@ -339,7 +345,7 @@ export class ConfigComponent implements OnInit {
     // }
 
     if (cuentasContables == '' || cuentasContables == null) {
-      this.notificationService.warning('Debe ingresar almenos una cuenta contable', '', true);
+      this.notificationService.warning('Debe ingresar al menos una cuenta contable', '', true);
       return;
     }
 
@@ -392,7 +398,7 @@ export class ConfigComponent implements OnInit {
       this.notificationService.success('Configuración actualizada correctamente', '', true);
       this.spinner.hide();
     }, err => {
-      this.notificationService.error('Error al actualizar parametros', '', true);
+      this.notificationService.error('Error al actualizar parámetros', '', true);
       this.spinner.hide();
     });
   }
@@ -426,8 +432,8 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/muestra_sobregiro_cliente.jpg';
         break;
       case 6:
-        this.modalTitle = 'Habilitar Paga Tú Cuenta';
-        this.modalContent = 'Habilita la opción  de realizar un Paga Tú Cuenta en la página  de inicio.';
+        this.modalTitle = 'Habilitar Paga Tu Cuenta';
+        this.modalContent = 'Habilita la opción  de realizar un Paga Tu Cuenta en la página  de inicio.';
         this.modalImage = 'assets/images/config/pago_rapido.jpg';
         break;
       case 7:
@@ -436,13 +442,13 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/abono_parcial.jpg';
         break;
       case 8:
-        this.modalTitle = 'Habilitar Búsqueda por Documento Paga Tú Cuenta';
-        this.modalContent = 'Al habilitar esta opción se permitirá Paga Tú Cuenta por número de documento. Para modificar esta opción debe estar habilitado Paga Tú Cuenta';
+        this.modalTitle = 'Habilitar Búsqueda por Documento Paga Tu Cuenta';
+        this.modalContent = 'Al habilitar esta opción se permitirá Paga Tu Cuenta por número de documento. Para modificar esta opción debe estar habilitado Paga Tu Cuenta';
         this.modalImage = 'assets/images/config/doc_pago_rapido.jpg';
         break;
       case 9:
         this.modalTitle = 'Cantidad Días Documentos Por Vencer';
-        this.modalContent = 'Cantidad de días antes del vencimiento desde los cuales los documentos se considerarán "Por Vencer", tanto en el Dashboard administrador como en el Dashboard cliente (Si no se indica dias o se deja en 0 se considerarán todos los documentos que esten en estado "Pendiente").';
+        this.modalContent = 'Cantidad de días antes del vencimiento desde los cuales los documentos se considerarán "Por Vencer", tanto en el Dashboard administrador como en el Dashboard cliente (Si no se indica días o se deja en 0 se considerarán todos los documentos que estén en estado "Pendiente").';
         this.modalImage = 'assets/images/config/dias_por_vencer.jpg';
         break;
       case 10:
@@ -451,7 +457,7 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/colorFondoPortada.jpg';
         break;
       case 11:
-        this.modalTitle = 'Color Botón Paga Tú Cuenta';
+        this.modalTitle = 'Color Botón Paga Tu Cuenta';
         this.modalContent = 'Color del botón "PAGA TU CUENTA" de la pantalla de inicio del portal en formato hexadecimal.';
         this.modalImage = 'assets/images/config/colorBotonPagoRapido.jpg';
         break;
@@ -492,7 +498,7 @@ export class ConfigComponent implements OnInit {
         break;
       case 19:
         this.modalTitle = 'Banner';
-        this.modalContent = 'Imagen mostrada en el banner de la pantalla de Paga Tú Cuenta.';
+        this.modalContent = 'Imagen mostrada en el banner de la pantalla de Paga Tu Cuenta.';
         this.modalImage = 'assets/images/config/bannerPagoRapido.jpg';
         break;
       case 20:
@@ -527,7 +533,7 @@ export class ConfigComponent implements OnInit {
         break;
       case 26:
         this.modalTitle = 'Texto Aviso';
-        this.modalContent = 'Texto de notificación que se mostrará en el dashboard del cliente y en la pantalla de Paga Tú cuenta.';
+        this.modalContent = 'Texto de notificación que se mostrará en el dashboard del cliente y en la pantalla de Paga Tu cuenta.';
         this.modalImage = 'assets/images/config/textoAviso.jpg';
         break;
       case 27:
@@ -577,7 +583,7 @@ export class ConfigComponent implements OnInit {
         break;
       case 36:
         this.modalTitle = 'Color Selección Botón Detalle Últimas Compras';
-        this.modalContent = 'Color del botón "Ver Detalle"  de la sección Últimas Compras de la pantalla Mi Dashboard del cliente al pasar el cursor sobre el, en formato hexadecimal.';
+        this.modalContent = 'Color del botón "Ver Detalle"  de la sección Últimas Compras de la pantalla Mi Dashboard del cliente al pasar el cursor sobre él, en formato hexadecimal.';
         this.modalImage = 'assets/images/config/colorSeleccionBotonDetalle.jpg';
         break;
       case 37:
@@ -611,8 +617,8 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/tituloProductosComprados.jpg';
         break;
       case 43:
-        this.modalTitle = 'Título Guias Pendientes de Facturar';
-        this.modalContent = 'Título que se mostrará en el recuadro Guias Pendientes de Facturar en la pantalla Mis Compras del cliente.';
+        this.modalTitle = 'Título Guías Pendientes de Facturar';
+        this.modalContent = 'Título que se mostrará en el recuadro Guías Pendientes de Facturar en la pantalla Mis Compras del cliente.';
         this.modalImage = 'assets/images/config/tituloGuiasPendientes.jpg';
         break;
       case 44:
@@ -631,8 +637,8 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/fondoProductosComprados.jpg';
         break;
       case 47:
-        this.modalTitle = 'Color Recuadro Guias Pendientes de Facturar';
-        this.modalContent = 'Color del recuadro Guias Pendientes de Facturar de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalTitle = 'Color Recuadro Guías Pendientes de Facturar';
+        this.modalContent = 'Color del recuadro Guías Pendientes de Facturar de la pantalla Mis Compras del cliente, en formato hexadecimal.';
         this.modalImage = 'assets/images/config/colorGuiasPendientes.jpg';
         break;
       case 48:
@@ -671,8 +677,8 @@ export class ConfigComponent implements OnInit {
         this.modalImage = 'assets/images/config/botonEstadoCuenta.jpg';
         break;
       case 55:
-        this.modalTitle = 'Color Seleccion Botón';
-        this.modalContent = 'Color de los botón "Moficar Datos", "Cambio de Clave" y "Estado de Cuenta" de la pantalla Mi Perfil del cliente al pasar el cursor por encima.';
+        this.modalTitle = 'Color Selección Botón';
+        this.modalContent = 'Color de los botón "Modificar Datos", "Cambio de Clave" y "Estado de Cuenta" de la pantalla Mi Perfil del cliente al pasar el cursor por encima.';
         this.modalImage = 'assets/images/config/botonSeleccionPerfil.jpg';
         break;
       case 56:
@@ -714,6 +720,18 @@ export class ConfigComponent implements OnInit {
         this.modalTitle = 'Icono Estado de Cuenta';
         this.modalContent = 'Icono mostrado sobre el botón Estado de Cuenta en la pantalla Mi Perfil.';
         this.modalImage = 'assets/images/config/iconoEstadoCuenta.jpg';
+        break;
+
+      case 64:
+        this.modalTitle = 'Mensaje Cobranza Expirada';
+        this.modalContent = 'Mensaje mostrado al cliente al ingresar a la pantalla "Paga Tu Cuenta" mediante el link enviado en una cobranza, cuando esta se encuentre expirada.';
+        this.modalImage = '';
+        break;
+
+      case 65:
+        this.modalTitle = 'Texto Descargar Cobranza';
+        this.modalContent = 'Mensaje mostrado al cliente al ingresar al portal mediante el link "Descargar" enviado en una cobranza.';
+        this.modalImage = 'assets/images/config/textoDescargaCobranza.jpg';
         break;
     }
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
@@ -1395,7 +1413,7 @@ export class ConfigComponent implements OnInit {
         }
 
         if (this.configuracionDiseno.colorBotonPagoRapido == '' || this.configuracionDiseno.colorBotonPagoRapido == null) {
-          this.notificationService.warning('Debe seleccionar color para el boton de Paga Tú Cuenta', '', true);
+          this.notificationService.warning('Debe seleccionar color para el botón de Paga Tu Cuenta', '', true);
           return;
         }
 
@@ -1448,15 +1466,27 @@ export class ConfigComponent implements OnInit {
         break;
 
       case 3:
+        if (this.configuracionDiseno.textoCobranzaExpirada == null || this.configuracionDiseno.textoCobranzaExpirada == '') {
+          this.notificationService.warning('Debe ingresar un mensaje para las cobranzas expiradas', '', true);
+          return;
+        }
+
         if (this.defaultImageBannerPagoRapido == null && (this.configuracionDiseno.bannerPagoRapido == null || this.configuracionDiseno.bannerPagoRapido == '')) {
           this.notificationService.warning('Debe seleccionar un Banner', '', true);
           return;
         }
-        if (this.defaultImageBannerPagoRapido != null) {
-          this.uploadImage(seccion);
-        } else {
-          this.notificationService.success('Datos guardados correctamente', '', true);
-        }
+
+        this.spinner.show();
+        this.configuracionDisenoService.saveConfigDiseno(this.configuracionDiseno, seccion).subscribe(res => {
+          if (this.defaultImageBannerPagoRapido != null) {
+            this.uploadImage(seccion);
+          } else {
+            this.spinner.hide();
+            this.notificationService.success('Datos guardados correctamente', '', true);
+          }
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al guardar datos', '', true); });
+
+
         break;
 
       case 4:
@@ -1496,32 +1526,32 @@ export class ConfigComponent implements OnInit {
         }
 
         if (this.configuracionDiseno.colorTextoPendientes == '' || this.configuracionDiseno.colorTextoPendientes == null) {
-          this.notificationService.warning('Debe seleccionar color para texto docuementos pendientes', '', true);
+          this.notificationService.warning('Debe seleccionar color para texto documentos pendientes', '', true);
           return;
         }
 
         if (this.configuracionDiseno.colorFondoVencidos == '' || this.configuracionDiseno.colorFondoVencidos == null) {
-          this.notificationService.warning('Debe seleccionar color para texto docuementos pendientes', '', true);
+          this.notificationService.warning('Debe seleccionar color para texto documentos pendientes', '', true);
           return;
         }
 
         if (this.configuracionDiseno.colorTextoVencidos == '' || this.configuracionDiseno.colorTextoVencidos == null) {
-          this.notificationService.warning('Debe seleccionar color para texto docuementos pendientes', '', true);
+          this.notificationService.warning('Debe seleccionar color para texto documentos pendientes', '', true);
           return;
         }
 
         if (this.configuracionDiseno.colorFondoPorVencer == '' || this.configuracionDiseno.colorFondoPorVencer == null) {
-          this.notificationService.warning('Debe seleccionar color para texto docuementos pendientes', '', true);
+          this.notificationService.warning('Debe seleccionar color para texto documentos pendientes', '', true);
           return;
         }
 
         if (this.configuracionDiseno.colorTextoPorVencer == '' || this.configuracionDiseno.colorTextoPorVencer == null) {
-          this.notificationService.warning('Debe seleccionar color para texto docuementos pendientes', '', true);
+          this.notificationService.warning('Debe seleccionar color para texto documentos pendientes', '', true);
           return;
         }
 
         if (this.configuracionDiseno.colorSeleccionDocumentos == '' || this.configuracionDiseno.colorSeleccionDocumentos == null) {
-          this.notificationService.warning('Debe seleccionar color para seleccion recuadro documentos', '', true);
+          this.notificationService.warning('Debe seleccionar color para selección recuadro documentos', '', true);
           return;
         }
 
@@ -1655,7 +1685,7 @@ export class ConfigComponent implements OnInit {
         }
 
         if (this.configuracionDiseno.colorHoverBotonesPerfil == '' || this.configuracionDiseno.colorHoverBotonesPerfil == null) {
-          this.notificationService.warning('Debe seleccionar color para Seleccion Botón', '', true);
+          this.notificationService.warning('Debe seleccionar color para Selección Botón', '', true);
           return;
         }
 

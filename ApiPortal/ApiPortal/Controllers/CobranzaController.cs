@@ -50,7 +50,7 @@ namespace ApiPortal.Controllers
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+                var documentos = await sf.GetDocumentosPendientesCobranzaAsync( model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
 
                 //Retorna
 
@@ -393,7 +393,7 @@ namespace ApiPortal.Controllers
                         doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? string.Empty : docCliente[0].NombreCliente;
                         doc.EmailCliente = docCliente[0].EmailCliente;
                         doc.CantidadDocumentosPendientes = docCliente.Count;
-                        doc.MontoDeuda = Convert.ToInt32(docCliente.Sum(x => x.Monto));
+                        doc.MontoDeuda = Convert.ToDecimal(docCliente.Sum(x => x.Monto));
                         doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
                         doc.CodAux = docCliente[0].CodAuxCliente;
                         doc.IdCobranza = item.IdCobranza;
@@ -405,7 +405,7 @@ namespace ApiPortal.Controllers
                             aux.Folio = (int)d.Folio;
                             aux.FechaEmision = (DateTime)d.FechaEmision;
                             aux.FechaVencimiento = (DateTime)d.FechaVencimiento;
-                            aux.Monto = (int)d.Monto;
+                            aux.Monto = (decimal)d.Monto;
                             aux.TipoDocumento = tiposDocumentos.Where(x => x.CodDoc == d.TipoDocumento).FirstOrDefault().DesDoc;
                             doc.ListaDocumentos.Add(aux);
                         }
@@ -555,7 +555,7 @@ namespace ApiPortal.Controllers
             try
             {
                 List<DocumentosCobranzaVm> listaDocumentos = new List<DocumentosCobranzaVm>();
-                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, logApi.Id);
+                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync( model.TipoDocumento, logApi.Id);
 
                 if (!string.IsNullOrEmpty(model.Estado))
                 {
@@ -688,7 +688,7 @@ namespace ApiPortal.Controllers
             try
             {
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
@@ -727,7 +727,7 @@ namespace ApiPortal.Controllers
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.Anio, model.Fecha, model.FechaHasta, model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
 
                 //Retorna
                 List<DocumentoClienteCobranzaVm> retorno = new List<DocumentoClienteCobranzaVm>();
@@ -1316,6 +1316,55 @@ namespace ApiPortal.Controllers
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/GetTiposDocumentosPagoCliente";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpDelete("DeleteCobranza/{idCobranza}"), Authorize]
+        public async Task<ActionResult> DeleteCobranza(int idCobranza)
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/DeleteCobranza";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+
+            try
+            {
+                var detalles = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza);
+
+                if(detalles.Count() > 0)
+                {
+                    _context.CobranzaDetalles.RemoveRange(detalles);
+                    _context.SaveChanges();
+                }
+             
+
+                var cobranza = _context.CobranzaCabeceras.Where(x => x.IdCobranza == idCobranza).FirstOrDefault();
+                if(cobranza != null)
+                {
+                    _context.CobranzaCabeceras.Remove(cobranza);
+                    _context.SaveChanges();
+                }
+             
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Cobranza/DeleteCobranza";
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
                 return BadRequest(ex.Message);

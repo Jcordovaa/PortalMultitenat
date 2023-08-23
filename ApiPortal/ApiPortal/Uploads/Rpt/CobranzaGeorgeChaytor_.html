@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+	.cajamayor{
+    display: flex;
+    
+    height: 130px;
+    width: 600px;
+    margin: 10px auto;
+    padding: 0px;
+    justify-content: space-between;
+}
+
+.cajamenor1{
+    background-color: blue;
+    height: 90px;
+    width: 90px;
+    margin: 20px;  
+    padding: 0px;
+}
+
+img{
+    margin: 0px;
+}
+.cajamenor2{
+    
+    height: 90px;
+    width: 200px;
+    margin: 20px;
+    font-size: 12px;
+    text-align: center;
+    
+    color: #1F3295;
+   
+}
+
+
+
+.cajamenor3{
+    background-color: #1F3295;
+    color: #ffffff;
+    height: 90px;
+    width: 200px;
+    margin: 20px;
+    border-radius: 5px;
+    text-align: center;
+    
+}
+
+.cajamenor3 p{
+    margin-top: 20px;
+
+}
+
+.cajamayor2{
+    display: flex;
+    
+    height: 35px;
+    width: 600px;
+    margin: 10px auto;
+    padding: 0px;
+    justify-content: space-between;
+}
+
+.cajamayor4{
+    display: flex;
+    
+    height: 35px;
+    width: 600px;
+    margin: 10px auto;
+    padding: 0px;
+    justify-content: space-between;
+    background-color: #1F3295;
+    border-radius: 10px;
+    
+}
+
+.cajamayor6{
+    display: flex;
+    
+    height: 35px;
+    width: 600px;
+    margin: 10px auto;
+    padding: 0px;
+    justify-content: space-between;
+    background-color: #C0C0C0;
+    border-radius: 10px;
+    
+}
+
+
+h5{
+    margin: 0px 10px;
+
+}
+
+.icon{
+    margin-left: 10px;
+}
+.cajamenor11{
+    background-color: #C0C0C0;
+    color: #1F3295;
+    font-family: Verdana, Geneva, Tahoma, sans-serif; 
+    height: 35px;
+    width: 120%;
+    padding: 0px 10px;
+    
+       
+    display: flex;
+    
+    align-items: center;
+    font-size: 12px;
+    border-radius: 10px;
+    justify-content: center;
+}
+
+
+.cajamenor22{
+    background-color: #C0C0C0;
+    color: #1F3295;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
+    border-radius: 10px;
+    height: 35px;
+    width: 110%;
+    margin: 0px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 10px;
+    
+       
+}
+
+.cajamenor33{
+    background-color: #C0C0C0;
+    color: #1F3295;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 12px;
+    border-radius: 10px;
+    height: 35px;
+    width: 70%;
+    
+    display: flex;
+    align-items: center;
+    
+    padding: 0px 10px;
+      
+}
+
+.cajamayor3{
+    display: flex;
+    
+    height: 85px;
+    width: 600px;
+    margin: 10px auto;
+    padding: 0px;
+    flex-direction: column;
+    align-items: center;    
+    justify-content: center;
+    border: 2px solid #1F3295;
+    border-radius: 5px;
+	align-items: initial;
+}
+
+.datos{
+    display: flex;
+    align-items: center;
+    
+    color: #1F3295;
+}
+
+span{
+    margin: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+
+p{
+    margin: 10px 20px;
+    font-size: 14px;    
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.cajamenor4{
+    
+    width: 100%;
+    display: flex;
+    align-items: center;   
+    justify-content: center;
+   
+    
+}
+
+.cajamenor4 span{
+    font-size: 10px;
+    text-align: center;
+    align-items: center;
+    color: #fff;
+    
+
+    }
+
+    .cajamayor5{
+        display: flex;
+        
+        height: 130px;
+        width: 600px;
+        margin: 10px auto;
+        padding: 0px;
+        justify-content: space-between;
+        border: 2px solid #1F3295;
+        border-radius: 10px;
+    }  
+    
+    .cajamenor5{
+        
+        height: 90px;
+        width: 100px;
+        margin: 20px;
+       
+        text-align: center;
+       
+    }
+
+    .cajamenor6{
+        
+        border: 2px solid #1F3295;
+        color: #1F3295;
+        height: 90px;
+        width: 200px;
+        margin: 20px;
+        text-align: center;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        border-radius: 10px;
+        
+
+    }
+
+    .cajamenor6 h5{
+        margin-top: 20px;
+
+
+
+    }
+	
+	</style>
+    <title>Document</title>
+</head>
+<body>
+    <div class="cajabuela">
+    <div class="cajamayor">
+
+        <div class="cajamenor1"><img stlye="object-fit: contain;" src="{LOGO}" height="90"  width="90"></div>
+        <div class="cajamenor2"><p>{NOMBREEMPRESA}</p>
+            <span>Rut: {RUTEMPRESA}</span></div>
+        <div class="cajamenor3"><p>ESTADO DE CUENTA</p>
+            <span>{FECHA}</span></div>
+        
+    </div>
+
+    <div class="cajamayor2">
+
+        <div class="cajamenor11">
+            <img src="https://pagos.georgechaytor.cl/assets/uploads/imgreportes/icon3.png"  class="icon">
+            <h5>{CORREOEMPRESA}</h5> 
+        </div>
+        <div class="cajamenor22">
+            <img src="https://pagos.georgechaytor.cl/assets/uploads/imgreportes/icon2.png" class="icon">
+            <h5>{WEBEMPRESA}</h5>
+        </div>
+        <div class="cajamenor33">
+            <img src="https://pagos.georgechaytor.cl/assets/uploads/imgreportes/icon1.png" class="icon">
+            <h5>{TELEFONOEMPRESA}</h5> 
+        </div>
+        
+    </div>
+
+    <div class="cajamayor3">
+        <div class="datos">
+           <span style="width:80px;">Cliente</span><p>{RUTALUMNO}</p><p>{NOMBREALUMNO}</p>
+        </div>
+    </div>
+
+    <div class="cajamayor4">
+
+        <div class="cajamenor4" style=" border-right: solid 2px #ffffff;">            
+            <span>Folio</span> 
+        </div>
+
+        <div class="cajamenor4"style=" border-right: solid 2px #ffffff;" >
+            
+            <span>Tipo de documento</span>
+        </div>
+
+        <div class="cajamenor4" style=" border-right: solid 2px #ffffff;">            
+            <span>Vencimiento</span> 
+        </div>
+
+        <div class="cajamenor4">            
+            <span>Saldo pendiente</span> 
+        </div>
+        
+    </div>
+	<!--detalle-->
+    <div class="cajamayor6">
+
+        <div class="cajamenor4" style=" border-right: solid 2px #ffffff;">            
+            <span>{numeroDoc}</span> 
+        </div>
+
+        <div class="cajamenor4" style=" border-right: solid 2px #ffffff;">
+            
+            <span>{TipoDoc}</span>
+        </div>
+
+        <div class="cajamenor4" style=" border-right: solid 2px #ffffff;">            
+            <span>{FechaDoc}</span> 
+        </div>
+
+        <div class="cajamenor4">            
+            <span>${montoDoc}</span> 
+        </div>
+        
+    </div>
+	<!--detalle-->
+    <div class="cajamayor5">
+
+        
+        <div class="cajamenor5">
+            <!-- <img src="https://pagos.georgechaytor.cl/assets/uploads/imgreportes//img1.jpg"> -->
+
+
+        </div>
+        <div class="cajamenor6">
+            <h5>TOTAL DEUDA</h5><h5>{MONTODEUDA}</h5>
+        </div>
+        
+    </div>
+
+    </div>
+</body>
+</html>

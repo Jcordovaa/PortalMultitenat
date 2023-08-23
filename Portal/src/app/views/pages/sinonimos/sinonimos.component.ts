@@ -160,7 +160,7 @@ export class SinonimosComponent implements OnInit {
       if (err && err.length > 0) {
         this.notificationService.error(err, '', true);
       } else {
-        this.notificationService.error('Ocurrio un error al procesar archivo, verifique el formato y datos del archivo.', '', true);
+        this.notificationService.error('Ocurrió un error al procesar archivo, verifique el formato y datos del archivo.', '', true);
       }
     });
 

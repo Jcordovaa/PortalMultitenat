@@ -208,10 +208,10 @@ export class ShoppingComponent implements OnInit {
           if (this.configuracion.muestraGuiasPendientes == 1) { this.cantidadRecuadrosDocumentos += 1; }
           this.loadingMisCompras = true;
           this.spinner.hide();
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al datos', '', true);});
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al datos', '', true); });
       }
     } else {
-      this.spinner.hide();
+      this.authService.signoutExpiredToken();
     }
 
 
@@ -357,7 +357,7 @@ export class ShoppingComponent implements OnInit {
   }
 
   filterPr() {
-    
+
     let data: any = Object.assign([], this.productosResp);
 
     if (this.folio != null) {
@@ -444,29 +444,32 @@ export class ShoppingComponent implements OnInit {
 
       obj.CodAux = user.codAux;
 
+
+
+      this.spinner.show();
+
+      //Obtengo ruta
+      this.clientesService.getClienteDocumento(obj).subscribe(
+        (res: any) => {
+          debugger
+          if (res.base64 != '' && res.base64 != null) {
+            var link = document.createElement("a");
+            link.download = res.nombreArchivo;
+            link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            link.remove();
+          } else {
+            this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
+          }
+          this.spinner.hide();
+        },
+        err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+      );
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    //Obtengo ruta
-    this.clientesService.getClienteDocumento(obj).subscribe(
-      (res: any) => {
-        debugger
-        if (res.base64 != '' && res.base64 != null) {
-          var link = document.createElement("a");
-          link.download = res.nombreArchivo;
-          link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          link.remove();
-        } else {
-          this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
-        }
-        this.spinner.hide();
-      },
-      err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-    );
   }
 
   downloadXML() {
@@ -483,30 +486,33 @@ export class ShoppingComponent implements OnInit {
         obj.TipoDoc = this.documentoAEnviar.tipo == undefined ? this.documentoAEnviar.tipoDoc : this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
       }
       obj.CodAux = user.codAux;
+
+
+      this.spinner.show();
+
+      //Obtengo ruta
+      this.clientesService.getClienteXML(obj).subscribe(
+        (res: any) => {
+
+          if (res.base64 != null) {
+            var link = document.createElement("a");
+            link.download = res.nombreArchivo;
+            link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            link.remove();
+          } else {
+            this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
+          }
+
+          this.spinner.hide();
+        },
+        err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+      );
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    //Obtengo ruta
-    this.clientesService.getClienteXML(obj).subscribe(
-      (res: any) => {
-
-        if (res.base64 != null) {
-          var link = document.createElement("a");
-          link.download = res.nombreArchivo;
-          link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          link.remove();
-        } else {
-          this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
-        }
-
-        this.spinner.hide();
-      },
-      err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-    );
   }
 
   verDetalle(compra: any) {
@@ -522,23 +528,26 @@ export class ShoppingComponent implements OnInit {
       }
       obj.CodAux = user.codAux;
       obj.TipoDoc = compra.movtipdocref;
+
+
+      this.spinner.show();
+
+      this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
+        this.spinner.hide();
+        if (res.cabecera != null && res.cabecera != undefined) {
+          this.detalleCab = res.cabecera;
+          this.detalleDet = res.detalle;
+          this.estadoDoc = this.detalleCab.estado == 'V' ? 'VENCIDO' : 'PENDIENTE';
+          this.showDetail = true;
+          this.notaVenta = compra.nvNumero;
+          this.tituloDetalle = compra.documento;
+        } else {
+          this.notificationService.info('Compra no posee detalle asociado.', '', true);
+        }
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.cabecera != null && res.cabecera != undefined) {
-        this.detalleCab = res.cabecera;
-        this.detalleDet = res.detalle;
-        this.estadoDoc = this.detalleCab.estado == 'V' ? 'VENCIDO' : 'PENDIENTE';
-        this.showDetail = true;
-        this.notaVenta = compra.nvNumero;
-        this.tituloDetalle = compra.documento;
-      } else {
-        this.notificationService.info('Compra no posee detalle asociado.', '', true);
-      }
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
   }
 
 
@@ -552,22 +561,25 @@ export class ShoppingComponent implements OnInit {
       this.productoVenta = producto.codProd;
       obj.CodAux = user.codAux;
       obj.TipoDoc = producto.tipoDoc;
+
+
+      this.spinner.show();
+
+      this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
+        this.spinner.hide();
+        if (res.cabecera != null && res.cabecera != undefined) {
+          this.detalleCab = res.cabecera;
+          this.detalleDet = res.detalle;
+          this.showDetailProducto = true;
+          this.notaVenta = producto.nvNumero;
+          this.tituloDetalle = producto.documento;
+        } else {
+          this.notificationService.info('Compra no posee detalle asociado.', '', true);
+        }
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.cabecera != null && res.cabecera != undefined) {
-        this.detalleCab = res.cabecera;
-        this.detalleDet = res.detalle;
-        this.showDetailProducto = true;
-        this.notaVenta = producto.nvNumero;
-        this.tituloDetalle = producto.documento;
-      } else {
-        this.notificationService.info('Compra no posee detalle asociado.', '', true);
-      }
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
   }
 
 
@@ -579,22 +591,25 @@ export class ShoppingComponent implements OnInit {
       obj.Folio = folio;
       obj.CodAux = user.codAux;
       obj.TipoDoc = tipo;
+
+
+      this.spinner.show();
+
+      this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
+        this.spinner.hide();
+        if (res.cabecera != null && res.cabecera != undefined) {
+          this.detalleCab = res.cabecera;
+          this.detalleDet = res.detalle;
+          this.showDetail = true;
+          this.modalService.dismissAll();
+          // this.notaVenta = compra.nvNumero;
+        } else {
+          this.notificationService.info('Compra no posee detalle asociado.', '', true);
+        }
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.cabecera != null && res.cabecera != undefined) {
-        this.detalleCab = res.cabecera;
-        this.detalleDet = res.detalle;
-        this.showDetail = true;
-        this.modalService.dismissAll();
-        // this.notaVenta = compra.nvNumero;
-      } else {
-        this.notificationService.info('Compra no posee detalle asociado.', '', true);
-      }
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
   }
 
   verDetalleNv(nv: any) {
@@ -604,26 +619,29 @@ export class ShoppingComponent implements OnInit {
     if (user != null) {
       obj.Folio = nv.nvNumero;
       obj.CodAux = user.codAux;
+
+
+      this.spinner.show();
+
+      this.clientesService.getDetalleCompraNv(obj).subscribe((res: any) => {
+        this.spinner.hide();
+        if (res != null) {
+          this.NotaVentaDetalle = res
+          this.estadoDoc = this.NotaVentaDetalle.estado == 'A' ? 'APROBADA' : this.NotaVentaDetalle.estado == 'P' ? 'PENDIENTE' : this.NotaVentaDetalle.estado == 'C' ? 'CONCLUIDA' : 'NULA';
+          this.showDetailNv = true;
+          this.muestraDocPendientes = false;
+        } else {
+          this.notificationService.info('Compra no posee detalle asociado.', '', true);
+        }
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    this.clientesService.getDetalleCompraNv(obj).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res != null) {
-        this.NotaVentaDetalle = res
-        this.estadoDoc = this.NotaVentaDetalle.estado == 'A' ? 'APROBADA' : this.NotaVentaDetalle.estado == 'P' ? 'PENDIENTE' : this.NotaVentaDetalle.estado == 'C' ? 'CONCLUIDA' : 'NULA';
-        this.showDetailNv = true;
-        this.muestraDocPendientes = false;
-      } else {
-        this.notificationService.info('Compra no posee detalle asociado.', '', true);
-      }
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
   }
 
   verDetalleGuia(guia: any) {
 
-    debugger
+
     var user = this.authService.getuser();
     var obj = { Folio: 0, TipoDoc: '', CodAux: '' };
 
@@ -631,24 +649,27 @@ export class ShoppingComponent implements OnInit {
       obj.Folio = guia.nro;
       obj.CodAux = user.codAux;
       obj.TipoDoc = guia.movtipdocref;
+
+
+      this.spinner.show();
+
+      this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
+        this.spinner.hide();
+        if (res.cabecera != null && res.cabecera != undefined) {
+
+          this.estadoGuia = guia.estado;
+          this.detalleCab = res.cabecera;
+          this.detalleDet = res.detalle;
+          this.showDetailGuia = true;
+          this.muestraGuias = false;
+          this.notaVenta = guia.nvNumero;
+        } else {
+          this.notificationService.info('Compra no posee detalle asociado.', '', true);
+        }
+      }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
-
-    this.spinner.show();
-
-    this.clientesService.getDetalleCompra(obj).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.cabecera != null && res.cabecera != undefined) {
-
-        this.estadoGuia = guia.estado;
-        this.detalleCab = res.cabecera;
-        this.detalleDet = res.detalle;
-        this.showDetailGuia = true;
-        this.muestraGuias = false;
-        this.notaVenta = guia.nvNumero;
-      } else {
-        this.notificationService.info('Compra no posee detalle asociado.', '', true);
-      }
-    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
   }
 
   limpiarFiltros() {
@@ -715,7 +736,7 @@ export class ShoppingComponent implements OnInit {
     if (this.folio != null) {
       data = data.filter(x => x.nro == this.folio)
     }
-    if(this.tipoFecha == 1){
+    if (this.tipoFecha == 1) {
       if (this.dateDesde != null) {
         const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
         data = data.filter(x => new Date(x.femision) >= fDesde)
@@ -726,7 +747,7 @@ export class ShoppingComponent implements OnInit {
       }
     }
 
-    if(this.tipoFecha == 2){
+    if (this.tipoFecha == 2) {
       if (this.dateDesde != null) {
         const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
         data = data.filter(x => new Date(x.fvencimiento) >= fDesde)
@@ -736,7 +757,7 @@ export class ShoppingComponent implements OnInit {
         data = data.filter(x => new Date(x.fvencimiento) <= fHasta)
       }
     }
-  
+
 
     var listaExportacion = [];
     data.forEach((element, index) => {
@@ -871,13 +892,13 @@ export class ShoppingComponent implements OnInit {
       listaExportacion.push(model);
     });
 
-    this.exportAsExcelFileGuias(listaExportacion, "Guias de Despacho");
+    this.exportAsExcelFileGuias(listaExportacion, "Guías de Despacho");
   }
 
   public exportAsExcelFileGuias(rows: any[], excelFileName: string): void {
     if (rows.length > 0) {
       const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(rows);
-      const workbook: XLSX.WorkBook = { Sheets: { 'Guias de Despacho': worksheet }, SheetNames: ['Guias de Despacho'] };
+      const workbook: XLSX.WorkBook = { Sheets: { 'Guías de Despacho': worksheet }, SheetNames: ['Guías de Despacho'] };
       const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       this.saveAsExcelFile(excelBuffer, excelFileName);
     } else {
@@ -926,7 +947,7 @@ export class ShoppingComponent implements OnInit {
   muestraFinalizadas() {
 
     if (this.cantidadCompras > 0) {
-
+      this.spinner.show();
       const user = this.authService.getuser();
       if (user) {
 
@@ -978,9 +999,12 @@ export class ShoppingComponent implements OnInit {
           this.tipoDocEnvio = 1;
           this.tipoDescarga = 1;
           // this.cambiaColorPaginador(this.configDiseno);
-
+          this.spinner.hide();
         }, err => { this.spinner.hide(); });
 
+      } else {
+        this.spinner.hide();
+        this.authService.signoutExpiredToken();
       }
     } else {
       this.notificationService.warning('No existen resultados', '', true);
@@ -992,6 +1016,7 @@ export class ShoppingComponent implements OnInit {
 
 
     if (this.cantidadNV > 0) {
+      this.spinner.show();
       const user = this.authService.getuser();
       if (user) {
 
@@ -1014,8 +1039,11 @@ export class ShoppingComponent implements OnInit {
           this.tipoDocEnvio = 2;
           this.tipoDescarga = 2;
           // this.cambiaColorPaginador(this.configDiseno);
-
+          this.spinner.hide();
         }, err => { this.spinner.hide(); });
+      } else {
+        this.spinner.hide();
+        this.authService.signoutExpiredToken();
       }
     } else {
       this.notificationService.warning('No existen resultados', '', true);
@@ -1026,6 +1054,7 @@ export class ShoppingComponent implements OnInit {
 
   muestraProductos() {
     if (this.CantidadProductos > 0) {
+      this.spinner.show();
       const user = this.authService.getuser();
       if (user) {
 
@@ -1049,10 +1078,14 @@ export class ShoppingComponent implements OnInit {
           this.tipoDocEnvio = 3;
           this.tipoDescarga = 1;
           // this.cambiaColorPaginador(this.configDiseno);
-
+          this.spinner.hide();
         }, err => { this.spinner.hide(); });
+      } else {
+        this.spinner.hide();
+        this.authService.signoutExpiredToken();
       }
     } else {
+     
       this.notificationService.warning('No existen resultados', '', true);
       return;
     }
@@ -1126,18 +1159,19 @@ export class ShoppingComponent implements OnInit {
   }
 
   verDespacho(compra: any, content) {
+    this.spinner.show();
     const user = this.authService.getuser();
     const model = { Folio: compra.nro, TipoDoc: compra.movtipdocref, CodAux: user.codAux };
 
     this.clientesService.getDespachoDocumeto(model).subscribe(res => {
       this.despachos = res;
-      if(this.despachos.length > 0){
+      if (this.despachos.length > 0) {
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
-      }else{
+      } else {
         this.notificationService.warning('No existen despachos asociados', '', true);
       }
       this.spinner.hide();
-      
+
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener despachos', '', true); });
 
   }
@@ -1202,6 +1236,8 @@ export class ShoppingComponent implements OnInit {
           this.spinner.hide();
           this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener contactos del cliente', '', true); });
+      } else {
+        this.authService.signoutExpiredToken();
       }
     } else {
       this.tituloEnvio = "Ingrese los correos a los que desea enviar los documentos."
@@ -1264,25 +1300,27 @@ export class ShoppingComponent implements OnInit {
 
           if (user != null) {
             nv.codAux = user.codAux;
+
+            this.clientesService.getdocumentoPDFNv(nv).subscribe((res: any) => {
+              debugger
+              if (res.pdfBase64 != '' && res.pdfBase64 != null) {
+                var link = document.createElement("a");
+                link.download = "Nota de Venta " + nv.nvNumero + ".pdf";
+                link.href = this.utils.transformaDocumento64(res.pdfBase64, ".pdf");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                link.remove();
+              } else {
+                this.notificationService.warning('No existen archivos asociados al documento', '', true);
+              }
+
+              this.spinner.hide();
+            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documento', '', true); });
+          } else {
+            this.authService.signoutExpiredToken();
           }
         }
-
-        this.clientesService.getdocumentoPDFNv(nv).subscribe((res: any) => {
-          debugger
-          if (res.pdfBase64 != '' && res.pdfBase64 != null) {
-            var link = document.createElement("a");
-            link.download = "Nota de Venta " + nv.nvNumero + ".pdf";
-            link.href = this.utils.transformaDocumento64(res.pdfBase64, ".pdf");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            link.remove();
-          } else {
-            this.notificationService.warning('No existen archivos asociados al documento', '', true);
-          }
-
-          this.spinner.hide();
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documento', '', true); });
 
         break;
       case 3:
@@ -1524,7 +1562,8 @@ export class ShoppingComponent implements OnInit {
   // }
 
   muestraGuia() {
-    if (this.cantidadGuias > 0) {
+    if (this.cantidadGuias > 0) {  
+      this.spinner.show();
 
       const user = this.authService.getuser();
       if (user) {
@@ -1562,9 +1601,12 @@ export class ShoppingComponent implements OnInit {
           this.esFactuarada = false;
           this.tipoDocEnvio = 3;
           this.tipoDescarga = 3;
-
+          this.spinner.hide();
         }, err => { this.spinner.hide(); });
 
+      } else {
+        this.spinner.hide();
+        this.authService.signoutExpiredToken();
       }
     } else {
       this.notificationService.warning('No existen resultados', '', true);

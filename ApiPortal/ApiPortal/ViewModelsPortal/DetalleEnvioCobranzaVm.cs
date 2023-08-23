@@ -6,7 +6,7 @@
         public string? NombreCliente { get; set; }
         public string? EmailCliente { get; set; }
         public int? CantidadDocumentosPendientes { get; set; }
-        public int? MontoDeuda { get; set; }
+        public decimal? MontoDeuda { get; set; }
         public List<DocumentosCobranzaVM>? ListaDocumentos { get; set; }
         public string? CodAux { get; set; }
         public int? IdCobranza { get; set; }
@@ -18,7 +18,7 @@
         public int Folio { get; set; }
         public DateTime FechaEmision { get; set; }
         public DateTime FechaVencimiento { get; set; }
-        public int Monto { get; set; }
+        public decimal Monto { get; set; }
         public string TipoDocumento { get; set; }
     }
 }

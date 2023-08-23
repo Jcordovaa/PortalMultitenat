@@ -13,8 +13,8 @@
         public string Estado { get; set; }
         public string CuentaContable { get; set; }
         public string NombreCuenta { get; set; }
-        public float MontoDocumento { get; set; }
-        public float SaldoDocumento { get; set; }
+        public decimal MontoDocumento { get; set; }
+        public decimal SaldoDocumento { get; set; }
         public string Bloqueado { get; set; }
         public string EmailCliente { get; set; }
     }

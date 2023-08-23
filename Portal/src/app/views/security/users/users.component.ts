@@ -241,7 +241,7 @@ export class UsersComponent implements OnInit {
     const loguedUser = this.authService.getuser();
     if (loguedUser != null) {
       if (loguedUser.email == item.email) {
-        this.notificationService.warning('No es posible cambiar la contraseña del usuario en ' + '\n' + 'sesión, podrá hacerlo desde el menu Mi cuenta.', '', true);
+        this.notificationService.warning('No es posible cambiar la contraseña del usuario en ' + '\n' + 'sesión, podrá hacerlo desde el menú Mi cuenta.', '', true);
         return;
       }
     }
@@ -269,7 +269,7 @@ export class UsersComponent implements OnInit {
   }
 
   async sendChangePassMail(item: Usuarios) {
-    const response = await this.notificationService.confirmation('Cambiar contraseña', `Se enviará un correo electrónico al correo: ${item.email}, desde donde el usuario deberá modificar su contraseña, la cuenta se deshabilitara hasta que se realice el cambio. ¿Desea contínuar?`);
+    const response = await this.notificationService.confirmation('Cambiar contraseña', `Se enviará un correo electrónico al correo: ${item.email}, desde donde el usuario deberá modificar su contraseña, la cuenta se deshabilitará hasta que se realice el cambio. ¿Desea continuar?`);
     if (response.isConfirmed) {
       this.spinner.show();
       this.securityService.restableceContraseñaUsuario(item).subscribe((res: any) => {

@@ -12,6 +12,7 @@ import { SendAccessComponent } from './send-access/send-access.component';
 import { CollectionsComponent } from './collections/collections.component';
 import { ExcludedComponent } from './excluded/excluded.component';
 import { AutomationComponent } from './automation/automation.component';
+import { AuthGuard } from 'src/app/shared/services/authguard';
 
 
 const routes: Routes = [
@@ -25,52 +26,70 @@ const routes: Routes = [
   },
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'shopping',
-    component: ShoppingComponent
+    component: ShoppingComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'accounts-state',
-    component: AccountsStateComponent
+    component: AccountsStateComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'accounts-state/:state',
-    component: AccountsStateComponent
+    component: AccountsStateComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'send-collections',
-    component: SendCollectionsComponent
+    component: SendCollectionsComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   },
   {
     path: 'config',
-    component: ConfigComponent
+    component: ConfigComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
   ,
   {
     path: 'payment-settings',
-    component: PaymentSettingsComponent
+    component: PaymentSettingsComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
   ,
   {
     path: 'send-access',
-    component: SendAccessComponent
+    component: SendAccessComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
   ,
   {
     path: 'collections', 
-    component: CollectionsComponent
+    component: CollectionsComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
   ,
   {
     path: 'excluded', 
-    component: ExcludedComponent
+    component: ExcludedComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
   ,
   {
     path: 'automation', 
-    component: AutomationComponent
+    component: AutomationComponent,
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true }
   }
 ];
 

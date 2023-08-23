@@ -156,23 +156,10 @@ namespace ApiPortal.Controllers
                             break;
                     }
 
-                    Nullable<DateTime> fechaHasta = null;
-                    Nullable<DateTime> fechaDesde = null;
-                    if (automatizacion.Anio == null || automatizacion.Anio == 0)
-                    {
-                        automatizacion.Anio = 0;
-                    }
-                    else
-                    {
-                        fechaHasta = new DateTime((int)automatizacion.Anio, 12, 31, 0, 0, 0);
-                        fechaDesde = new DateTime((int)automatizacion.Anio, 01, 01, 0, 0, 0);
-                    }
 
 
 
-
-
-                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, logApi.Id);
+                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync( automatizacion.TipoDocumentos, logApi.Id);
 
                     if (automatizacion.ExcluyeClientes == 1)
                     {

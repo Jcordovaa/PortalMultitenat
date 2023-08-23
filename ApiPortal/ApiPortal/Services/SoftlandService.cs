@@ -244,6 +244,115 @@ namespace ApiPortal.Services
 
         }
 
+        public async Task<List<CuentasContablesSoftlandDTO>> getCuentasContablePagoAsync(string logApiId)
+        {
+            List<CuentasContablesSoftlandDTO> retorno = new List<CuentasContablesSoftlandDTO>();
+            try
+            {
+                if (utilizaApiSoftland == "false")
+                {
+                    conSoftland.Open();
+
+                    SqlCommand cmd = new SqlCommand();
+                    SqlDataReader reader;
+                    cmd.CommandText = "select * from softland.cwpctas ORDER BY PCDESC";
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Connection = conSoftland;
+                    reader = cmd.ExecuteReader();
+
+
+                    while (reader.Read())
+                    {
+                        CuentasContablesSoftlandDTO aux = new CuentasContablesSoftlandDTO();
+                        aux.Codigo = reader["PCCODI"].ToString();
+                        aux.Nombre = reader["PCDESC"].ToString();
+                        retorno.Add(aux);
+                    }
+                    reader.Close();
+                    conSoftland.Close();
+                }
+                else
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        string accesToken = api.Token;
+                        string url = api.Url + api.CuentasPasarelaPagos.Replace("{AREADATOS}", api.AreaDatos);
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "CuentasPasarelaPagos";
+
+
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<CuentasContablesSoftlandAPIDTO>> listaCuentasContables = JsonConvert.DeserializeObject<List<List<CuentasContablesSoftlandAPIDTO>>>(content);
+                            foreach (var cuentasContables in listaCuentasContables)
+                            {
+                                foreach (var item in cuentasContables)
+                                {
+                                    CuentasContablesSoftlandDTO aux = new CuentasContablesSoftlandDTO();
+                                    aux.Codigo = item.PCCODI;
+                                    aux.Nombre = item.PCDESC;
+                                    retorno.Add(aux);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/getCuentasContablePagoAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                LogProceso log = new LogProceso
+                {
+                    Excepcion = e.ToString(),
+                    Fecha = DateTime.Now.Date,
+                    Hora = DateTime.Now.ToString("HH:mm:ss"),
+                    Mensaje = e.Message,
+                    Ruta = "SoftlandService/GetAllCuentasContablesSoftland"
+                };
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+                    conSoftland.Close();
+                }
+
+            }
+            return retorno;
+
+        }
+
         public async Task<List<ContactoDTO>> GetAllContactosAsync(string codAux, string logApiId)
         {
             List<ContactoDTO> retorno = new List<ContactoDTO>();
@@ -2925,6 +3034,24 @@ namespace ApiPortal.Services
                                     MovEqui = doc.MovEquiv,
                                     DesMon = monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault() != null ? monedas.Where(x => x.CodMon == doc.MonCod).FirstOrDefault().DesMon : ""
                                 });
+
+                                if (retorno.Count > 0)
+                                {
+                                    var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                                    foreach (var pago in pagosPendientes)
+                                    {
+                                        foreach (var item in retorno)
+                                        {
+                                            var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Nro && x.TipoDocumento == item.TipoDoc).FirstOrDefault();
+                                            if (detalle != null)
+                                            {
+                                                item.SaldoBase = item.SaldoBase - detalle.Apagar;
+                                                item.APagar = item.SaldoBase;
+                                            }
+                                        }
+                                    }
+
+                                }
                             }
 
 
@@ -3051,9 +3178,10 @@ namespace ApiPortal.Services
             return conexionExitosa;
         }
 
-        public async Task<string> GeneraComprobantesContablesAsync(int idPago, string codigoAutorizacionPasarela, string logApiId)
+        public async Task<PagoComprobanteVm> GeneraComprobantesContablesAsync(int idPago, string codigoAutorizacionPasarela, string logApiId)
         {
             string numeroComprobante = string.Empty;
+            string numPago = string.Empty;
 
             try
             {
@@ -3194,11 +3322,12 @@ namespace ApiPortal.Services
                     }
                     else
                     {
-                        return "";
+                        return new PagoComprobanteVm();
                     }
                 }
                 else
                 {
+
                     ContabilizaPagoVm contabiliza = new ContabilizaPagoVm();
                     //Obtenemos configuración
                     var config = _context.ConfiguracionPagoClientes.FirstOrDefault();
@@ -3208,6 +3337,7 @@ namespace ApiPortal.Services
 
                     if (pago != null)
                     {
+                        numPago = pago.IdPago.ToString();
                         //Obtenemos detalle de paog
                         var pagosDetalle = _context.PagosDetalles.Where(x => x.IdPago == idPago).ToList();
 
@@ -3280,7 +3410,7 @@ namespace ApiPortal.Services
                                 //JCA: Pendiente definir retorno del metodo
 
 
-                                if (comprobante.comprobante != null)
+                                if (comprobante.comprobante != null && comprobante.respuesta == "OK")
                                 {
 
                                     if (!string.IsNullOrEmpty(comprobante.comprobante[0].numero))
@@ -3381,7 +3511,7 @@ namespace ApiPortal.Services
                     vm2.tipo = 8;
                     vm2.nombre = "";
                     vm2.asunto = "";
-                    vm2.mensaje = pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0") + "|" + cliente.Nombre + "|" + cliente.Rut;
+                    vm2.mensaje = pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0") + "|" + cliente.Nombre + "|" + cliente.Rut + "|" + pago.IdPago.ToString();
                     vm2.email_destinatario = configCorreo.CorreoAvisoPago;
                     if (!string.IsNullOrEmpty(configCorreo.CorreoAvisoPago))
                     {
@@ -3391,7 +3521,12 @@ namespace ApiPortal.Services
                 }
 
             }
-            return numeroComprobante;
+
+            PagoComprobanteVm pagoComprobante = new PagoComprobanteVm{
+                NumComprobante = numeroComprobante,
+                PagoId = idPago
+            };
+            return pagoComprobante;
         }
 
         public async System.Threading.Tasks.Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosVencidosAsync(FilterVm filter, string logApiId)
@@ -3449,6 +3584,23 @@ namespace ApiPortal.Services
                             {
 
                                 retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+
+                                if (retorno.Count > 0)
+                                {
+                                    var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                                    foreach (var pago in pagosPendientes)
+                                    {
+                                        foreach (var item in retorno)
+                                        {
+                                            var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Numdoc && x.TipoDocumento == item.Ttdcod).FirstOrDefault();
+                                            if (detalle != null)
+                                            {
+                                                item.Saldoadic = item.Saldoadic - detalle.Apagar;
+                                            }
+                                        }
+                                    }
+
+                                }
                             }
                         }
                         else
@@ -3546,6 +3698,23 @@ namespace ApiPortal.Services
                             {
 
                                 retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+
+                                if (retorno.Count > 0)
+                                {
+                                    var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                                    foreach (var pago in pagosPendientes)
+                                    {
+                                        foreach (var item in retorno)
+                                        {
+                                            var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Numdoc && x.TipoDocumento == item.Ttdcod).FirstOrDefault();
+                                            if (detalle != null)
+                                            {
+                                                item.Saldoadic = item.Saldoadic - detalle.Apagar;
+                                            }
+                                        }
+                                    }
+
+                                }
                             }
                         }
                         else
@@ -3633,6 +3802,23 @@ namespace ApiPortal.Services
                         if (documentos[0].Count > 0)
                         {
                             retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+
+                            if (retorno.Count > 0)
+                            {
+                                var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                                foreach (var pago in pagosPendientes)
+                                {
+                                    foreach (var item in retorno)
+                                    {
+                                        var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Numdoc && x.TipoDocumento == item.Ttdcod).FirstOrDefault();
+                                        if (detalle != null)
+                                        {
+                                            item.Saldoadic = item.Saldoadic - detalle.Apagar;
+                                        }
+                                    }
+                                }
+
+                            }
                         }
                     }
                     else
@@ -3990,7 +4176,7 @@ namespace ApiPortal.Services
                     reader.Close();
                 }
                 else //FCA 16-06-2022
-               {
+                {
                     var configPortal = _context.ConfiguracionPortals.FirstOrDefault();
                     var api = _context.ApiSoftlands.FirstOrDefault();
                     string accesToken = api.Token;
@@ -4587,7 +4773,7 @@ namespace ApiPortal.Services
                                     aux.DesLista = lista.DesLista;
                                     item.Add(aux);
                                 }
-                              
+
                             }
                         }
                         else
@@ -4881,7 +5067,7 @@ namespace ApiPortal.Services
                 {
                     using (var client = new HttpClient())
                     {
-                        if (pagina != null) 
+                        if (pagina != null)
                         {
                             var api = _context.ApiSoftlands.FirstOrDefault();
                             string accesToken = api.Token;
@@ -5761,7 +5947,7 @@ namespace ApiPortal.Services
         }
 
         #region METODOS COBRANZA AUTOMATICA
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, int diasVencimiento, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes, string canalesVenta, string cobradores, string logApiId, string estadoTipoCobranza = "")
+        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaAsync(string tipoDocumento, int diasVencimiento, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes, string canalesVenta, string cobradores, string logApiId, string estadoTipoCobranza = "")
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
 
@@ -5823,18 +6009,18 @@ namespace ApiPortal.Services
 
 
 
-                    if (fechaDesde == null && fechaHasta == null)
-                    {
-                        string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-                        sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
-                    }
+                    //if (fechaDesde == null && fechaHasta == null)
+                    //{
+                    //    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
+                    //    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
+                    //}
 
-                    if (fechaDesde != null && fechaHasta != null)
-                    {
-                        string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
-                        string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
-                        sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
-                    }
+                    //if (fechaDesde != null && fechaHasta != null)
+                    //{
+                    //    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
+                    //    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
+                    //    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
+                    //}
 
                     bool esJoin = false;
 
@@ -6034,14 +6220,14 @@ namespace ApiPortal.Services
 
                     }
 
-                    if (año != 0)
-                    {
-                        sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
-                    }
-                    else
-                    {
-                        sqlDias = sqlDias + " AND YEAR(Emision) >= " + configuracionPortal.AnioTributario;
-                    }
+                    //if (año != 0)
+                    //{
+                    //    sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
+                    //}
+                    //else
+                    //{
+                    //    sqlDias = sqlDias + " AND YEAR(Emision) >= " + configuracionPortal.AnioTributario;
+                    //}
 
 
 
@@ -6098,8 +6284,8 @@ namespace ApiPortal.Services
                         aux.Estado = result["Estado"].ToString();
                         aux.CuentaContable = result["pccodi"].ToString();
                         aux.NombreCuenta = result["pcdesc"].ToString();
-                        aux.MontoDocumento = Convert.ToSingle(result["Debe"]);
-                        aux.SaldoDocumento = Convert.ToSingle(result["Saldo"]);
+                        aux.MontoDocumento = Convert.ToDecimal(result["Debe"]);
+                        aux.SaldoDocumento = Convert.ToDecimal(result["Saldo"]);
 
                         retorno.Add(aux);
                     }
@@ -6116,14 +6302,14 @@ namespace ApiPortal.Services
                         //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var fechaActual = DateTime.Now;
                         string fecha = string.Empty;
-                        if (fechaDesde != null)
-                        {
-                            fecha = fechaDesde?.ToString("yyyy'-'MM'-'dd");//fechaDesde.Year.ToString() + " - 0" + fechaDesde.Month.ToString() + "-0" + fechaDesde.Day.ToString();
-                        }
-                        else
-                        {
-                            fecha = configPortal.AnioTributario.ToString() + "-01-01";
-                        }
+                        //if (fechaDesde != null)
+                        //{
+                        //    fecha = fechaDesde?.ToString("yyyy'-'MM'-'dd");//fechaDesde.Year.ToString() + " - 0" + fechaDesde.Month.ToString() + "-0" + fechaDesde.Day.ToString();
+                        //}
+                        //else
+                        //{
+                        //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        //}
 
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
 
@@ -6232,16 +6418,16 @@ namespace ApiPortal.Services
                                     }
                                 }
 
-                                if (año != 0)
-                                {
-                                    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
-                                }
+                                //if (año != 0)
+                                //{
+                                //    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                                //}
 
                                 documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                                if (fechaHasta != null)
-                                {
-                                    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                                }
+                                //if (fechaHasta != null)
+                                //{
+                                //    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                                //}
 
                                 // documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
 
@@ -6372,8 +6558,8 @@ namespace ApiPortal.Services
                                             aux.CuentaContable = doc.Pctcod;
                                             var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
                                             if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
-                                            aux.MontoDocumento = (float)doc.MovMonto;
-                                            aux.SaldoDocumento = (float)doc.Saldobase;
+                                            aux.MontoDocumento = (decimal)doc.MovMonto;
+                                            aux.SaldoDocumento = (decimal)doc.Saldobase;
 
                                             retorno.Add(aux);
                                         }
@@ -6436,7 +6622,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string logApiId)
+        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(string tipoDocumento, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
 
@@ -6482,23 +6668,23 @@ namespace ApiPortal.Services
 
                     string sqlWhere = string.Empty;
 
-                    if (año != 0)
-                    {
-                        sqlWhere = sqlWhere + " AND CWCpbte.CpbAno = " + año;
-                    }
+                    //if (año != 0)
+                    //{
+                    //    sqlWhere = sqlWhere + " AND CWCpbte.CpbAno = " + año;
+                    //}
 
-                    if (fechaDesde == null && fechaHasta == null)
-                    {
-                        string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-                        sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
-                    }
+                    //if (fechaDesde == null && fechaHasta == null)
+                    //{
+                    //    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
+                    //    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
+                    //}
 
-                    if (fechaDesde != null && fechaHasta != null)
-                    {
-                        string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
-                        string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
-                        sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
-                    }
+                    //if (fechaDesde != null && fechaHasta != null)
+                    //{
+                    //    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
+                    //    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
+                    //    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
+                    //}
 
                     conSoftland.Open();
 
@@ -6558,8 +6744,8 @@ namespace ApiPortal.Services
                         aux.Estado = result["Estado"].ToString();
                         aux.CuentaContable = result["pccodi"].ToString();
                         aux.NombreCuenta = result["pcdesc"].ToString();
-                        aux.MontoDocumento = Convert.ToSingle(result["Debe"]);
-                        aux.SaldoDocumento = Convert.ToSingle(result["Saldo"]);
+                        aux.MontoDocumento = Convert.ToDecimal(result["Debe"]);
+                        aux.SaldoDocumento = Convert.ToDecimal(result["Saldo"]);
                         retorno.Add(aux);
                     }
                     result.Close();
@@ -6575,14 +6761,14 @@ namespace ApiPortal.Services
                         //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         var fechaActual = new DateTime();
                         string fecha = string.Empty;
-                        if (fechaDesde != null)
-                        {
-                            fecha = fechaDesde?.Year.ToString() + "-0" + fechaDesde?.Month.ToString() + "-0" + fechaDesde?.Day.ToString();
-                        }
-                        else
-                        {
-                            fecha = configPortal.AnioTributario.ToString() + "-01-01";
-                        }
+                        //if (fechaDesde != null)
+                        //{
+                        //    fecha = fechaDesde?.Year.ToString() + "-0" + fechaDesde?.Month.ToString() + "-0" + fechaDesde?.Day.ToString();
+                        //}
+                        //else
+                        //{
+                        //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        //}
 
                         string accesToken = api.Token;
                         string listaDocumentos = string.Empty;
@@ -6683,16 +6869,16 @@ namespace ApiPortal.Services
                                 }
 
 
-                                if (año != 0)
-                                {
-                                    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
-                                }
+                                //if (año != null && año != 0)
+                                //{
+                                //    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                                //}
 
                                 documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                                if (fechaHasta != null)
-                                {
-                                    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                                }
+                                //if (fechaHasta != null)
+                                //{
+                                //    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                                //}
 
                                 //if (!string.IsNullOrEmpty(tipoDocumento))
                                 //{
@@ -6752,8 +6938,8 @@ namespace ApiPortal.Services
                                             aux.CuentaContable = doc.Pctcod;
                                             var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
                                             if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
-                                            aux.MontoDocumento = (float)doc.MovMonto;
-                                            aux.SaldoDocumento = (float)doc.Saldobase;
+                                            aux.MontoDocumento = (decimal)doc.MovMonto;
+                                            aux.SaldoDocumento = (decimal)doc.Saldobase;
                                             retorno.Add(aux);
                                         }
 
@@ -6940,7 +7126,7 @@ namespace ApiPortal.Services
                         int pagina = 1;
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", pagina.ToString()).Replace("{PAGINA}", "").Replace("{CATCLI}", filtros.CategoriaCliente).Replace("{CODAUX}", filtros.CodAux).Replace("{CODLISTA}", filtros.ListaPrecio).Replace("{CODVEN}", filtros.Vendedor).Replace("{CONVTA}", filtros.CondicionVenta)
+                        string url = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", filtros.CategoriaCliente).Replace("{CODAUX}", filtros.CodAux).Replace("{CODLISTA}", filtros.ListaPrecio).Replace("{CODVEN}", filtros.Vendedor).Replace("{CONVTA}", filtros.CondicionVenta)
                            .Replace("{NOMBRE}", filtros.Nombre).Replace("{RUT}", filtros.Rut);
 
                         client.BaseAddress = new Uri(url);
@@ -6965,7 +7151,7 @@ namespace ApiPortal.Services
                         {
                             var content = await response.Content.ReadAsStringAsync();
                             List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content);
-
+                            clientes[0] = clientes[0].Where(x => x.CodAux != null && x.CodAux != "").ToList();
                             if (clientes[0].Count() > 0)
                             {
                                 while (int.Parse(clientes[0][0].Total) > clientes[0].Count())
@@ -7407,6 +7593,23 @@ namespace ApiPortal.Services
                             }
                         }
                         retorno = documentos[0];
+
+                        if (retorno.Count > 0)
+                        {
+                            var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                            foreach (var pago in pagosPendientes)
+                            {
+                                foreach (var item in retorno)
+                                {
+                                    var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Numdoc && x.TipoDocumento == item.Ttdcod).FirstOrDefault();
+                                    if (detalle != null)
+                                    {
+                                        item.Saldobase = item.Saldobase - detalle.Apagar;
+                                    }
+                                }
+                            }
+
+                        }
                     }
                     else
                     {
@@ -7759,7 +7962,7 @@ namespace ApiPortal.Services
 
                 if (pago != null)
                 {
-                    if (!string.IsNullOrEmpty(pago.ComprobanteContable))
+                    if (string.IsNullOrEmpty(pago.ComprobanteContable))
                     {
                         //Obtenemos datos de pasarela pago
                         var pasarela = _context.PasarelaPagos.Find(pago.IdPasarela);
@@ -7774,6 +7977,7 @@ namespace ApiPortal.Services
 
                         //Agregamos documentos a pagar
                         contabiliza.DetalleDocumento = new List<DetalleDocumento>();
+                        pago.PagosDetalles = _context.PagosDetalles.Where(x => x.IdPago == pago.IdPago).ToList();
                         foreach (var item in pago.PagosDetalles)
                         {
                             DetalleDocumento det = new DetalleDocumento
@@ -7849,7 +8053,8 @@ namespace ApiPortal.Services
                                         string hora = pago.HoraPago;
                                         string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
                                         string comprobanteHtml = string.Empty;
-                                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/invoice.html")))
+
+                                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/invoice.html")))
                                         {
                                             comprobanteHtml = reader.ReadToEnd();
                                         }
@@ -8428,6 +8633,7 @@ namespace ApiPortal.Services
                     if (filter.TipoBusqueda == 3)
                     {
                         diasPorVencer = configPortal.DiasPorVencer != null ? configPortal.DiasPorVencer.ToString() : "";
+                        estadoDocs = "p";
                     }
 
                     if (filter.TipoBusqueda == 2)
@@ -8443,7 +8649,7 @@ namespace ApiPortal.Services
 
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                    string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASXVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", "").Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASXVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", codAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
 
                     client.BaseAddress = new Uri(url);
@@ -8470,7 +8676,10 @@ namespace ApiPortal.Services
                         List<List<ResumenDocumentosClienteApiDTO>> documentos = JsonConvert.DeserializeObject<List<List<ResumenDocumentosClienteApiDTO>>>(content);
                         if (documentos[0].Count > 0)
                         {
+
                             retorno = documentos[0].Where(x => x.codaux != null).ToList();
+                            int cantidadDocumentos = retorno.Sum(x => x.CantidadDoctos);
+                            decimal totalMonto = (decimal)retorno.Sum(x => x.saldototal);
                         }
                     }
                     else
@@ -8526,6 +8735,7 @@ namespace ApiPortal.Services
                     if (filter.TipoBusqueda == 3)
                     {
                         diasPorVencer = configPortal.DiasPorVencer != null ? configPortal.DiasPorVencer.ToString() : "";
+                        estadoDocs = "P";
                     }
 
                     if (filter.TipoBusqueda == 2)
@@ -8541,7 +8751,7 @@ namespace ApiPortal.Services
 
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", "").Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
 
                     client.BaseAddress = new Uri(url);
@@ -8599,6 +8809,23 @@ namespace ApiPortal.Services
                                 TotalFilas = d.total
                             }
                         );
+                            if(retorno.Count > 0)
+                            {
+                                var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
+                                foreach (var pago in pagosPendientes)
+                                {
+                                    foreach (var item in retorno)
+                                    {
+                                        var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Nro && x.TipoDocumento == item.TipoDoc).FirstOrDefault();
+                                        if(detalle != null)
+                                        {
+                                            item.SaldoBase = item.SaldoBase - detalle.Apagar;
+                                        }
+                                    }
+                                }
+
+                            }
+                            
                         }
                     }
                     else
@@ -8898,7 +9125,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion(int año, Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string codAux, Nullable<int> numDoc, string logApiId)
+        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion( string tipoDocumento, string codAux, Nullable<int> numDoc, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
             try
@@ -8913,14 +9140,14 @@ namespace ApiPortal.Services
                     //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                     var fechaActual = new DateTime();
                     string fecha = string.Empty;
-                    if (fechaDesde != null)
-                    {
-                        fecha = fechaDesde?.Year.ToString() + "-0" + fechaDesde?.Month.ToString() + "-0" + fechaDesde?.Day.ToString();
-                    }
-                    else
-                    {
-                        fecha = configPortal.AnioTributario.ToString() + "-01-01";
-                    }
+                    //if (fechaDesde != null)
+                    //{
+                    //    fecha = fechaDesde?.Year.ToString() + "-0" + fechaDesde?.Month.ToString() + "-0" + fechaDesde?.Day.ToString();
+                    //}
+                    //else
+                    //{
+                    //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                    //}
 
                     string accesToken = api.Token;
                     // string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("{CODAUX}", codAux);
@@ -9020,16 +9247,16 @@ namespace ApiPortal.Services
                                 }
                             }
 
-                            if (año != 0)
-                            {
-                                documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
-                            }
+                            //if (año != 0)
+                            //{
+                            //    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
+                            //}
 
                             // documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                            if (fechaHasta != null)
-                            {
-                                documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                            }
+                            //if (fechaHasta != null)
+                            //{
+                            //    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
+                            //}
 
                             //if (!string.IsNullOrEmpty(tipoDocumento)){
                             //    documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
@@ -9088,8 +9315,8 @@ namespace ApiPortal.Services
                                     aux.CuentaContable = item.Pctcod;
                                     var cuenta = cuentasContables.Where(x => x.Codigo == item.Pctcod).FirstOrDefault();
                                     if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
-                                    aux.MontoDocumento = (float)item.MovMonto;
-                                    aux.SaldoDocumento = (float)item.Saldobase;
+                                    aux.MontoDocumento = (decimal)item.MovMonto;
+                                    aux.SaldoDocumento = (decimal)item.Saldobase;
                                     retorno.Add(aux);
                                 }
                             }

@@ -73,11 +73,7 @@ export class HeaderSidebarCompactComponent implements OnInit {
     ];
     
     
-    this.user = this.localStoreService.getItem('currentUserPortal')
-    if ( this.user) {
-      this.userName =  this.user.nombre;
-      
-    }
+  
   }
 
   ngOnInit() {
@@ -88,12 +84,18 @@ export class HeaderSidebarCompactComponent implements OnInit {
     //        window.location.href="#/dashboard/cliente";
     //   }
     // }
+    this.user = this.localStoreService.getItem('currentUserPortal')
+    if ( this.user) {
+      this.userName =  this.user.nombre;
+      
+    }
     if(this.user.esUsuario == true){
       this.configuracionEmpresaService.getConfig().subscribe(res => {
         this.empresa = res;
       }, err => {  });
     }else{
       const user = this.auth.getuser();
+      this.userName =  this.user.nombre;
       this.empresa.nombreEmpresa = user.nombre
       this.empresa.rutEmpresa = user.rut;
      

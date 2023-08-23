@@ -28,7 +28,7 @@
         public string codreserva { get; set; }
         public string codvendedor { get; set; }
         public string codmoneda { get; set; }
-        public int? equivalencia { get; set; }
+        public decimal? equivalencia { get; set; }
         public string patente { get; set; }
         public string retiradopor { get; set; }
         public string usuario { get; set; }

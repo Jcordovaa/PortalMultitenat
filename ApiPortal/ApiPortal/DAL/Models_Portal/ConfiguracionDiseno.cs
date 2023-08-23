@@ -70,5 +70,7 @@ namespace ApiPortal.Dal.Models_Portal
         public string? LogoMinimalistaSidebar { get; set; }
         public string? LogoSidebar { get; set; }
         public string? Favicon { get; set; }
+        public string? TextoCobranzaExpirada { get; set; }
+        public string? TextoDescargaCobranza { get; set; }
     }
 }

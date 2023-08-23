@@ -166,7 +166,7 @@ export class CobranzaPagoClienteComponent implements OnInit {
       this.getTipoDocs();
     }, err => {
       this.spinner.hide();
-      this.notificationService.error('Ocurrio un error al obtener la configuración.', '', true);
+      this.notificationService.error('Ocurrió un error al obtener la configuración.', '', true);
     });
   }
 

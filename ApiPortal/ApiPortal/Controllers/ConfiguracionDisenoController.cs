@@ -84,10 +84,16 @@ namespace ApiPortal.Controllers
                         configuracionActual.ColorBotonInicioSesion = config.ColorBotonInicioSesion;
                         configuracionActual.ColorBotonPagoRapido = config.ColorBotonPagoRapido;
                         configuracionActual.ColorBotonPagar = config.ColorBotonPagar;
+                        configuracionActual.TextoDescargaCobranza = config.TextoDescargaCobranza;
                         _context.Entry(configuracionActual).Property(x => x.ColorFondoPortada).IsModified = true;
                         _context.Entry(configuracionActual).Property(x => x.ColorBotonInicioSesion).IsModified = true;
                         _context.Entry(configuracionActual).Property(x => x.ColorBotonPagoRapido).IsModified = true;
                         _context.Entry(configuracionActual).Property(x => x.ColorBotonPagar).IsModified = true;
+                        break;
+
+                    case 3:
+                        configuracionActual.TextoCobranzaExpirada = config.TextoCobranzaExpirada;
+                        _context.Entry(configuracionActual).Property(x => x.TextoCobranzaExpirada).IsModified = true;
                         break;
 
                     case 4:

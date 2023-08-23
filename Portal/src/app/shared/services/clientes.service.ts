@@ -55,7 +55,6 @@ export class ClientesService {
   }
 
   getPDFEstadoCuenta (cliente: any): Observable<any> {
-    debugger
     const body = JSON.stringify(cliente);
     return this.http.post<any>(`${this.apiUrl}/getPDFEstadoCuenta`, body, this.utils.getHeaders(false));
   }
@@ -170,8 +169,8 @@ export class ClientesService {
   }
 
 
-  getPDFPago(numComprobante: string) {
-    return this.http.get(`${this.apiUrl}/GetPDFPago/${numComprobante}`);
+  getPDFPago(idPago: number) {
+    return this.http.get(`${this.apiUrl}/GetPDFPago/${idPago}`);
   }
 
   postRecuperarContrasena (data: any) {

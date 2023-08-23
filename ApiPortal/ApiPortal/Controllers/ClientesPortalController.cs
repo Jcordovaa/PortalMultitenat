@@ -44,7 +44,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/SendAccesosCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
             try
             {
                 if (envio == null)
@@ -52,7 +52,7 @@ namespace ApiPortal.Controllers
                     return BadRequest();
                 }
                 PortalClientesSoftlandContext aux = new PortalClientesSoftlandContext(_contextAccessor);
-                     this.enviaAccesoAsync(envio, aux, _webHostEnvironment);
+                this.enviaAccesoAsync(envio, aux, _webHostEnvironment);
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
@@ -107,7 +107,7 @@ namespace ApiPortal.Controllers
                             {
 
                                 var contactos = await softlandService.GetAllContactosAsync(item.CodAux, logApi.Id);
-                           
+
                                 List<ContactoDTO> contactosFiltrados = new List<ContactoDTO>();
                                 foreach (var c in contactos)
                                 {
@@ -263,7 +263,7 @@ namespace ApiPortal.Controllers
                                 }
 
                                 if (contactosFiltrados.Count() == 0 && value[0].EnviarTodosContactos == true)
-                                {                                
+                                {
                                     contactosFiltrados = contactos;
                                     contactosFiltrados = contactosFiltrados.DistinctBy(x => x.Correo).ToList();
                                 }
@@ -272,7 +272,7 @@ namespace ApiPortal.Controllers
                                 {
                                     contactosFiltrados = contactosFiltrados.DistinctBy(x => x.Correo).ToList();
                                     contactosFiltrados = contactosFiltrados.Where(x => !string.IsNullOrWhiteSpace(x.Correo)).ToList();
-                                    
+
                                     if (contactosFiltrados.Count == 0)
                                     {
                                         clientesSinDatos.Add(item);
@@ -404,7 +404,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/CanActivateAccount";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
             try
             {
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -478,7 +478,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/ActivateAccount";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
             try
             {
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -540,7 +540,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteByMailAndRut";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             ClienteDTO retorno = new ClienteDTO();
 
@@ -582,7 +582,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/ActualizaClienteSoftland";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
             try
             {
                 await sf.UpdateAuxiliarPortalPagoAsync(cliente, logApi.Id);
@@ -590,7 +590,7 @@ namespace ApiPortal.Controllers
                 MailViewModel mailVm = new MailViewModel();
                 mailVm.email_destinatario = cliente.CorreoUsuario;
                 mailVm.tipo = 7;
-                MailService mail = new MailService(_context,_webHostEnvironment);
+                MailService mail = new MailService(_context, _webHostEnvironment);
                 await mail.EnviarCorreosAsync(mailVm);
 
                 logApi.Termino = DateTime.Now;
@@ -620,7 +620,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/ChangePassword";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -679,7 +679,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetUltimasCompras";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
             try
             {
                 var conf = _context.ConfiguracionPortals.FirstOrDefault();
@@ -714,14 +714,14 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDashboardDocumentosVencidos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
                 string utilizaApiSoftland = "1";
                 DashboardDocumentosVm retorno = new DashboardDocumentosVm();
 
-                retorno = await sf.GetMontosDashboardAdmin(codAux,logApi.Id);
+                retorno = await sf.GetMontosDashboardAdmin(codAux, logApi.Id);
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
@@ -750,7 +750,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosVencidos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -811,7 +811,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosPorVencer";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -872,7 +872,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosPendientes";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -934,7 +934,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetAllDocumentosContabilizados";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
             try
             {
                 List<ClienteSaldosDTO> documentosContabilizados = await sf.GetAllDocumentosContabilizadosAsync(codAux, logApi.Id);
@@ -968,14 +968,14 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDashboardCompras";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
                 List<DashboardComprasVm> retorno = new List<DashboardComprasVm>();
                 List<DocumentosFacturadosDTO> compras = await sf.GetClientesComprasSoftlandAsync(codAux, logApi.Id);
                 List<NotaVentaClienteDTO> nv = await sf.GetNotasVentasPendientesAsync(codAux, logApi.Id);
-                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(codAux, logApi.Id); 
+                List<ProductoDTO> productos = await sf.GetProductosCompradosAsync(codAux, logApi.Id);
                 List<GuiaDespachoDTO> guias = await sf.GetGuiasPendientes(codAux, logApi.Id);
 
                 if (compras.Count > 0)
@@ -1058,7 +1058,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteComprasFromSoftland";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1092,9 +1092,9 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetEstadoBloqueoCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
 
-            try 
+
+            try
             {
                 Boolean estado = await sf.GetEstadoBloqueoClienteAsync(codAux, logApi.Id);
 
@@ -1133,7 +1133,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteDocumento";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             DocumentosVm documento = new DocumentosVm();
             try
@@ -1141,7 +1141,7 @@ namespace ApiPortal.Controllers
                 string utilizaApiSoftland = "true";
                 if (utilizaApiSoftland == "false")
                 {
-                    Generador reporte = new Generador(_context,_webHostEnvironment);
+                    Generador reporte = new Generador(_context, _webHostEnvironment);
                     string archivo64 = string.Empty;
                     string tipoDoc = string.Empty;
 
@@ -1200,7 +1200,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetAutomatizaciones";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             DocumentosVm documento = new DocumentosVm();
             try
@@ -1248,7 +1248,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDetalleCompra";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1298,7 +1298,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDetalleDespacho";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1353,7 +1353,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/EnvioDocumentos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1365,7 +1365,7 @@ namespace ApiPortal.Controllers
                 vm.tipoDoc = model.TipoDoc;
                 vm.email_destinatario = model.correos;
                 vm.tipoEnvioDoc = Convert.ToInt32(model.TipoEnvioDoc);
-                MailService mail = new MailService(_context,_webHostEnvironment);
+                MailService mail = new MailService(_context, _webHostEnvironment);
                 await mail.EnviarCorreosAsync(vm);
 
 
@@ -1410,7 +1410,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetContactosClienteSoftland";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1444,7 +1444,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetNotaVentaCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1478,7 +1478,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDetalleCompraNv";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1516,7 +1516,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetProductosComprados";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             try
             {
@@ -1549,7 +1549,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteEstadoComprasFromSoftland";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1585,50 +1585,111 @@ namespace ApiPortal.Controllers
 
                 if (model.IdCobranza != 0 && model.IdCobranza != null)
                 {
-                    var documentosCobranzas = _context.CobranzaDetalles.Where(x => x.IdCobranza == model.IdCobranza && model.CodAux == x.CodAuxCliente).ToList();
-                    string foliosDocumentos = string.Empty;
-                    foreach (var item in documentosCobranzas)
+                    var cobranza = _context.CobranzaCabeceras.Where(x => x.IdCobranza == model.IdCobranza).FirstOrDefault();
+                    if(cobranza.FechaFin != null)
                     {
-                        if (string.IsNullOrEmpty(foliosDocumentos))
+                        if (cobranza.FechaFin.Value.Date >= DateTime.Now.Date)
                         {
-                            foliosDocumentos = item.Folio.ToString();
+                            var documentosCobranzas = _context.CobranzaDetalles.Where(x => x.IdCobranza == model.IdCobranza && model.CodAux == x.CodAuxCliente).ToList();
+                            string foliosDocumentos = string.Empty;
+                            foreach (var item in documentosCobranzas)
+                            {
+                                if (string.IsNullOrEmpty(foliosDocumentos))
+                                {
+                                    foliosDocumentos = item.Folio.ToString();
+                                }
+                                else
+                                {
+                                    foliosDocumentos = foliosDocumentos + ";" + item.Folio.ToString();
+                                }
+                            }
+
+                            List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+                            foreach (var folio in foliosDocumentos.Split(';'))
+                            {
+                                var exist = clients.Where(x => x.Nro.ToString() == folio).ToList();
+                                if (exist.Count > 0)
+                                {
+                                    foreach (var doc in exist)
+                                    {
+                                        clientsAux.Add(doc);
+                                    }
+                                }
+                            }
+                            clients = clientsAux;
+
+                            foreach (var item in foliosDocumentos.Split(';'))
+                            {
+                                var detalle = documentosCobranzas.Where(x => x.Folio.ToString() == item).FirstOrDefault();
+                                if (detalle != null)
+                                {
+                                    var detalleSoftland = clients.Where(x => x.Nro == detalle.Folio).FirstOrDefault();
+                                    if (detalleSoftland != null)
+                                    {
+                                        detalle.Monto = (float?)detalleSoftland.MontoBase;
+                                        detalle.Pagado = (float?)(detalleSoftland.MontoBase - detalleSoftland.APagar);
+                                        _context.Entry(detalle).State = EntityState.Modified;
+                                        _context.SaveChanges();
+                                    }
+                                }
+
+                            }
                         }
                         else
                         {
-                            foliosDocumentos = foliosDocumentos + ";" + item.Folio.ToString();
+                            clients = new List<ClienteSaldosDTO>();
+                            clients.Add(new ClienteSaldosDTO { Documento = "Cobranza Vencida" });
+                            return Ok(clients);
                         }
                     }
-
-                    List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
-                    foreach (var folio in foliosDocumentos.Split(';'))
+                    else
                     {
-                        var exist = clients.Where(x => x.Nro.ToString() == folio).ToList();
-                        if (exist.Count > 0)
+                        var documentosCobranzas = _context.CobranzaDetalles.Where(x => x.IdCobranza == model.IdCobranza && model.CodAux == x.CodAuxCliente).ToList();
+                        string foliosDocumentos = string.Empty;
+                        foreach (var item in documentosCobranzas)
                         {
-                            foreach (var doc in exist)
+                            if (string.IsNullOrEmpty(foliosDocumentos))
                             {
-                                clientsAux.Add(doc);
+                                foliosDocumentos = item.Folio.ToString();
                             }
-                        }
-                    }
-                    clients = clientsAux;
-
-                    foreach (var item in foliosDocumentos.Split(';'))
-                    {
-                        var detalle = documentosCobranzas.Where(x => x.Folio.ToString() == item).FirstOrDefault();
-                        if (detalle != null)
-                        {
-                            var detalleSoftland = clients.Where(x => x.Nro == detalle.Folio).FirstOrDefault();
-                            if (detalleSoftland != null)
+                            else
                             {
-                                detalle.Monto = (float?)detalleSoftland.MontoBase;
-                                detalle.Pagado = (float?)(detalleSoftland.MontoBase - detalleSoftland.APagar);
-                                _context.Entry(detalle).State = EntityState.Modified;
-                                _context.SaveChanges();
+                                foliosDocumentos = foliosDocumentos + ";" + item.Folio.ToString();
                             }
                         }
 
+                        List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+                        foreach (var folio in foliosDocumentos.Split(';'))
+                        {
+                            var exist = clients.Where(x => x.Nro.ToString() == folio).ToList();
+                            if (exist.Count > 0)
+                            {
+                                foreach (var doc in exist)
+                                {
+                                    clientsAux.Add(doc);
+                                }
+                            }
+                        }
+                        clients = clientsAux;
+
+                        foreach (var item in foliosDocumentos.Split(';'))
+                        {
+                            var detalle = documentosCobranzas.Where(x => x.Folio.ToString() == item).FirstOrDefault();
+                            if (detalle != null)
+                            {
+                                var detalleSoftland = clients.Where(x => x.Nro == detalle.Folio).FirstOrDefault();
+                                if (detalleSoftland != null)
+                                {
+                                    detalle.Monto = (float?)detalleSoftland.MontoBase;
+                                    detalle.Pagado = (float?)(detalleSoftland.MontoBase - detalleSoftland.APagar);
+                                    _context.Entry(detalle).State = EntityState.Modified;
+                                    _context.SaveChanges();
+                                }
+                            }
+
+                        }
                     }
+                   
                 }
 
 
@@ -1657,7 +1718,7 @@ namespace ApiPortal.Controllers
                     {
                         clients = clients.Where(x => automatizacion.TipoDocumentos.Contains(x.TipoDoc)).ToList();
                     }
-                    
+
 
                     if (automatizacion.Anio != 0)
                     {
@@ -1734,7 +1795,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetEstadoConexionSoftland";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1768,7 +1829,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/SavePago";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-         
+
 
             try
             {
@@ -1856,7 +1917,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDashboardAdministrador";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1985,7 +2046,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetExistCompras";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2067,7 +2128,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDetallePago";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2204,7 +2265,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDatosPagoRapido";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -2254,7 +2315,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentoPDF";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2289,7 +2350,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/EnviaDocumentoPDF";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2382,7 +2443,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetResumenContable";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2415,7 +2476,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentoPDFNv";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2455,12 +2516,12 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClientesFiltro";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
 
-                SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
+                SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
                 List<ClientesPortal> clients = await softlandService.GetClientesSoftlandFiltrosAsync(model, logApi.Id);
 
                 logApi.Termino = DateTime.Now;
@@ -2491,7 +2552,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosDashboarddAdmin";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-         
+
 
             try
             {
@@ -2542,7 +2603,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosAdmin";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-        
+
 
             try
             {
@@ -2593,7 +2654,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetCorreosDTE";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             try
             {
@@ -2628,7 +2689,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteGuiasDespacho";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2654,24 +2715,24 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetPDFPago/{numComprobante}")]
-        public async Task<ActionResult> GetPDFPago(string numComprobante)
+        [HttpGet("GetPDFPago/{idPago}")]
+        public async Task<ActionResult> GetPDFPago(int idPago)
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
-            logApi.Api = "api/ClientesPortal/        [HttpGet(\"GetPDFPago/{numComprobante}\")]\r\n";
+            logApi.Api = "api/ClientesPortal/GetPDFPago";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
-                numComprobante = Encrypt.Base64Decode(numComprobante);
                 string base64 = string.Empty;
-                var pagoCabecera = _context.PagosCabeceras.Where(x => x.ComprobanteContable == numComprobante).FirstOrDefault();
+                var pagoCabecera = _context.PagosCabeceras.Where(x => x.IdPago == idPago).FirstOrDefault();
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
                 string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
+                string logoSoftlandFooter = configEmpresa.UrlPortal + "/assets/images/Softlandpiemail.png";
 
 
                 if (pagoCabecera != null)
@@ -2683,14 +2744,14 @@ namespace ApiPortal.Controllers
                     {
                         comprobanteHtml = reader.ReadToEnd();
                     }
-                   
+
                     comprobanteHtml = comprobanteHtml.Replace("{LOGO}", logo).Replace("{EMPRESA}", configEmpresa.NombreEmpresa).Replace("{RUT}", configEmpresa.RutEmpresa).Replace("{DIRECCION}", configEmpresa.Direccion)
-                        .Replace("{CORREO}", configEmpresa.CorreoContacto).Replace("{EMISION}", fecha).Replace("{HORA}", hora).Replace("{NUMCOMPROBANTE}", numComprobante).Replace("{MONTOTOTAL}", pagoCabecera.MontoPago.Value.ToString("N0"));
+                        .Replace("{CORREO}", configEmpresa.CorreoContacto).Replace("{EMISION}", fecha).Replace("{HORA}", hora).Replace("{NUMCOMPROBANTE}", idPago.ToString()).Replace("{MONTOTOTAL}", pagoCabecera.MontoPago.Value.ToString("N0")).Replace("{IMAGENFOOTER}", logoSoftlandFooter);
 
                     string[] partes = comprobanteHtml.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);
                     string reemplazoDetalle = string.Empty;
 
-                    SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
+                    SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
                     var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
 
                     //Obtenemos detalle
@@ -2728,12 +2789,14 @@ namespace ApiPortal.Controllers
                     }
                     doc2.Close();
                 }
-
+                DocumentosVm documento = new DocumentosVm();
+                documento.NombreArchivo = idPago.ToString() + ".pdf";
+                documento.Base64 = base64;
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
 
-                return Ok(base64);
+                return Ok(documento);
             }
             catch (Exception ex)
             {
@@ -2757,7 +2820,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/RecuperarContrasena";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -2850,7 +2913,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosPagados";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -2981,7 +3044,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetResumenDocumentosCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -3019,7 +3082,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDocumentosContabilizadosXCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -3057,7 +3120,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetTopDeudores";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -3092,7 +3155,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetDeudaVsPagos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -3190,7 +3253,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClientesByCodAux";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -3230,7 +3293,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/EnviaCorreoComprobante";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -3240,106 +3303,103 @@ namespace ApiPortal.Controllers
 
                 if (pago != null)
                 {
-                    if (!string.IsNullOrEmpty(pago.ComprobanteContable))
+                    var config = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
+                    var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
+                    string fecha = pago.FechaPago.Value.Day.ToString() + "/" + pago.FechaPago.Value.Month.ToString() + "/" + pago.FechaPago.Value.Year.ToString();
+                    string hora = pago.HoraPago;
+                    string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
+                    string comprobanteHtml = string.Empty;
+                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/invoice.html")))
                     {
-                        var config = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                        var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-                        var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
-                        string fecha = pago.FechaPago.Value.Day.ToString() + "/" + pago.FechaPago.Value.Month.ToString() + "/" + pago.FechaPago.Value.Year.ToString();
-                        string hora = pago.HoraPago;
-                        string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
-                        string comprobanteHtml = string.Empty;
-                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "~/Uploads/MailTemplates/invoice.html")))
-                        {
-                            comprobanteHtml = reader.ReadToEnd();
-                        }
-                        
-                        comprobanteHtml = comprobanteHtml.Replace("{LOGO}", logo).Replace("{EMPRESA}", configEmpresa.NombreEmpresa).Replace("{RUT}", configEmpresa.RutEmpresa).Replace("{DIRECCION}", configEmpresa.Direccion)
-                            .Replace("{CORREO}", configEmpresa.CorreoContacto).Replace("{EMISION}", fecha).Replace("{HORA}", hora).Replace("{NUMCOMPROBANTE}", pago.ComprobanteContable).Replace("{MONTOTOTAL}", pago.MontoPago.Value.ToString("N0").Replace(",", "."));
-
-                        string[] partes = comprobanteHtml.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);
-                        string reemplazoDetalle = string.Empty;
-
-                        SoftlandService softlandService = new SoftlandService(_context,_webHostEnvironment);
-                        var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
-                        foreach (var det in pago.PagosDetalles)
-                        {
-                            var tipoDoc = tiposDocumentos.Where(x => x.CodDoc == det.TipoDocumento).FirstOrDefault();
-
-                            reemplazoDetalle = reemplazoDetalle + partes[1].Replace("{NUMDOC}", det.Folio.ToString()).Replace("{TIPODOC}", tipoDoc.DesDoc).Replace("{MONTODOC}", det.Total.Value.ToString("N0").Replace(",", ".")).Replace("{SALDODOC}", det.Saldo.Value.ToString("N0").Replace(",", "."))
-                                .Replace("{PAGADODOC}", det.Apagar.Value.ToString("N0").Replace(",", "."));
-
-                        }
-
-                        partes[1] = reemplazoDetalle;
-
-                        string htmlFinal = string.Empty;
-
-                        foreach (var p in partes)
-                        {
-                            htmlFinal = htmlFinal + p;
-                        }
-
-                        SelectPdf.HtmlToPdf converter2 = new SelectPdf.HtmlToPdf();
-                        SelectPdf.PdfDocument doc2 = converter2.ConvertHtmlString(htmlFinal);
-
-
-                        MailViewModel vm = new MailViewModel();
-                        List<Attachment> listaAdjuntos = new List<Attachment>();
-
-                        using (MemoryStream memoryStream2 = new MemoryStream())
-                        {
-                            doc2.Save(memoryStream2);
-
-                            byte[] bytes = memoryStream2.ToArray();
-
-                            memoryStream2.Close();
-                            Attachment comprobanteTBK = new Attachment(new MemoryStream(bytes), "Comprobante Pago.pdf");
-                            listaAdjuntos.Add(comprobanteTBK);
-                        }
-                        doc2.Close();
-
-
-                        vm.adjuntos = listaAdjuntos;
-                        vm.tipo = 5;
-                        vm.nombre = pago.Nombre;
-                        vm.email_destinatario = pago.Correo;
-                        MailService mail = new MailService(_context,_webHostEnvironment);
-                        await mail.EnviarCorreosAsync(vm);
-
-
-
-                        SelectPdf.HtmlToPdf converter3 = new SelectPdf.HtmlToPdf();
-                        SelectPdf.PdfDocument doc3 = converter3.ConvertHtmlString(htmlFinal);
-                        List<Attachment> listaAdjuntos2 = new List<Attachment>();
-                        using (MemoryStream memoryStream3 = new MemoryStream())
-                        {
-
-                            doc3.Save(memoryStream3);
-
-                            byte[] bytes = memoryStream3.ToArray();
-
-                            memoryStream3.Close();
-                            Attachment comprobanteTBK2 = new Attachment(new MemoryStream(bytes), "Comprobante Pago.pdf");
-                            listaAdjuntos2.Add(comprobanteTBK2);
-                        }
-                        doc3.Close();
-
-                        var cliente = _context.ClientesPortals.Where(x => x.CodAux == pago.CodAux).FirstOrDefault();
-                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                        MailViewModel vm2 = new MailViewModel();
-                        vm2.tipo = 6;
-                        vm2.nombre = "";
-                        vm2.asunto = "";
-                        vm2.mensaje = pago.ComprobanteContable + "|" + pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0").Replace(",", ".") + "|" + cliente.Nombre + "|" + cliente.Rut;
-                        vm2.adjuntos = listaAdjuntos2;
-                        vm2.email_destinatario = configCorreo.CorreoAvisoPago;
-                        if (!string.IsNullOrEmpty(configCorreo.CorreoAvisoPago))
-                        {
-                            await mail.EnviarCorreosAsync(vm2);
-                        }
-                        
+                        comprobanteHtml = reader.ReadToEnd();
                     }
+
+                    comprobanteHtml = comprobanteHtml.Replace("{LOGO}", logo).Replace("{EMPRESA}", configEmpresa.NombreEmpresa).Replace("{RUT}", configEmpresa.RutEmpresa).Replace("{DIRECCION}", configEmpresa.Direccion)
+                        .Replace("{CORREO}", configEmpresa.CorreoContacto).Replace("{EMISION}", fecha).Replace("{HORA}", hora).Replace("{NUMCOMPROBANTE}", pago.IdPago.ToString()).Replace("{MONTOTOTAL}", pago.MontoPago.Value.ToString("N0").Replace(",", "."));
+
+                    string[] partes = comprobanteHtml.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);
+                    string reemplazoDetalle = string.Empty;
+
+                    SoftlandService softlandService = new SoftlandService(_context, _webHostEnvironment);
+                    var tiposDocumentos = await softlandService.GetAllTipoDocSoftlandAsync(logApi.Id);
+                    foreach (var det in pago.PagosDetalles)
+                    {
+                        var tipoDoc = tiposDocumentos.Where(x => x.CodDoc == det.TipoDocumento).FirstOrDefault();
+
+                        reemplazoDetalle = reemplazoDetalle + partes[1].Replace("{NUMDOC}", det.Folio.ToString()).Replace("{TIPODOC}", tipoDoc.DesDoc).Replace("{MONTODOC}", det.Total.Value.ToString("N0").Replace(",", ".")).Replace("{SALDODOC}", det.Saldo.Value.ToString("N0").Replace(",", "."))
+                            .Replace("{PAGADODOC}", det.Apagar.Value.ToString("N0").Replace(",", "."));
+
+                    }
+
+                    partes[1] = reemplazoDetalle;
+
+                    string htmlFinal = string.Empty;
+
+                    foreach (var p in partes)
+                    {
+                        htmlFinal = htmlFinal + p;
+                    }
+
+                    SelectPdf.HtmlToPdf converter2 = new SelectPdf.HtmlToPdf();
+                    SelectPdf.PdfDocument doc2 = converter2.ConvertHtmlString(htmlFinal);
+
+
+                    MailViewModel vm = new MailViewModel();
+                    List<Attachment> listaAdjuntos = new List<Attachment>();
+
+                    using (MemoryStream memoryStream2 = new MemoryStream())
+                    {
+                        doc2.Save(memoryStream2);
+
+                        byte[] bytes = memoryStream2.ToArray();
+
+                        memoryStream2.Close();
+                        Attachment comprobanteTBK = new Attachment(new MemoryStream(bytes), "Comprobante Pago.pdf");
+                        listaAdjuntos.Add(comprobanteTBK);
+                    }
+                    doc2.Close();
+
+
+                    vm.adjuntos = listaAdjuntos;
+                    vm.tipo = 5;
+                    vm.nombre = pago.Nombre;
+                    vm.email_destinatario = pago.Correo;
+                    MailService mail = new MailService(_context, _webHostEnvironment);
+                    await mail.EnviarCorreosAsync(vm);
+
+
+
+                    SelectPdf.HtmlToPdf converter3 = new SelectPdf.HtmlToPdf();
+                    SelectPdf.PdfDocument doc3 = converter3.ConvertHtmlString(htmlFinal);
+                    List<Attachment> listaAdjuntos2 = new List<Attachment>();
+                    using (MemoryStream memoryStream3 = new MemoryStream())
+                    {
+
+                        doc3.Save(memoryStream3);
+
+                        byte[] bytes = memoryStream3.ToArray();
+
+                        memoryStream3.Close();
+                        Attachment comprobanteTBK2 = new Attachment(new MemoryStream(bytes), "Comprobante Pago.pdf");
+                        listaAdjuntos2.Add(comprobanteTBK2);
+                    }
+                    doc3.Close();
+
+                    var cliente = _context.ClientesPortals.Where(x => x.CodAux == pago.CodAux).FirstOrDefault();
+                    var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+                    MailViewModel vm2 = new MailViewModel();
+                    vm2.tipo = 6;
+                    vm2.nombre = "";
+                    vm2.asunto = "";
+                    vm2.mensaje = pago.ComprobanteContable + "|" + pago.CodAux + "|" + pago.Correo + "|" + pago.MontoPago.Value.ToString("N0").Replace(",", ".") + "|" + cliente.Nombre + "|" + cliente.Rut + "|" + pago.IdPago.ToString();
+                    vm2.adjuntos = listaAdjuntos2;
+                    vm2.email_destinatario = configCorreo.CorreoAvisoPago;
+                    if (!string.IsNullOrEmpty(configCorreo.CorreoAvisoPago))
+                    {
+                        await mail.EnviarCorreosAsync(vm2);
+                    }
+
 
                 }
 
@@ -3371,7 +3431,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/GetClienteByCodAux";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             ClienteDTO retorno = new ClienteDTO();
 
@@ -3416,7 +3476,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/getPDFEstadoCuenta";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             try
             {
@@ -3523,7 +3583,7 @@ namespace ApiPortal.Controllers
                         fechaDesde = new DateTime((int)automatizacion.Anio, 01, 01, 0, 0, 0);
                     }
 
-                    var documentos = await softlandService.ObtenerDocumentosAutomaizacion((int)automatizacion.Anio, fechaDesde, fechaHasta, automatizacion.TipoDocumentos, model.CodAux, 0, logApi.Id);
+                    var documentos = await softlandService.ObtenerDocumentosAutomaizacion(automatizacion.TipoDocumentos, model.CodAux, 0, logApi.Id);
 
                     switch (automatizacion.IdAutomatizacion)
                     {
@@ -3559,7 +3619,7 @@ namespace ApiPortal.Controllers
                         doc.NombreCliente = (string.IsNullOrEmpty(documentos[0].NombreCliente)) ? string.Empty : documentos[0].NombreCliente;
                         doc.EmailCliente = documentos[0].EmailCliente;
                         doc.CantidadDocumentosPendientes = documentos.Count();
-                        doc.MontoDeuda = Convert.ToInt32(documentos[0].MontoDocumento);
+                        doc.MontoDeuda = Convert.ToDecimal(documentos[0].MontoDocumento);
                         doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
 
                         foreach (var item in documentos)
@@ -3568,7 +3628,7 @@ namespace ApiPortal.Controllers
                             aux.Folio = (int)item.FolioDocumento;
                             aux.FechaEmision = (DateTime)item.FechaEmision;
                             aux.FechaVencimiento = (DateTime)item.FechaVencimiento;
-                            aux.Monto = (int)item.MontoDocumento;
+                            aux.Monto = (decimal)item.MontoDocumento;
                             aux.TipoDocumento = item.TipoDocumento;
                             doc.ListaDocumentos.Add(aux);
                         }
@@ -3619,7 +3679,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ClientesPortal/getPagosDocumento";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             try
             {

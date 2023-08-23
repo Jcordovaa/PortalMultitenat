@@ -5,7 +5,7 @@
         <!-- <img class="profile-picture avatar-lg mb-2" src="./assets/images/profile.png" alt=""> -->
         <br>
         <br>
-        <p class="m-0 text-30">Paga Tú Cuenta</p>
+        <p class="m-0 text-30">Paga Tu Cuenta</p>
 
         <p class="m-0 text-24">{{nombreCliente}}</p>
     </div>
@@ -457,7 +457,7 @@
 
                         <div class="row" *ngIf="compras?.length == 0 ">
 
-                            <div class="col-md-12" *ngIf="load">
+                            <div class="col-md-12" style="text-align: center; align-items: center;" *ngIf="load">
                                 <ngb-alert class="alert-card text-center" [dismissible]="false">
                                     No se encontraron documentos.
                                 </ngb-alert>
@@ -559,7 +559,7 @@
                             <img src="../../../../assets/images/Success_payment.svg" width="300" height="150" alt="">
 
                             <h3 class="text-primary mt-4">Pago realizado correctamente.</h3>
-                            <p>Las cuentas selecciondas fueron pagadas exitosamente.</p>
+                            <p>Las cuentas seleccionadas fueron pagadas exitosamente.</p>
                         </div>
                         <div *ngIf="paymentResultState == 2">
                             <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
@@ -577,11 +577,11 @@
                         </div>
                         <div *ngIf="paymentResultState == 4">
                             <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
-                            <h3 class="text-primary mt-4">Ocurrio un error al generar comprobante.</h3>
-                            <p>El pago se realizo pero ocurrio un error al generar comprobante, se envio aviso al
-                                administrador para regurlizar el pago.
+                            <h3 class="text-primary mt-4">Ocurrió un error al generar comprobante.</h3>
+                            <p>El pago se realizo pero ocurrió un error al generar comprobante, se envió aviso al
+                                administrador para regularizar el pago.
                             </p>
-                            <p>Si realizo un abono parcial, de momento el documento no se podra seleccionar para su pago
+                            <p>Si realizo un abono parcial, de momento el documento no se podrá seleccionar para su pago
                                 para evitar problemas.
                             </p>
                         </div>
@@ -589,7 +589,7 @@
                             *ngIf="paymentResultState != 1 && paymentResultState != 2 && paymentResultState != 3 && paymentResultState != 4">
                             <img src="../../../../assets/images/Error_payment.svg" width="300" height="150" alt="">
 
-                            <h3 class="text-primary mt-4">Ocurrio un error al realizar el pago.</h3>
+                            <h3 class="text-primary mt-4">Ocurrió un error al realizar el pago.</h3>
                             <p>No se pudo realizar el pago, favor intente nuevamente o contacte al administrador.
                             </p>
                         </div>
@@ -608,13 +608,13 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><span class="text-13">{{logPasarela.comprobanteContable}}</span></td>
+                                        <td><span class="text-13">{{logPasarela.idPago}}</span></td>
                                         <td><span class="text-13">{{logPasarela.pasarelaPago}}</span></td>
                                         <td><span class="text-13">{{logPasarela.codigo}}</span></td>
                                         <td><span class="text-13">{{logPasarela.cuotas}}</span></td>
                                         <td><span class="text-13">${{logPasarela.monto | monto}}</span></td>
                                         <td>
-                                            <img (click)="downloadPDF(logPasarela.comprobanteContable)" container="body"
+                                            <img (click)="downloadPDF(logPasarela.idPago)" container="body"
                                                 ngbTooltip="Documento PDF" style="cursor: pointer;"
                                                 src="./assets/images/icon/pdf.png" width="20" height="20" alt="">
                                         </td>
@@ -722,9 +722,9 @@
 </ng-template>
 
 
-<ng-template #tipContent>Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b> correspondiente a
-    <b>$35.000</b>
-</ng-template>
+<!-- <ng-template #tipContent>Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b> correspondiente a
+     <b>$35.000</b> 
+</ng-template> -->
 
 
 
@@ -828,7 +828,7 @@
     <b>${{varloUfOrigen | monto}}</b>
 </ng-template>
 
-<ng-template #tipContentOtraMonedaBloqueado>No se encontro valor de la moneda para la fecha actual, se deshabilito el pago de este documento.
+<ng-template #tipContentOtraMonedaBloqueado>No se encontró valor de la moneda para la fecha actual, se deshabilito el pago de este documento.
 </ng-template>
 
 

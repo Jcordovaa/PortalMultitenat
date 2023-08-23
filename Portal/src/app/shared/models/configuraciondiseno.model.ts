@@ -64,6 +64,8 @@ export class ConfiguracionDiseno {
      logoMinimalistaSidebar?: string;
      logoSidebar?: string;
      favicon?: string;
+     textoCobranzaExpirada?: string;
+     textoDescargaCobranza?: string;
     
     constructor() {
      this.idConfiguracionTextosColores = 0;
@@ -131,6 +133,8 @@ export class ConfiguracionDiseno {
      this.logoMinimalistaSidebar = '';
      this.logoSidebar = '';
      this.favicon = '';
+     this.textoCobranzaExpirada = '';
+     this.textoDescargaCobranza = '';
     }
   
 }

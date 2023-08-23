@@ -36,6 +36,10 @@ export class ConfiguracionSoftlandService {
     return this.http.get(`${this.apiUrl}/getAllCuentasContablesSoftland`, this.utils.getHeaders(true));
   }
 
+  getCuentasContablePago() {
+    return this.http.get(`${this.apiUrl}/GetCuentasContablePago`, this.utils.getHeaders(true));
+  }
+
   getClientesAccesos(filter: any): Observable<any[]> {
     const body = JSON.stringify(filter);
     return this.http.post<any[]>(`${this.apiUrl}/GetClientesAcceso`, body, this.utils.getHeaders(true));

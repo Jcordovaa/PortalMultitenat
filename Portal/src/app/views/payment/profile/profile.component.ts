@@ -107,6 +107,8 @@ export class ProfileComponent implements OnInit {
         this.spinner.hide();
 
       }, err => { this.spinner.hide(); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
   }
 
@@ -308,7 +310,9 @@ export class ProfileComponent implements OnInit {
 
         this.spinner.hide();
 
-      }, err => {  this.notificationService.error('Ocurrió un error al obtener datos.', '', true); this.spinner.hide(); });
+      }, err => { this.notificationService.error('Ocurrió un error al obtener datos.', '', true); this.spinner.hide(); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
 
 

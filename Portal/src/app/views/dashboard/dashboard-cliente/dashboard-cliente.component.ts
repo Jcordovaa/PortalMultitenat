@@ -134,7 +134,7 @@ export class DashboardClienteComponent implements OnInit {
             const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
             if (configuracionCompletaPortal != null) {
                 this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
-                
+
                 this.configuracion = configuracionCompletaPortal.configuracionPortal;
                 this.configuracionPagos = configuracionCompletaPortal.configuracionPagoCliente;
                 this.existModuloInventario = configuracionCompletaPortal.existModuloInventario;
@@ -148,19 +148,21 @@ export class DashboardClienteComponent implements OnInit {
                 this.cantidadPendiente = res.cantidadDocPendiente;
                 this.totalPendiente = res.saldoPendiente;
                 this.cantidadPorVencer = res.cantidadxVencer;
-                this.totalPorVencer = res.saldoxvencer;              
+                this.totalPorVencer = res.saldoxvencer;
                 this.spinner.hide();
             }, err => { this.spinner.hide(); });
 
-            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {                 
+            this.clienteService.getTopCompras(user.codAux).subscribe((res: any) => {
                 this.topCompras = res;
-                if(this.topCompras.length > 0){
+                if (this.topCompras.length > 0) {
                     this.configDiseno.tituloUltimasCompras = this.configDiseno.tituloUltimasCompras.replace('{cantidad}', this.topCompras.length.toString())
                 }
-                
+
             }, err => { this.spinner.hide(); });
 
 
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
     }
@@ -187,27 +189,30 @@ export class DashboardClienteComponent implements OnInit {
             }
 
             obj.CodAux = user.codAux;
-        }
-        this.compraDetalleAux = obj;
-        this.spinner.show();
 
-        this.clienteService.getDetalleCompra(obj).subscribe((res: any) => {
+            this.compraDetalleAux = obj;
+            this.spinner.show();
 
-            this.spinner.hide();
-            if (res.cabecera != null) {
-                if (res.cabecera.folio != 0) { //FCA 05-07-2022               
-                    this.detalleCab = res.cabecera; //FCA 05-07-2022
-                    this.detalleDet = res.detalle;
-                    this.showDetail = true;
-                    this.tituloDetalle = compra.documento;
+            this.clienteService.getDetalleCompra(obj).subscribe((res: any) => {
+
+                this.spinner.hide();
+                if (res.cabecera != null) {
+                    if (res.cabecera.folio != 0) { //FCA 05-07-2022               
+                        this.detalleCab = res.cabecera; //FCA 05-07-2022
+                        this.detalleDet = res.detalle;
+                        this.showDetail = true;
+                        this.tituloDetalle = compra.documento;
+                    } else {
+                        this.notificationService.info('Documento no posee detalle asociado.', '', true);
+                    }
                 } else {
                     this.notificationService.info('Documento no posee detalle asociado.', '', true);
                 }
-            } else {
-                this.notificationService.info('Documento no posee detalle asociado.', '', true);
-            }
 
-        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+            }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener detalle de la compra.', '', true); });
+        } else {
+            this.authService.signoutExpiredToken();
+        }
     }
 
 
@@ -248,6 +253,8 @@ export class DashboardClienteComponent implements OnInit {
                 this.spinner.hide();
                 this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
             }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener contactos del cliente', '', true); });
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
     }
@@ -277,7 +284,7 @@ export class DashboardClienteComponent implements OnInit {
                     this.notificationService.warning('No existen resultados para Documentos Pendientes', '', true);
                     return;
                 }
-                this.spinner.show();
+
                 this.noResultText = "No existen resultados para Documentos Pendientes";
                 this.dateDesde = null;
                 this.dateHasta = null;
@@ -289,6 +296,7 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
+                    this.spinner.show();
                     let model = {
                         CodAux: user.codAux,
                         Pagina: 1
@@ -311,6 +319,8 @@ export class DashboardClienteComponent implements OnInit {
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos pendientes', '', true); });
+                } else {
+                    this.authService.signoutExpiredToken();
                 }
                 break;
 
@@ -319,7 +329,7 @@ export class DashboardClienteComponent implements OnInit {
                     this.notificationService.warning('No existen resultados para Documentos Vencidos', '', true);
                     return;
                 }
-                this.spinner.show();
+
                 this.noResultText = "No existen resultados para Documentos Vencidos";
                 this.dateDesde = null;
                 this.dateHasta = null;
@@ -331,6 +341,7 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
+                    this.spinner.show();
                     let model = {
                         CodAux: user.codAux,
                         Pagina: 1
@@ -352,6 +363,8 @@ export class DashboardClienteComponent implements OnInit {
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos vencidos', '', true); });
+                } else {
+                    this.authService.signoutExpiredToken();
                 }
                 break;
 
@@ -360,7 +373,7 @@ export class DashboardClienteComponent implements OnInit {
                     this.notificationService.warning('No existen resultados para Documentos Por Vencer', '', true);
                     return;
                 }
-                this.spinner.show();
+
                 this.noResultText = "No existen resultados para Documentos Por Vencer"
                 this.dateDesde = null;
                 this.dateHasta = null;
@@ -372,6 +385,7 @@ export class DashboardClienteComponent implements OnInit {
                 this.paginadorDocumentos.search = '';
 
                 if (user != null) {
+                    this.spinner.show();
                     let model = {
                         CodAux: user.codAux,
                         Pagina: 1
@@ -394,6 +408,8 @@ export class DashboardClienteComponent implements OnInit {
                         }
                         this.spinner.hide();
                     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos por vencer', '', true); });
+                } else {
+                    this.authService.signoutExpiredToken();
                 }
                 break;
 
@@ -566,7 +582,7 @@ export class DashboardClienteComponent implements OnInit {
         }
 
         if (!this.enviaPdf && !this.enviaXml) {
-            this.notificationService.warning('Debe seleccionar almenos un tipo de documento.', '', true);
+            this.notificationService.warning('Debe seleccionar al menos un tipo de documento.', '', true);
             return;
         }
 
@@ -696,33 +712,36 @@ export class DashboardClienteComponent implements OnInit {
             obj.Folio = this.documentoAEnviar.folio;
             obj.TipoDoc = this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
             obj.CodAux = this.compraDetalleAux.CodAux;
+
+
+
+
+
+            this.spinner.show();
+
+            //Obtengo ruta
+            this.clienteService.getClienteDocumento(obj).subscribe(
+                (res: any) => {
+                    if (res.base64 != null && res.base64 != '') {
+                        var link = document.createElement("a");
+                        link.download = res.nombreArchivo;
+                        link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        link.remove();
+                    } else {
+                        this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
+                    }
+
+                    this.spinner.hide();
+                },
+                err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+            );
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
-
-
-
-
-        this.spinner.show();
-
-        //Obtengo ruta
-        this.clienteService.getClienteDocumento(obj).subscribe(
-            (res: any) => {
-                if (res.base64 != null && res.base64 != '') {
-                    var link = document.createElement("a");
-                    link.download = res.nombreArchivo;
-                    link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    link.remove();
-                } else {
-                    this.notificationService.warning('Documento sin archivo PDF, favor contactar con el administrador.', '', true);
-                }
-
-                this.spinner.hide();
-            },
-            err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-        );
     }
 
 
@@ -740,30 +759,33 @@ export class DashboardClienteComponent implements OnInit {
                 obj.TipoDoc = this.documentoAEnviar.tipo + this.documentoAEnviar.subTipo;
             }
             obj.CodAux = this.compraDetalleAux.CodAux;
+
+            this.spinner.show();
+
+            //Obtengo ruta
+            this.clienteService.getClienteXML(obj).subscribe(
+                (res: any) => {
+
+                    if (res.base64 != null && res.base64 != '') {
+                        var link = document.createElement("a");
+                        link.download = res.nombreArchivo;
+                        link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        link.remove();
+                    } else {
+                        this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
+                    }
+
+                    this.spinner.hide();
+                },
+                err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
+            );
+        } else {
+            this.authService.signoutExpiredToken();
         }
 
-        this.spinner.show();
-
-        //Obtengo ruta
-        this.clienteService.getClienteXML(obj).subscribe(
-            (res: any) => {
-
-                if (res.base64 != null && res.base64 != '') {
-                    var link = document.createElement("a");
-                    link.download = res.nombreArchivo;
-                    link.href = this.utils.transformaDocumento64(res.base64, res.tipo);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    link.remove();
-                } else {
-                    this.notificationService.warning('Documento sin archivo xml, favor contactar con el administrador.', '', true);
-                }
-
-                this.spinner.hide();
-            },
-            err => { this.notificationService.error('Error al obtener Documento', '', true); this.spinner.hide(); }
-        );
     }
 
 

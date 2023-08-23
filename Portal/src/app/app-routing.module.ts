@@ -138,6 +138,7 @@ const routes: Routes = initType() == "PAYMENT" ? [
     path: '**',
     redirectTo: 'others/404'
   }
+  
 ];
 
 @NgModule({

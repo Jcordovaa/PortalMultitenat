@@ -47,7 +47,7 @@ export class PaymentSettingsComponent implements OnInit {
           this.ambiente = 'PRODUCCION';
         }
       }
-      this.softlandService.getAllCuentasContablesSoftland().subscribe((res2: any) => {
+      this.softlandService.getCuentasContablePago().subscribe((res2: any) => {
 
         this.cuentasContables = res2;
         this.cuentasContables.forEach(element => {
@@ -79,7 +79,6 @@ export class PaymentSettingsComponent implements OnInit {
     }
 
     this.spinner.show();
-    pasarela.protocolo = 'https'
     this.pasarelasService.edit(pasarela).subscribe(res => {
       this.notificationService.success('Editado correctamente', '', true);
       this.spinner.hide();

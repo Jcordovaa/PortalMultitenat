@@ -30,7 +30,7 @@ export class Automatizacion {
         this.idAutomatizacion = 0;
         this.nombre = '';
         this.idTipoAutomatizacion = null;
-        this.anio = 0;
+        this.anio = null;
         this.tipoDocumentos = '';
         this.diasVencimiento = 0;
         this.idHorario = null;

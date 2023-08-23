@@ -3,11 +3,13 @@ export class CondicionVentaDTO {
     cveDes?: string;
     cveDias?: number;
     cveNvCto?: number;
+    disabled?: boolean;
     constructor() {
         this.cveCod = '';
         this.cveDes = '';
         this.cveDias = 0;
         this.cveNvCto = 0;
+        this.disabled = false;
     }
 }
 
@@ -15,18 +17,22 @@ export class CondicionVentaDTO {
 export class ListaPrecioDTO {
     codLista?: string;
     desLista?: string;
+    disabled?: boolean;
     constructor() {
         this.codLista = '';
         this.desLista = '';
+        this.disabled = false;
     }
 }
 
 export class CategoriaClienteDTO {
     catCod?: string;
     catDes?: string;
+    disabled?: boolean;
     constructor() {
         this.catCod = '';
         this.catDes = '';
+        this.disabled = false;
     }
 }
 
@@ -36,6 +42,7 @@ export class VendedorDTO {
     codTipV?: string;
     email?: string;
     usuario?: string;
+    disabled?: boolean;
 
     constructor() {
         this.venCod = '';
@@ -43,6 +50,7 @@ export class VendedorDTO {
         this.codTipV = '';
         this.email = '';
         this.usuario = '';
+        this.disabled = false;
     }
 }
 
@@ -50,9 +58,11 @@ export class VendedorDTO {
 export class TipoDocumento {
     codDoc?: string;
     desDoc?: string;
+    disabled?: boolean;
 
     constructor() {
         this.codDoc = '';
         this.desDoc = '';
+        this.disabled = false;
     }
 }

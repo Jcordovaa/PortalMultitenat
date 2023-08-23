@@ -9,12 +9,12 @@ namespace ApiPortal.Dal.Models_Portal
     public partial class PortalClientesSoftlandContext : DbContext
     {
         private readonly IHttpContextAccessor _contextAccessor;
-
         public PortalClientesSoftlandContext()
         {
         }
 
         public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options, IHttpContextAccessor contextAccessor)
+            : base(options)
         {
             _contextAccessor = contextAccessor;
         }
@@ -23,6 +23,7 @@ namespace ApiPortal.Dal.Models_Portal
         {
             _contextAccessor = contextAccessor;
         }
+
 
         public virtual DbSet<Acceso> Accesos { get; set; } = null!;
         public virtual DbSet<ApiSoftland> ApiSoftlands { get; set; } = null!;
@@ -73,6 +74,7 @@ namespace ApiPortal.Dal.Models_Portal
                 var currentTenant = _contextAccessor.HttpContext?.GetTenant();
                 optionsBuilder.UseSqlServer(currentTenant.Items["ConnectionString"].ToString());
             }
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -109,6 +111,10 @@ namespace ApiPortal.Dal.Models_Portal
                     .IsUnicode(false);
 
                 entity.Property(e => e.CapturaComprobantes)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ConsultaAuxiliar)
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
@@ -152,6 +158,10 @@ namespace ApiPortal.Dal.Models_Portal
                     .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasColumnName("ContactosXAuxiliar");
+
+                entity.Property(e => e.CuentasPasarelaPagos)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.DespachoDeDocumento)
                     .HasMaxLength(500)
@@ -904,6 +914,10 @@ namespace ApiPortal.Dal.Models_Portal
                 entity.Property(e => e.LogoSidebar)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.TextoCobranzaExpirada).IsUnicode(false);
+
+                entity.Property(e => e.TextoDescargaCobranza).IsUnicode(false);
 
                 entity.Property(e => e.TextoNoConsideraTodaDeuda).IsUnicode(false);
 

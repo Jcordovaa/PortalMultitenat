@@ -15,6 +15,7 @@
                 <div class="col-md-12">
                     <div class="card mb-4">
                         <div class="card-body">
+                           
                             <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong> desde donde se obtendrán
                                 los documentos pendientes. <img [container]="'body'"
                                     ngbTooltip="Debe seleccionar al menos una."
@@ -47,7 +48,7 @@
 
                             <h6 class="mb-2">Ingrese la glosa para el <strong>Comprobante Contable </strong><img
                                     [container]="'body'"
-                                    ngbTooltip="Dejar en blanco para no agregar ningun texto a la glosa ya predefinida."
+                                    ngbTooltip="Dejar en blanco para no agregar ningún texto a la glosa ya predefinida."
                                     style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
                                     width="22" height="22"></h6>
                             <div class="row mt-2">
@@ -103,7 +104,7 @@
 
 
                             <div class="row mt-2">
-                                <div class="col-md-3 form-group mb-3">
+                                <!-- <div class="col-md-3 form-group mb-3">
                                     <label for="firstName2">Año tributario<span class="camporequerido">*</span></label>
                                     <input type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57" (change)="validaAnio()"
                                         [ngClass]="anio.errors && (anio.dirty || anio.touched) ? 'form-control is-invalid' : 'form-control'"
@@ -113,7 +114,7 @@
                                         style="margin-top: 2px; font-size: 12px">
                                         Año tributario es requerido
                                     </p>
-                                </div>
+                                </div> -->
 
                                 <!-- <div class="col-md-3 form-group mb-3">
                                     <label for="moneda">Moneda Nacional</label>
@@ -157,7 +158,14 @@
                                 </div>
                             </div>
 
-
+                            <ngb-alert class="alert-card" [dismissible]="false">
+                                A considerar: <br/> <br/>
+                                Las deudas que traerá el portal, serán las que se encuentren vigentes a la fecha, para cada uno de sus clientes. Si existe alguna deuda
+                                que usted desee que no se considere en ésta plataforma, deberá realizar con anterioridad los asientos contables según los tratamientos
+                                tributarios correspondientes. <br> <br/>
+                                En el caso de que los saldos de apertura del año en curso estén desactualizados, deberá ejecutar el proceso de "REPROCESO DE APERTURAS" 
+                                para que la información que visualicen sus clientes sea consistente.
+                               </ngb-alert>
 
 
                             <div class="col-md-12 mt-3 text-center">
@@ -170,7 +178,7 @@
 
         </ngb-tab>
 
-        <ngb-tab [id]="2" title="Parametros">
+        <ngb-tab [id]="2" title="Parámetros">
             <ng-template ngbTabContent>
                 <div class="col-md-12">
                     <div class="card mb-4">
@@ -278,7 +286,7 @@
 
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
-                                            <span class="size">Habilitar Paga Tú Cuenta</span>
+                                            <span class="size">Habilitar Paga Tu Cuenta</span>
                                             <input [(ngModel)]="configPortal.habilitaPagoRapido" type="checkbox"
                                                 id="exampleCheck5" name="exampleCheck5" />
                                             <span class="slider"></span>
@@ -296,9 +304,9 @@
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
                                             <span class="size" style="color: grey;"
-                                                *ngIf="!configPortal.habilitaPagoRapido">Habilitar Busqueda por
+                                                *ngIf="!configPortal.habilitaPagoRapido">Habilitar Búsqueda por
                                                 Documento</span>
-                                            <span class="size" *ngIf="configPortal.habilitaPagoRapido">Habilitar Busqueda por
+                                            <span class="size" *ngIf="configPortal.habilitaPagoRapido">Habilitar Búsqueda por
                                                 Documento</span>
                                             <input [(ngModel)]="configPortal.utilizaDocumentoPagoRapido" type="checkbox"
                                                 [disabled]="!configPortal.habilitaPagoRapido" id="exampleCheck50"
@@ -399,7 +407,7 @@
                                             </div>
 
                                             <div class="form-group col-md-8 mb-3">
-                                                <label for="picker1">Color Botón Paga Tú Cuenta</label>
+                                                <label for="picker1">Color Botón Paga Tu Cuenta</label>
                                                 <div class="input-group">
                                                     <!--FCA 17-05-2022-->
                                                     <div class="circle" style="margin-top: 5px;"
@@ -494,6 +502,21 @@
                                                         Color invalido.
                                                     </span>
                                                 </p>
+                                            </div>
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="firstName2">Texto Descargar Cobranza</label>
+                                                <div class="input-group">
+                                                    <input type="text" maxlength="1000" class="form-control"
+                                                        placeholder="Texto Descargar Cobranza"
+                                                        #msjDescargarCobranza="ngModel" name="msjDescargarCobranza"
+                                                        [(ngModel)]="configuracionDiseno.textoDescargaCobranza" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;"
+                                                        (click)="openInfoModal(modalBasic, 65)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
                                             </div>
 
                                             <div class="col-md-12 form-group">
@@ -670,10 +693,26 @@
 
                                     <div class="card mb-4 margenDesktop">
                                         <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(3)">
-                                            PAGA TÚ CUENTA<i class="arrowIcon"><img
+                                            PAGA TU CUENTA<i class="arrowIcon"><img
                                                     [src]="pagoRapido == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
                                         </div>
                                         <div class="card-body" *ngIf="pagoRapido == 1">
+
+                                            <div class="col-md-12 form-group">
+                                                <label for="firstName2">Mensaje Cobranza Expirada</label>
+                                                <div class="input-group">
+                                                    <input type="text" maxlength="1000" class="form-control"
+                                                        placeholder="Mensaje Cobranza Expirada"
+                                                        #msjCobranzaExpirada="ngModel" name="msjCobranzaExpirada"
+                                                        [(ngModel)]="configuracionDiseno.textoCobranzaExpirada" />
+                                                    <img container="body" ngbTooltip="Saber más"
+                                                        style="cursor: pointer;"
+                                                        (click)="openInfoModal(modalBasic, 64)"
+                                                        src="https://img.icons8.com/fluent/96/info.png" alt=""
+                                                        width="22" height="22">
+                                                </div>
+                                            </div>
+
 
                                             <div class="col-md-12 form-group">
                                                 <label for="picker1">Banner (2.000px X 150px)</label>
@@ -1069,7 +1108,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-8 mb-3">
-                                                    <label for="picker1">Color Fondo Ultimas Compras</label>
+                                                    <label for="picker1">Color Fondo Últimas Compras</label>
                                                     <div class="input-group">
                                                         <!--FCA 17-05-2022-->
                                                         <div class="circle" style="margin-top: 5px;"
@@ -1104,7 +1143,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-8 mb-3">
-                                                    <label for="picker1">Color Botón Detalle Ultimas Compras</label>
+                                                    <label for="picker1">Color Botón Detalle Últimas Compras</label>
                                                     <div class="input-group">
                                                         <!--FCA 17-05-2022-->
                                                         <div class="circle" style="margin-top: 5px;"
@@ -1139,7 +1178,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-8 mb-3">
-                                                    <label for="picker1">Color Selección Botón Detalle Ultimas
+                                                    <label for="picker1">Color Selección Botón Detalle Últimas
                                                         Compras</label>
                                                     <div class="input-group">
                                                         <!--FCA 17-05-2022-->
@@ -1176,7 +1215,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-8 mb-3">
-                                                    <label for="picker1">Color Texto Botón Detalle Ultimas
+                                                    <label for="picker1">Color Texto Botón Detalle Últimas
                                                         Compras</label>
                                                     <div class="input-group">
                                                         <!--FCA 17-05-2022-->
@@ -1213,7 +1252,7 @@
                                                 </div>
 
                                                 <div class="col-md-12 form-group">
-                                                    <label for="picker1">Imagen Ultimas Compras (60px X 74px)</label>
+                                                    <label for="picker1">Imagen Últimas Compras (60px X 74px)</label>
                                                     <div class="input-group">
                                                         <input type="file" class="form-control" placeholder="Ruta"
                                                             accept="image/x-png,image/gif,image/jpeg"
@@ -1329,10 +1368,10 @@
 
 
                                                 <div class="form-group col-md-12 mb-3">
-                                                    <label for="firstName2">Título Guias Pendientes de Facturar</label>
+                                                    <label for="firstName2">Título Guías Pendientes de Facturar</label>
                                                     <div class="input-group">
                                                         <input type="text" maxlength="60" class="form-control"
-                                                            placeholder="Título Guias Pendientes"
+                                                            placeholder="Título Guías Pendientes"
                                                             #tituloGuiasPendientes="ngModel"
                                                             name="tituloGuiasPendientes"
                                                             [(ngModel)]="configuracionDiseno.tituloGuiasPendientes" />
@@ -1454,7 +1493,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-8 mb-3">
-                                                    <label for="picker1">Color Recuadro Guias Pendientes de
+                                                    <label for="picker1">Color Recuadro Guías Pendientes de
                                                         Facturar</label>
                                                     <div class="input-group">
                                                         <!--FCA 17-05-2022-->

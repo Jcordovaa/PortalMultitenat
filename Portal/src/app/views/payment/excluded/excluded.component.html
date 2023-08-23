@@ -1,7 +1,7 @@
 <div class="breadcrumb">
     <h1>Cliente Excluidos</h1>
     <ul>
-        <li><a href="">Portal</a></li>
+        <li><a>Portal</a></li>
         <li>Clientes Excluidos</li>
     </ul>
 </div>
@@ -9,7 +9,7 @@
 <div class="separator-breadcrumb border-top"></div>
 
 <div class="card user-profile o-hidden mb-4">
-  <div class="header-cover" style="background-image: url('assets/images/photo-wide-4.jpg')"></div>
+  <div class="header-cover" style="background-image: url('assets/images/Banner_clientes_excluidos.png')"></div>
   <div class="user-info">
       <img class="profile-picture avatar-lg mb-2" src="{{img}}" alt="">
   </div>    
@@ -59,7 +59,7 @@
                 [ngClass]="{'flex-row': viewMode === 'list', 'flex-column': viewMode === 'grid'}">
                 <div class="list-thumb d-flex ml-2">
                   <!-- TUMBNAIL -->
-                  <img style="cursor: pointer;" src="https://img.icons8.com/bubbles/2x/user.png" width="60" height="60"
+                  <img style="cursor: pointer;" src="assets/images/Listado-Clientes-excluidos.png" width="60" height="60"
                     alt="">
                 </div>
                 <div class="flex-grow-1" [ngClass]="{'pl-2 d-flex': viewMode === 'list', 'd-bock': viewMode === 'grid'}">
@@ -129,13 +129,13 @@
                 </ng-select>
             </div>
 
-            <div class="form-group col-md-4 mb-3">
+            <!-- <div class="form-group col-md-4 mb-3">
                 <label for="picker1" class="text-lbl">Lista de precios</label>
                 <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
                     bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel" name="listasPrecios"
                     [(ngModel)]="selectedListaPrecio" bindValue="codLista">
                 </ng-select>
-            </div>
+            </div> -->
             <div class="form-group col-md-4 mb-3">
                 <label for="picker1" class="text-lbl">Categoría cliente</label>
                 <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"

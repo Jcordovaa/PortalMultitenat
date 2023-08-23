@@ -153,7 +153,7 @@ export class AccountsStateComponent implements OnInit {
         this.comprasResp.forEach(element => {
           element.bloqueadoPago = false;
           if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
-            
+
             //element.bloqueadoPago = true;
           }
 
@@ -161,11 +161,12 @@ export class AccountsStateComponent implements OnInit {
             let folios = this.foliosErrorComprobate.split('-');
             folios.forEach(folio => {
               if (element.nro == folio) {
-                //element.bloqueadoPago = true;
+                element.bloqueadoPago = true;
               }
             });
           }
         });
+        debugger
 
         this.compras = this.comprasResp;
         let docsSegundaMoneda = this.comprasResp.filter(x => x.codigoMoneda != this.configuracionPagos.monedaUtilizada);
@@ -205,6 +206,8 @@ export class AccountsStateComponent implements OnInit {
       }, err => { this.spinner.hide(); });
 
 
+    } else {
+      this.authService.signoutExpiredToken();
     }
 
 
@@ -252,9 +255,9 @@ export class AccountsStateComponent implements OnInit {
 
     this.selected = [];
     this.compras.forEach(element => {
-      element.checked =  false;
-  });
-  this.calcularTotalCuentas();
+      element.checked = false;
+    });
+    this.calcularTotalCuentas();
   }
 
 
@@ -331,13 +334,20 @@ export class AccountsStateComponent implements OnInit {
 
 
   SeleccionarPago(content) {
-
+    this.spinner.show();
     this.pasarelaService.getPasarelasPago().subscribe(
       res => {
 
         if (res.length > 0) {
-          this.pasarelas = res;
+          this.pasarelas = res.filter(x => x.cuentaContable != '' && x.cuentaContable != null);
         }
+
+        if (this.pasarelas.length == 0) {
+          this.spinner.hide();
+          this.notificationService.warning('No existen medios de pago disponibles.', '', true);
+          return;
+        }
+        this.spinner.hide();
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
       },
       err => { this.spinner.hide(); this.notificationService.error('Error al obtener pasarelas.', '', true); }
@@ -395,24 +405,25 @@ export class AccountsStateComponent implements OnInit {
       }
 
       this.spinner.show();
-
+      debugger
       let rutCliente = btoa(user.rut);
-      let tenant = btoa(window.location.hostname );
-      let datosPago = window.btoa(encodeURIComponent(user.nombre) + ';' + encodeURIComponent(user.nombre)+ ';' + user.rut + ';' + user.email);
+      let tenant = btoa(window.location.hostname);
+      let datosPago = window.btoa(encodeURIComponent(user.nombre) + ';' + encodeURIComponent(user.nombre) + ';' + user.rut + ';' + user.email);
       this.clientesService.getEstadoConexionSoftland().subscribe(
         resVal => {
+          debugger
           if (resVal) {
+            debugger
             this.clientesService.postSavePago(pago).subscribe(
               (res: any) => {
                 this.spinner.hide();
                 //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
 
-                this.pasarelaService.generaPagoElectronico(res,this.selectedPasarela,rutCliente,0,datosPago,TbkRedirect.Front,tenant).subscribe(
+                this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutCliente, 0, datosPago, TbkRedirect.Front, tenant).subscribe(
                   (res: any) => {
                     this.spinner.hide();
                     //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
-                    if (res.estado == 1)
-                    {
+                    if (res.estado == 1) {
                       window.location.href = res.enlacePago;
                     }
                   },
@@ -450,7 +461,7 @@ export class AccountsStateComponent implements OnInit {
     this.folio = null;
     this.dateDesde = null;
     this.dateHasta = null;
-    
+
 
     // var x = document.getElementById("tbDetalle");
 
@@ -509,11 +520,11 @@ export class AccountsStateComponent implements OnInit {
   }
 
   onChangeAPagar(val: any, data: any, content) {
-debugger
+    debugger
     if (val == "" || val == 0) {
       val = data.saldoBase;
       val = val.replace(new RegExp('\\.', 'g'), '')
-       val = val.replace(new RegExp(',', 'g'), '\\.')
+      val = val.replace(new RegExp(',', 'g'), '\\.')
       content.target.value = this.montoPipe.transform2(val);
     } else {
       val = val.replace(new RegExp('\\.', 'g'), '')
@@ -611,14 +622,15 @@ debugger
     }
   }
 
-  downloadPDF(numComprobante: any) {
+  downloadPDF(idPago: number) {
     this.spinner.show();
-    this.clientesService.getPDFPago(btoa(numComprobante)).subscribe(
+    this.clientesService.getPDFPago(idPago).subscribe(
       (res: any) => {
-        if (res != '') {
+
+        if (res.base64 != '') {
           let a = document.createElement("a");
-          a.href = "data:application/octet-stream;base64," + res;
-          a.download = numComprobante + ".pdf"
+          a.href = "data:application/octet-stream;base64," + res.base64;
+          a.download = res.nombreArchivo;
           a.click();
         }
         this.spinner.hide();

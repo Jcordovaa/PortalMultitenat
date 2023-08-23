@@ -1,7 +1,7 @@
 <div class="breadcrumb">
     <h1>Automatizaciones</h1>
     <ul>
-        <li><a href="">Portal de Pagos</a></li>
+        <li><a>Portal de Pagos</a></li>
         <li>Automatizaciones</li>
     </ul>
 </div>
@@ -52,7 +52,7 @@
                     <i class="i-Add mt-3 mr-1"></i> Nueva Automatización</button>
                 <button id="sss1" (click)="enviaAutomatizaciones()" class="btn btn-success mr-3"
                     style="margin-top: 20px;">
-                    <i class="i-Cash-register-2 mr-3"></i> <span class="mr-3">Ejecutar Envio</span>
+                    <i class="i-Cash-register-2 mr-3"></i> <span class="mr-3">Ejecutar Envío</span>
                 </button>
             </div>
         </div>
@@ -83,7 +83,7 @@
                             </p>
 
                             <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
-                                <strong>Dia de envio: </strong>
+                                <strong>Dia de envío: </strong>
                                 <span *ngIf="item.idPerioricidad == null">Todos los días</span>
                                 <span *ngIf="item.idPerioricidad == 1">Primer día del mes</span>
                                 <span *ngIf="item.idPerioricidad == 2">Mitad de mes</span>
@@ -92,16 +92,16 @@
                                 <span *ngIf="item.idPerioricidad == 5">Cada
                                     <span *ngIf="item.diaEnvio == 1">Lunes</span>
                                     <span *ngIf="item.diaEnvio == 2">Martes</span>
-                                    <span *ngIf="item.diaEnvio == 3">Miercoles</span>
+                                    <span *ngIf="item.diaEnvio == 3">Miércoles</span>
                                     <span *ngIf="item.diaEnvio == 4">Jueves</span>
                                     <span *ngIf="item.diaEnvio == 5">Viernes</span>
-                                    <span *ngIf="item.diaEnvio == 6">Sabado</span>
+                                    <span *ngIf="item.diaEnvio == 6">Sábado</span>
                                     <span *ngIf="item.diaEnvio == 7">Domingo</span>
                                 </span>
                             </p>
 
                             <p class="m-0 text-muted w-15 w-sm-100" style="flex-basis:250px">
-                                <strong>Hora de envio: </strong><span>{{item.horaEnvio}} hrs.</span>
+                                <strong>Hora de envío: </strong><span>{{item.horaEnvio}} hrs.</span>
                             </p>
 
 
@@ -179,23 +179,23 @@
                 </div>
             </div>
 
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">la pre cobranza corresponde al envio de los
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">La pre cobranza corresponde al envío de los
                 documentos que se encuentran
-                cercanos a vencer calculado segun los dias antes del vencimiento y filtros indicados a
+                cercanos a vencer calculado según los días antes del vencimiento y filtros indicados a
                 continuación.</p>
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">Este envio se realizara todos los dias a la hora
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1">Este envío se realizará todos los días a la hora
                 indicada.</p>
 
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">El estado de cuenta corresponde al envio de los
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">El estado de cuenta corresponde al envío de los
                 documentos vencidos y pendientes
-                segun los filtros indicados a continuación.</p>
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">Este envio se realizara segun la perioricidad
+                según los filtros indicados a continuación.</p>
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 2">Este envío se realizará según la periodicidad
                 indicada.</p>
 
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">La cobranza corresponde al envio de los documentos
-                vencidos segun los dias que lleva
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">La cobranza corresponde al envío de los documentos
+                vencidos según los días que lleva
                 vencido el documento y filtros indicados a continuación.</p>
-            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">Este envio se realizara segun la perioricidad
+            <p *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3">Este envío se realizará según la periodicidad
                 indicada.</p>
 
             <div class="form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
@@ -207,29 +207,28 @@
             </div>
 
             <div class="borderRow" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null" style="margin-top: 10px;">
-                <h4 class="paddingRow">Configuración Envio</h4>
+                <h4 class="paddingRow">Configuración Envío</h4>
                 <div class="row paddingRow">
                     <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
-                        <label for="picker1" class="text-lbl">Horario de envio</label>
+                        <label for="picker1" class="text-lbl">Horario de envío</label>
                         <ng-select class="customAC" style="border-radius: 40px !important; max-height: 120px;"
                             (open)="handleFocus()" [items]="horarios" bindLabel="horario" placeholder="Horas"
                             #cc="ngModel" name="cc" [(ngModel)]="nuevaAutomaetizacion.idHorario" bindValue="idHorario">
                         </ng-select>
                     </div>
 
-                    <div class="form-group col-md-4"
-                        *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                         <label for="picker1" class="text-lbl">Periodicidad</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="periocidades"
-                            bindLabel="nombre" placeholder="Seleccione periocidad" #pp="ngModel" name="pp"
+                            bindLabel="nombre" placeholder="Seleccione periodicidad" #pp="ngModel" name="pp"
                             [(ngModel)]="nuevaAutomaetizacion.idPerioricidad" bindValue="idPeriocidad">
                         </ng-select>
                     </div>
 
                     <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idPerioricidad == 4">
-                        <label for="picker1" class="text-lbl">Dia de envio</label>
+                        <label for="picker1" class="text-lbl">Dia de envío</label>
                         <div class="input-group">
-                            <input type="number" min="1" max="30" class="form-control" placeholder="Dia de envio"
+                            <input type="number" min="1" max="30" class="form-control" placeholder="Dia de envío"
                                 (blur)="validaNumeros()" name="diasEnvioC"
                                 onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
                                 [(ngModel)]="nuevaAutomaetizacion.diaEnvio" #diasEnvioC="ngModel" required>
@@ -237,9 +236,9 @@
                     </div>
 
                     <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idPerioricidad == 5">
-                        <label for="picker1" class="text-lbl">Dia de envio</label>
+                        <label for="picker1" class="text-lbl">Dia de envío</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="diasSemana"
-                            appendTo="body" bindLabel="nombre" required placeholder="Dia de envio"
+                            appendTo="body" bindLabel="nombre" required placeholder="Día de envío"
                             #diasSemanaC="ngModel" name="diasSemanaC" [(ngModel)]="nuevaAutomaetizacion.diaEnvio"
                             bindValue="id">
                         </ng-select>
@@ -272,7 +271,7 @@
                         <label for="picker1" class="text-lbl">Cargo Contacto</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cargos"
                             bindLabel="carNom" placeholder="Cargo" #carC="ngModel" name="carC"
-                            [(ngModel)]="selectedCargos" bindValue="carCod" [multiple]="true" [closeOnSelect]="true">
+                            [(ngModel)]="selectedCargos" bindValue="carCod" [multiple]="true">
                         </ng-select>
                     </div>
 
@@ -284,25 +283,29 @@
             <div class="borderRow" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null" style="margin-top: 10px;">
                 <h4 class="paddingRow">Configuración Filtros</h4>
                 <div class="row paddingRow">
-                    <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <!-- <div class="form-group col-md-4" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                         <label for="picker1">Año</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
                             appendTo="body" bindLabel="anioMatricula" required placeholder="Año" #aniosm="ngModel"
                             name="aniosm" [(ngModel)]="selectedAnio" bindValue="id">
                         </ng-select>
-                    </div>
+                    </div> -->
 
 
                     <div class="form-group col-md-4"
                         *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && (nuevaAutomaetizacion.idTipoAutomatizacion == 1 || nuevaAutomaetizacion.idTipoAutomatizacion == 3)">
-                        <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1" for="picker1">Dias antes del
-                            vencimiento</label>
-                        <label *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3" for="picker1">Dias despues del
-                            vencimiento</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Cantidad de dias" name="dias"
+                        <label></label>
+                        
+                        <div class="input-group" style="margin-top: 8px;">
+                            <label>Avisar </label> <input 
+                                *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1 || nuevaAutomaetizacion.idTipoAutomatizacion == 3"
+                                type="text" class="form-control" placeholder="Cantidad de Días" name="dias" style="margin-left: 5px;"
                                 onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
                                 [(ngModel)]="nuevaAutomaetizacion.diasVencimiento" #dias="ngModel" required>
+                            <label style="margin-left: 5px;" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 1" for="picker1"> Días antes del
+                                vencimiento</label>
+                            <label style="margin-left: 5px;" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion == 3" for="picker1"> Días después del
+                                vencimiento</label>
                         </div>
                     </div>
 
@@ -310,28 +313,28 @@
                         <label for="picker1">Tipos de documentos</label>
                         <div class="input-group">
                             <ng-select class="customAC" style="border-radius: 40px !important;  width: 100%;"
-                                [items]="tiposDocumento" bindLabel="desDoc" placeholder="Tipos de documento"
+                                [items]="tiposDocumento" bindLabel="desDoc" placeholder="Tipos de documentos"
                                 #lpo="ngModel" name="lpo" [(ngModel)]="selectedTiposDocumentos" bindValue="codDoc"
-                                [multiple]="true" [closeOnSelect]="true"></ng-select>
+                                [multiple]="true"  [closeOnSelect]="false"></ng-select>
                         </div>
                     </div>
 
 
-                    <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                    <!-- <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                         <label for="picker1" class="text-lbl">Lista de precios</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="listasPrecio"
                             bindLabel="desLista" placeholder="Lista de precio" #listasPrecios="ngModel"
                             name="listasPrecios" [(ngModel)]="selectedListasPrecio" [multiple]="true"
                             [closeOnSelect]="true" bindValue="codLista">
                         </ng-select>
-                    </div>
+                    </div> -->
 
                     <div class="form-group col-md-12" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                         <label for="picker1" class="text-lbl">Categoría cliente</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
                             bindLabel="catDes" placeholder="Categoria Cliente" #categoriasClientes="ngModel"
-                            name="categoriasClientes" [(ngModel)]="selectedCategoriasCliente" [multiple]="true"
-                            [closeOnSelect]="true" bindValue="catCod">
+                            name="categoriasClientes" [(ngModel)]="selectedCategoriasCliente" [multiple]="true"  [closeOnSelect]="false"
+                             bindValue="catCod">
                         </ng-select>
                     </div>
 
@@ -339,8 +342,8 @@
                         <label for="picker1" class="text-lbl">Vendedor</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
                             bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
-                            [(ngModel)]="selectedVendedores" bindValue="venCod" [multiple]="true"
-                            [closeOnSelect]="true">
+                            [(ngModel)]="selectedVendedores" bindValue="venCod" [multiple]="true"  [closeOnSelect]="false"
+                           >
                         </ng-select>
                     </div>
 
@@ -348,8 +351,8 @@
                         <label for="picker1" class="text-lbl">Condición de venta</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
                             bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
-                            name="condicionesVentas" [(ngModel)]="selectedCondicionesVenta" [multiple]="true"
-                            [closeOnSelect]="true" bindValue="cveCod">
+                            name="condicionesVentas" [(ngModel)]="selectedCondicionesVenta" [multiple]="true"  [closeOnSelect]="false"
+                             bindValue="cveCod">
                         </ng-select>
                     </div>
 
@@ -357,7 +360,7 @@
                         *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null && nuevaAutomaetizacion.idTipoAutomatizacion == 3">
                         <label for="picker1" class="text-lbl">Mostrar en pago</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="mostrarEnPago"
-                            bindLabel="nombre" placeholder="Seleccione periocidad" #mostrarPago="ngModel"
+                            bindLabel="nombre" placeholder="Seleccione periodicidad" #mostrarPago="ngModel"
                             name="mostrarPago" [(ngModel)]="nuevaAutomaetizacion.muestraSoloVencidos" bindValue="id">
                         </ng-select>
                     </div>
@@ -379,14 +382,14 @@
                     </label>
                 </div>
 
-                <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
+                <!-- <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                     <label class="switch switch-primary mr-3">
                         <span>Excluye Festivos</span>
                         <input #inputEl2R [(ngModel)]="nuevaAutomaetizacion.excluyeFestivos" type="checkbox"
                             id="exampleCheck4C" name="exampleCheck4C" />
                         <span class="slider"></span>
                     </label>
-                </div>
+                </div> -->
 
                 <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                     <label class="switch switch-primary mr-3">
@@ -399,7 +402,8 @@
 
                 <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                     <label class="switch switch-primary mr-3">
-                        <span>Estado</span>
+                        <span *ngIf="nuevaAutomaetizacion.estado == 1">Activa</span>
+                        <span *ngIf="nuevaAutomaetizacion.estado ==0">No Activa</span>
                         <input #inputEl3R [(ngModel)]="nuevaAutomaetizacion.estado" type="checkbox" id="exampleCheck3C"
                             name="exampleCheck3C" />
                         <span class="slider"></span>

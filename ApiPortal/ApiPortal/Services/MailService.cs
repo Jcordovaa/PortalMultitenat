@@ -212,6 +212,7 @@ namespace ApiPortal.Services
             body = body.Replace("{TOTAL}", datos[3].Replace(",", "."));
             body = body.Replace("{anio}", DateTime.Now.Year.ToString());
             body = body.Replace("{logo}", logo);
+            body = body.Replace("{idPago}", datos[6]);
             return body;
         }
 
@@ -232,6 +233,7 @@ namespace ApiPortal.Services
             body = body.Replace("{MONTOPAGO}", informacion[2].Replace(",", "."));
             body = body.Replace("{anio}", DateTime.Now.Year.ToString());
             body = body.Replace("{logo}", logo);
+            body = body.Replace("{idPago}", informacion[5]);
             return body;
         }
 
@@ -643,7 +645,22 @@ namespace ApiPortal.Services
 
                 using (MailMessage mailMessage = new MailMessage())
                 {
-                    mailMessage.To.Add(configCorreo.CorreoAvisoPago);
+                    if (configCorreo.CorreoAvisoPago.Contains(";"))
+                    {
+                        string[] destinatarios = configCorreo.CorreoAvisoPago.Split(';');
+                        foreach (var item in destinatarios)
+                        {
+                            if (!string.IsNullOrEmpty(item) && item.Trim() != ";")
+                            {
+                                mailMessage.To.Add(new MailAddress(item));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        mailMessage.To.Add(new MailAddress(configCorreo.CorreoAvisoPago));
+                    }
+
 
                     mailMessage.From = new MailAddress(configCorreo.CorreoOrigen, configCorreo.NombreCorreos);
                     mailMessage.Subject = configCorreo.AsuntoAccesoCliente;

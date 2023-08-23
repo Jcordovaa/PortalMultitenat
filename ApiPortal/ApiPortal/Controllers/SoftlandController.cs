@@ -96,6 +96,40 @@ namespace ApiPortal.Controllers
             }
         }
 
+        [HttpGet("GetCuentasContablePago"), Authorize]
+        public async Task<ActionResult> GetCuentasContablePago()
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Softland/GetCuentasContablePago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+
+            try
+            {
+                List<CuentasContablesSoftlandDTO> aux = await sf.getCuentasContablePagoAsync(logApi.Id);
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+                return Ok(aux);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Softland/GetCuentasContablePago";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("GetClientesAcceso"), Authorize]
         public async Task<ActionResult> GetClientesAcceso(FilterVm value)
         {
@@ -756,7 +790,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("ReprocesarPago/{idPago}"), Authorize]
+        [HttpPost("ReprocesarPago/{idPago}"), Authorize]
         public async Task<ActionResult> ReprocesarPago(int idPago)
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
@@ -768,13 +802,14 @@ namespace ApiPortal.Controllers
 
             try
             {
-                var numComprobante = await sf.ReprocesaPago(idPago, logApi.Id);
+                ComprobanteResponse comprobante = new ComprobanteResponse();
+                comprobante.numero = await sf.ReprocesaPago(idPago, logApi.Id);
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
-
-                return Ok(numComprobante);
+               
+                return Ok(comprobante);
             }
             catch (Exception ex)
             {

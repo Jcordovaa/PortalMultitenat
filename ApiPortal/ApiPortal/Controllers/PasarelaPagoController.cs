@@ -43,7 +43,7 @@ namespace ApiPortal.Controllers
                     PasarelaPagoVm p = new PasarelaPagoVm
                     {
                         Ambiente = item.Ambiente,
-                        //ApiKeyPasarela = item.ApiKeyPasarela,
+                       // ApiKeyPasarela = item.ApiKeyPasarela,
                         //CodigoComercioTBK = item.CodigoComercioTBK,
                         CuentaContable = item.CuentaContable,
                         Estado = item.Estado,
@@ -55,7 +55,8 @@ namespace ApiPortal.Controllers
                         //SecretKeyPasarela = item.SecretKeyPasarela,
                         TipoDocumento = item.TipoDocumento,
                         CodigoComercio = item.CodigoComercio,
-                        SecretKey = item.SecretKey
+                        SecretKey = item.SecretKey,
+                        AmbienteConsultarPago = item.AmbienteConsultarPago
                     };
                     pasarelas.Add(p);
                 }
@@ -112,7 +113,8 @@ namespace ApiPortal.Controllers
                         //SecretKeyPasarela = item.SecretKeyPasarela,
                         TipoDocumento = item.TipoDocumento,
                         CodigoComercio = item.CodigoComercio,
-                        SecretKey = item.SecretKey
+                        SecretKey = item.SecretKey,
+                        AmbienteConsultarPago = item.AmbienteConsultarPago
                     };
                     pasarelas.Add(p);
                 }

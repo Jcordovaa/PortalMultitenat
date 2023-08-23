@@ -94,8 +94,9 @@ export class PayComponent implements OnInit {
   automatizacion: string = null;
   varloUfOrigen: number = 0;
   fechaEmision: any = null;
+  message: string = '';
 
-  constructor(private ngbDatepickerConfig: NgbDatepickerConfig , private disenoSerivce: ConfiguracionDisenoService,
+  constructor(private ngbDatepickerConfig: NgbDatepickerConfig, private disenoSerivce: ConfiguracionDisenoService,
     private clientesService: ClientesService,
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
@@ -125,24 +126,24 @@ export class PayComponent implements OnInit {
     this.spinner.show();
     this.configuracionService.getConfigPortal().subscribe(res => {
       this.configuracion = res;
-      this.configuracionService.getConfigPagoClientes().subscribe(res => {     
+      this.configuracionService.getConfigPagoClientes().subscribe(res => {
         this.configuracionPagos = res;
         this.getConfigDiseno();
         this.activatedRoute.queryParams.subscribe(params => {
           if (params['state'] != null) {
-    
+
             var state = atob(params['state']);
-    
+
             this.paymentResultState = parseInt(state.split(';')[0]);
             this.showModalPaymentResult = true;
-    
-    
+
+
             if (this.paymentResultState == 4) {
               this.foliosErrorComprobate = state.split(';')[2];
             }
-    
+
             this.pasarelaService.getLogPasarela(parseInt(state.split(';')[1])).subscribe(res => {
-    
+
               this.logPasarela = res;
               var btn = document.getElementById('btnModal')
               btn.click();
@@ -155,38 +156,38 @@ export class PayComponent implements OnInit {
             });
           }
         });
-    
+
         if (this.activatedRoute.snapshot.params['rut'] != null && this.activatedRoute.snapshot.params['rut'] != '' && this.activatedRoute.snapshot.params['rut'] != '0') {
-    
+
           this.esPagoRut = true;
           this.rutCliente = window.atob(this.activatedRoute.snapshot.params['rut'])
           var codAux: string = '';
-      
-    
+
+
           const data: any = {
             correo: '',
             rut: this.rutCliente,
             codaux: ''
           };
-    
+
           this.clientesService.getClienteByMailAndRut(data).subscribe((res: Cliente) => {
             this.cliente = res;
             codAux = this.cliente.codAux;
             this.nombreCliente = this.cliente.nombre;
             this.getCompras(codAux);
           }, err => { this.spinner.hide(); });
-    
-        }else{
+
+        } else {
           this.getCompras(codAux);
         }
-    
-      
+
+
       }, err => { this.spinner.hide(); });
     }, err => { this.spinner.hide(); });
 
   }
 
-  getCompras(codAux: string){
+  getCompras(codAux: string) {
     let numDoc = 0;
     if (this.activatedRoute.snapshot.params['numDoc'] != null && this.activatedRoute.snapshot.params['numDoc'] != '' && this.activatedRoute.snapshot.params['numDoc'] != '0') {
       numDoc = this.activatedRoute.snapshot.params['numDoc']
@@ -212,14 +213,25 @@ export class PayComponent implements OnInit {
 
 
         if (buscaDocumentos == 0) {
-          const model = {rut: this.rutCliente,  codAux: codAux, folio: numDoc, idCobranza : this.idCobranza, automatizacionJson: this.automatizacion }
-          this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
-
+          const model = { rut: this.rutCliente, codAux: codAux, folio: numDoc, idCobranza: this.idCobranza, automatizacionJson: this.automatizacion }
+          this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe(async (res: any) => {
+            debugger
+            if (this.comprasResp.length > 0 && this.idCobranza != 0 && this.idCobranza != null) {
+              if (this.comprasResp[0].documento == 'Cobranza Vencida') {
+                this.spinner.hide();
+                const response = await this.notificationService.sesionExpiredMsg('', this.configDiseno.textoCobranzaExpirada);
+                if (response.isConfirmed) {
+                  this.router.navigateByUrl("/sessions/signin");
+                } else {
+                  this.router.navigateByUrl("/sessions/signin");
+                }
+              }
+            }
 
             this.comprasResp = res;
             this.comprasResp.forEach(element => {
               element.bloqueadoPago = false;
-              if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+              if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
                 element.bloqueadoPago = true;
               }
               if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
@@ -268,37 +280,56 @@ export class PayComponent implements OnInit {
           }, err => { this.spinner.hide(); });
         }
       } else {
-        const model = { rut: this.rutCliente, codAux: codAux, folio: numDoc, idCobranza : this.idCobranza, automatizacionJson: this.automatizacion }
-        this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe((res: any) => {
+        const model = { rut: this.rutCliente, codAux: codAux, folio: numDoc, idCobranza: this.idCobranza, automatizacionJson: this.automatizacion }
+        this.clientesService.getClienteEstadoComprasFromSoftland(model).subscribe(async (res: any) => {
           this.comprasResp = res;
-          if(this.comprasResp.length == 0){
-            this.notificationService.warning('No se pudo encontrar el documento o este ya fue pagado.', '', true);
+          debugger
+          if (this.comprasResp.length > 0 && this.idCobranza != 0 && this.idCobranza != null) {
+            
+            if (this.comprasResp[0].documento == 'Cobranza Vencida') {
+              this.spinner.hide();
+              const response = await this.notificationService.sesionExpiredMsg('', this.configDiseno.textoCobranzaExpirada);
+              if (response.isConfirmed) {
+                this.router.navigateByUrl("/sessions/signin");
+              } else {
+                this.router.navigateByUrl("/sessions/signin");
+              }
+            } else {
+              if (this.comprasResp.length == 0) {
+                this.notificationService.warning('No se pudo encontrar el documento o este ya fue pagado.', '', true);
+              }
+            }
+          } else {
+            if (this.comprasResp.length == 0) {
+              this.notificationService.warning('No se pudo encontrar el documento o este ya fue pagado.', '', true);
+            }
           }
+
           if (numDoc != 0) {
             let listaCodigos = [];
-            this.comprasResp.forEach((elemento) => {                 
+            this.comprasResp.forEach((elemento) => {
               let exist = listaCodigos.filter(x => x.codAux == elemento.codAux);
-              if(exist.length == 0){
+              if (exist.length == 0) {
                 listaCodigos.push({ codAux: elemento.codAux });
               }
             });
-            if(listaCodigos.length > 0){
+            if (listaCodigos.length > 0) {
               this.clientesService.getClientesByCodAux(listaCodigos).subscribe(
                 (res: any) => {
                   this.clientes = res;
-                  this.modalService.open(this.modalClientes, { keyboard:false,backdrop:'static', ariaLabelledBy: 'modal-basic-title'});
+                  this.modalService.open(this.modalClientes, { keyboard: false, backdrop: 'static', ariaLabelledBy: 'modal-basic-title' });
                   this.spinner.hide();
                 },
                 err => { this.spinner.hide(); }
               );
-            }else{
+            } else {
               this.spinner.hide();
             }
-          
+
           } else {
             this.comprasResp.forEach(element => {
               element.bloqueadoPago = false;
-              if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+              if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
                 element.bloqueadoPago = true;
               }
               if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
@@ -447,7 +478,7 @@ export class PayComponent implements OnInit {
       const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       this.saveAsExcelFile(excelBuffer, excelFileName);
     } else {
-      this.notificationService.warning('Aucune ligne à exporter...', '', true);
+      this.notificationService.warning('Error al exportar...', '', true);
     }
   }
 
@@ -461,10 +492,17 @@ export class PayComponent implements OnInit {
 
     this.pasarelaService.getPasarelasPago().subscribe(
       res => {
-        
+
         if (res.length > 0) {
-          this.pasarelas = res;
+          this.pasarelas = res.filter(x => x.cuentaContable != '' && x.cuentaContable != null);
         }
+
+        if (this.pasarelas.length == 0) {
+          this.spinner.hide();
+          this.notificationService.warning('No existen medios de pago disponibles.', '', true);
+          return;
+        }
+        this.spinner.hide();
         this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', size: 'lg' });
       },
       err => { this.spinner.hide(); this.notificationService.error('Error al obtener pasarelas.', '', true); }
@@ -547,7 +585,7 @@ export class PayComponent implements OnInit {
         }
       }
     } else {
-      
+
       codAux = this.comprasResp[0].codAux;
     }
 
@@ -572,7 +610,7 @@ export class PayComponent implements OnInit {
 
     var datosPago = window.btoa(encodeURIComponent(this.nombrePago) + ';' + encodeURIComponent(this.apellidoPago) + ';' + this.rutPago + ';' + this.correoPago);
     let rutEncriptado = window.btoa(this.rutCliente);
-    let tenant = btoa(window.location.hostname );
+    let tenant = btoa(window.location.hostname);
     this.spinner.show();
 
     this.clientesService.getEstadoConexionSoftland().subscribe(
@@ -583,12 +621,11 @@ export class PayComponent implements OnInit {
               this.spinner.hide();
               //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
 
-              this.pasarelaService.generaPagoElectronico(res,this.selectedPasarela,rutEncriptado,0,datosPago,TbkRedirect.Front,tenant).subscribe(
+              this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutEncriptado, 0, datosPago, TbkRedirect.Front, tenant).subscribe(
                 (res: any) => {
                   this.spinner.hide();
                   //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
-                  if (res.estado == 1)
-                  {
+                  if (res.estado == 1) {
                     window.location.href = res.enlacePago;
                   }
                 },
@@ -624,7 +661,7 @@ export class PayComponent implements OnInit {
         if (params['state'] != null) {
           window.location.href = window.location.origin + '#/sessions/signin';
         }
-      });   
+      });
     }
 
   }
@@ -679,9 +716,9 @@ export class PayComponent implements OnInit {
     this.selected = [];
 
     this.compras.forEach(element => {
-      if(!element.bloqueadoPago){
+      if (!element.bloqueadoPago) {
         element.checked = val.target.checked
-        if(!element.checked){
+        if (!element.checked) {
           element.aPagar = element.saldoBase;
         }
         if (val.target.checked) {
@@ -715,7 +752,7 @@ export class PayComponent implements OnInit {
         });
 
       } else {
-        
+
 
         this.selected.forEach(element => {
           if (element.nro === data.nro && element.tipoDoc == data.tipoDoc) {
@@ -735,12 +772,12 @@ export class PayComponent implements OnInit {
 
         content.target.value = this.montoPipe.transform2(data.aPagar);
 
-        if(val < data.saldoBase && this.esPagoRut){
+        if (val < data.saldoBase && this.esPagoRut) {
           const added = this.selected.find(x => x.nro == data.nro && x.tipoDoc == data.tipoDoc);
           if (added != null) {
             //remueve
-            for (let i=0; i <= this.selected.length -1; i++) {
-              if (this.selected[i].nro == data.nro && this.selected[i].tipoDoc == data.tipoDoc &&  this.selected[i].aPagar != val) {
+            for (let i = 0; i <= this.selected.length - 1; i++) {
+              if (this.selected[i].nro == data.nro && this.selected[i].tipoDoc == data.tipoDoc && this.selected[i].aPagar != val) {
                 this.selected.splice(i, 1);
                 data.checked = false;
                 break;
@@ -750,16 +787,16 @@ export class PayComponent implements OnInit {
             data.checked = true;
             this.selected.push(data);
           }
-      
-          let valor: number = 0; 
-      
+
+          let valor: number = 0;
+
           this.selected.forEach(element => {
-            valor += element.aPagar;  
+            valor += element.aPagar;
           });
-      
+
           this.total = `$ ${valor}`;
           this.totalPagar = valor;
-      
+
           if (this.selected.length == 0) {
             this.checkAll = false;
           }
@@ -795,14 +832,16 @@ export class PayComponent implements OnInit {
     }
   }
 
-  downloadPDF(numComprobante: any) {
+
+  downloadPDF(idPago: number) {
     this.spinner.show();
-    this.clientesService.getPDFPago(btoa(numComprobante)).subscribe(
+    this.clientesService.getPDFPago(idPago).subscribe(
       (res: any) => {
-        if (res != '') {
+
+        if (res.base64 != '') {
           let a = document.createElement("a");
-          a.href = "data:application/octet-stream;base64," + res;
-          a.download = numComprobante + ".pdf"
+          a.href = "data:application/octet-stream;base64," + res.base64;
+          a.download = res.nombreArchivo;
           a.click();
         }
         this.spinner.hide();
@@ -819,7 +858,7 @@ export class PayComponent implements OnInit {
 
 
   onChange(item: any) {
-    
+
     this.clienteSeleccionado = item;
   }
 
@@ -833,7 +872,7 @@ export class PayComponent implements OnInit {
       this.comprasResp = this.comprasResp.filter(x => x.codAux == this.clienteSeleccionado.codAux);
       this.comprasResp.forEach(element => {
         element.bloqueadoPago = false;
-        if(element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0){
+        if (element.codMon != this.configuracionPagos.monedaUtilizada && element.equivalenciaMoneda == 0) {
           element.bloqueadoPago = true;
         }
         if (this.paymentResultState == 4 && this.foliosErrorComprobate != null && this.foliosErrorComprobate != '') {
@@ -853,18 +892,18 @@ export class PayComponent implements OnInit {
 
       let valor: number = 0;
       this.selected = [];
-  
+
       this.compras.forEach(element => {
-        if(!element.bloqueadoPago){
+        if (!element.bloqueadoPago) {
           element.checked = true;
           if (element.checked) {
             this.selected.push(element);
             valor += element.aPagar;
           }
         }
-       
+
       });
-  
+
       this.total = `$ ${valor}`;
       this.totalPagar = valor;
       this.spinner.hide();
@@ -875,8 +914,8 @@ export class PayComponent implements OnInit {
 
   private getConfigDiseno() {
     this.disenoSerivce.getConfigDiseno().subscribe((res: ConfiguracionDiseno) => {
-        this.configDiseno = res;
-    }, err => { this.spinner.hide();});
-}
+      this.configDiseno = res;
+    }, err => { this.spinner.hide(); });
+  }
 
 }

@@ -83,6 +83,8 @@ export class ProductosComponent implements OnInit {
         this.spinner.hide();
 
       }, err => { this.spinner.hide(); });
+    } else {
+      this.authService.signoutExpiredToken();
     }
   }
 
@@ -169,12 +171,12 @@ export class ProductosComponent implements OnInit {
 
   onBlurEmail() {
     let pattern = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/
-    if(this.nuevoCorreo != null && this.nuevoCorreo != ''){
+    if (this.nuevoCorreo != null && this.nuevoCorreo != '') {
       if (!pattern.test(this.nuevoCorreo)) {
         this.notificationService.warning('Formato de correo invalido.', '', true);
         this.nuevoCorreo = ''
       } else {
-        this.nuevoCorreo= this.nuevoCorreo.toLowerCase();
+        this.nuevoCorreo = this.nuevoCorreo.toLowerCase();
       }
     }
   }

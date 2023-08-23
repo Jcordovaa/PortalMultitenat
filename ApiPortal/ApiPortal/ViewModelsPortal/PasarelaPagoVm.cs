@@ -9,15 +9,15 @@
         public string? TipoDocumento { get; set; }
         public string? CuentaContable { get; set; }
         public string? Logo { get; set; }
-        public Nullable<int> Estado { get; set; }
+        public int? Estado { get; set; }
         public string? MonedaPasarela { get; set; }
         public string? UsuarioSoftlandPay { get; set; }
         public string? ClaveSoftlandPay { get; set; }
         public string? EmpresaSoftlandPay { get; set; }
         public string? CodigoMedioPagoSoftlandPay { get; set; }
-        public Nullable<int> ManejaAtributos { get; set; }
-        public Nullable<int> ManejaAuxiliar { get; set; }
-        public Nullable<int> EsProduccion { get; set; }
+        public int? ManejaAtributos { get; set; }
+        public int? ManejaAuxiliar { get; set; }
+        public int? EsProduccion { get; set; }
         public string? AmbienteConsultarPago { get; set; }
         public string? CodigoComercio { get; set; }
         public string? SecretKey { get; set; }

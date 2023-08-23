@@ -156,6 +156,7 @@ namespace ApiPortal.Services
                 var reporte = System.IO.File.ReadAllText(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/Rpt/CobranzaGeorgeChaytor.html"));
                 var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
+                string logoSoftlandFooter = configEmpresa.UrlPortal + "/assets/images/Softlandpiemail.png";
 
                 //Remplaza valores cabecera
                 reporte = reporte.Replace("{FECHA}", DateTime.Now.ToShortDateString());
@@ -170,6 +171,7 @@ namespace ApiPortal.Services
                 reporte = reporte.Replace("{NOMBREEMPRESA}", configEmpresa.NombreEmpresa);
                 reporte = reporte.Replace("{RUTEMPRESA}", configEmpresa.RutEmpresa);
                 reporte = reporte.Replace("{MONTODEUDA}", "$" + String.Format("{0:#,##0}", cobranza.MontoDeuda));
+                reporte = reporte.Replace("{IMAGENFOOTER}", logoSoftlandFooter);
 
                 //Separamo del html la opcion donde va el detalle
                 string[] cadenas = reporte.Split(new string[] { "<!--detalle-->" }, StringSplitOptions.None);

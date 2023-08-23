@@ -42,6 +42,10 @@ export class CobranzasService {
     return this.http.post(`${this.apiUrl}/GetDocumentosCobranzaFiltro`, body, this.utils.getHeaders(true));
   }
 
+  deleteCobranza(id: any) {   
+    return this.http.delete(`${this.apiUrl}/DeleteCobranza/${id}`, this.utils.getHeaders(true));
+  }
+
   getDocumentosClientes(data: any) {   
     const body = JSON.stringify(data);
     return this.http.post(`${this.apiUrl}/GetDocumentosClientes`, body, this.utils.getHeaders(true));
@@ -88,10 +92,7 @@ export class CobranzasService {
     return this.http.get(`${this.apiUrl}/GetCobranzaPeriocidad`, this.utils.getHeaders(true));
   }
 
-  //FCA 13-12-2021
-  deleteCobranza(idCobranza: number) {
-    return this.http.delete(`${this.apiUrl}/${idCobranza}`, this.utils.getHeaders(true))
-  }
+  
 
   //FCA 13-12-2021
   modificarEstado(idCobranza: number, estado : number) {

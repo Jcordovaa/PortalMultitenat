@@ -4,25 +4,37 @@ import { AccessComponent } from './access/access.component';
 import { PermissionsComponent } from './permissions/permissions.component';
 import { ProfilesComponent } from './profiles/profiles.component';
 import { UsersComponent } from './users/users.component';
+import { AuthGuard } from 'src/app/shared/services/authguard';
 
 const routes: Routes = [
     {
         path: 'access',
-        component: AccessComponent
+        component: AccessComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
     },
     {
         path: 'permissions',
-        component: PermissionsComponent
+        component: PermissionsComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
     },
     {
         path: 'profiles',
-        component: ProfilesComponent
+        component: ProfilesComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
+        
     },
     {
         path: 'users',
-        component: UsersComponent
+        component: UsersComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
     }   
 ];
+
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

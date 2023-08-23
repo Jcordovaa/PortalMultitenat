@@ -11,6 +11,9 @@
 <div class="row">
     <div class="col-md-12">
         <div class="card mb-4">
+            <ngb-alert class="alert-card text-center" [dismissible]="false">
+                En esta lista solo se incluirán los auxiliares que estén clasificados como clientes en su ficha.
+               </ngb-alert>
             <div class="card-body">
                 <form>
                     <div class="row">
@@ -51,7 +54,7 @@
                         </div>
 
                         <div class="col-md-4 form-group mb-3">
-                            <label for="firstName">Categoria Cliente</label>
+                            <label for="firstName">Categoría Cliente</label>
                             <select [(ngModel)]="selectedCatCliente" class="form-control" name="catPadre"
                                 #catPadre="ngModel" required>
                                 <option *ngFor="let c of catClientes" [ngValue]="c.catCod">
@@ -60,7 +63,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-4 form-group mb-3">
+                        <!-- <div class="col-md-4 form-group mb-3">
                             <label for="firstName">Lista de Precios</label>
                             <select [(ngModel)]="selectListaPrecio" class="form-control" name="catPadre"
                                 #catPadre="ngModel" required>
@@ -68,7 +71,7 @@
                                     {{ c.desLista }}
                                 </option>
                             </select>
-                        </div>
+                        </div> -->
                         <!-- <div class="col-md-8 form-group mb-3 desktop">
                                 <label for="firstName">Tipo de búsqueda</label>
                                 <br>
@@ -339,8 +342,8 @@
             </div>
             <div class="col-md-12">
                 <hr>
-                <label class="checkbox checkbox-outline-primary"> Otro (Si esta marcado el correo se enviara a esta
-                    opcion)
+                <label class="checkbox checkbox-outline-primary"> Otro (Si esta marcado el correo se enviará a esta
+                    opción)
                     <input type="checkbox" name="check" [(ngModel)]="checkCorreoManual">
                     <span class="checkmark"></span>
                 </label>
@@ -399,7 +402,7 @@
 
             <div class="form-group col-md-12 mb-3" *ngIf="!enviarTodosCargos">
                 <label class="switch switch-success mr-3">
-                    <span>Si ningun contacto tiene el cargo seleccionado, Enviar a todos los contactos.</span>
+                    <span>Si ningún contacto tiene el cargo seleccionado, Enviar a todos los contactos.</span>
                     <input #inputEl3 [(ngModel)]="enviarTodosContactos" type="checkbox" id="exampleCheck3"
                         name="exampleCheck3" />
                     <span class="slider"></span>
@@ -425,13 +428,13 @@
 
 <ng-template #modalErrores let-modal>
     <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Clientes sin correos electronicos para envio de accesos</h4>
+        <h4 class="modal-title" id="modal-basic-title">Clientes sin correos electrónicos para envío de accesos</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body">
-        Segun las opciones ingresadas no se ha encontrado ningun correo electronico para realizar el envio de los
+        Según las opciones ingresadas no se ha encontrado ningún correo electrónico para realizar el envío de los
         accesos al portal a los siguientes clientes.
         <div class="row" style="margin-top: 15;">
             <div class="col-lg-12">

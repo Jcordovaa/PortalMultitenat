@@ -295,8 +295,8 @@
                           </div>
 
                           <div class="movil">
-                            Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
-                            correspondiente a <b>$35.000</b>
+                            <!-- Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
+                            correspondiente a <b></b> -->
                             <table class="table table-striped table-no-bordered table-hover">
 
                               <thead>
@@ -697,8 +697,8 @@
                       </div>
 
                       <div class="movil">
-                        Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
-                        correspondiente a <b>$35.000</b>
+                        <!-- Calculo realizado sobre el valor de la UF al dia <b>26/08/2022</b>
+                        correspondiente a <b></b> -->
                         <table class="table table-striped table-no-bordered table-hover">
 
                           <thead>
@@ -1018,9 +1018,9 @@
                 placeholder="Ingrese Número documento">
             </div>
             <div class="col-md-3 form-group mb-3" style="margin-left: 15px;">
-              <label for="lastName">Codigo de Producto</label>
+              <label for="lastName">Código de Producto</label>
               <input type="text" class="form-control" id="codigo" name="codigo" [(ngModel)]="codigoProd"
-                placeholder="Ingrese codigo de producto">
+                placeholder="Ingrese código de producto">
             </div>
 
             <div class="col-md-3 form-group mb-3" style="margin-left: 15px;">
@@ -1101,7 +1101,7 @@
                         style="overflow-x: auto; width: 100%;">
                         <thead>
                           <tr>
-                            <th scope="col">Codigo</th>
+                            <th scope="col">Código</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Cantidad</th>
                             <th scope="col">Fecha</th>
@@ -1167,7 +1167,7 @@
                               <strong>Tipo Documento: </strong>{{ c.documento }}<br />
                               <strong>Nro. Doc: </strong>{{ c.folio }}<br />
                               <strong>Fecha: </strong>{{ c.fecha | date: 'dd/MM/yyyy' }}<br />
-                              <strong>Codigo: </strong>{{ c.codProd }}<br />
+                              <strong>Código: </strong>{{ c.codProd }}<br />
                               <strong>Nombre: </strong>{{c.desProd}}<br />
                               <strong>Cantidad: </strong>{{ c.cantidad | monto }}<br />
                               <strong>Precio: </strong>${{ c.precio | monto }}<br />
@@ -1244,7 +1244,7 @@
         <form>
           <div class="row">
             <div class="col-md-3 form-group mb-3">
-              <label for="firstName">Número de Guia</label>
+              <label for="firstName">Número de Guía</label>
               <input type="text" min="0" inputmode="numeric" pattern="[0-9]*"  min="0" class="form-control" id="folio" name="folio" [(ngModel)]="folio"
                 placeholder="0">
             </div>
@@ -1978,7 +1978,7 @@
         <div id="print-area">
           <div class="row">
             <div class="col-md-6">
-              <h4 class="font-weight-bold">Guia de Despacho</h4>
+              <h4 class="font-weight-bold">Guía de Despacho</h4>
               <p>{{ detalleCab.folio }}</p>
             </div>
             <div class="col-md-6 text-sm-right">
@@ -2163,7 +2163,7 @@
               <table class="table ">
                 <thead>
                   <tr>
-                    <th scope="col">Codigo</th>
+                    <th scope="col">Código</th>
                     <th scope="col">Producto</th>
                     <th style="text-align: right;" scope="col">Cantidad Facturada</th>
                     <th style="text-align: right;" scope="col">Cantidad Despachada</th>

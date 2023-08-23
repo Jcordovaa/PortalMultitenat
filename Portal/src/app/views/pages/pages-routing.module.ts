@@ -21,6 +21,7 @@ import { AccountStateComponent } from './account-state/account-state.component';
 import { EnvioCobranzaComponent } from './envio-cobranza/envio-cobranza.component';
 import { CobranzaConfigComponent } from './cobranza-config/cobranza-config.component';
 import { CobranzaPagoClienteComponent } from './cobranza-pago-cliente/cobranza-pago-cliente.component';
+import { AuthGuard } from 'src/app/shared/services/authguard';
 
 const routes: Routes = [
     {
@@ -33,7 +34,9 @@ const routes: Routes = [
     },
     {
         path: 'productos',
-        component: ProductosComponent
+        component: ProductosComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
     },
     {
         path: 'categorias',
@@ -73,7 +76,9 @@ const routes: Routes = [
     },
     {
         path: 'correos',
-        component: CorreosComponent
+        component: CorreosComponent,
+        canActivate: [AuthGuard],
+        data: { requiresAdmin: true }
     },
     {
         path: 'tipodespachos',

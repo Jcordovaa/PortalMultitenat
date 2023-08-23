@@ -1,7 +1,7 @@
 <div class="breadcrumb">
   <h1>Configuración Correo</h1>
   <ul>
-    <li><a href="">Administración</a></li>
+    <li><a>Administración</a></li>
     <li>Configuración Correo</li>
   </ul>
 </div>
@@ -152,8 +152,8 @@
                         [src]="general == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
                   </div>
                   <div class="card-body" *ngIf="general == 1">
-                    <p>En esta sección podrá configurar el logo que se visualizaran los correos y el color de los
-                      botones si este tuviera</p>
+                    <p>En esta sección podrá configurar el logo que se visualizarán los correos y el color de los
+                      botones si éste tuviera</p>
                     <div class="form-group col-md-8 mb-3">
                       <label for="picker1">Color Botones</label>
                       <div class="input-group">
@@ -231,7 +231,7 @@
                   </div>
                   <div class="card-body" *ngIf="pagos == 1">
                     <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
-                      notificación para los clientes que realicen un pago a traves del portal.</p>
+                      notificación para los clientes que realicen un pago a través del portal.</p>
                     <div class="form-group col-md-12 mb-3">
                       <label for="picker1">Asunto</label>
                       <div class="input-group">
@@ -491,7 +491,7 @@
                   </div>
                   <div class="card-body" *ngIf="recuperaClave == 1">
                     <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
-                      notificación cuando el cliente realice la recuperacion de clave.</p>
+                      notificación cuando el cliente realice la recuperación de clave.</p>
                     <div class="form-group col-md-12 mb-3">
                       <label for="picker1">Asunto</label>
                       <div class="input-group">
@@ -545,7 +545,7 @@
                   </div>
                   <div class="card-body" *ngIf="envioDocumentos == 1">
                     <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos cuando se
-                      envien documentos asociados a nota de venta y facturas</p>
+                      envíen documentos asociados a nota de venta y facturas</p>
                     <div class="form-group col-md-12 mb-3">
                       <label for="picker1">Asunto</label>
                       <div class="input-group">
@@ -858,7 +858,7 @@
   </div>
   <div class="modal-body">
     <div class="card-body" style="overflow: auto;">
-        <iframe [src]="url"></iframe>>
+        <iframe style="pointer-events: none;" [src]="url"></iframe>
     </div>
   </div>
   <div class="modal-footer">
