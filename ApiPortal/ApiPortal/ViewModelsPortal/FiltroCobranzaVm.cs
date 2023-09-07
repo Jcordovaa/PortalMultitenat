@@ -1,4 +1,7 @@
-﻿namespace ApiPortal.ViewModelsPortal
+﻿using ApiPortal.Dal.Models_Portal;
+using ApiPortal.ModelSoftland;
+
+namespace ApiPortal.ViewModelsPortal
 {
     public class FiltroCobranzaVm
     {
@@ -31,5 +34,12 @@
         public string? CondicionesVenta { get; set; }
         public string? CanalesVenta { get; set; }
         public string? Cobradores { get; set; }
+        public int? Pagina { get; set; }
+        public int? Cantidad { get; set; }
+        public List<DocumentoContabilizadoAPIDTO>? DocumentosEliminados { get; set; }
+        public List<ResumenDocumentosClienteApiDTO>? ClientesEliminados { get; set; }
+        public List<ResumenDocumentosClienteApiDTO>? ClientesSeleccionados { get; set; }
+        public bool? EnviaTodos { get; set; }
+        public CobranzaCabeceraVM? CobranzaCabecera { get; set; }
     }
 }

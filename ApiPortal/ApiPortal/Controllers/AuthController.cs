@@ -41,6 +41,7 @@ namespace ApiPortal.Controllers
                 string email = string.Empty;
                 string rut = string.Empty;
                 string codAux = string.Empty;
+                int id = 0;
                 Boolean esUsuario = false;
 
                 var configuracionEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
@@ -59,6 +60,7 @@ namespace ApiPortal.Controllers
                     isCredentialValid = true;
                     email = usuario.Email;
                     esUsuario = true;
+                    id = usuario.IdUsuario;
                 }
                 else //Cliente
                 {
@@ -87,6 +89,7 @@ namespace ApiPortal.Controllers
                     rut = cliente.Rut;
                     codAux = cliente.CodAux;
                     isCredentialValid = true;
+                    id = cliente.IdCliente;
                 }
 
                 if (isCredentialValid)
@@ -111,6 +114,7 @@ namespace ApiPortal.Controllers
                         Token = token.Token,
                         Nombre = fullName,
                         EsUsuario = esUsuario,
+                        IdUsuario = id
                     });
                 }
                 else

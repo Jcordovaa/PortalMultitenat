@@ -32,77 +32,31 @@ namespace ApiPortal.Controllers
             _admin = admin;
         }
 
-        private async Task<List<DocumentoClienteCobranzaVm>> GetDocumentosClientes2Async(FiltroCobranzaVm model)
+        private async Task<List<ResumenDocumentosClienteApiDTO>> GetDocumentosClientes2Async(FiltroCobranzaVm model)
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
             logApi.Api = "api/cobranza/GetDocumentosClientes2Async";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
 
-            List<DocumentoClienteCobranzaVm> retorno = new List<DocumentoClienteCobranzaVm>();
+
+            List<ResumenDocumentosClienteApiDTO> retorno = new List<ResumenDocumentosClienteApiDTO>();
 
             try
             {
                 //Obtiene cantidad correos disponibles 
-                MailService mail = new MailService(_context,_webHostEnvironment);
+                MailService mail = new MailService(_context, _webHostEnvironment);
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync( model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model, logApi.Id);
 
-                //Retorna
-
-
-                //Obtenemos los rut de clientes
-                var clientes = documentos.Select(x => x.RutCliente).Distinct().ToList();
-
-                foreach (var item in clientes)
-                {
-                    var docCliente = documentos.Where(x => x.RutCliente == item).ToList();
-
-                    DocumentoClienteCobranzaVm doc = new DocumentoClienteCobranzaVm();
-                    doc.RutCliente = item;
-                    doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? "Sin Información" : docCliente[0].NombreCliente;
-                    doc.CantidadDocumentos = docCliente.Count;
-                    doc.MontoDeuda = Convert.ToInt32(docCliente.Sum(x => x.SaldoDocumento));
-                    doc.ListaDocumentos = docCliente;
-
-                    //var cliente = db.ClientesPortal.Where(x => x.Rut == item).FirstOrDefault();
-
-                    var cliente = await sf.GetClienteSoftlandAsync(string.Empty, doc.RutCliente, logApi.Id);
-                    if (cliente == null)
-                    {
-                        doc.Selected = false;
-                    }
-                    else
-                    {
-                        //Valida que tenga correos disponibles para envio
-                        if (correosDisponibles > 0)
-                        {
-                            doc.Selected = false; //Solo para pruebas
-                            correosDisponibles = correosDisponibles - 1;
-                        }
-                        else
-                        {
-                            doc.Selected = false;
-                        }
-
-                        doc.EmailCliente = cliente.Correo;
-                        doc.RutCliente = cliente.Rut;
-                        doc.NombreCliente = cliente.Nombre;
-                    }
-
-                 
-                    retorno.Add(doc);
-                }
-
-                retorno = retorno.OrderByDescending(x => x.RutCliente).ToList();
+                retorno = retorno.OrderByDescending(x => x.rutaux).ToList();
             }
             catch (Exception ex)
             {
-                LogProceso log = new LogProceso();               
+                LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
                 log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
                 log.Ruta = @"cobranza\GetDocumentosCobranzaFiltro2";
@@ -122,101 +76,277 @@ namespace ApiPortal.Controllers
 
 
         [HttpPost("SaveCobranza"), Authorize]
-        public async Task<ActionResult> SaveCobranza(CobranzaCabeceraVM model)
+        public async Task<ActionResult> SaveCobranza(FiltroCobranzaVm model)
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
             logApi.Api = "api/cobranza/SaveCobranza";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
+                var clientesExcluidos = _context.ClientesExcluidos.ToList();
+                List<CobranzaDetalle> detalles = new List<CobranzaDetalle>();
+                if ((bool)model.EnviaTodos)
+                {
+                    int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
+                    model.Cantidad = 20;
+                    model.Pagina = 1;
+                    var clientes = await sf.GetDocumentosPendientesCobranzaAsync(model, logApi.Id);
+                    if (clientes.Count > 0)
+                    {
+                        while (clientes.Count() < int.Parse(clientes[0].total))
+                        {
+                            model.Pagina = model.Pagina + 1;
+                            var clientesWhile = await sf.GetDocumentosPendientesCobranzaAsync(model, logApi.Id);
+                            if (clientesWhile.Count > 0)
+                            {
+                                clientes.AddRange(clientesWhile);
+                            }
+                        }
+
+                        if (model.ClientesEliminados != null)
+                        {
+                            foreach (var clienteEliminado in model.ClientesEliminados)
+                            {
+                                clientes.RemoveAll(x => x.codaux == clienteEliminado.codaux && clienteEliminado.rutaux == x.rutaux);
+                            }
+                        }
+
+                        foreach (var clienteExcluido in clientesExcluidos)
+                        {
+                            clientes.RemoveAll(x => x.codaux == clienteExcluido.CodAuxCliente && clienteExcluido.RutCliente == x.rutaux);
+                        }
+
+                        foreach (var cliente in clientes)
+                        {
+                            model.RutCliente = cliente.rutaux;
+                            model.CodAuxCliente = cliente.codaux;
+                            var documentos = await sf.GetDocumentosXCliente(model, logApi.Id);
+                            if (model.DocumentosEliminados != null)
+                            {
+                                foreach (var docEliminar in model.DocumentosEliminados)
+                                {
+                                    documentos.RemoveAll(x => x.Ttdcod == docEliminar.Ttdcod && x.rutaux == docEliminar.rutaux && x.CodAux == docEliminar.CodAux && x.Numdoc == docEliminar.Numdoc);
+                                }
+
+                            }
+                            List<CobranzaDetalle> detallesCliente = documentos.ConvertAll(doc => new CobranzaDetalle
+                            {
+                                IdCobranzaDetalle = 0,
+                                Folio = (int?)doc.Numdoc,
+                                FechaEmision = doc.Movfe,
+                                FechaVencimiento = doc.Movfv,
+                                Monto = (float?)doc.Saldoadic,
+                                RutCliente = doc.rutaux,
+                                CodAuxCliente = doc.CodAux,
+                                TipoDocumento = doc.Ttdcod,
+                                IdEstado = 1,
+                                FechaEnvio = null,
+                                HoraEnvio = null,
+                                FechaPago = null,
+                                HoraPago = null,
+                                ComprobanteContable = null,
+                                FolioDte = null,
+                                IdPago = null,
+                                IdCobranzaNavigation = null,
+                                IdEstadoNavigation = null,
+                                CuentaContable = doc.Pctcod,
+                                NombreCliente = doc.nomaux,
+                                Pagado = 0
+                            });
+                            detalles.AddRange(detallesCliente);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.ClientesSeleccionados != null)
+                    {
+
+                        foreach (var clienteExcluido in clientesExcluidos)
+                        {
+                            model.ClientesSeleccionados.RemoveAll(x => x.codaux == clienteExcluido.CodAuxCliente && clienteExcluido.RutCliente == x.rutaux);
+                        }
+
+                        foreach (var cliente in model.ClientesSeleccionados)
+                        {
+                            model.RutCliente = cliente.rutaux;
+                            model.CodAuxCliente = cliente.codaux;
+                            var documentos = await sf.GetDocumentosXCliente(model, logApi.Id);
+                            if (model.DocumentosEliminados != null)
+                            {
+                                foreach (var docEliminar in model.DocumentosEliminados)
+                                {
+                                    documentos.RemoveAll(x => x.Ttdcod == docEliminar.Ttdcod && x.rutaux == docEliminar.rutaux && x.CodAux == docEliminar.CodAux && x.Numdoc == docEliminar.Numdoc);
+                                }
+
+                            }
+
+                            List<CobranzaDetalle> detallesCliente = documentos.ConvertAll(doc => new CobranzaDetalle
+                            {
+                                IdCobranzaDetalle = 0,
+                                Folio = (int?)doc.Numdoc,
+                                FechaEmision = doc.Movfe,
+                                FechaVencimiento = doc.Movfv,
+                                Monto = (float?)doc.Saldoadic,
+                                RutCliente = doc.rutaux,
+                                CodAuxCliente = doc.CodAux,
+                                TipoDocumento = doc.Ttdcod,
+                                IdEstado = 1,
+                                FechaEnvio = null,
+                                HoraEnvio = null,
+                                FechaPago = null,
+                                HoraPago = null,
+                                ComprobanteContable = null,
+                                FolioDte = null,
+                                IdPago = null,
+                                IdCobranzaNavigation = null,
+                                IdEstadoNavigation = null,
+                                CuentaContable = doc.Pctcod,
+                                NombreCliente = doc.nomaux,
+                                Pagado = 0
+                            });
+                            detalles.AddRange(detallesCliente);
+                        }
+                    }
+                }
+
+
                 //INSERTA CABECERA
                 CobranzaCabecera cabecera = new CobranzaCabecera();
                 cabecera.IdCobranza = 0;
-                cabecera.Nombre = model.Nombre;
+                cabecera.Nombre = model.CobranzaCabecera.Nombre;
                 cabecera.FechaCreacion = DateTime.Now;
                 cabecera.HoraCreacion = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                cabecera.IdTipoCobranza = model.IdTipoCobranza;
-                cabecera.Estado = model.Estado;
-                cabecera.IdUsuario = model.IdUsuario;
-                cabecera.TipoProgramacion = model.TipoProgramacion;
-                cabecera.FechaInicio = model.FechaInicio;
-                cabecera.FechaFin = model.FechaFin;
-                cabecera.HoraDeEnvio = model.HoraDeEnvio;
-                cabecera.DiaSemanaEnvio = model.DiaSemanaEnvio;
-                cabecera.DiasToleranciaVencimiento = model.DiasToleranciaVencimiento;
-                cabecera.IdEstado = model.IdEstado;
-                cabecera.Anio = model.Anio;
-                cabecera.TipoDocumento = model.TipoDocumento;
-                cabecera.FechaDesde = model.FechaDesde;
-                cabecera.FechaHasta = model.FechaHasta;
-                cabecera.AplicaClientesExcluidos = model.AplicaClientesExcluidos;
-                cabecera.EsCabeceraInteligente = model.EsCabeceraInteligente;
+                cabecera.IdTipoCobranza = model.CobranzaCabecera.IdTipoCobranza;
+                cabecera.Estado = model.CobranzaCabecera.Estado;
+                cabecera.IdUsuario = model.CobranzaCabecera.IdUsuario;
+                cabecera.TipoProgramacion = model.CobranzaCabecera.TipoProgramacion;
+                cabecera.FechaInicio = model.CobranzaCabecera.FechaInicio;
+                cabecera.FechaFin = model.CobranzaCabecera.FechaFin;
+                cabecera.HoraDeEnvio = model.CobranzaCabecera.HoraDeEnvio;
+                cabecera.DiaSemanaEnvio = model.CobranzaCabecera.DiaSemanaEnvio;
+                cabecera.DiasToleranciaVencimiento = model.CobranzaCabecera.DiasToleranciaVencimiento;
+                cabecera.IdEstado = model.CobranzaCabecera.IdEstado;
+                cabecera.Anio = model.CobranzaCabecera.Anio;
+                cabecera.TipoDocumento = model.CobranzaCabecera.TipoDocumento;
+                cabecera.FechaDesde = model.CobranzaCabecera.FechaDesde;
+                cabecera.FechaHasta = model.CobranzaCabecera.FechaHasta;
+                cabecera.AplicaClientesExcluidos = model.CobranzaCabecera.AplicaClientesExcluidos;
+                cabecera.EsCabeceraInteligente = model.CobranzaCabecera.EsCabeceraInteligente;
                 cabecera.IdCabecera = 0;
-                cabecera.EnviaEnlacePago = model.EnviaEnlacePago;
+                cabecera.EnviaEnlacePago = model.CobranzaCabecera.EnviaEnlacePago;
                 cabecera.CobranzaDetalles = null;
-                cabecera.IdPeriodicidad = model.IdPeriodicidad;
-                cabecera.ExcluyeFeriado = model.ExcluyeFeriados;
-                cabecera.ExcluyeFinDeSemana = model.ExcluyeFinDeSemana;
-                cabecera.DiaEnvio = model.DiaEnvio;
-                cabecera.ListaPrecio = model.ListaPrecio;
-                cabecera.Vendedor = model.Vendedor;
-                cabecera.CategoriaCliente = model.CategoriaCliente;
-                cabecera.CondicionVenta = model.CondicionVenta;
-                cabecera.CargosContactos = model.CargosContactos;
-                cabecera.EnviaCorreoFicha = model.EnviaCorreoFicha;
-                cabecera.EnviaTodosContactos = model.EnviaTodosContactos;
-                cabecera.EnviaTodosCargos = model.EnviaTodosCargos;
-
-
-                _context.CobranzaCabeceras.Add(cabecera);
-                _context.SaveChanges();
-
-
-                //INSERTA DETALLE
-                var idCabecera = cabecera.IdCobranza; //Obtengo idCabecera
-
-                foreach (CobranzaDetalleVm row in model.CobranzaDetalle)
+                cabecera.IdPeriodicidad = model.CobranzaCabecera.IdPeriodicidad;
+                cabecera.ExcluyeFeriado = model.CobranzaCabecera.ExcluyeFeriados;
+                cabecera.ExcluyeFinDeSemana = model.CobranzaCabecera.ExcluyeFinDeSemana;
+                cabecera.DiaEnvio = model.CobranzaCabecera.DiaEnvio;
+                cabecera.ListaPrecio = model.CobranzaCabecera.ListaPrecio;
+                cabecera.Vendedor = model.CobranzaCabecera.Vendedor;
+                cabecera.CategoriaCliente = model.CobranzaCabecera.CategoriaCliente;
+                cabecera.CondicionVenta = model.CobranzaCabecera.CondicionVenta;
+                cabecera.CargosContactos = model.CobranzaCabecera.CargosContactos;
+                cabecera.EnviaCorreoFicha = model.CobranzaCabecera.EnviaCorreoFicha;
+                cabecera.EnviaTodosContactos = model.CobranzaCabecera.EnviaTodosContactos;
+                cabecera.EnviaTodosCargos = model.CobranzaCabecera.EnviaTodosCargos;
+                cabecera.CobranzaDetalles = detalles;
+                if (cabecera.CobranzaDetalles.Count > 0)
                 {
-                    CobranzaDetalle det = new CobranzaDetalle();
-                    det.IdCobranzaDetalle = 0;
-                    det.IdCobranza = idCabecera;
-                    det.Folio = row.Folio;
-                    det.FechaEmision = row.FechaEmision;
-                    det.FechaVencimiento = row.FechaVencimiento;
-                    det.Monto = row.Monto;
-                    det.RutCliente = row.RutCliente;
-                    det.CodAuxCliente = row.CodAuxCliente;
-                    det.TipoDocumento = row.TipoDocumento;
-                    det.IdEstado = row.IdEstado;
-                    det.FechaEnvio = null;
-                    det.HoraEnvio = null;
-                    det.FechaPago = null;
-                    det.HoraPago = null;
-                    det.ComprobanteContable = null;
-                    det.FolioDte = null;
-                    det.IdPago = null;
-                    det.IdCobranzaNavigation = null;
-                    det.IdEstadoNavigation = null;
-                    det.CuentaContable = row.CuentaContable;
-                    det.NombreCliente = row.NombreCliente;
-                    det.Pagado = 0;
-                    _context.CobranzaDetalles.Add(det);
+                    _context.CobranzaCabeceras.Add(cabecera);
+                    _context.SaveChanges();
+
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    MailViewModel mailVm = new MailViewModel();
+
+                    if (cabecera.IdUsuario != 0 && cabecera.IdUsuario != null)
+                    {
+                        var usuario = _context.Usuarios.Where(x => x.IdUsuario == cabecera.IdUsuario).FirstOrDefault();
+                        if (usuario != null)
+                        {
+                            mailVm.email_destinatario = usuario.Email;
+                        }
+                    }
+                    if (string.IsNullOrEmpty(mailVm.email_destinatario))
+                    {
+                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+                        mailVm.email_destinatario = configCorreo.CorreoAvisoPago;
+                    }
+                    string tipoCobranza = cabecera.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                    mailVm.mensaje = cabecera.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza;
+                    mailVm.tipo = 10;
+                    if (!string.IsNullOrEmpty(mailVm.email_destinatario))
+                    {
+                        await emailService.EnviarCorreosAsync(mailVm);
+                    }
+
+                }
+                else
+                {
+
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    MailViewModel mailVm = new MailViewModel();
+
+                    if (cabecera.IdUsuario != 0 && cabecera.IdUsuario != null)
+                    {
+                        var usuario = _context.Usuarios.Where(x => x.IdUsuario == cabecera.IdUsuario).FirstOrDefault();
+                        if (usuario != null)
+                        {
+                            mailVm.email_destinatario = usuario.Email;
+                        }
+                    }
+                    if (string.IsNullOrEmpty(mailVm.email_destinatario))
+                    {
+                        var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+                        mailVm.email_destinatario = configCorreo.CorreoAvisoPago;
+                    }
+                    string tipoCobranza = cabecera.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                    mailVm.mensaje = cabecera.Nombre + "|" + "SIN DATOS" + "|" + tipoCobranza;
+                    mailVm.tipo = 10;
+                    if (!string.IsNullOrEmpty(mailVm.email_destinatario))
+                    {
+                        await emailService.EnviarCorreosAsync(mailVm);
+                    }
                 }
 
-                _context.SaveChanges();
+
+
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
 
-                return Ok(idCabecera);
+
+                return Ok();
             }
             catch (Exception ex)
             {
+                MailService emailService = new MailService(_context, _webHostEnvironment);
+                MailViewModel mailVm = new MailViewModel();
+
+                if (model.CobranzaCabecera.IdUsuario != 0 && model.CobranzaCabecera.IdUsuario != null)
+                {
+                    var usuario = _context.Usuarios.Where(x => x.IdUsuario == model.CobranzaCabecera.IdUsuario).FirstOrDefault();
+                    if (usuario != null)
+                    {
+                        mailVm.email_destinatario = usuario.Email;
+                    }
+                }
+                if (string.IsNullOrEmpty(mailVm.email_destinatario))
+                {
+                    var configCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+                    mailVm.email_destinatario = configCorreo.CorreoAvisoPago;
+                }
+                string tipoCobranza = model.CobranzaCabecera.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                mailVm.mensaje = model.CobranzaCabecera.Nombre + "|" + "ERROR" + "|" + tipoCobranza;
+                mailVm.tipo = 10;
+                if (!string.IsNullOrEmpty(mailVm.email_destinatario))
+                {
+                    await emailService.EnviarCorreosAsync(mailVm);
+                }
+
                 LogProceso log = new LogProceso();
                 log.Fecha = DateTime.Now;
                 log.Hora = DateTime.Now.ToString("HH:mm:ss");
@@ -229,6 +359,8 @@ namespace ApiPortal.Controllers
             }
         }
 
+
+
         [HttpGet("EnviaCobranza"), Authorize]
         public async Task<ActionResult> EnviaCobranza()
         {
@@ -237,7 +369,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/EnviaCobranza";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             string estadoLogC = string.Empty;
             LogCobranza lc = new LogCobranza();
@@ -255,13 +387,13 @@ namespace ApiPortal.Controllers
                 DateTime fecha = DateTime.Now;
                 DateTime fechaActual = new DateTime(fecha.Year, fecha.Month, fecha.Day, 23, 59, 59);
                 var diasFeriados = _context.Feriados.ToList();
-                
+
                 var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
                 var auxEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 string urlFrot = System.Configuration.ConfigurationManager.AppSettings["URL_FRONT"];
 
                 //Obtiene correos disponibles
-                MailService mail = new MailService(_context,_webHostEnvironment);
+                MailService mail = new MailService(_context, _webHostEnvironment);
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
 
@@ -272,7 +404,7 @@ namespace ApiPortal.Controllers
                 #region COBRANZA CLASICA
                 //Genera envio de cobranzas, la ejecución la realiza algun procedimiento externo
                 var listaManual = _context.CobranzaCabeceras.Where(x => x.Estado == 1 && x.TipoProgramacion == 1 && x.EsCabeceraInteligente == 0).AsNoTracking().ToList();
-               
+
 
                 int correosEnviados = 0;
                 //Recorremos una a una las cobranzas
@@ -436,6 +568,22 @@ namespace ApiPortal.Controllers
                         }
                     }
 
+                    if (IdEstadoFinal != 3)
+                    {
+                        MailViewModel mailVm = new MailViewModel();
+                        string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                        mailVm.mensaje = item.Nombre + "|" + "ERROR" + "|" + tipoCobranza + "|" + "Asistida";
+                        mailVm.tipo = 9;
+                        await emailService.EnviarCorreosAsync(mailVm);
+                    }
+                    else
+                    {
+                        MailViewModel mailVm = new MailViewModel();
+                        string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                        mailVm.mensaje = item.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza + "|" + "Asistida";
+                        mailVm.tipo = 9;
+                        await emailService.EnviarCorreosAsync(mailVm);
+                    }
 
                     //Actualiza estado cobranza cabecera
 
@@ -477,6 +625,12 @@ namespace ApiPortal.Controllers
                 _context.Entry(lc).State = EntityState.Modified;
                 _context.SaveChanges();
 
+                MailViewModel mailVm = new MailViewModel();
+                MailService emailService = new MailService(_context, _webHostEnvironment);
+                mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Asistida";
+                mailVm.tipo = 9;
+                await emailService.EnviarCorreosAsync(mailVm);
+
                 return BadRequest(ex.Message);
             }
         }
@@ -489,7 +643,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetCobranzaCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
             try
             {
                 var tiposDocumentos = _context.TipoPagos.ToList();
@@ -550,12 +704,12 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetDocumentosPendientes";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-        
+
 
             try
             {
                 List<DocumentosCobranzaVm> listaDocumentos = new List<DocumentosCobranzaVm>();
-                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync( model.TipoDocumento, logApi.Id);
+                listaDocumentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync(model.Fecha, model.FechaHasta, model.TipoDocumento, logApi.Id);
 
                 if (!string.IsNullOrEmpty(model.Estado))
                 {
@@ -590,7 +744,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-      
+
 
         [HttpGet("GetAnioPagos"), Authorize]
         public async Task<ActionResult> GetAnioPagos()
@@ -600,7 +754,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetAnioPagos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -641,7 +795,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetHorariosEnvio";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -678,7 +832,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetDocumentosCobranzaFiltro";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             if (model == null)
             {
@@ -688,7 +842,7 @@ namespace ApiPortal.Controllers
             try
             {
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
+                var documentos = sf.GetDocumentosPendientesCobranzaAsync(model, logApi.Id);
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
@@ -718,53 +872,17 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetDocumentosClientes";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
 
+            List<ResumenDocumentosClienteApiDTO> retorno = new List<ResumenDocumentosClienteApiDTO>();
             try
             {
                 //Obtiene cantidad correos disponibles 
-                MailService mail = new MailService(_context,_webHostEnvironment);
+                MailService mail = new MailService(_context, _webHostEnvironment);
                 int correosDisponibles = mail.calculaDisponiblesCobranza();
 
                 int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
-                var documentos = await sf.GetDocumentosPendientesCobranzaAsync(model.TipoDocumento, model.CantidadDias, excluyeClientes, model.ListasPrecio, model.CondicionesVenta, model.Vendedores, model.CategoriasClientes, model.CanalesVenta, model.Cobradores, logApi.Id, model.Estado);
-
-                //Retorna
-                List<DocumentoClienteCobranzaVm> retorno = new List<DocumentoClienteCobranzaVm>();
-
-                //Obtenemos los rut de clientes
-                var clientes = documentos.Select(x => x.RutCliente).Distinct().ToList();
-
-                foreach (var item in clientes)
-                {
-                    var docCliente = documentos.Where(x => x.RutCliente == item).ToList();
-
-                    DocumentoClienteCobranzaVm doc = new DocumentoClienteCobranzaVm();
-                    doc.RutCliente = item;
-                    doc.Bloqueado = docCliente[0].Bloqueado;
-                    doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? "Sin Información" : docCliente[0].NombreCliente;
-                    doc.CantidadDocumentos = docCliente.Count;
-                    doc.MontoDeuda = Convert.ToInt32(docCliente.Sum(x => x.SaldoDocumento));
-                    doc.ListaDocumentos = docCliente;
-
-                    var cliente = _context.ClientesPortals.Where(x => x.Rut == item).FirstOrDefault();
-
-
-                    if (cliente == null)
-                    {
-
-                        doc.Selected = false;
-                    }
-                    else
-                    {
-                        doc.EmailCliente = cliente.Correo;
-                        doc.RutCliente = cliente.Rut;
-
-                    }
-
-                    retorno.Add(doc);
-                }
-
+                retorno = await sf.GetDocumentosPendientesCobranzaAsync(model, logApi.Id);
+                retorno = retorno.OrderBy(x => x.rutaux).ToList();
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
@@ -793,7 +911,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetTipoCobranza";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -837,7 +955,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetEstadosCobranza";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -881,7 +999,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetCobranzasTipo";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-          
+
 
             try
             {
@@ -913,7 +1031,7 @@ namespace ApiPortal.Controllers
 
                 if (model.Fecha != null && model.FechaHasta != null)
                 {
-                    //cobranzas = cobranzas.Where(x => x.FechaInicio >= model.fecha && x.FechaFin = model.fechaHasta).ToList();
+                    cobranzas = cobranzas.Where(x => x.FechaInicio.Value.Date >= model.Fecha.Value.Date && x.FechaFin.Value.Date <= model.FechaHasta.Value.Date).ToList();
                 }
 
                 foreach (var item in cobranzas)
@@ -935,7 +1053,7 @@ namespace ApiPortal.Controllers
                     }
                     cob.TipoProgramacion = (int)item.TipoProgramacion;
                     cob.FechaInicio = (DateTime)item.FechaInicio;
-                    cob.FechaFin = (DateTime)item.FechaFin;
+                    cob.FechaFin = item.FechaFin != null ? (DateTime)item.FechaFin : null;
                     cob.HoraDeEnvio = (int)item.HoraDeEnvio;
                     cob.HoraEnvioTexto = ((cob.HoraDeEnvio < 10) ? "0" + cob.HoraDeEnvio.ToString() + ":00" : cob.HoraDeEnvio.ToString() + ":00") + (((cob.HoraDeEnvio < 12) ? " AM" : " PM"));
                     cob.DiaSemanaEnvio = item.DiaSemanaEnvio;
@@ -983,7 +1101,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetCobranzaGraficos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1011,7 +1129,7 @@ namespace ApiPortal.Controllers
                     }
                     retorno.TipoProgramacion = (int)cobranza.TipoProgramacion;
                     retorno.FechaInicio = (DateTime)cobranza.FechaInicio;
-                    retorno.FechaFin = (DateTime)cobranza.FechaFin;
+                    retorno.FechaFin = cobranza.FechaFin != null ? (DateTime)cobranza.FechaFin : null;
                     retorno.HoraDeEnvio = (int)cobranza.HoraDeEnvio;
                     retorno.HoraEnvioTexto = ((retorno.HoraDeEnvio < 10) ? "0" + retorno.HoraDeEnvio.ToString() + ":00" : retorno.HoraDeEnvio.ToString() + ":00") + (((retorno.HoraDeEnvio < 12) ? " AM" : " PM"));
                     retorno.DiaSemanaEnvio = cobranza.DiaSemanaEnvio;
@@ -1077,11 +1195,11 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetCobranzasDetalle";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
-                if(model == null)
+                if (model == null)
                 {
                     return BadRequest();
                 }
@@ -1188,7 +1306,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetCobranzaPeriocidad";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -1223,7 +1341,7 @@ namespace ApiPortal.Controllers
                 _context.SaveChanges();
                 return BadRequest(ex.Message);
             }
-        }    
+        }
 
         [HttpGet("GetTiposDocumentosPago"), Authorize]
         public async Task<ActionResult> GetTiposDocumentosPago()
@@ -1233,14 +1351,14 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetTiposDocumentosPago";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
                 var configuracion = _context.ConfiguracionPagoClientes.FirstOrDefault();
                 var tipoDocumento = new List<TipoDocSoftlandDTO>();
                 List<TipoDocSoftlandDTO> docsSoftland = await sf.GetAllTipoDocSoftlandAsync(logApi.Id);
-                if(!string.IsNullOrEmpty(configuracion.TiposDocumentosDeuda))
+                if (!string.IsNullOrEmpty(configuracion.TiposDocumentosDeuda))
                 {
                     foreach (var item in configuracion.TiposDocumentosDeuda.Split(';'))
                     {
@@ -1286,7 +1404,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/cobranza/GetTiposDocumentosPagoCliente";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -1337,20 +1455,20 @@ namespace ApiPortal.Controllers
             {
                 var detalles = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza);
 
-                if(detalles.Count() > 0)
+                if (detalles.Count() > 0)
                 {
                     _context.CobranzaDetalles.RemoveRange(detalles);
                     _context.SaveChanges();
                 }
-             
+
 
                 var cobranza = _context.CobranzaCabeceras.Where(x => x.IdCobranza == idCobranza).FirstOrDefault();
-                if(cobranza != null)
+                if (cobranza != null)
                 {
                     _context.CobranzaCabeceras.Remove(cobranza);
                     _context.SaveChanges();
                 }
-             
+
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
@@ -1365,6 +1483,40 @@ namespace ApiPortal.Controllers
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Cobranza/DeleteCobranza";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("GetDocumentosPorCliente"), Authorize]
+        public async Task<ActionResult> GetDocumentosPorCliente(FiltroCobranzaVm model)
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/cobranza/GetDocumentosPorCliente";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
+            try
+            {
+                int excluyeClientes = (int)(model.ExcluyeClientes == null ? 0 : model.ExcluyeClientes);
+                retorno = await sf.GetDocumentosXCliente(model, logApi.Id);
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+                return Ok(retorno);
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Cobranza/GetDocumentosPorCliente";
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
                 return BadRequest(ex.Message);

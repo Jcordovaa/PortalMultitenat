@@ -393,7 +393,7 @@
 
                 <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                     <label class="switch switch-primary mr-3">
-                        <span>Excluye Clientes</span>
+                        <span>Activar el listado de clientes excluidos</span>
                         <input #inputEl1R [(ngModel)]="nuevaAutomaetizacion.excluyeClientes" type="checkbox"
                             id="exampleCheck5C" name="exampleCheck5C" />
                         <span class="slider"></span>
@@ -403,7 +403,7 @@
                 <div class="col-md-3 form-group" *ngIf="nuevaAutomaetizacion.idTipoAutomatizacion != null">
                     <label class="switch switch-primary mr-3">
                         <span *ngIf="nuevaAutomaetizacion.estado == 1">Activa</span>
-                        <span *ngIf="nuevaAutomaetizacion.estado ==0">No Activa</span>
+                        <span *ngIf="nuevaAutomaetizacion.estado ==0">Inactiva</span>
                         <input #inputEl3R [(ngModel)]="nuevaAutomaetizacion.estado" type="checkbox" id="exampleCheck3C"
                             name="exampleCheck3C" />
                         <span class="slider"></span>

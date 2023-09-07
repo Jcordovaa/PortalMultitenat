@@ -69,6 +69,15 @@ namespace ApiPortal.Services
                         model.asunto = auxCorreo.AsuntoPagoSinComprobante;
                         body = await this.PopulateBodyPagoSinComprobante(auxCorreo.TituloPagoSinComprobante, auxCorreo.TextoPagoSinComprobante, auxEmpresa.NombreEmpresa, logo, model.mensaje);
                         break;
+                    case 9:
+                        model.asunto = "Notificación proceso de envio de cobranzas";
+                        model.email_destinatario = auxCorreo.CorreoAvisoPago;
+                        body = await this.PopulateBodyAvisoEnvioCobranza(model.mensaje, auxEmpresa.NombreEmpresa, logo);
+                        break;
+                    case 10:
+                        model.asunto = "Notificación nueva cobranza/Pre Cobranza asistida";
+                        body = await this.PopulateBodyAvisoCreacionCobranza(model.mensaje, auxEmpresa.NombreEmpresa, logo);
+                        break;
                 }
 
                 await this.SendHtmlFormattedEmail(model.email_destinatario, model.asunto, body, cc, adjuntos, auxCorreo, model.adjuntos);
@@ -86,10 +95,10 @@ namespace ApiPortal.Services
                 };
                 _context.LogProcesos.Add(log);
                 _context.SaveChanges();
-                throw;                
+                throw;
             }
         }
-        
+
         private async Task SendHtmlFormattedEmail(string destinatario, string asunto, string body, string copia, List<DocumentosVm> adjuntos, ConfiguracionCorreo auxCorreo, List<Attachment> attachments)
         {
 
@@ -237,6 +246,75 @@ namespace ApiPortal.Services
             return body;
         }
 
+        private async Task<string> PopulateBodyAvisoEnvioCobranza(string mensaje, string empresa, string logo)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/notificacionEnvioCobranza.component.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            string[] datos = mensaje.Split('|');
+            string texto = string.Empty;
+            if (datos[1] == "ERROR")
+            {
+                texto = "Ha ocurrido un problema al enviar " + datos[2] + " " + datos[3] + ":";
+            }
+            else
+            {
+                texto = "Se ha enviado correctamente la " + datos[2] + " " + datos[3] + ":";
+            }
+
+            if (datos[0] == "Proceso de envío")
+            {
+                texto = "Ha ocurrido un problema al ejecutar el proceso de envio de cobranza " + datos[3];
+            }
+
+            body = body.Replace("{NombreEmpresa}", empresa);
+            body = body.Replace("{Titulo}", "Proceso de envío de cobranzas");
+            body = body.Replace("{Texto}", texto);
+            body = body.Replace("{logo}", logo);
+            if (datos[0] == "Proceso de envío")
+            {
+                body = body.Replace("{NombreCobranza}", "");
+            }
+            else
+            {
+                body = body.Replace("{NombreCobranza}", datos[0]);
+            }
+
+            return body;
+        }
+
+        private async Task<string> PopulateBodyAvisoCreacionCobranza(string mensaje, string empresa, string logo)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/notificacionEnvioCobranza.component.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            string[] datos = mensaje.Split('|');
+            string texto = string.Empty;
+            if (datos[1] == "ERROR")
+            {
+                texto = "Ha ocurrido un problema al crear " + datos[2] + " asistida:";
+            }
+            else if (datos[1] == "SIN DATOS")
+            {
+                texto = "Al momento de la creación no se encontraron documentos segun los parametros indicados o los clientes fueron excluidos para la " + datos[2] + " asistida:";
+            }
+            else
+            {
+                texto = "Se ha creado correctamente la " + datos[2] + " asistida:";
+            }
+
+            body = body.Replace("{NombreEmpresa}", empresa);
+            body = body.Replace("{Titulo}", "Creación de "+ datos[2] + " asistida");
+            body = body.Replace("{Texto}", texto);
+            body = body.Replace("{logo}", logo);
+            body = body.Replace("{NombreCobranza}", datos[0]);
+
+            return body;
+        }
         public int calculaDisponiblesCobranza()
         {
             try
@@ -986,10 +1064,11 @@ namespace ApiPortal.Services
                 {
                     //var docStream = genera.generaDetalleCobranza(cobranza);
 
+
                     string body = string.Empty;
-                    string rutaCorreo = (item.IdTipoCobranza == 1) ? (item.EnviaEnlacePago == 0) ? "Uploads/MailTemplates/cobranzaSinEnlace.component.html" : "Uploads/MailTemplates/cobranza.component.html" : "~/Uploads/MailTemplates/precobranza.component.html";
+                    string rutaCorreo = (item.IdTipoCobranza == 1) ? (item.EnviaEnlacePago == 0) ? "Uploads/MailTemplates/cobranzaSinEnlace.component.html" : "Uploads/MailTemplates/cobranza.component.html" : "Uploads/MailTemplates/precobranza.component.html";
                     string asunto = string.Empty;
-                    using (StreamReader reader =  new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
+                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
                     {
                         body = reader.ReadToEnd();
                     }
@@ -1010,7 +1089,7 @@ namespace ApiPortal.Services
                         body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
                         body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
                     }
-                    else if (item.IdCobranza == 2)
+                    else if (item.IdTipoCobranza == 2)
                     {
                         asunto = auxCorreo.AsuntoPreCobranza;
                         body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
@@ -1078,7 +1157,7 @@ namespace ApiPortal.Services
                                 var valHora = new SqlParameter("@HoraEnvio", (horaActual < 10) ? $"0{horaActual}:00" : $"{horaActual}:00");
                                 var valRut = new SqlParameter("@RutCliente", cobranza.RutCliente);
                                 var valId = new SqlParameter("@IdCobranza", item.IdCobranza);
-                                _context.Database.ExecuteSqlRaw(commandText,  valEstado, valFecha, valHora, valRut, valId );
+                                _context.Database.ExecuteSqlRaw(commandText, valEstado, valFecha, valHora, valRut, valId);
                             }
                             catch (Exception ex)
                             {
@@ -1527,6 +1606,7 @@ namespace ApiPortal.Services
             }
             return false;
         }
+
 
 
 

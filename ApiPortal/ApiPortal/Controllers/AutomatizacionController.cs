@@ -67,7 +67,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/Automatizacion/EnviaAutomatizaciones";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             int horaActual = DateTime.Now.Hour;
             string estadoLogC = string.Empty;
@@ -159,7 +159,7 @@ namespace ApiPortal.Controllers
 
 
 
-                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync( automatizacion.TipoDocumentos, logApi.Id);
+                    var documentos = await sf.GetDocumentosPendientesCobranzaSinFiltroAsync(null, null, automatizacion.TipoDocumentos, logApi.Id);
 
                     if (automatizacion.ExcluyeClientes == 1)
                     {
@@ -169,7 +169,7 @@ namespace ApiPortal.Controllers
                         }
                     }
 
-                    switch (automatizacion.IdAutomatizacion)
+                    switch (automatizacion.IdTipoAutomatizacion)
                     {
                         case 1:
                             documentos = documentos.Where(x => (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays < automatizacion.DiasVencimiento && (x.FechaVencimiento.Date - DateTime.Now.Date).TotalDays > 0).ToList();
@@ -345,7 +345,7 @@ namespace ApiPortal.Controllers
                                 doc.RutCliente = al;
                                 doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? string.Empty : docCliente[0].NombreCliente;
                                 doc.EmailCliente = docCliente[0].EmailCliente;
-                                doc.CantidadDocumentosPendientes = docCliente.Count;
+                                doc.CantidadDocumentosPendientes = docCliente.Count();
                                 doc.MontoDeuda = Convert.ToInt32(item.MontoDocumento);
                                 doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
                                 doc.CodAux = clienteApi[0].CodAux;
@@ -400,7 +400,7 @@ namespace ApiPortal.Controllers
                             doc.RutCliente = al;
                             doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? string.Empty : docCliente[0].NombreCliente;
                             doc.EmailCliente = docCliente[0].EmailCliente;
-                            doc.CantidadDocumentosPendientes = docCliente.Count;
+                            doc.CantidadDocumentosPendientes = docCliente.Count();
                             doc.MontoDeuda = Convert.ToInt32(docCliente.Sum(x => x.MontoDocumento));
                             doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
                             doc.CodAux = clienteApi[0].CodAux;
@@ -466,19 +466,37 @@ namespace ApiPortal.Controllers
 
                     //Agregar a logCobranza
                     string nombreAutomatizacion = string.Empty;
-                    if (automatizacion.IdAutomatizacion == 1)
+                    if (automatizacion.IdTipoAutomatizacion == 1)
                     {
-                        nombreAutomatizacion = "PRECOBRANZA";
+                        nombreAutomatizacion = "RECORDATORIO";
                     }
-                    else if (automatizacion.IdAutomatizacion == 2)
+                    else if (automatizacion.IdTipoAutomatizacion == 2)
                     {
                         nombreAutomatizacion = "ESTADOCUENTA";
                     }
-                    else if (automatizacion.IdAutomatizacion == 3)
+                    else if (automatizacion.IdTipoAutomatizacion == 3)
                     {
                         nombreAutomatizacion = "COBRANZA";
                     }
-                    lc.CobranzasConsideradas = lc.CobranzasConsideradas + nombreAutomatizacion + ";";
+                    lc.CobranzasConsideradas = lc.CobranzasConsideradas + ";" + nombreAutomatizacion;
+
+                    if(IdEstadoFinal == 3)
+                    {
+                        MailViewModel mailVm = new MailViewModel();
+                        string tipoCobranza = automatizacion.IdTipoAutomatizacion == 1 ? "Recordatorio" : automatizacion.IdTipoAutomatizacion == 2 ? "Estado de Cuenta" : "Cobranza";
+                        mailVm.mensaje = automatizacion.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza + "|" + "Automatizada";
+                        mailVm.tipo = 9;
+                        await mailService.EnviarCorreosAsync(mailVm);
+                    }
+                    else
+                    {
+                        MailViewModel mailVm = new MailViewModel();
+                        string tipoCobranza = automatizacion.IdTipoAutomatizacion == 1 ? "Recordatorio" : automatizacion.IdTipoAutomatizacion == 2 ? "Estado de Cuenta" : "Cobranza";
+                        mailVm.mensaje = automatizacion.Nombre + "|" + "ERROR" + "|" + tipoCobranza + "|" + "Automatizada";
+                        mailVm.tipo = 9;
+                        await mailService.EnviarCorreosAsync(mailVm);
+                    }
+         
                 }
 
                 lc.FechaTermino = DateTime.Now;
@@ -490,6 +508,7 @@ namespace ApiPortal.Controllers
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
+
                 return Ok(1);
             }
             catch (Exception ex)
@@ -508,6 +527,12 @@ namespace ApiPortal.Controllers
                 _context.Entry(lc).State = EntityState.Modified;
                 _context.SaveChanges();
 
+                MailViewModel mailVm = new MailViewModel();
+                MailService emailService = new MailService(_context, _webHostEnvironment);
+                mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Automatizada";
+                mailVm.tipo = 9;
+                await emailService.EnviarCorreosAsync(mailVm);
+
                 return BadRequest();
             }
         }
@@ -520,7 +545,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/Automatizacion/GuardaAutomatizacion";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
             try
             {
                 var aut = _context.Automatizacions.Where(x => x.IdAutomatizacion == automatizacion.IdAutomatizacion).FirstOrDefault();
@@ -577,7 +602,7 @@ namespace ApiPortal.Controllers
             }
         }
 
-    
+
 
         [HttpGet("GetTipos"), Authorize]
         public async Task<ActionResult> GetTipos()
@@ -587,7 +612,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/Automatizacion/GetTipos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
             try
             {
                 var tipos = _context.TipoAutomatizacions.ToList();
@@ -633,12 +658,12 @@ namespace ApiPortal.Controllers
                     automatizaciones = automatizaciones.Where(x => x.Nombre.ToUpper().Contains(pVm.Search.ToUpper())).AsQueryable();
                 }
 
-                if(pVm.Tipo != null)
+                if (pVm.Tipo != null)
                 {
                     automatizaciones = automatizaciones.Where(x => x.IdTipoAutomatizacion == pVm.Tipo).AsQueryable();
                 }
 
-                if(pVm.Estado != null)
+                if (pVm.Estado != null)
                 {
                     automatizaciones = automatizaciones.Where(x => x.Estado == pVm.Estado).AsQueryable();
                 }
@@ -651,30 +676,30 @@ namespace ApiPortal.Controllers
                 List<AutomatizacionVm> mappedAutomatizaciones = outAutomatizaciones.ConvertAll(aut => new AutomatizacionVm
                 {
 
-                   AgrupaCobranza = aut.AgrupaCobranza,
-                   Anio = aut.Anio,
-                   CodCanalVenta = aut.CodCanalVenta,
-                   CodCargo = aut.CodCargo,
-                   CodCategoriaCliente = aut.CodCategoriaCliente,
-                   CodCobrador = aut.CodCobrador,
-                   CodCondicionVenta = aut.CodCondicionVenta,
-                   CodListaPrecios = aut.CodListaPrecios,
-                   CodVendedor = aut.CodVendedor,
-                   DiaEnvio = aut.DiaEnvio,
-                   DiasRecordatorio = aut.DiasRecordatorio,
-                   DiasVencimiento = aut.DiasVencimiento,
-                   EnviaCorreoFicha = aut.EnviaCorreoFicha,
-                   EnviaTodosContactos = aut.EnviaTodosContactos,
-                   Estado = aut.Estado,
-                   ExcluyeClientes = aut.ExcluyeClientes,
-                   ExcluyeFestivos = aut.ExcluyeFestivos,
-                   IdAutomatizacion = aut.IdAutomatizacion,
-                   IdHorario = aut.IdHorario,
-                   IdPerioricidad = aut.IdPerioricidad,
-                   IdTipoAutomatizacion = aut.IdTipoAutomatizacion,
-                   MuestraSoloVencidos = aut.MuestraSoloVencidos,
-                   Nombre = aut.Nombre,//aut.Nombre,
-                   TipoDocumentos = aut.TipoDocumentos
+                    AgrupaCobranza = aut.AgrupaCobranza,
+                    Anio = aut.Anio,
+                    CodCanalVenta = aut.CodCanalVenta,
+                    CodCargo = aut.CodCargo,
+                    CodCategoriaCliente = aut.CodCategoriaCliente,
+                    CodCobrador = aut.CodCobrador,
+                    CodCondicionVenta = aut.CodCondicionVenta,
+                    CodListaPrecios = aut.CodListaPrecios,
+                    CodVendedor = aut.CodVendedor,
+                    DiaEnvio = aut.DiaEnvio,
+                    DiasRecordatorio = aut.DiasRecordatorio,
+                    DiasVencimiento = aut.DiasVencimiento,
+                    EnviaCorreoFicha = aut.EnviaCorreoFicha,
+                    EnviaTodosContactos = aut.EnviaTodosContactos,
+                    Estado = aut.Estado,
+                    ExcluyeClientes = aut.ExcluyeClientes,
+                    ExcluyeFestivos = aut.ExcluyeFestivos,
+                    IdAutomatizacion = aut.IdAutomatizacion,
+                    IdHorario = aut.IdHorario,
+                    IdPerioricidad = aut.IdPerioricidad,
+                    IdTipoAutomatizacion = aut.IdTipoAutomatizacion,
+                    MuestraSoloVencidos = aut.MuestraSoloVencidos,
+                    Nombre = aut.Nombre,//aut.Nombre,
+                    TipoDocumentos = aut.TipoDocumentos
                 });
 
                 if (automatizaciones.Count() > 0)
@@ -779,7 +804,7 @@ namespace ApiPortal.Controllers
             {
                 var automatizacion = _context.Automatizacions.Where(x => x.IdAutomatizacion == idAutomatizacion).FirstOrDefault();
 
-                if(automatizacion != null)
+                if (automatizacion != null)
                 {
                     _context.Automatizacions.Remove(automatizacion);
                     _context.SaveChanges();

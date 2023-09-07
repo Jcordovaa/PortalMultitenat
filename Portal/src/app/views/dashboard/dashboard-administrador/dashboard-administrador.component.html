@@ -252,7 +252,7 @@
                         <div class="row list-horizontal" *ngIf="documentosPorPagina?.length > 0">
                             <div *ngFor="let cliente of documentosPorPagina | paginate: configDocumentos; let i = index"
                                 class="list-item col-md-12"
-                                [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}">
+                                [@animate]="{value:'*',params:{delay: (i*100)+'ms', y:'50px'}}"> 
                                 <div class="card o-hidden mb-2">
 
                                     <div class="flex-grow-1 pl-2 d-flex">
@@ -811,7 +811,7 @@
                                 <p *ngIf="docPagado.comprobanteContable != null && docPagado.comprobanteContable != ''">
                                     #{{ docPagado.comprobanteContable }}</p>
                                 <p *ngIf="docPagado.comprobanteContable == null || docPagado.comprobanteContable == ''">
-                                    Error al generar Comprobante</p>
+                                    Pendiente generación de comprobante</p>
                             </div>
                             <div class="col-md-6 text-sm-right">
                                 <p><strong>Fecha Pago: </strong> {{ docPagado.fechaPago | date: 'dd/MM/yyyy' }}

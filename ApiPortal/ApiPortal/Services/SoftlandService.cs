@@ -2922,7 +2922,8 @@ namespace ApiPortal.Services
                             codaux = string.Empty;
                         }
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -2958,7 +2959,8 @@ namespace ApiPortal.Services
                                     {
 
                                         string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1");
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
 
                                         client2.BaseAddress = new Uri(url2);
@@ -3379,13 +3381,17 @@ namespace ApiPortal.Services
                             string url = api.Url + api.ContabilizaPagos;
                             client.BaseAddress = new Uri(url);
                             client.DefaultRequestHeaders.Accept.Clear();
-                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+                            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-                            var multipart = new MultipartFormDataContent();
-                            multipart.Add(new StringContent(jsonString), "vJson");
-                            //multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
+
+                            var formData = new List<KeyValuePair<string, string>>
+                                {
+                                    new KeyValuePair<string, string>("vJson", jsonString),
+                                 };
+                            HttpContent data = new FormUrlEncodedContent(formData);
+
 
                             LogApiDetalle logApiDetalle = new LogApiDetalle();
                             logApiDetalle.IdLogApi = logApiId;
@@ -3393,7 +3399,7 @@ namespace ApiPortal.Services
                             logApiDetalle.Metodo = "ContabilizaPagos";
 
 
-                            HttpResponseMessage response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
+                            HttpResponseMessage response = await client.PostAsync(client.BaseAddress, data).ConfigureAwait(false);
 
                             logApiDetalle.Termino = DateTime.Now;
                             logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
@@ -3465,6 +3471,11 @@ namespace ApiPortal.Services
                             }
                             else
                             {
+                                pago.IdPagoEstado = 4; //ESTADO PAGADO
+                                _context.PagosCabeceras.Attach(pago);
+                                _context.Entry(pago).Property(x => x.IdPagoEstado).IsModified = true;
+                                _context.SaveChanges();
+
                                 var content = await response.Content.ReadAsStringAsync();
                                 LogProceso log = new LogProceso
                                 {
@@ -3522,7 +3533,8 @@ namespace ApiPortal.Services
 
             }
 
-            PagoComprobanteVm pagoComprobante = new PagoComprobanteVm{
+            PagoComprobanteVm pagoComprobante = new PagoComprobanteVm
+            {
                 NumComprobante = numeroComprobante,
                 PagoId = idPago
             };
@@ -3556,7 +3568,8 @@ namespace ApiPortal.Services
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                         string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", rutAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", rutAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -3670,7 +3683,8 @@ namespace ApiPortal.Services
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                         string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -3775,7 +3789,8 @@ namespace ApiPortal.Services
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                     string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", ""); ;
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
@@ -4019,7 +4034,8 @@ namespace ApiPortal.Services
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", DateTime.Now.Year.ToString()).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -5947,349 +5963,349 @@ namespace ApiPortal.Services
         }
 
         #region METODOS COBRANZA AUTOMATICA
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaAsync(string tipoDocumento, int diasVencimiento, int excluyeClientes, string listasPrecio, string condicionesVenta, string vendedores, string categoriasClientes, string canalesVenta, string cobradores, string logApiId, string estadoTipoCobranza = "")
+        public async Task<List<ResumenDocumentosClienteApiDTO>> GetDocumentosPendientesCobranzaAsync(FiltroCobranzaVm filtro, string logApiId)
         {
-            List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
+            List<ResumenDocumentosClienteApiDTO> retorno = new List<ResumenDocumentosClienteApiDTO>();
 
             try
             {
                 if (utilizaApiSoftland == "false") //FCA 16-06-2022
                 {
-                    var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
-                    string documentos = string.Empty;
-                    if (string.IsNullOrEmpty(tipoDocumento))
-                    {
-                        foreach (var doc in configuracionPortal.TiposDocumentosDeuda.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(documentos))
-                            {
-                                documentos = "'" + doc + "'";
-                            }
-                            else
-                            {
-                                documentos = documentos + ",'" + doc + "'";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var tiposDocs = tipoDocumento.Split(';');
-                        foreach (var doc in tiposDocs)
-                        {
-                            if (string.IsNullOrEmpty(documentos))
-                            {
-                                documentos = "'" + doc + "'";
-                            }
-                            else
-                            {
-                                documentos = documentos + ",'" + doc + "'";
-                            }
-                        }
-                    }
-
-
-
-                    string cuentas = string.Empty;
-                    foreach (var c in configuracionPortal.CuentasContablesDeuda.Split(';'))
-                    {
-                        if (string.IsNullOrEmpty(cuentas))
-                        {
-                            cuentas = "'" + c + "'";
-                        }
-                        else
-                        {
-                            cuentas = cuentas + ",'" + c + "'";
-                        }
-                    }
-
-
-
-
-                    string sqlWhere = string.Empty;
-
-
-
-                    //if (fechaDesde == null && fechaHasta == null)
+                    //var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    //string documentos = string.Empty;
+                    //if (string.IsNullOrEmpty(filtro.TipoDocumento))
                     //{
-                    //    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
-                    //    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
-                    //}
-
-                    //if (fechaDesde != null && fechaHasta != null)
-                    //{
-                    //    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
-                    //    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
-                    //    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
-                    //}
-
-                    bool esJoin = false;
-
-                    if (listasPrecio != "" && listasPrecio != null)
-                    {
-                        string lp = string.Empty;
-                        foreach (var item in listasPrecio.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(lp))
-                            {
-                                lp = "'" + item + "'";
-                            }
-                            else
-                            {
-                                lp += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(lp))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista in (" + lp + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    if (canalesVenta != "" && canalesVenta != null)
-                    {
-                        string canales = string.Empty;
-                        foreach (var item in canalesVenta.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(canales))
-                            {
-                                canales = "'" + item + "'";
-                            }
-                            else
-                            {
-                                canales += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(canales))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCan in (" + canales + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    if (cobradores != "" && cobradores != null)
-                    {
-                        string c = string.Empty;
-                        foreach (var item in cobradores.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(c))
-                            {
-                                c = "'" + item + "'";
-                            }
-                            else
-                            {
-                                c += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(c))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCob  in (" + c + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    if (condicionesVenta != "" && condicionesVenta != null)
-                    {
-                        string condV = string.Empty;
-                        foreach (var item in condicionesVenta.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(condV))
-                            {
-                                condV = "'" + item + "'";
-                            }
-                            else
-                            {
-                                condV += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(condV))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta in (" + condV + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    if (vendedores != "" && vendedores != null)
-                    {
-                        string vend = string.Empty;
-                        foreach (var item in vendedores.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(vend))
-                            {
-                                vend = "'" + item + "'";
-                            }
-                            else
-                            {
-                                vend += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(vend))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen in (" + vend + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    if (categoriasClientes != "" && categoriasClientes != null)
-                    {
-                        string catcli = string.Empty;
-                        foreach (var item in categoriasClientes.Split(';'))
-                        {
-                            if (string.IsNullOrEmpty(catcli))
-                            {
-                                catcli = "'" + item + "'";
-                            }
-                            else
-                            {
-                                catcli += ",'" + item + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(catcli))
-                        {
-                            sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli in (" + catcli + ")";
-                            esJoin = true;
-                        }
-                    }
-
-                    string join = string.Empty;
-                    if (esJoin)
-                    {
-                        join = " inner join softland.cwtcvcl on cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
-                    }
-
-                    //Excluye alumnos del listado
-                    if (excluyeClientes == 1)
-                    {
-                        var clientes = _context.ClientesExcluidos.ToList();
-                        string rutAlumnos = string.Empty;
-                        foreach (var item in clientes)
-                        {
-                            if (string.IsNullOrEmpty(rutAlumnos))
-                            {
-                                rutAlumnos = "'" + item.RutCliente + "'";
-                            }
-                            else
-                            {
-                                rutAlumnos += ",'" + item.RutCliente + "'";
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(rutAlumnos))
-                        {
-                            sqlWhere = sqlWhere + " AND cwtauxi.RutAux not in (" + rutAlumnos + ") ";
-                        }
-                    }
-
-                    string sqlDias = string.Empty;
-
-                    if (diasVencimiento > 0 && estadoTipoCobranza == "VENCIDO")
-                    {
-                        sqlDias = " WHERE Atrasado >=" + diasVencimiento;
-                    }
-                    else if (diasVencimiento > 0 && estadoTipoCobranza == "PENDIENTE")
-                    {
-                        sqlDias = " WHERE (Atrasado*-1) <=" + diasVencimiento;
-                    }
-
-                    string sqlOrder = "ORDER BY Atrasado ";
-
-                    if (!string.IsNullOrEmpty(estadoTipoCobranza))
-                    {
-                        if (string.IsNullOrEmpty(sqlDias))
-                        {
-                            sqlDias = " WHERE Estado = '" + estadoTipoCobranza + "'";
-                        }
-                        else
-                        {
-                            sqlDias = sqlDias + " AND Estado = '" + estadoTipoCobranza + "'";
-                        }
-
-                        if (estadoTipoCobranza == "PENDIENTE")
-                        {
-                            sqlOrder = sqlOrder + "asc";
-                        }
-                        else //VENCIDO
-                        {
-                            sqlOrder = sqlOrder + "desc";
-                        }
-
-                    }
-
-                    //if (año != 0)
-                    //{
-                    //    sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
+                    //    foreach (var doc in configuracionPortal.TiposDocumentosDeuda.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(documentos))
+                    //        {
+                    //            documentos = "'" + doc + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            documentos = documentos + ",'" + doc + "'";
+                    //        }
+                    //    }
                     //}
                     //else
                     //{
-                    //    sqlDias = sqlDias + " AND YEAR(Emision) >= " + configuracionPortal.AnioTributario;
+                    //    var tiposDocs = filtro.TipoDocumento.Split(';');
+                    //    foreach (var doc in tiposDocs)
+                    //    {
+                    //        if (string.IsNullOrEmpty(documentos))
+                    //        {
+                    //            documentos = "'" + doc + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            documentos = documentos + ",'" + doc + "'";
+                    //        }
+                    //    }
+                    //}
+
+
+
+                    //string cuentas = string.Empty;
+                    //foreach (var c in configuracionPortal.CuentasContablesDeuda.Split(';'))
+                    //{
+                    //    if (string.IsNullOrEmpty(cuentas))
+                    //    {
+                    //        cuentas = "'" + c + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        cuentas = cuentas + ",'" + c + "'";
+                    //    }
                     //}
 
 
 
 
-                    conSoftland.Open();
+                    //string sqlWhere = string.Empty;
 
-                    SqlCommand cmd = new SqlCommand();
-                    SqlDataReader result;
-                    cmd.CommandText = "Select * from (select " +
-                                        "cwpctas.pccodi, " +
-                                        "cwpctas.pcdesc, " +
-                                        "cwtauxi.codaux, " +
-                                        "cwtauxi.RutAux, " +
-                                        "cwtauxi.nomaux, " +
-                                        "cwtauxi.Bloqueado, " +
-                                        "min(cwmovim.movfe) as Emision, " +
-                                        "min(cwmovim.MovFv) as Vencimiento, " +
-                                        "DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) AS Atrasado," +
-                                        "CASE " +
-                                        "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) > 0 THEN 'VENCIDO' " +
-                                        "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) <= 0 THEN 'PENDIENTE' " +
-                                        "END AS Estado, " +
-                                        "cwttdoc.CodDoc as TipoDoc, " +
-                                        "cwttdoc.desdoc as Documento, " +
-                                        "cwmovim.movnumdocref as Nro, " +
-                                        "sum(cwmovim.movdebe - cwmovim.movhaber) as Saldo, " +
-                                        "sum(cwmovim.movdebe) as Debe " +
-                                        "From softland.cwcpbte inner join softland.cwmovim on cwcpbte.cpbano = cwmovim.cpbano and cwcpbte.cpbnum = cwmovim.cpbnum inner join softland.cwtauxi on " +
-                                        "cwtauxi.codaux = cwmovim.codaux inner join softland.cwpctas on cwmovim.pctcod = cwpctas.pccodi left join softland.cwttdoc on " +
-                                        "cwmovim.movtipdocref = cwttdoc.coddoc left join softland.cwtaren on cwmovim.AreaCod = cwTAren.CodArn " + join +
-                                        "Where(((cwmovim.cpbNum <> '00000000')  or(cwmovim.cpbano = '2017' AND cwmovim.cpbNum = '00000000'))) and " +
-                                        "(cwcpbte.cpbest = 'V') " +
-                                        "and cwmovim.PctCod in (" + cuentas + ") " +
-                                        "and cwmovim.MovTipDocRef in (" + documentos + ") " + sqlWhere + " " +
-                                        "Group By cwtauxi.Bloqueado, cwpctas.pccodi , cwpctas.pcdesc, cwtauxi.codaux, cwtauxi.RutAux, cwmovim.movnumdocref, cwtauxi.nomaux, cwttdoc.desdoc, cwmovim.AreaCod,  " +
-                                        "cwTAren.DesArn, cwpctas.PCAUXI, cwpctas.PCCDOC,  cwttdoc.coddoc " +
-                                        "Having(Sum((cwmovim.movdebe - cwmovim.movhaber)) > 0)) as tabla " + sqlDias + sqlOrder;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.Connection = conSoftland;
-                    result = cmd.ExecuteReader();
 
-                    while (result.Read())
-                    {
-                        DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
-                        aux.FolioDocumento = Convert.ToInt32(result["Nro"]);
-                        aux.TipoDocumento = result["Documento"].ToString();
-                        aux.CodTipoDocumento = result["TipoDoc"].ToString();
-                        aux.FechaEmision = Convert.ToDateTime(result["Emision"]);
-                        aux.FechaVencimiento = Convert.ToDateTime(result["Vencimiento"]);
-                        aux.RutCliente = result["RutAux"].ToString();
-                        aux.Bloqueado = result["Bloqueado"].ToString();
-                        aux.NombreCliente = result["Nomaux"].ToString();
-                        aux.DiasAtraso = Convert.ToInt32(result["Atrasado"]);
-                        aux.Estado = result["Estado"].ToString();
-                        aux.CuentaContable = result["pccodi"].ToString();
-                        aux.NombreCuenta = result["pcdesc"].ToString();
-                        aux.MontoDocumento = Convert.ToDecimal(result["Debe"]);
-                        aux.SaldoDocumento = Convert.ToDecimal(result["Saldo"]);
 
-                        retorno.Add(aux);
-                    }
-                    result.Close();
+                    ////if (fechaDesde == null && fechaHasta == null)
+                    ////{
+                    ////    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
+                    ////    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
+                    ////}
+
+                    ////if (fechaDesde != null && fechaHasta != null)
+                    ////{
+                    ////    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
+                    ////    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
+                    ////    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
+                    ////}
+
+                    //bool esJoin = false;
+
+                    //if (!string.IsNullOrEmpty(filtro.ListasPrecio))
+                    //{
+                    //    string lp = string.Empty;
+                    //    foreach (var item in filtro.ListasPrecio.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(lp))
+                    //        {
+                    //            lp = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            lp += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(lp))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista in (" + lp + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CanalesVenta))
+                    //{
+                    //    string canales = string.Empty;
+                    //    foreach (var item in filtro.CanalesVenta.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(canales))
+                    //        {
+                    //            canales = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            canales += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(canales))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCan in (" + canales + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.Cobradores))
+                    //{
+                    //    string c = string.Empty;
+                    //    foreach (var item in filtro.Cobradores.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(c))
+                    //        {
+                    //            c = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            c += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(c))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCob  in (" + c + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CondicionesVenta))
+                    //{
+                    //    string condV = string.Empty;
+                    //    foreach (var item in filtro.CondicionesVenta.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(condV))
+                    //        {
+                    //            condV = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            condV += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(condV))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta in (" + condV + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.Vendedores))
+                    //{
+                    //    string vend = string.Empty;
+                    //    foreach (var item in filtro.Vendedores.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(vend))
+                    //        {
+                    //            vend = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            vend += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(vend))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen in (" + vend + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CategoriasClientes))
+                    //{
+                    //    string catcli = string.Empty;
+                    //    foreach (var item in filtro.CategoriasClientes.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(catcli))
+                    //        {
+                    //            catcli = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            catcli += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(catcli))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli in (" + catcli + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //string join = string.Empty;
+                    //if (esJoin)
+                    //{
+                    //    join = " inner join softland.cwtcvcl on cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
+                    //}
+
+                    ////Excluye alumnos del listado
+                    //if (filtro.ExcluyeClientes == 1)
+                    //{
+                    //    var clientes = _context.ClientesExcluidos.ToList();
+                    //    string rutAlumnos = string.Empty;
+                    //    foreach (var item in clientes)
+                    //    {
+                    //        if (string.IsNullOrEmpty(rutAlumnos))
+                    //        {
+                    //            rutAlumnos = "'" + item.RutCliente + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            rutAlumnos += ",'" + item.RutCliente + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(rutAlumnos))
+                    //    {
+                    //        sqlWhere = sqlWhere + " AND cwtauxi.RutAux not in (" + rutAlumnos + ") ";
+                    //    }
+                    //}
+
+                    //string sqlDias = string.Empty;
+
+                    //if (filtro.CantidadDias > 0 && filtro.Estado == "VENCIDO")
+                    //{
+                    //    sqlDias = " WHERE Atrasado >=" + filtro.CantidadDias;
+                    //}
+                    //else if (filtro.CantidadDias > 0 && filtro.Estado == "PENDIENTE")
+                    //{
+                    //    sqlDias = " WHERE (Atrasado*-1) <=" + filtro.CantidadDias;
+                    //}
+
+                    //string sqlOrder = "ORDER BY Atrasado ";
+
+                    //if (!string.IsNullOrEmpty(filtro.Estado))
+                    //{
+                    //    if (string.IsNullOrEmpty(sqlDias))
+                    //    {
+                    //        sqlDias = " WHERE Estado = '" + filtro.Estado + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        sqlDias = sqlDias + " AND Estado = '" + filtro.Estado + "'";
+                    //    }
+
+                    //    if (filtro.Estado == "PENDIENTE")
+                    //    {
+                    //        sqlOrder = sqlOrder + "asc";
+                    //    }
+                    //    else //VENCIDO
+                    //    {
+                    //        sqlOrder = sqlOrder + "desc";
+                    //    }
+
+                    //}
+
+                    ////if (año != 0)
+                    ////{
+                    ////    sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
+                    ////}
+                    ////else
+                    ////{
+                    ////    sqlDias = sqlDias + " AND YEAR(Emision) >= " + configuracionPortal.AnioTributario;
+                    ////}
+
+
+
+
+                    //conSoftland.Open();
+
+                    //SqlCommand cmd = new SqlCommand();
+                    //SqlDataReader result;
+                    //cmd.CommandText = "Select * from (select " +
+                    //                    "cwpctas.pccodi, " +
+                    //                    "cwpctas.pcdesc, " +
+                    //                    "cwtauxi.codaux, " +
+                    //                    "cwtauxi.RutAux, " +
+                    //                    "cwtauxi.nomaux, " +
+                    //                    "cwtauxi.Bloqueado, " +
+                    //                    "min(cwmovim.movfe) as Emision, " +
+                    //                    "min(cwmovim.MovFv) as Vencimiento, " +
+                    //                    "DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) AS Atrasado," +
+                    //                    "CASE " +
+                    //                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) > 0 THEN 'VENCIDO' " +
+                    //                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) <= 0 THEN 'PENDIENTE' " +
+                    //                    "END AS Estado, " +
+                    //                    "cwttdoc.CodDoc as TipoDoc, " +
+                    //                    "cwttdoc.desdoc as Documento, " +
+                    //                    "cwmovim.movnumdocref as Nro, " +
+                    //                    "sum(cwmovim.movdebe - cwmovim.movhaber) as Saldo, " +
+                    //                    "sum(cwmovim.movdebe) as Debe " +
+                    //                    "From softland.cwcpbte inner join softland.cwmovim on cwcpbte.cpbano = cwmovim.cpbano and cwcpbte.cpbnum = cwmovim.cpbnum inner join softland.cwtauxi on " +
+                    //                    "cwtauxi.codaux = cwmovim.codaux inner join softland.cwpctas on cwmovim.pctcod = cwpctas.pccodi left join softland.cwttdoc on " +
+                    //                    "cwmovim.movtipdocref = cwttdoc.coddoc left join softland.cwtaren on cwmovim.AreaCod = cwTAren.CodArn " + join +
+                    //                    "Where(((cwmovim.cpbNum <> '00000000')  or(cwmovim.cpbano = '2017' AND cwmovim.cpbNum = '00000000'))) and " +
+                    //                    "(cwcpbte.cpbest = 'V') " +
+                    //                    "and cwmovim.PctCod in (" + cuentas + ") " +
+                    //                    "and cwmovim.MovTipDocRef in (" + documentos + ") " + sqlWhere + " " +
+                    //                    "Group By cwtauxi.Bloqueado, cwpctas.pccodi , cwpctas.pcdesc, cwtauxi.codaux, cwtauxi.RutAux, cwmovim.movnumdocref, cwtauxi.nomaux, cwttdoc.desdoc, cwmovim.AreaCod,  " +
+                    //                    "cwTAren.DesArn, cwpctas.PCAUXI, cwpctas.PCCDOC,  cwttdoc.coddoc " +
+                    //                    "Having(Sum((cwmovim.movdebe - cwmovim.movhaber)) > 0)) as tabla " + sqlDias + sqlOrder;
+                    //cmd.CommandType = CommandType.Text;
+                    //cmd.Connection = conSoftland;
+                    //result = cmd.ExecuteReader();
+
+                    //while (result.Read())
+                    //{
+                    //    DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
+                    //    aux.FolioDocumento = Convert.ToInt32(result["Nro"]);
+                    //    aux.TipoDocumento = result["Documento"].ToString();
+                    //    aux.CodTipoDocumento = result["TipoDoc"].ToString();
+                    //    aux.FechaEmision = Convert.ToDateTime(result["Emision"]);
+                    //    aux.FechaVencimiento = Convert.ToDateTime(result["Vencimiento"]);
+                    //    aux.RutCliente = result["RutAux"].ToString();
+                    //    aux.Bloqueado = result["Bloqueado"].ToString();
+                    //    aux.NombreCliente = result["Nomaux"].ToString();
+                    //    aux.DiasAtraso = Convert.ToInt32(result["Atrasado"]);
+                    //    aux.Estado = result["Estado"].ToString();
+                    //    aux.CuentaContable = result["pccodi"].ToString();
+                    //    aux.NombreCuenta = result["pcdesc"].ToString();
+                    //    aux.MontoDocumento = Convert.ToDecimal(result["Debe"]);
+                    //    aux.SaldoDocumento = Convert.ToDecimal(result["Saldo"]);
+
+                    //    retorno.Add(aux);
+                    //}
+                    //result.Close();
                 }
                 else
                 {
@@ -6311,24 +6327,511 @@ namespace ApiPortal.Services
                         //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         //}
 
+                        string fechaVencimientoDesde = filtro.Fecha != null ? filtro.Fecha.Value.ToString("yyyyMMdd") : string.Empty;
+                        string fechaVencimientoHasta = filtro.FechaHasta != null ? filtro.FechaHasta.Value.ToString("yyyyMMdd") : string.Empty;
+
+
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
 
                         string listaDocumentos = string.Empty;
-                        if (!string.IsNullOrEmpty(tipoDocumento))
+                        if (!string.IsNullOrEmpty(filtro.TipoDocumento))
                         {
-                            listaDocumentos = tipoDocumento.Replace(";", ",");
+                            listaDocumentos = filtro.TipoDocumento.Replace(";", ",");
                         }
                         else
                         {
                             listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                         }
 
-                        int cantidad = 100;
-                        int pagina = 1;
+
+                        string estado = string.Empty;
+                        if (filtro.Estado == "VENCIDO")
+                        {
+                            estado = "V";
+
+                        }
+                        else if (filtro.Estado == "PENDIENTE")
+                        {
+                            estado = "P";
+
+                        }
+
+                        string listaCategorias = !string.IsNullOrEmpty(filtro.CategoriasClientes) ? filtro.CategoriasClientes.Replace(";", ",") : string.Empty;
+                        string listaVendedores = !string.IsNullOrEmpty(filtro.Vendedores) ? filtro.Vendedores.Replace(";", ",") : string.Empty;
+                        string listaCondicionesVenta = !string.IsNullOrEmpty(filtro.CondicionesVenta) ? filtro.CondicionesVenta.Replace(";", ",") : string.Empty;
+                        int diasVencimiento = filtro.CantidadDias != null ? filtro.CantidadDias : 0;
+
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+                        string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", filtro.Cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filtro.Pagina.ToString()).Replace("{RUTAUX}", filtro.RutCliente).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
+                        .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        LogApiDetalle logApiDetalle = new LogApiDetalle();
+                        logApiDetalle.IdLogApi = logApiId;
+                        logApiDetalle.Inicio = DateTime.Now;
+                        logApiDetalle.Metodo = "DocumentosContabilizadosResumenXRut";
+
+
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                        logApiDetalle.Termino = DateTime.Now;
+                        logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);
+                        this.guardarDetalleLogApi(logApiDetalle);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            List<List<ResumenDocumentosClienteApiDTO>> clientes = JsonConvert.DeserializeObject<List<List<ResumenDocumentosClienteApiDTO>>>(content);
+                            retorno = clientes[0].Where(x => !string.IsNullOrEmpty(x.codaux)).ToList();
+                        }
+                        else
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            LogProceso log = new LogProceso
+                            {
+                                Excepcion = response.StatusCode.ToString(),
+                                Fecha = DateTime.Now.Date,
+                                Hora = DateTime.Now.ToString("HH:mm:ss"),
+                                Mensaje = content,
+                                Ruta = "SoftlandService/GetDocumentosPendientesCobranzaAsync"
+                            };
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.IdTipoProceso = -1;
+                log.Fecha = DateTime.Now;
+                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                log.Ruta = @"Softland\GetDocumentosPendientesCobranzaAsync";
+                log.Mensaje = ex.Message;
+                log.Excepcion = ex.ToString();
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return retorno;
+            }
+            finally { conSoftland.Close(); }
+
+            return retorno;
+        }
+
+        public async Task<List<DocumentoContabilizadoAPIDTO>> GetDocumentosXCliente(FiltroCobranzaVm filtro, string logApiId)
+        {
+            List<DocumentoContabilizadoAPIDTO> retorno = new List<DocumentoContabilizadoAPIDTO>();
+
+            try
+            {
+                if (utilizaApiSoftland == "false") //FCA 16-06-2022
+                {
+                    //var configuracionPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                    //string documentos = string.Empty;
+                    //if (string.IsNullOrEmpty(filtro.TipoDocumento))
+                    //{
+                    //    foreach (var doc in configuracionPortal.TiposDocumentosDeuda.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(documentos))
+                    //        {
+                    //            documentos = "'" + doc + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            documentos = documentos + ",'" + doc + "'";
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    var tiposDocs = filtro.TipoDocumento.Split(';');
+                    //    foreach (var doc in tiposDocs)
+                    //    {
+                    //        if (string.IsNullOrEmpty(documentos))
+                    //        {
+                    //            documentos = "'" + doc + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            documentos = documentos + ",'" + doc + "'";
+                    //        }
+                    //    }
+                    //}
+
+
+
+                    //string cuentas = string.Empty;
+                    //foreach (var c in configuracionPortal.CuentasContablesDeuda.Split(';'))
+                    //{
+                    //    if (string.IsNullOrEmpty(cuentas))
+                    //    {
+                    //        cuentas = "'" + c + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        cuentas = cuentas + ",'" + c + "'";
+                    //    }
+                    //}
+
+
+
+
+                    //string sqlWhere = string.Empty;
+
+
+
+                    ////if (fechaDesde == null && fechaHasta == null)
+                    ////{
+                    ////    string fecha = DateTime.Now.Year.ToString() + ((DateTime.Now.Month < 10) ? "0" + DateTime.Now.Month.ToString() : DateTime.Now.Month.ToString()) + ((DateTime.Now.Day < 10) ? "0" + DateTime.Now.Day.ToString() : DateTime.Now.Day.ToString());
+                    ////    sqlWhere = sqlWhere + " AND CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + fecha + ",112)";
+                    ////}
+
+                    ////if (fechaDesde != null && fechaHasta != null)
+                    ////{
+                    ////    string feDesde = fechaDesde?.Year.ToString() + ((fechaDesde?.Month < 10) ? "0" + fechaDesde?.Month.ToString() : fechaDesde?.Month.ToString()) + ((fechaDesde?.Day < 10) ? "0" + fechaDesde?.Day.ToString() : fechaDesde?.Day.ToString());
+                    ////    string feHasta = fechaHasta?.Year.ToString() + ((fechaHasta?.Month < 10) ? "0" + fechaHasta?.Month.ToString() : fechaHasta?.Month.ToString()) + ((fechaHasta?.Day < 10) ? "0" + fechaHasta?.Day.ToString() : fechaHasta?.Day.ToString());
+                    ////    sqlWhere = sqlWhere + " AND (CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) >= CONVERT(VARCHAR(10)," + feDesde + ",112) AND  CONVERT(VARCHAR(10),CWCpbte.CpbFec,112) <= CONVERT(VARCHAR(10)," + feHasta + ",112))";
+                    ////}
+
+                    //bool esJoin = false;
+
+                    //if (!string.IsNullOrEmpty(filtro.ListasPrecio))
+                    //{
+                    //    string lp = string.Empty;
+                    //    foreach (var item in filtro.ListasPrecio.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(lp))
+                    //        {
+                    //            lp = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            lp += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(lp))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodLista in (" + lp + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CanalesVenta))
+                    //{
+                    //    string canales = string.Empty;
+                    //    foreach (var item in filtro.CanalesVenta.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(canales))
+                    //        {
+                    //            canales = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            canales += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(canales))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCan in (" + canales + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.Cobradores))
+                    //{
+                    //    string c = string.Empty;
+                    //    foreach (var item in filtro.Cobradores.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(c))
+                    //        {
+                    //            c = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            c += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(c))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodCob  in (" + c + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CondicionesVenta))
+                    //{
+                    //    string condV = string.Empty;
+                    //    foreach (var item in filtro.CondicionesVenta.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(condV))
+                    //        {
+                    //            condV = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            condV += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(condV))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.ConVta in (" + condV + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.Vendedores))
+                    //{
+                    //    string vend = string.Empty;
+                    //    foreach (var item in filtro.Vendedores.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(vend))
+                    //        {
+                    //            vend = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            vend += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(vend))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CodVen in (" + vend + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //if (!string.IsNullOrEmpty(filtro.CategoriasClientes))
+                    //{
+                    //    string catcli = string.Empty;
+                    //    foreach (var item in filtro.CategoriasClientes.Split(';'))
+                    //    {
+                    //        if (string.IsNullOrEmpty(catcli))
+                    //        {
+                    //            catcli = "'" + item + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            catcli += ",'" + item + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(catcli))
+                    //    {
+                    //        sqlWhere = sqlWhere + "AND softland.cwtcvcl.CatCli in (" + catcli + ")";
+                    //        esJoin = true;
+                    //    }
+                    //}
+
+                    //string join = string.Empty;
+                    //if (esJoin)
+                    //{
+                    //    join = " inner join softland.cwtcvcl on cwtauxi.CodAux = softland.cwtcvcl.CodAux ";
+                    //}
+
+                    ////Excluye alumnos del listado
+                    //if (filtro.ExcluyeClientes == 1)
+                    //{
+                    //    var clientes = _context.ClientesExcluidos.ToList();
+                    //    string rutAlumnos = string.Empty;
+                    //    foreach (var item in clientes)
+                    //    {
+                    //        if (string.IsNullOrEmpty(rutAlumnos))
+                    //        {
+                    //            rutAlumnos = "'" + item.RutCliente + "'";
+                    //        }
+                    //        else
+                    //        {
+                    //            rutAlumnos += ",'" + item.RutCliente + "'";
+                    //        }
+                    //    }
+
+                    //    if (!string.IsNullOrEmpty(rutAlumnos))
+                    //    {
+                    //        sqlWhere = sqlWhere + " AND cwtauxi.RutAux not in (" + rutAlumnos + ") ";
+                    //    }
+                    //}
+
+                    //string sqlDias = string.Empty;
+
+                    //if (filtro.CantidadDias > 0 && filtro.Estado == "VENCIDO")
+                    //{
+                    //    sqlDias = " WHERE Atrasado >=" + filtro.CantidadDias;
+                    //}
+                    //else if (filtro.CantidadDias > 0 && filtro.Estado == "PENDIENTE")
+                    //{
+                    //    sqlDias = " WHERE (Atrasado*-1) <=" + filtro.CantidadDias;
+                    //}
+
+                    //string sqlOrder = "ORDER BY Atrasado ";
+
+                    //if (!string.IsNullOrEmpty(filtro.Estado))
+                    //{
+                    //    if (string.IsNullOrEmpty(sqlDias))
+                    //    {
+                    //        sqlDias = " WHERE Estado = '" + filtro.Estado + "'";
+                    //    }
+                    //    else
+                    //    {
+                    //        sqlDias = sqlDias + " AND Estado = '" + filtro.Estado + "'";
+                    //    }
+
+                    //    if (filtro.Estado == "PENDIENTE")
+                    //    {
+                    //        sqlOrder = sqlOrder + "asc";
+                    //    }
+                    //    else //VENCIDO
+                    //    {
+                    //        sqlOrder = sqlOrder + "desc";
+                    //    }
+
+                    //}
+
+                    ////if (año != 0)
+                    ////{
+                    ////    sqlDias = sqlDias + " AND YEAR(Emision) = " + año;
+                    ////}
+                    ////else
+                    ////{
+                    ////    sqlDias = sqlDias + " AND YEAR(Emision) >= " + configuracionPortal.AnioTributario;
+                    ////}
+
+
+
+
+                    //conSoftland.Open();
+
+                    //SqlCommand cmd = new SqlCommand();
+                    //SqlDataReader result;
+                    //cmd.CommandText = "Select * from (select " +
+                    //                    "cwpctas.pccodi, " +
+                    //                    "cwpctas.pcdesc, " +
+                    //                    "cwtauxi.codaux, " +
+                    //                    "cwtauxi.RutAux, " +
+                    //                    "cwtauxi.nomaux, " +
+                    //                    "cwtauxi.Bloqueado, " +
+                    //                    "min(cwmovim.movfe) as Emision, " +
+                    //                    "min(cwmovim.MovFv) as Vencimiento, " +
+                    //                    "DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) AS Atrasado," +
+                    //                    "CASE " +
+                    //                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) > 0 THEN 'VENCIDO' " +
+                    //                    "WHEN DATEDIFF(day, min(cwmovim.MovFv), GETDATE()) <= 0 THEN 'PENDIENTE' " +
+                    //                    "END AS Estado, " +
+                    //                    "cwttdoc.CodDoc as TipoDoc, " +
+                    //                    "cwttdoc.desdoc as Documento, " +
+                    //                    "cwmovim.movnumdocref as Nro, " +
+                    //                    "sum(cwmovim.movdebe - cwmovim.movhaber) as Saldo, " +
+                    //                    "sum(cwmovim.movdebe) as Debe " +
+                    //                    "From softland.cwcpbte inner join softland.cwmovim on cwcpbte.cpbano = cwmovim.cpbano and cwcpbte.cpbnum = cwmovim.cpbnum inner join softland.cwtauxi on " +
+                    //                    "cwtauxi.codaux = cwmovim.codaux inner join softland.cwpctas on cwmovim.pctcod = cwpctas.pccodi left join softland.cwttdoc on " +
+                    //                    "cwmovim.movtipdocref = cwttdoc.coddoc left join softland.cwtaren on cwmovim.AreaCod = cwTAren.CodArn " + join +
+                    //                    "Where(((cwmovim.cpbNum <> '00000000')  or(cwmovim.cpbano = '2017' AND cwmovim.cpbNum = '00000000'))) and " +
+                    //                    "(cwcpbte.cpbest = 'V') " +
+                    //                    "and cwmovim.PctCod in (" + cuentas + ") " +
+                    //                    "and cwmovim.MovTipDocRef in (" + documentos + ") " + sqlWhere + " " +
+                    //                    "Group By cwtauxi.Bloqueado, cwpctas.pccodi , cwpctas.pcdesc, cwtauxi.codaux, cwtauxi.RutAux, cwmovim.movnumdocref, cwtauxi.nomaux, cwttdoc.desdoc, cwmovim.AreaCod,  " +
+                    //                    "cwTAren.DesArn, cwpctas.PCAUXI, cwpctas.PCCDOC,  cwttdoc.coddoc " +
+                    //                    "Having(Sum((cwmovim.movdebe - cwmovim.movhaber)) > 0)) as tabla " + sqlDias + sqlOrder;
+                    //cmd.CommandType = CommandType.Text;
+                    //cmd.Connection = conSoftland;
+                    //result = cmd.ExecuteReader();
+
+                    //while (result.Read())
+                    //{
+                    //    DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
+                    //    aux.FolioDocumento = Convert.ToInt32(result["Nro"]);
+                    //    aux.TipoDocumento = result["Documento"].ToString();
+                    //    aux.CodTipoDocumento = result["TipoDoc"].ToString();
+                    //    aux.FechaEmision = Convert.ToDateTime(result["Emision"]);
+                    //    aux.FechaVencimiento = Convert.ToDateTime(result["Vencimiento"]);
+                    //    aux.RutCliente = result["RutAux"].ToString();
+                    //    aux.Bloqueado = result["Bloqueado"].ToString();
+                    //    aux.NombreCliente = result["Nomaux"].ToString();
+                    //    aux.DiasAtraso = Convert.ToInt32(result["Atrasado"]);
+                    //    aux.Estado = result["Estado"].ToString();
+                    //    aux.CuentaContable = result["pccodi"].ToString();
+                    //    aux.NombreCuenta = result["pcdesc"].ToString();
+                    //    aux.MontoDocumento = Convert.ToDecimal(result["Debe"]);
+                    //    aux.SaldoDocumento = Convert.ToDecimal(result["Saldo"]);
+
+                    //    retorno.Add(aux);
+                    //}
+                    //result.Close();
+                }
+                else
+                {
+                    using (var client = new HttpClient())
+                    {
+                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        var configPortal = _context.ConfiguracionPagoClientes.FirstOrDefault();
+                        var monedas = await this.GetMonedasAsync(logApiId);
+                        var cuentasContables = await this.GetAllCuentasContablesSoftlandAsync(logApiId);
+                        //var fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        var fechaActual = DateTime.Now;
+                        string fecha = string.Empty;
+                        //if (fechaDesde != null)
+                        //{
+                        //    fecha = fechaDesde?.ToString("yyyy'-'MM'-'dd");//fechaDesde.Year.ToString() + " - 0" + fechaDesde.Month.ToString() + "-0" + fechaDesde.Day.ToString();
+                        //}
+                        //else
+                        //{
+                        //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
+                        //}
+
+                        string fechaVencimientoDesde = filtro.Fecha != null ? filtro.Fecha.Value.ToString("yyyyMMdd") : string.Empty;
+                        string fechaVencimientoHasta = filtro.FechaHasta != null ? filtro.FechaHasta.Value.ToString("yyyyMMdd") : string.Empty;
+
+
+                        string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
+
+                        string listaDocumentos = string.Empty;
+                        if (!string.IsNullOrEmpty(filtro.TipoDocumento))
+                        {
+                            listaDocumentos = filtro.TipoDocumento.Replace(";", ",");
+                        }
+                        else
+                        {
+                            listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
+                        }
+
+
+                        string estado = string.Empty;
+                        if (filtro.Estado == "VENCIDO")
+                        {
+                            estado = "V";
+
+                        }
+                        else if (filtro.Estado == "PENDIENTE")
+                        {
+                            estado = "P";
+
+                        }
+
+                        string listaCategorias = !string.IsNullOrEmpty(filtro.CategoriasClientes) ? filtro.CategoriasClientes.Replace(";", ",") : string.Empty;
+                        string listaVendedores = !string.IsNullOrEmpty(filtro.Vendedores) ? filtro.Vendedores.Replace(";", ",") : string.Empty;
+                        string listaCondicionesVenta = !string.IsNullOrEmpty(filtro.CondicionesVenta) ? filtro.CondicionesVenta.Replace(";", ",") : string.Empty;
+                        int diasVencimiento = filtro.CantidadDias != null ? filtro.CantidadDias : 0;
+
+                        int pagina = 1;
+                        int cantidad = 50;
+
+                        string accesToken = api.Token;
+                        //string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
+                        .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -6351,19 +6854,19 @@ namespace ApiPortal.Services
                         if (response.IsSuccessStatusCode)
                         {
                             var content = await response.Content.ReadAsStringAsync();
-                            List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
-
-                            if (documentos[0].Count > 0)
+                            List<List<DocumentoContabilizadoAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
+                            retorno = clientes[0].Where(x => !string.IsNullOrEmpty(x.CodAux)).ToList();
+                            if (retorno.Count > 0)
                             {
-                                pagina = pagina + 1;
 
-                                while (documentos[0].Count < documentos[0][0].total)
+                                while (retorno.Count < retorno[0].total)
                                 {
+                                    pagina = pagina + 1;
                                     using (var client2 = new HttpClient())
                                     {
-
-                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
+                                         .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
 
                                         client2.BaseAddress = new Uri(url2);
                                         client2.DefaultRequestHeaders.Accept.Clear();
@@ -6374,8 +6877,7 @@ namespace ApiPortal.Services
                                         LogApiDetalle logApiDetalle2 = new LogApiDetalle();
                                         logApiDetalle2.IdLogApi = logApiId;
                                         logApiDetalle2.Inicio = DateTime.Now;
-                                        logApiDetalle2.Metodo = "ConsultaTiposDeDocumentos";
-
+                                        logApiDetalle2.Metodo = "DocumentosContabilizados";
 
                                         HttpResponseMessage response2 = await client2.GetAsync(client2.BaseAddress).ConfigureAwait(false);
 
@@ -6387,9 +6889,12 @@ namespace ApiPortal.Services
                                         {
                                             var content2 = await response2.Content.ReadAsStringAsync();
                                             List<List<DocumentoContabilizadoAPIDTO>> documentos2 = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content2);
+                                            var listDocs = documentos2[0].Where(x => !string.IsNullOrEmpty(x.CodAux)).ToList();
+                                            if (listDocs.Count > 0)
+                                            {
+                                                retorno.AddRange(listDocs);
+                                            }
 
-                                            documentos[0].AddRange(documentos2[0]);
-                                            pagina = pagina + 1;
                                         }
                                         else
                                         {
@@ -6400,191 +6905,14 @@ namespace ApiPortal.Services
                                                 Fecha = DateTime.Now.Date,
                                                 Hora = DateTime.Now.ToString("HH:mm:ss"),
                                                 Mensaje = content2,
-                                                Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
+                                                Ruta = "SoftlandService/GetDocumentosXCliente"
                                             };
                                             _context.LogProcesos.Add(log);
                                             _context.SaveChanges();
                                         }
-
                                     }
                                 }
-
-                                if (excluyeClientes == 1)
-                                {
-                                    var clientesExcluidos = _context.ClientesExcluidos.ToList();
-                                    foreach (var clienteExcluido in clientesExcluidos)
-                                    {
-                                        documentos[0].RemoveAll(x => x.CodAux == clienteExcluido.CodAuxCliente);
-                                    }
-                                }
-
-                                //if (año != 0)
-                                //{
-                                //    documentos[0] = documentos[0].Where(x => x.Movfe.Value.Year == año).ToList();
-                                //}
-
-                                documentos[0] = documentos[0].Where(x => x.Saldobase > 0).ToList();
-                                //if (fechaHasta != null)
-                                //{
-                                //    documentos[0] = documentos[0].Where(x => x.Movfe <= fechaHasta).ToList();
-                                //}
-
-                                // documentos[0] = documentos[0].Where(x => tipoDocumento.Contains(x.Ttdcod)).ToList();
-
-
-                                if (estadoTipoCobranza == "VENCIDO")
-                                {
-                                    if (diasVencimiento > 0)
-                                    {
-                                        documentos[0] = documentos[0].Where(x => (fechaActual.Date - x.Movfv.Value.Date).TotalDays >= diasVencimiento).ToList();
-                                    }
-                                    else
-                                    {
-                                        documentos[0] = documentos[0].Where(x => x.Estado == "V").ToList();
-                                    }
-
-                                }
-                                else if (estadoTipoCobranza == "PENDIENTE")
-                                {
-                                    if (diasVencimiento > 0)
-                                    {
-                                        documentos[0] = documentos[0].Where(x => (x.Movfv.Value.Date - fechaActual.Date).TotalDays <= diasVencimiento && x.Estado == "P").ToList();
-                                    }
-                                    else
-                                    {
-                                        documentos[0] = documentos[0].Where(x => x.Estado == "P").ToList();
-
-                                    }
-
-                                }
-
                             }
-
-                            foreach (var doc in documentos[0])
-                            {
-                                string url2 = api.Url + api.ConsultaCliente.Replace("{CANTIDAD}", "").Replace("{PAGINA}", "").Replace("{CATCLI}", "").Replace("{CODAUX}", doc.CodAux).Replace("{CODLISTA}", "").Replace("{CODVEN}", "").Replace("{CONVTA}", "")
-                            .Replace("{NOMBRE}", "").Replace("{RUT}", "");
-
-                                using (var client3 = new HttpClient())
-                                {
-                                    client3.BaseAddress = new Uri(url2);
-                                    client3.DefaultRequestHeaders.Accept.Clear();
-                                    client3.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
-                                    client3.DefaultRequestHeaders.Add("SApiKey", accesToken); //client2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
-                                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
-                                    LogApiDetalle logApiDetalle3 = new LogApiDetalle();
-                                    logApiDetalle3.IdLogApi = logApiId;
-                                    logApiDetalle3.Inicio = DateTime.Now;
-                                    logApiDetalle3.Metodo = "ConsultaCliente";
-
-
-                                    HttpResponseMessage response3 = await client3.GetAsync(client3.BaseAddress);
-
-                                    logApiDetalle3.Termino = DateTime.Now;
-                                    logApiDetalle3.Segundos = (int?)Math.Round((logApiDetalle3.Termino - logApiDetalle3.Inicio).Value.TotalSeconds);
-                                    this.guardarDetalleLogApi(logApiDetalle3);
-
-                                    if (response3.IsSuccessStatusCode)
-                                    {
-                                        var content3 = await response3.Content.ReadAsStringAsync();
-                                        List<List<ClienteAPIDTO>> clientes = JsonConvert.DeserializeObject<List<List<ClienteAPIDTO>>>(content3);
-                                        clientes[0] = clientes[0].Where(x => x.CodAux != null).ToList();
-                                        List<ClienteAPIDTO> clientesAux = new List<ClienteAPIDTO>();
-                                        var cliente = clientes[0].FirstOrDefault();
-
-                                        var esValido = true;
-                                        if (!String.IsNullOrEmpty(listasPrecio))
-                                        {
-                                            var exist = listasPrecio.Split(';').Where(x => x == cliente.CodLista).FirstOrDefault();
-                                            if (exist == null)
-                                            {
-                                                esValido = false;
-                                            }
-
-                                        }
-
-                                        if (!String.IsNullOrEmpty(condicionesVenta))
-                                        {
-
-                                            var exist = condicionesVenta.Split(';').Where(x => x == cliente.ConVta).FirstOrDefault();
-                                            if (exist == null)
-                                            {
-                                                esValido = false;
-                                            }
-                                        }
-
-
-                                        if (!String.IsNullOrEmpty(vendedores))
-                                        {
-                                            var exist = vendedores.Split(';').Where(x => x == cliente.CodVen).FirstOrDefault();
-                                            if (exist == null)
-                                            {
-                                                esValido = false;
-                                            }
-                                        }
-
-                                        if (!String.IsNullOrEmpty(categoriasClientes))
-                                        {
-                                            var exist = categoriasClientes.Split(';').Where(x => x == cliente.catcli).FirstOrDefault();
-                                            if (exist == null)
-                                            {
-                                                esValido = false;
-                                            }
-                                        }
-
-                                        if (!String.IsNullOrEmpty(cobradores))
-                                        {
-                                            var exist = cobradores.Split(';').Where(x => x == cliente.Codcob).FirstOrDefault();
-                                            if (exist == null)
-                                            {
-                                                esValido = false;
-                                            }
-                                        }
-
-                                        if (esValido)
-                                        {
-                                            DocumentosCobranzaVm aux = new DocumentosCobranzaVm();
-                                            aux.FolioDocumento = (int)doc.Numdoc;
-                                            aux.TipoDocumento = doc.DesDoc;
-                                            aux.CodTipoDocumento = doc.Ttdcod;
-                                            aux.FechaEmision = Convert.ToDateTime(doc.Movfe);
-                                            aux.FechaVencimiento = Convert.ToDateTime(doc.Movfv);
-                                            aux.RutCliente = cliente.RutAux;
-                                            aux.Bloqueado = cliente.Bloqueado;
-                                            aux.NombreCliente = cliente.NomAux;
-                                            aux.DiasAtraso = (int)(fechaActual.Date - doc.Movfv.Value.Date).TotalDays;
-                                            aux.Estado = doc.Estado == "V" ? "VENCIDO" : doc.Estado == "P" ? "PENDIENTE" : "";
-                                            aux.CuentaContable = doc.Pctcod;
-                                            var cuenta = cuentasContables.Where(x => x.Codigo == doc.Pctcod).FirstOrDefault();
-                                            if (cuenta != null) { aux.NombreCuenta = cuenta.Nombre; }
-                                            aux.MontoDocumento = (decimal)doc.MovMonto;
-                                            aux.SaldoDocumento = (decimal)doc.Saldobase;
-
-                                            retorno.Add(aux);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var content3 = await response3.Content.ReadAsStringAsync();
-                                        LogProceso log = new LogProceso
-                                        {
-                                            Excepcion = response3.StatusCode.ToString(),
-                                            Fecha = DateTime.Now.Date,
-                                            Hora = DateTime.Now.ToString("HH:mm:ss"),
-                                            Mensaje = content3,
-                                            Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
-                                        };
-                                        _context.LogProcesos.Add(log);
-                                        _context.SaveChanges();
-                                    }
-                                }
-
-
-
-                            }
-
-
 
                         }
                         else
@@ -6596,7 +6924,7 @@ namespace ApiPortal.Services
                                 Fecha = DateTime.Now.Date,
                                 Hora = DateTime.Now.ToString("HH:mm:ss"),
                                 Mensaje = content,
-                                Ruta = "SoftlandService/GetDocumentosPendientesFiltro"
+                                Ruta = "SoftlandService/GetDocumentosPendientesCobranzaAsync"
                             };
                             _context.LogProcesos.Add(log);
                             _context.SaveChanges();
@@ -6610,7 +6938,7 @@ namespace ApiPortal.Services
                 log.IdTipoProceso = -1;
                 log.Fecha = DateTime.Now;
                 log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                log.Ruta = @"Softland\GetDocumentosPendientesFiltro";
+                log.Ruta = @"Softland\GetDocumentosPendientesCobranzaAsync";
                 log.Mensaje = ex.Message;
                 log.Excepcion = ex.ToString();
                 _context.LogProcesos.Add(log);
@@ -6622,7 +6950,7 @@ namespace ApiPortal.Services
             return retorno;
         }
 
-        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(string tipoDocumento, string logApiId)
+        public async Task<List<DocumentosCobranzaVm>> GetDocumentosPendientesCobranzaSinFiltroAsync(Nullable<DateTime> fechaDesde, Nullable<DateTime> fechaHasta, string tipoDocumento, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
 
@@ -6769,6 +7097,16 @@ namespace ApiPortal.Services
                         //{
                         //    fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         //}
+                        string fechaVencimientoDesde = string.Empty;
+                        string fechaVencimientoHasta = string.Empty;
+                        if (fechaDesde != null)
+                        {
+                            fechaVencimientoDesde = fechaDesde.Value.Year.ToString() + fechaDesde.Value.Month.ToString("00") + fechaDesde.Value.Day.ToString("00");
+                        }
+                        if (fechaHasta != null)
+                        {
+                            fechaVencimientoHasta = fechaHasta.Value.Year.ToString() + fechaHasta.Value.Month.ToString("00") + fechaHasta.Value.Day.ToString("00");
+                        }
 
                         string accesToken = api.Token;
                         string listaDocumentos = string.Empty;
@@ -6787,7 +7125,8 @@ namespace ApiPortal.Services
                         int cantidad = 100;
                         int pagina = 1;
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "");
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -6822,7 +7161,8 @@ namespace ApiPortal.Services
                                     {
 
                                         string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                                         client2.BaseAddress = new Uri(url2);
                                         client2.DefaultRequestHeaders.Accept.Clear();
@@ -7357,7 +7697,8 @@ namespace ApiPortal.Services
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
 
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         if (!string.IsNullOrEmpty(codAux))
                         {
                             url = url.Replace("{CODAUX}", codAux);
@@ -7509,7 +7850,8 @@ namespace ApiPortal.Services
                     int cantidad = 100;
                     int pagina = 1;
                     string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
@@ -7545,7 +7887,8 @@ namespace ApiPortal.Services
                                 {
 
                                     string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
 
                                     client2.BaseAddress = new Uri(url2);
@@ -7744,7 +8087,8 @@ namespace ApiPortal.Services
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "1").Replace("{AREADATOS}", api.AreaDatos);
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "1").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         if (!string.IsNullOrEmpty(codAux))
                         {
                             url = url.Replace("{CODAUX}", codAux);
@@ -8490,7 +8834,8 @@ namespace ApiPortal.Services
                     {
                         var fecha = configPortal.AnioTributario + "-01-01";
                         string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                       .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+                       .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
 
                         client.BaseAddress = new Uri(url);
@@ -8526,7 +8871,8 @@ namespace ApiPortal.Services
                                     {
 
                                         string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", ""); ;
+                            .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                                         client2.BaseAddress = new Uri(url3);
                                         client2.DefaultRequestHeaders.Accept.Clear();
@@ -8650,7 +8996,8 @@ namespace ApiPortal.Services
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                     string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASXVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", codAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", codAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
@@ -8752,7 +9099,8 @@ namespace ApiPortal.Services
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                     string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "");
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
@@ -8809,7 +9157,7 @@ namespace ApiPortal.Services
                                 TotalFilas = d.total
                             }
                         );
-                            if(retorno.Count > 0)
+                            if (retorno.Count > 0)
                             {
                                 var pagosPendientes = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(j => j.IdPagoEstado == 4 && j.CodAux == retorno[0].CodAux).ToList();
                                 foreach (var pago in pagosPendientes)
@@ -8817,7 +9165,7 @@ namespace ApiPortal.Services
                                     foreach (var item in retorno)
                                     {
                                         var detalle = pago.PagosDetalles.Where(x => x.Folio == item.Nro && x.TipoDocumento == item.TipoDoc).FirstOrDefault();
-                                        if(detalle != null)
+                                        if (detalle != null)
                                         {
                                             item.SaldoBase = item.SaldoBase - detalle.Apagar;
                                         }
@@ -8825,7 +9173,7 @@ namespace ApiPortal.Services
                                 }
 
                             }
-                            
+
                         }
                     }
                     else
@@ -9125,7 +9473,7 @@ namespace ApiPortal.Services
         }
 
 
-        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion( string tipoDocumento, string codAux, Nullable<int> numDoc, string logApiId)
+        public async Task<List<DocumentosCobranzaVm>> ObtenerDocumentosAutomaizacion(string tipoDocumento, string codAux, Nullable<int> numDoc, string logApiId)
         {
             List<DocumentosCobranzaVm> retorno = new List<DocumentosCobranzaVm>();
             try
@@ -9166,7 +9514,8 @@ namespace ApiPortal.Services
                     int cantidad = 100;
                     int pagina = 1;
                     string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                     client.BaseAddress = new Uri(url);
                     client.DefaultRequestHeaders.Accept.Clear();
@@ -9201,7 +9550,8 @@ namespace ApiPortal.Services
                                 {
 
                                     string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
-                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", ""); ;
+                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
                                     client2.BaseAddress = new Uri(url3);
                                     client2.DefaultRequestHeaders.Accept.Clear();

@@ -8,6 +8,7 @@
         public DateTime FechaEmision { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public string RutCliente { get; set; }
+        public string CodAux { get; set; }
         public string NombreCliente { get; set; }
         public int DiasAtraso { get; set; }
         public string Estado { get; set; }

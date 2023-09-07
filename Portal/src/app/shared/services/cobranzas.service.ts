@@ -51,6 +51,11 @@ export class CobranzasService {
     return this.http.post(`${this.apiUrl}/GetDocumentosClientes`, body, this.utils.getHeaders(true));
   }
 
+  getDocumentosPorCliente(data: any) {   
+    const body = JSON.stringify(data);
+    return this.http.post(`${this.apiUrl}/GetDocumentosPorCliente`, body, this.utils.getHeaders(true));
+  }
+
   getTiposCobranza() {
     return this.http.get(`${this.apiUrl}/GetTipoCobranza`, this.utils.getHeaders(true));
   }

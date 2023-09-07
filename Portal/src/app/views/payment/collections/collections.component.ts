@@ -70,6 +70,8 @@ export class CollectionsComponent implements OnInit {
   public horarios: any = [];
   public selectedProgramacion: number = 1;
   public frecuencias: any = [{ id: 1, frecuencia: "SEMANAL" }, { id: 2, frecuencia: "MENSUAL" }];
+  public clientesSeleccionados: any[] = [];
+  public clientesEliminados: any[] = [];
   public selectedFrecuencia: number = null;
   public frecuenciaDias: any = [{ id: 1, dia: "LUNES" }, { id: 2, dia: "MARTES" }, { id: 3, dia: "MIÉRCOLES" }, { id: 4, dia: "JUEVES" }, { id: 5, dia: "VIERNES" }, { id: 6, dia: "SÁBADO" }, { id: 7, dia: "DOMINGO" }];
   public selectedHorario: number = null;
@@ -82,6 +84,9 @@ export class CollectionsComponent implements OnInit {
   public dateDesdeFiltro: NgbDateStruct;
   public dateHastaFiltro: NgbDateStruct;
   public enviaTodosCargos: boolean = false;
+  public totalClientes: number = 0;
+  public clienteNombre: string = '';
+  public clienteRut: string = '';
   checkAll: boolean = false;
   //FCA 13-12-2021
   public montoDesdeFiltro: number = null;
@@ -99,10 +104,12 @@ export class CollectionsComponent implements OnInit {
   public diasVencimiento: number = 0;
   public documentos: any = [];
   public searchRut: string = null;
+  public searchCodAux: string = null;
   public searchNombre: string = null;
   public selectedEstadoCorreo: string = null;
   public estadosCorreo: any = [{ id: 1, nombre: "SIN CORREO ASIGNADO" }, { id: 2, nombre: "CORREO ASIGNADO" }];
   public detalleClientes: any = [];
+  public documentosEliminados: any[] = [];
   public detalleClientePag: any = [];
   public detalleClienteFiltro: any = [];
   public selected: any = [];
@@ -221,8 +228,9 @@ export class CollectionsComponent implements OnInit {
 
     const currentDate = new Date();
     this.fecha = { year: currentDate.getFullYear(), month: currentDate.getMonth() + 1, day: currentDate.getDate() + 1 };
-    const user = this.authService.getUserPortal();
+    const user = this.authService.getuser();
     if (user) {
+      debugger
       this.idUsuario = user.idUsuario;
     }
 
@@ -406,6 +414,14 @@ export class CollectionsComponent implements OnInit {
 
   }
 
+  changePage(event: any){
+    this.paginador.startRow = ((event - 1) * 10);
+    this.paginador.endRow = (event * 10);
+    this.paginador.sortBy = 'desc';
+    this.config.currentPage = event;
+    this.listaCobranzas = this.listaCobranzasRes.slice(this.paginador.startRow, this.paginador.endRow);
+  }
+
   //METODOS NUEVOS COBRANZA SE MANTENDRAN
   crearCobranza() {
     this.spinner.show()
@@ -446,7 +462,7 @@ export class CollectionsComponent implements OnInit {
       if (this.selectedTipoCobranza == 1) {
         this.textoCantidad = "Cantidad días posterior al vencimiento";
       } else if (this.selectedTipoCobranza == 2) {
-        this.textoCantidad = "Cantidad días previo al vencimiento";
+        this.textoCantidad = "Cantidad de días previo al vencimiento";
       }
 
     } else {
@@ -455,7 +471,7 @@ export class CollectionsComponent implements OnInit {
   }
 
   get IsStepOneOk() {
-  
+
     if (this.selectedTipoCobranza == null || this.selectedProgramacion == null) {
       return false
     }
@@ -602,7 +618,38 @@ export class CollectionsComponent implements OnInit {
         return `${accumulator};${item}`;
       }) : null : null;
 
-      //Graba Cobranza
+      var fechaDesde = new Date();
+      var fechaHasta = new Date();
+
+      if (this.dateDesde != null) {
+        const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        fechaDesde = fDesde;
+      } else { fechaDesde = null; }
+
+      if (this.dateHasta != null) {
+        const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+        fechaHasta = fHasta;
+      } else { fechaHasta = null; }
+
+      var estadoTipoCobranza = '';
+      if (this.selectedTipoCobranza == 1) {
+        estadoTipoCobranza = "VENCIDO";
+      } else {
+        estadoTipoCobranza = "PENDIENTE";
+      }
+
+      var excluye = 0;
+      if (this.chkClientesExcluidos) { excluye = 1; }
+
+      let SelAnio = 0;
+      if (this.selectedAnio == 'TODOS') {
+        SelAnio = 0;
+      } else {
+        SelAnio = this.selectedAnio;
+      }
+
+
+
       let cobranza: Cobranza = new Cobranza();
 
       //Cabecera
@@ -613,18 +660,17 @@ export class CollectionsComponent implements OnInit {
       cobranza.idUsuario = this.idUsuario;
       cobranza.tipoProgramacion = this.selectedProgramacion;
       cobranza.fechaInicio = new Date(this.fecha.year, this.fecha.month - 1, this.fecha.day);
-      cobranza.fechaFin = new Date(this.fechaVencimiento.year, this.fechaVencimiento.month - 1, this.fechaVencimiento.day);
+      if (this.fechaVencimiento != null) {
+        cobranza.fechaFin = new Date(this.fechaVencimiento.year, this.fechaVencimiento.month - 1, this.fechaVencimiento.day);
+      } else {
+        cobranza.fechaFin = null;
+      }
+
       cobranza.horaDeEnvio = this.selectedHorario;
       //cobranza.diaSemanaEnvio para cobranza programada
       cobranza.diasToleranciaVencimiento = this.diasVencimiento;
       cobranza.idEstado = 1; //Estado Pendiente
 
-      let SelAnio = 0;
-      if (this.selectedAnio == 'TODOS') {
-        SelAnio = 0;
-      } else {
-        SelAnio = this.selectedAnio;
-      }
 
       cobranza.anio = SelAnio;
       cobranza.tipoDocumento = tiposDocs;
@@ -687,52 +733,18 @@ export class CollectionsComponent implements OnInit {
       cobranza.diaSemanaEnvio = dias;
       cobranza.diaEnvio = this.diaEnvio;
 
-      //Detalle
-      let detalle: CobranzaDetalle[] = [];
-      this.detalleClientes.forEach(element => {
-        if (element.selected) {
-          element.listaDocumentos.forEach(doc => {
-            let det: CobranzaDetalle = {
-              idCobranzaDetalle: 0,
-              idCobranza: 0,
-              folio: doc.folioDocumento,
-              fechaEmision: doc.fechaEmision,
-              fechaVencimiento: doc.fechaVencimiento,
-              monto: doc.montoDocumento,
-              rutCliente: element.rutCliente,
-              tipoDocumento: doc.codTipoDocumento,
-              idEstado: 1, //Estado pendiente     
-              cuentaContable: doc.cuentaContable,
-              nombreCliente: element.nombreCliente,
-              codAuxCliente: element.rutCliente.replace('.', '').replace('.', '').split('-')[0]
-            };
+      const model = {
+        tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+        excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
+        cobradores: cobradores, pagina: 1, cantidad: 20,
+        documentosEliminados: this.documentosEliminados,
+        clientesEliminados: this.clientesEliminados,
+        clientesSeleccionados: this.clientesSeleccionados,
+        cobranzaCabecera: cobranza,
+        enviaTodos: this.checkAll
+      }
 
-            detalle.push(det);
-          });
-        }
-      });
-
-      cobranza.cobranzaDetalle = detalle;
-
-
-      this.cobranzaService.saveCobranza(cobranza).subscribe((res: any) => {
-        if (res != 0) {
-          this.notificationService.success('Cobranza creada correctamente para el día y la hora ingresada', '', true);
-          this.nuevaCobranza = false;
-          this.muestraCabecera = false;
-          this.limpiar();
-          this.cleanFiltersCobranzas();
-          this.searchCobranzaClasica();
-
-        } else {
-          this.notificationService.error('Ocurrió un problema al crear cobranza, favor intente nuevamente.', '', true);
-          this.nuevaCobranza = false;
-          this.muestraCabecera = false;
-          this.limpiar();
-          this.cleanFiltersCobranzas();
-          this.searchCobranzaClasica();
-        }
-        this.spinner.hide();
+      this.cobranzaService.saveCobranza(model).subscribe(async (res: any) => {
       }, err => {
         this.spinner.hide();
         this.notificationService.error('Ocurrió un problema al crear cobranza, favor intente nuevamente.', '', true);
@@ -741,7 +753,24 @@ export class CollectionsComponent implements OnInit {
         this.limpiar();
         this.cleanFiltersCobranzas();
         this.searchCobranzaClasica();
+        return;
       });
+      this.spinner.hide();
+      const response = await this.notificationService.warningAync('', 'Se creara la cobranza o pre cobranza según los parámetros indicados, esto puede tardar varios minutos, se le enviara un correo cuando finalice la creación de esta.');
+      if (response.isConfirmed) {
+        this.nuevaCobranza = false;
+        this.muestraCabecera = false;
+        this.limpiar();
+        this.cleanFiltersCobranzas();
+        this.searchCobranzaClasica();
+
+      } else {
+        this.nuevaCobranza = false;
+        this.muestraCabecera = false;
+        this.limpiar();
+        this.cleanFiltersCobranzas();
+        this.searchCobranzaClasica();
+      }
 
       // } else {
       //   e.noComplete();
@@ -1034,41 +1063,33 @@ export class CollectionsComponent implements OnInit {
       }
       this.spinner.show();
 
-
+      this.documentosEliminados = [];
+      this.clientesSeleccionados = [];
+      this.clientesEliminados = [];
       const model = {
         tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
         excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
-        cobradores: cobradores
+        cobradores: cobradores, pagina: 1, cantidad: 20
       }
       this.cobranzaService.getDocumentosClientes(model).subscribe((res: any) => {
 
         this.detalleClientes = res;
-        // this.selected = res.filter(x => x.selected == true);
-        this.detalleClienteFiltro = this.detalleClientes;
-
         this.paginador.startRow = 0;
-        this.paginador.endRow = 10;
+        this.paginador.endRow = 20;
         this.paginador.sortBy = 'desc';
         this.config = {
           itemsPerPage: this.paginador.endRow,
           currentPage: 1,
-          totalItems: this.detalleClientes.length
+          totalItems: this.detalleClientes.length > 0 ? this.detalleClientes[0].total : 0
         };
-
-
+        if (this.detalleClientes.length > 0) {
+          this.totalClientes = this.detalleClientes[0].total;
+        }
         this.calculaSeleccionados();
-        this.detalleClientePag = this.detalleClienteFiltro.slice(this.paginador.startRow, this.paginador.endRow);
-        // this.mailService.getCorreosDisponibles().subscribe((res: any) => {
-
-        //   this.correosDisponibles = res;
         this.spinner.hide();
-        // }, err => {
-        //   this.spinner.hide();
-        // });
-
       }, err => {
         this.spinner.hide();
-        this.notificationService.error('Ocurrió problema al obtener pagos.', '', true);
+        this.notificationService.error('Ocurrió problema al obtener documentos.', '', true);
       });
 
     }
@@ -1372,9 +1393,102 @@ export class CollectionsComponent implements OnInit {
 
   }
 
-  verDetalle(doc: any, content) {
-    this.detalleDocumentos = doc;
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  verDetalle(cliente: any, content) {
+    if (cliente.cantidadDoctos == 0) {
+      this.notificationService.warning('Sin documentos.', '', true);
+      return;
+    }
+    this.spinner.show();
+    var fechaDesde = new Date();
+    var fechaHasta = new Date();
+
+    if (this.dateDesde != null) {
+      const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+      fechaDesde = fDesde;
+    } else { fechaDesde = null; }
+
+    if (this.dateHasta != null) {
+      const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+      fechaHasta = fHasta;
+    } else { fechaHasta = null; }
+
+    var estadoTipoCobranza = '';
+    if (this.selectedTipoCobranza == 1) {
+      estadoTipoCobranza = "VENCIDO";
+    } else {
+      estadoTipoCobranza = "PENDIENTE";
+    }
+
+    var excluye = 0;
+    if (this.chkClientesExcluidos) { excluye = 1; }
+
+    let tiposDocs = this.selectedTipoDoc != null ? this.selectedTipoDoc.length > 0 ? this.selectedTipoDoc.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let condVenta = this.selectedCondicionVenta != null ? this.selectedCondicionVenta.length > 0 ? this.selectedCondicionVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let listaPrecio = this.selectedListaPrecio != null ? this.selectedListaPrecio.length > 0 ? this.selectedListaPrecio.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let catCli = this.selectedCatCliente != null ? this.selectedCatCliente.length > 0 ? this.selectedCatCliente.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let vendedor = this.selectedVendedor != null ? this.selectedVendedor.length > 0 ? this.selectedVendedor.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+
+    let canalesVenta = this.selectedCanalesVenta != null ? this.selectedCanalesVenta.length > 0 ? this.selectedCanalesVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let cobradores = this.selectedCobradores != null ? this.selectedCobradores.length > 0 ? this.selectedCobradores.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let SelAnio = 0;
+    if (this.selectedAnio == 'TODOS') {
+      SelAnio = 0;
+    } else {
+      SelAnio = this.selectedAnio;
+    }
+
+    const model = {
+      tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+      excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
+      cobradores: cobradores, rutCliente: cliente.rutaux,
+      codAuxCliente: cliente.codaux
+
+    }
+    this.cobranzaService.getDocumentosPorCliente(model).subscribe((res: any) => {
+      this.detalleDocumentos = res;
+      if (this.detalleDocumentos.length > 0) {
+        this.clienteRut = this.detalleDocumentos[0].rutaux;
+        this.clienteNombre = this.detalleDocumentos[0].nomaux;
+
+        for (let index = 0; index < res.length; index++) {
+          let esEliminado = this.documentosEliminados.filter(x => x.ttdcod == this.detalleDocumentos[index].ttdcod && x.numdoc == this.detalleDocumentos[index].numdoc);
+          if (esEliminado.length > 0) {
+            this.detalleDocumentos.splice(index, 1);
+          }
+
+        }
+        this.spinner.hide();
+        this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+      } else {
+        this.spinner.hide();
+        this.notificationService.warning('No se encontraron documentos.', '', true);
+      }
+
+    }, err => {
+      this.spinner.hide();
+      this.notificationService.error('Ocurrió problema al obtener documentos.', '', true);
+    });
   }
 
   agregarCorreoApoderado(doc: any, content) {
@@ -1400,64 +1514,188 @@ export class CollectionsComponent implements OnInit {
     }
   }
 
-  eliminarDoc(doc: any) {
+  eliminarDoc(doc: any, index: number) {
+    debugger
+    this.detalleDocumentos.splice(index, 1);
     this.detalleClientes.forEach(element => {
-      if (element.rutCliente == doc.rutCliente) {
-        for (let i: number = 0; i <= element.listaDocumentos.length - 1; i++) {
-          if (element.listaDocumentos[i].folioDocumento == doc.folioDocumento) {
-            element.listaDocumentos.splice(i, 1);
-            break;
+      if (element.codaux == doc.codAux) {
+        element.cantidadDoctos = element.cantidadDoctos - 1;
+        element.saldototal = element.saldototal - doc.saldoadic;
+        if (element.cantidadDoctos == 0) {
+          if (this.checkAll && element.selected) {
+            element.selected = false;
           }
-        }
-        element.montoDeuda = element.montoDeuda - doc.saldoDocumento;
-        element.cantidadDocumentos = element.listaDocumentos.length;
 
-        if (element.cantidadDocumentos == 0) {
-          element.selected = false;
+          if (!this.checkAll && element.selected) {
+            element.selected = false;
+            let cliente = this.clientesSeleccionados.findIndex(x => x.codaux == element.codaux);
+            if (cliente != -1) {
+              this.clientesSeleccionados.splice(cliente, 1);
+            }
+          }
+          this.clientesEliminados.push(element);
         }
       }
     });
-
+    this.documentosEliminados.push(doc)
     this.calculaSeleccionados();
   }
 
   changePageClientes(event: any) {
     this.paginador.startRow = ((event - 1) * 10);
-    this.paginador.endRow = (event * 10);
+    this.paginador.endRow = (event * 20);
     this.paginador.sortBy = 'desc';
     this.config.currentPage = event;
-    this.detalleClientePag = this.detalleClienteFiltro.slice(this.paginador.startRow, this.paginador.endRow);
+    var fechaDesde = new Date();
+    var fechaHasta = new Date();
+
+    if (this.dateDesde != null) {
+      const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+      fechaDesde = fDesde;
+    } else { fechaDesde = null; }
+
+    if (this.dateHasta != null) {
+      const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+      fechaHasta = fHasta;
+    } else { fechaHasta = null; }
+
+    var estadoTipoCobranza = '';
+    if (this.selectedTipoCobranza == 1) {
+      estadoTipoCobranza = "VENCIDO";
+    } else {
+      estadoTipoCobranza = "PENDIENTE";
+    }
+
+    var excluye = 0;
+    if (this.chkClientesExcluidos) { excluye = 1; }
+
+    let tiposDocs = this.selectedTipoDoc != null ? this.selectedTipoDoc.length > 0 ? this.selectedTipoDoc.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let condVenta = this.selectedCondicionVenta != null ? this.selectedCondicionVenta.length > 0 ? this.selectedCondicionVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let listaPrecio = this.selectedListaPrecio != null ? this.selectedListaPrecio.length > 0 ? this.selectedListaPrecio.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let catCli = this.selectedCatCliente != null ? this.selectedCatCliente.length > 0 ? this.selectedCatCliente.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let vendedor = this.selectedVendedor != null ? this.selectedVendedor.length > 0 ? this.selectedVendedor.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+
+    let canalesVenta = this.selectedCanalesVenta != null ? this.selectedCanalesVenta.length > 0 ? this.selectedCanalesVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let cobradores = this.selectedCobradores != null ? this.selectedCobradores.length > 0 ? this.selectedCobradores.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let SelAnio = 0;
+    if (this.selectedAnio == 'TODOS') {
+      SelAnio = 0;
+    } else {
+      SelAnio = this.selectedAnio;
+    }
+    this.spinner.show();
+
+
+    const model = {
+      tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+      excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
+      cobradores: cobradores, pagina: this.config.currentPage, cantidad: 20,
+      rutCliente: this.searchRut == null ? '' : this.searchRut,
+      codAuxCliente: this.searchCodAux == null ? '' : this.searchCodAux
+    }
+    this.cobranzaService.getDocumentosClientes(model).subscribe((res: any) => {
+
+      this.detalleClientes = res;
+      for (let index = 0; index < res.length; index++) {
+        var existenEliminados = this.documentosEliminados.filter(x => x.codAux == res[index].codaux);
+        if (existenEliminados.length > 0) {
+          existenEliminados.forEach(element => {
+            this.detalleClientes[index].cantidadDoctos = res[index].cantidadDoctos - 1;
+            this.detalleClientes[index].saldototal = this.detalleClientes[index].saldototal - element.saldoadic;
+          });
+        }
+      }
+      if (this.checkAll) {
+        this.detalleClientes.forEach(element => {
+          let cliente = this.clientesEliminados.findIndex(x => x.codaux == element.codaux);
+          if (cliente != -1) {
+            element.selected = true;
+          } else {
+            element.selected = false;
+          }
+        });
+      } else {
+        this.detalleClientes.forEach(element => {
+          let cliente = this.clientesSeleccionados.findIndex(x => x.codaux == element.codaux);
+          if (cliente != -1) {
+            element.selected = true;
+          } else {
+            element.selected = false;
+          }
+        });
+      }
+      this.calculaSeleccionados();
+      this.spinner.hide();
+    }, err => {
+      this.spinner.hide();
+      this.notificationService.error('Ocurrió problema al obtener pagos.', '', true);
+    });
+
   }
 
   onSel(val: any, c: any) {
-
-    if (c.listaDocumentos.length == 0) {
-      this.notificationService.warning('Registro sin documentos para enviar en cobranza.', '', true);
-      val.target.checked = false;
-    } else {
-      if (val.target.checked) {
-        // if (this.correosSeleccionados >= this.correosDisponibles) {
-        //   this.notificationService.warning('Supera el limite de correos disponibles.', '', true);
-        //   val.target.checked = false;
-        // } else {
-        this.detalleClientes.forEach(element => {
-          if (c.rutCliente == element.rutCliente) {
-            element.selected = val.target.checked
+    this.detalleClientes.forEach(element => {
+      if (c.rutaux == element.rutaux) {
+        element.selected = val.target.checked
+        if (element.selected) {
+          if (this.checkAll) {
+            let cliente = this.clientesEliminados.findIndex(x => x.codaux == element.codaux);
+            if (cliente != -1) {
+              this.clientesEliminados.splice(cliente, 1);
+            }
+          } else {
+            this.clientesSeleccionados.push(element);
           }
-        });
-        //}
+        } else {
+          if (this.checkAll) {
+            this.clientesEliminados.push(element)
+          } else {
+            let cliente = this.clientesSeleccionados.findIndex(x => x.codaux == element.codaux);
+            if (cliente != -1) {
+              this.clientesSeleccionados.splice(cliente, 1);
+            }
+          }
+        }
       }
-      this.calculaSeleccionados();
-    }
-
+    });
+    this.calculaSeleccionados();
   }
 
 
   onSelAll(val: any) {
     this.checkAll = val.target.checked;
     this.detalleClientes.forEach(element => {
-      element.selected = val.target.checked
+      let clienteEliminado = this.clientesEliminados.findIndex(x => x.codaux == element.codaux);
+      if (clienteEliminado == -1) {
+        element.selected = val.target.checked
+      } else {
+        element.selected = false;
+      }
     });
+    if (this.checkAll) {
+      this.clientesSeleccionados = [];
+    }
     this.calculaSeleccionados();
 
   }
@@ -1477,23 +1715,12 @@ export class CollectionsComponent implements OnInit {
 
 
   calculaSeleccionados() {
-
-    var cantDocumentos = this.detalleClientes.filter(x => x.selected == true);
-    this.correosSeleccionados = 0;
-    this.totalPagar = 0;
-    var ruts = [];
-
-    cantDocumentos.forEach(element => {
-
-      var exist = ruts.filter(x => x.rutCliente == element.rutCliente);
-      if (exist.length == 0) {
-        this.correosSeleccionados += 1;
-        this.totalPagar += element.montoDeuda;
-        ruts.push(element);
-      }
-      this.spinner.hide();
-    });
-
+    debugger
+    if (this.checkAll) {
+      this.correosSeleccionados = this.totalClientes - this.clientesEliminados.length;
+    } else {
+      this.correosSeleccionados = this.clientesSeleccionados.length;
+    }
   }
 
   //FCA 13-12-2021
@@ -1532,53 +1759,122 @@ export class CollectionsComponent implements OnInit {
   }
 
   filter() {
-    let data: any = Object.assign([], this.detalleClientes);
-
-    if (this.searchRut != null) {
-      data = data.filter(x => x.rutCliente == this.searchRut)
-    }
-
-    if (this.searchNombre != null) {
-      data = data.filter(x => x.nombreCliente == this.searchNombre)
-    }
-
-    if (this.selectedEstadoCorreo != null) {
-      if (this.selectedEstadoCorreo == "1") {
-        data = data.filter(x => x.emailCliente == '' || x.emailCliente == null)
-      } else {
-        data = data.filter(x => x.emailCliente != '' && x.emailCliente != null)
-      }
-    }
-
-    if (this.selectedEstadoCliente != null && this.selectedEstadoCliente != 'TODOS') {
-      if (this.selectedEstadoCliente == "S") {
-        data = data.filter(x => x.bloqueado == 'S')
-      } else {
-        data = data.filter(x => x.bloqueado == 'N')
-      }
-    }
-
-
-    this.detalleClienteFiltro = data;
-
     this.paginador.startRow = 0;
-    this.paginador.endRow = 10;
+    this.paginador.endRow = 20;
     this.paginador.sortBy = 'desc';
-    this.config = {
-      itemsPerPage: this.paginador.endRow,
-      currentPage: 1,
-      totalItems: this.detalleClienteFiltro.length
-    };
+    this.config.currentPage = 1;
+    var fechaDesde = new Date();
+    var fechaHasta = new Date();
 
-    this.detalleClientePag = this.detalleClienteFiltro.slice(this.paginador.startRow, this.paginador.endRow);
+    if (this.dateDesde != null) {
+      const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+      fechaDesde = fDesde;
+    } else { fechaDesde = null; }
+
+    if (this.dateHasta != null) {
+      const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+      fechaHasta = fHasta;
+    } else { fechaHasta = null; }
+
+    var estadoTipoCobranza = '';
+    if (this.selectedTipoCobranza == 1) {
+      estadoTipoCobranza = "VENCIDO";
+    } else {
+      estadoTipoCobranza = "PENDIENTE";
+    }
+
+    var excluye = 0;
+    if (this.chkClientesExcluidos) { excluye = 1; }
+
+    let tiposDocs = this.selectedTipoDoc != null ? this.selectedTipoDoc.length > 0 ? this.selectedTipoDoc.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let condVenta = this.selectedCondicionVenta != null ? this.selectedCondicionVenta.length > 0 ? this.selectedCondicionVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let listaPrecio = this.selectedListaPrecio != null ? this.selectedListaPrecio.length > 0 ? this.selectedListaPrecio.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let catCli = this.selectedCatCliente != null ? this.selectedCatCliente.length > 0 ? this.selectedCatCliente.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let vendedor = this.selectedVendedor != null ? this.selectedVendedor.length > 0 ? this.selectedVendedor.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+
+    let canalesVenta = this.selectedCanalesVenta != null ? this.selectedCanalesVenta.length > 0 ? this.selectedCanalesVenta.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let cobradores = this.selectedCobradores != null ? this.selectedCobradores.length > 0 ? this.selectedCobradores.reduce((accumulator, item) => {
+      return `${accumulator};${item}`;
+    }) : null : null;
+
+    let SelAnio = 0;
+    if (this.selectedAnio == 'TODOS') {
+      SelAnio = 0;
+    } else {
+      SelAnio = this.selectedAnio;
+    }
+    this.spinner.show();
+
+
+    const model = {
+      tipoDocumento: tiposDocs, anio: SelAnio, fecha: fechaDesde, fechaHasta: fechaHasta, cantidadDias: this.diasVencimiento, estado: estadoTipoCobranza,
+      excluyeClientes: excluye, listasPrecio: listaPrecio, vendedores: vendedor, categoriasClientes: catCli, CondicionesVenta: condVenta, canalesVenta: canalesVenta,
+      cobradores: cobradores, pagina: 1, cantidad: 20,
+      rutCliente: this.searchRut == null ? '' : this.searchRut,
+      codAuxCliente: this.searchCodAux == null ? '' : this.searchCodAux
+    }
+    this.cobranzaService.getDocumentosClientes(model).subscribe((res: any) => {
+
+      this.detalleClientes = res;
+      for (let index = 0; index < res.length; index++) {
+        var existenEliminados = this.documentosEliminados.filter(x => x.codAux == res[index].codaux);
+        if (existenEliminados.length > 0) {
+          existenEliminados.forEach(element => {
+            this.detalleClientes[index].cantidadDoctos = res[index].cantidadDoctos - 1;
+            this.detalleClientes[index].saldototal = this.detalleClientes[index].saldototal - element.saldoadic;
+          });
+        }
+      }
+      if (this.checkAll) {
+        this.detalleClientes.forEach(element => {
+          let cliente = this.clientesEliminados.findIndex(x => x.codaux == element.codaux);
+          if (cliente != -1) {
+            element.selected = false;
+          } else {
+            element.selected = true;
+          }
+        });
+      } else {
+        this.detalleClientes.forEach(element => {
+          let cliente = this.clientesSeleccionados.findIndex(x => x.codaux == element.codaux);
+          if (cliente != -1) {
+            element.selected = true;
+          } else {
+            element.selected = false;
+          }
+        });
+      }
+      this.spinner.hide();
+    }, err => {
+      this.spinner.hide();
+      this.notificationService.error('Ocurrió problema al obtener documentos.', '', true);
+    });
+
   }
 
   cleanFilters() {
     this.searchRut = null;
     this.searchNombre = null;
+    this.searchCodAux = null;
     this.selectedEstadoCorreo = null;
-
-
     this.filter();
   }
 

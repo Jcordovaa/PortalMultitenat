@@ -574,20 +574,8 @@ export class PayComponent implements OnInit {
 
 
     var codAux: string = '';
-    if (this.esPagoRut) {
-      let str = this.rutCliente.split('');
-      for (let a of str) {
-        if (a != '.') {
-          if (a == '-') {
-            break;
-          }
-          codAux = codAux + a;
-        }
-      }
-    } else {
 
       codAux = this.comprasResp[0].codAux;
-    }
 
 
     let pago = {
@@ -620,8 +608,8 @@ export class PayComponent implements OnInit {
             (res: any) => {
               this.spinner.hide();
               //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
-
-              this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutEncriptado, 0, datosPago, TbkRedirect.Front, tenant).subscribe(
+              let automatizacion = this.automatizacion != null ? this.automatizacion : "0";
+              this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutEncriptado, this.idCobranza, automatizacion, datosPago, TbkRedirect.PagoRapido, tenant).subscribe(
                 (res: any) => {
                   this.spinner.hide();
                   //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente

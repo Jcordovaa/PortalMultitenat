@@ -338,12 +338,13 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <ngb-alert *ngIf="mensajeFechaInicioErronea != '' && mensajeFechaInicioErronea != null"
-                                    class="alert-card text-center" [dismissible]="false">
-                                    {{mensajeFechaInicioErronea}}
-                                </ngb-alert>
+                                    <ngb-alert
+                                        *ngIf="mensajeFechaInicioErronea != '' && mensajeFechaInicioErronea != null"
+                                        class="alert-card text-center" [dismissible]="false">
+                                        {{mensajeFechaInicioErronea}}
+                                    </ngb-alert>
                                 </div>
-                         
+
                             </div>
 
                             <div class="form-group row">
@@ -370,7 +371,8 @@
                                             <button class="btn btn-secondary" (click)="v1.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
                                             </button>
-                                            <button class="btn btn-secondary" (click)="fechaVencimiento = null" type="button">
+                                            <button class="btn btn-secondary" (click)="fechaVencimiento = null"
+                                                type="button">
                                                 <i class="icon-regular i-Paint-Brush"></i>
                                             </button>
                                         </div>
@@ -490,7 +492,7 @@
                                 <label class="col-sm-4 col-form-label">La cobranza dejara de estar activa el</label>
                                 <div class="col-sm-4">
                                     <div class="input-group">
-                                        <input class="form-control" placeholder="dd/mm/yyyy"  name="v2"
+                                        <input class="form-control" placeholder="dd/mm/yyyy" name="v2"
                                             [container]="'body'" (ngModelChange)="cambiaFecha($event,2)" #g2="ngModel"
                                             [(ngModel)]="fechaVencimiento" ngbDatepicker #v2="ngbDatepicker"
                                             [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
@@ -517,12 +519,12 @@
             <wizard-step #step2 id="step2" [title]="'Documentos'" [isValid]="IsStepTwoOk"
                 (onNext)="onStep2Next($event)">
 
-                <div class="row" style="padding-bottom: 200px;" >
+                <div class="row" style="padding-bottom: 200px;">
                     <div class="col-md-12 mb-4 mt-4">
                         <span style="font-size: 16px; font-weight: 600;">1. Ingrese las condiciones para identificar los
                             documentos que se enviarán en cobranza o pre cobranza</span>
                     </div>
-<!-- 
+                    <!-- 
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Año (*)</label>
                          <ng-select class="customAC" style="border-radius: 40px !important;" [items]="anios"
@@ -561,14 +563,14 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="categoriasCliente"
                             bindLabel="catDes" placeholder="Categoría Cliente" #categoriasClientes="ngModel"
                             name="categoriasClientes" [(ngModel)]="selectedCatCliente" bindValue="catCod"
-                            [multiple]="true"  [closeOnSelect]="false">
+                            [multiple]="true" [closeOnSelect]="false">
                         </ng-select>
                     </div>
                     <div class="form-group col-md-4 mb-3">
                         <label for="picker1" class="text-lbl">Vendedor</label>
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="vendedores"
                             bindLabel="venDes" placeholder="Vendedores" #vendedoress="ngModel" name="vendedoress"
-                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true"  [closeOnSelect]="false">
+                            [(ngModel)]="selectedVendedor" bindValue="venCod" [multiple]="true" [closeOnSelect]="false">
                         </ng-select>
                     </div>
 
@@ -577,7 +579,7 @@
                         <ng-select class="customAC" style="border-radius: 40px !important;" [items]="condicionesVenta"
                             bindLabel="cveDes" placeholder="Condición de venta" #condicionesVentas="ngModel"
                             name="condicionesVentas" [(ngModel)]="selectedCondicionVenta" bindValue="cveCod"
-                            [multiple]="true"  [closeOnSelect]="false" >
+                            [multiple]="true" [closeOnSelect]="false">
                         </ng-select>
                     </div>
 
@@ -599,18 +601,17 @@
                         </ng-select>
                     </div> -->
 
-                    <!-- <div class="form-group col-md-4 mb-3">
+                    <!-- <div class="form-group col-md-4 mb-3" *ngIf="selectedTipoCobranza == 2">
                         <label for="picker1" class="text-lbl">{{textoCantidad}}</label>
-                       <input type="number" min="0" class="form-control mr-2" id="caja" name="dias"
-                            (blur)="onChangeSelect(3)" placeholder="Días vencimiento" [(ngModel)]="diasVencimiento"> 
                         <input type="number" min="0" class="form-control mr-2" id="caja" name="dias"
-                            placeholder="Días vencimiento" [(ngModel)]="diasVencimiento">
+                            placeholder="Días antes del vencimiento" [(ngModel)]="diasVencimiento">
                     </div> -->
 
 
 
-                    <!-- <div class="col-md-4 form-group mb-3">
-                        <label for="lastName">Desde</label>
+                    <div class="col-md-4 form-group mb-3">
+                        <label *ngIf="selectedTipoCobranza == 1" for="lastName">Vencidos Desde</label>
+                        <label *ngIf="selectedTipoCobranza == 2" for="lastName">Próximos a vencer desde</label>
                         <div class="input-group">
                             <input class="form-control" placeholder="dd/mm/yyyy" readonly [container]="'body'" name="d2"
                                 #c2="ngModel" [(ngModel)]="dateDesde" ngbDatepicker #d2="ngbDatepicker"
@@ -618,6 +619,9 @@
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
+                                </button>
+                                <button class="btn btn-secondary" (click)="dateDesde = null" type="button">
+                                    <i class="icon-regular i-Paint-Brush"></i>
                                 </button>
                             </div>
                         </div>
@@ -632,9 +636,12 @@
                                 <button class="btn btn-secondary" (click)="d3.toggle()" type="button">
                                     <i class="icon-regular i-Calendar-4"></i>
                                 </button>
+                                <button class="btn btn-secondary" (click)="dateHasta = null" type="button">
+                                    <i class="icon-regular i-Paint-Brush"></i>
+                                </button>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
 
                 </div>
 
@@ -740,26 +747,11 @@
                         <input type="text" class="form-control" (blur)="validateRut()" id="rutCliente" name="rutCliente"
                             [(ngModel)]="searchRut" placeholder="Ingrese Rut Cliente">
                     </div>
-                    <!-- <div class="form-group col-md-3 mb-3">
-                        <label for="nombreCliente" class="text-lbl">Nombre Cliente</label>
-                        <input type="text" class="form-control" id="nombreCliente" name="nombreCliente" [(ngModel)]="searchNombre" placeholder="Ingrese nombre Cliente">
-                    </div> -->
-                    <!-- <div class="form-group col-md-3 mb-3">
-                        <label for="firstName" class="text-lbl">Estado Correo para envío</label>
-                        <ng-select appendTo="body" class="customAC" style="border-radius: 40px !important;"
-                            [items]="estadosCorreo" bindLabel="nombre" required placeholder="Estado Correo cliente"
-                            #estadoCorreo="ngModel" name="estadoCorreo" [(ngModel)]="selectedEstadoCorreo"
-                            bindValue="id">
-                        </ng-select>
-                    </div> -->
 
                     <div class="form-group col-md-3 mb-3">
-                        <label for="firstName" class="text-lbl">Estado Cliente</label>
-                        <ng-select appendTo="body" class="customAC" style="border-radius: 40px !important;"
-                            [items]="estadosClientes" bindLabel="descripcion" required placeholder="Estado cliente"
-                            #estadoCliente="ngModel" name="estadoCliente" [(ngModel)]="selectedEstadoCliente"
-                            bindValue="id">
-                        </ng-select>
+                        <label for="codAuxCliente" class="text-lbl">Código Auxiliar</label>
+                        <input type="text" class="form-control"  id="codAuxCliente" name="codAuxCliente"
+                            [(ngModel)]="searchCodAux" placeholder="Ingrese Código Auxiliar Cliente">
                     </div>
 
                     <div class="form-group col-md-3 mb-3">
@@ -782,53 +774,41 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        <label class="checkbox checkbox-outline-primary"
+                                                        <label *ngIf="detalleClientes.length > 1" class="checkbox checkbox-outline-primary"
                                                             style="margin-bottom: 20px;">
                                                             <input type="checkbox" name="checkAllSel"
                                                                 [(ngModel)]="checkAll" (change)="onSelAll($event)">
                                                             <span class="checkmark"></span>
                                                         </label>
                                                     </th>
+                                                    <th scope="col">Código Auxiliar</th>
                                                     <th scope="col">Rut</th>
                                                     <th scope="col">Cliente</th>
                                                     <th scope="col">Total Deuda</th>
                                                     <th scope="col">Doc. Pendientes</th>
-                                                    <th scope="col">Estado</th>
                                                     <th scope="col">Detalle</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr *ngFor="let c of detalleClientePag | paginate: config">
+                                                <tr *ngFor="let c of detalleClientes | paginate: config">
                                                     <th scope="row">
                                                         <label class="checkbox checkbox-outline-primary">
-                                                            <input type="checkbox" name="checkSel"
+                                                            <input [disabled]="c.cantidadDoctos == 0" type="checkbox" name="checkSel"
                                                                 [(ngModel)]="c.selected" (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
                                                         </label>
                                                     </th>
-                                                    <td>{{ c.rutCliente }}</td>
-                                                    <td>{{ c.nombreCliente }}</td>
-                                                    <td>{{ c.montoDeuda | monto }}</td>
-                                                    <td>{{ c.cantidadDocumentos}}</td>
-                                                    <td>
-                                                        <span placement="bottom" container="body"
-                                                            ngbTooltip="Estado: Bloqueado" *ngIf="c.bloqueado != 'N'"
-                                                            class="badge badge-danger">Bloqueado</span>
-                                                        <span placement="bottom" container="body"
-                                                            ngbTooltip="Estado: No Bloqueado" *ngIf="c.bloqueado == 'N'"
-                                                            class="badge badge-success">No Bloqueado</span>
-                                                    </td>
+                                                    <td>{{ c.codaux }}</td>
+                                                    <td>{{ c.rutaux }}</td>
+                                                    <td>{{ c.nomaux }}</td>
+                                                    <td>{{ c.saldototal | monto }}</td>
+                                                    <td>{{ c.cantidadDoctos}}</td>
                                                     <td style="text-align: center;">
                                                         <img *ngIf="c.estadoDatos != -1"
                                                             (click)="verDetalle(c,modalDetalle)" container="body"
                                                             ngbTooltip="Ver Detalle" style="cursor: pointer;"
                                                             src="assets/images/show-property.png" width="27" height="27"
                                                             alt="">
-                                                        <!-- <img *ngIf="c.emailCliente == '' || c.emailCliente == null"
-                                                            (click)="agregarCorreoApoderado(c,modalAddCorreo)"
-                                                            container="body" ngbTooltip="Agregar Correo"
-                                                            style="cursor: pointer;" src="assets/images/alert.png"
-                                                            width="27" height="27" alt=""> -->
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -843,7 +823,7 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col">
-                                                        <label class="checkbox checkbox-outline-primary"
+                                                        <label *ngIf="detalleClientes.length > 1" class="checkbox checkbox-outline-primary"
                                                             style="margin-bottom: 20px;">
                                                             <input type="checkbox" name="checkAllSel"
                                                                 [(ngModel)]="checkAll" (change)="onSelAll($event)">
@@ -855,7 +835,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr *ngFor="let c of detalleClientePag | paginate: config">
+                                                <tr *ngFor="let c of detalleClientes | paginate: config">
                                                     <td scope="row">
                                                         <label class="checkbox checkbox-outline-primary">
                                                             <input type="checkbox" name="checkSel"
@@ -865,17 +845,11 @@
                                                     </td>
 
                                                     <td>
-                                                        <strong>Rut: </strong>{{ c.rutCliente }}<br />
-                                                        <strong>Cliente: </strong>{{ c.nombreCliente }}<br />
-                                                        <strong>Total Deuda: </strong>{{ c.montoDeuda | monto }}<br />
+                                                        <strong>Rut: </strong>{{ c.rutaux }}<br />
+                                                        <strong>Cliente: </strong>{{ c.nomaux }}<br />
+                                                        <strong>Total Deuda: </strong>{{ c.saldototal | monto }}<br />
                                                         <strong>Doc. Pendientes: </strong>{{
-                                                        c.cantidadDocumentos}}<br />
-                                                        <strong>Estado: <span placement="bottom" container="body"
-                                                                ngbTooltip="Estado: Activo" *ngIf="c.bloqueado == 'N'"
-                                                                class="badge badge-success">Bloqueado</span>
-                                                            <span placement="bottom" container="body"
-                                                                ngbTooltip="Estado: Activo" *ngIf="c.bloqueado != 'N'"
-                                                                class="badge badge-danger">No Bloqueado</span> </strong>
+                                                        c.cantidadDoctos}}<br />
                                                         <br />
                                                     </td>
 
@@ -885,11 +859,6 @@
                                                             ngbTooltip="Ver Detalle" style="cursor: pointer;"
                                                             src="assets/images/show-property.png" width="27" height="27"
                                                             alt="">
-                                                        <!-- <img *ngIf="c.emailCliente == '' || c.emailCliente == null"
-                                                            (click)="agregarCorreoApoderado(c,modalAddCorreo)"
-                                                            container="body" ngbTooltip="Agregar Correo"
-                                                            style="cursor: pointer;" src="assets/images/alert.png"
-                                                            width="27" height="27" alt=""> -->
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -918,7 +887,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <!-- <div class="col-lg-4 col-md-4 col-sm-4">
                                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                                             <div class="card-body text-center">
                                                 <i class="i-Mail-Send"></i>
@@ -930,7 +899,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -1132,7 +1101,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-4 col-sm-4">
+                    <!-- <div class="col-lg-4 col-md-4 col-sm-4">
                         <div class="card card-icon-bg card-icon-bg-primary o-hidden mb-4">
                             <div class="card-body text-center">
                                 <i class="i-Financial"></i>
@@ -1143,7 +1112,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </wizard-step>
         </form-wizard>
@@ -1172,7 +1141,7 @@
                                 <p><strong>Estado: </strong> {{cobranzaDatos.nombreEstado}}</p>
                                 <p><strong>Fecha creación: </strong> {{cobranzaDatos.fechaCreacion | date:
                                     'dd/MM/yyyy'}}</p>
-                                <p><strong>Usuario: </strong> {{cobranzaDatos.nombreUsuario}}</p>
+                                <!-- <p><strong>Usuario: </strong> {{cobranzaDatos.nombreUsuario}}</p> -->
                                 <p><strong>Tipo: </strong> {{cobranzaDatos.nombreTipoCobranza}}</p>
                             </div>
                         </div>
@@ -1388,22 +1357,16 @@
     </div>
     <div class="modal-body">
         <div class="row">
-            <div class="col-md-4 col-6">
+            <div class="col-md-6 col-6">
                 <div class="mb-4">
                     <p class="text-primary mb-1"><i class="i-ID-Card text-16 mr-1"></i> Rut Cliente</p>
-                    <span>{{detalleDocumentos.rutCliente | sintexto}}</span>
+                    <span>{{clienteRut | sintexto}}</span>
                 </div>
             </div>
-            <div class="col-md-4 col-6">
+            <div class="col-md-6 col-6">
                 <div class="mb-4">
                     <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i> Nombre Cliente</p>
-                    <span>{{detalleDocumentos.nombreCliente | sintexto}}</span>
-                </div>
-            </div>
-            <div class="col-md-4 col-6">
-                <div class="mb-4">
-                    <p class="text-primary mb-1"><i class="i-Tag-5 text-16 mr-1"></i> Correo Cliente</p>
-                    <span>{{detalleDocumentos.emailCliente | sintexto}}</span>
+                    <span>{{clienteNombre | sintexto}}</span>
                 </div>
             </div>
         </div>
@@ -1422,13 +1385,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of detalleDocumentos.listaDocumentos; let i = index">
-                            <th scope="row">{{item.tipoDocumento}}</th>
-                            <td>{{item.folioDocumento}}</td>
-                            <td>{{item.fechaVencimiento | date: 'dd/MM/yyyy'}}</td>
-                            <td>${{item.saldoDocumento | monto}}</td>
+                        <tr *ngFor="let item of detalleDocumentos; let i = index">
+                            <th scope="row">{{item.desDoc}}</th>
+                            <td>{{item.numdoc}}</td>
+                            <td>{{item.movfv | date: 'dd/MM/yyyy'}}</td>
+                            <td>${{item.saldoadic | monto}}</td>
                             <!--FCA 07-12-2021 Se agrega validacion para solo mostrar eliminar para el tipo cobranza 1-->
-                            <td *ngIf="selectedProgramacion == 1"><img (click)="eliminarDoc(item)" container="body"
+                            <td *ngIf="selectedProgramacion == 1"><img (click)="eliminarDoc(item, i)" container="body"
                                     ngbTooltip="Eliminar" style="cursor: pointer;" src="./assets/images/delete.png"
                                     width="20" height="20" alt="Eliminar"></td>
                         </tr>

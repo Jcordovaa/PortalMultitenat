@@ -419,7 +419,7 @@ export class AccountsStateComponent implements OnInit {
                 this.spinner.hide();
                 //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
 
-                this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutCliente, 0, datosPago, TbkRedirect.Front, tenant).subscribe(
+                this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutCliente, 0, "0", datosPago, TbkRedirect.Front, tenant).subscribe(
                   (res: any) => {
                     this.spinner.hide();
                     //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente

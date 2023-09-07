@@ -13,12 +13,7 @@
     <div class="separator-breadcrumb border-top"></div>
     <div *ngIf="!showDetail">
         <div class="row">
-            <ngb-alert class="alert-card" [dismissible]="false">
-                SI ALGUNO DE SUS DOCUMENTOS MUESTRA UN SALDO DISTINTO AL ORIGINAL ES PROBABLE QUE TENGA ASOCIADA UNA
-                NOTA DE
-                CRÉDITO O DÉBITO, PARA VISUALIZAR EL DETALLE DE ESTAS DEBE DIRIGIRSE AL ESTADO DE CUENTA BOTÓN i DE CADA
-                MOVIMIENTO.
-            </ngb-alert>
+
             <!-- ICON BG -->
             <div class="col-lg-4 col-md-6 col-sm-6">
                 <div class="card-box"
@@ -277,6 +272,14 @@
             <p class="r-1 text-12" style="font-size: calc(0.25rem + 0.5vw) !important; color: #DF6107;">
                 *{{configDiseno.textoNoConsideraTodaDeuda}}</p>
         </div>
+
+        <ngb-alert *ngIf="tipoDoc == 0" class="alert-card" [dismissible]="false">
+            Si alguno de sus documentos muestra un saldo distinto al original es probable que tenga una nota de
+            crédito o débito, para visualizar el detalle de estas debe dirigirse al estado de cuenta botón <img
+                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22"> de cada movimiento.
+        </ngb-alert>
+
+
     </div>
 
     <div class="row" *ngIf="tipoDoc != 0 && !showDetail">

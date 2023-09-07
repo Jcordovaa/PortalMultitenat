@@ -39,8 +39,8 @@ export class PasarelaPagoService {
     return this.http.get(`${this.apiUrl}/getLog/${idPago}`);
   }
 
-  generaPagoElectronico(idPago:number, idPasarela:number, rutCliente:string, idCobranza:number, datosPago:string, redirectTo: number, tenant: string ): Observable<PasarelaPago> {
-    return this.http.post<PasarelaPago>(`${this.apiPago}/GeneraPagoElectronico?idPago=${idPago}&idPasarela=${idPasarela}&rutCliente=${rutCliente}&idCobranza=${idCobranza}&datosPago=${datosPago}&redirectTo=${redirectTo}&tenant=${tenant}`, this.utils.getHeaders(false));
+  generaPagoElectronico(idPago:number, idPasarela:number, rutCliente:string, idCobranza:number, idAutomatizacion: string, datosPago:string, redirectTo: number, tenant: string ): Observable<PasarelaPago> {
+    return this.http.post<PasarelaPago>(`${this.apiPago}/GeneraPagoElectronico?idPago=${idPago}&idPasarela=${idPasarela}&rutCliente=${rutCliente}&idCobranza=${idCobranza}&idAutomatizacion=${idAutomatizacion}&datosPago=${datosPago}&redirectTo=${redirectTo}&tenant=${tenant}`, this.utils.getHeaders(false));
   }
 
 }
