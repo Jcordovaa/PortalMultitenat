@@ -58,7 +58,27 @@ export class AcountStateViewComponent implements OnInit {
             } else {
                 this.router.navigate(['/sessions/signin']);
             }
-            this.spinner.hide();
+
+            let model = {
+                CodAux: this.codAux,
+                IdCobranza: this.idCobranza,
+                Automatizacion: this.automatizacion == '' ? null : this.automatizacion
+            }
+
+            this.clientesService.getPDFEstadoCuenta(model).subscribe((res: any) => {
+                if (res == "0") {
+                    this.notificationService.error("No se encontraron documentos o no se logro generar.", '', true);
+                    this.spinner.hide();
+                }
+                if (res.base64 != '' && res.base64 != null) {
+                    let a = document.createElement("a");
+                    a.href = "data:application/octet-stream;base64," + res.base64;
+                    a.download = res.nombre;
+                    a.click();
+                    this.notificationService.success("Documento descargado correctamente.", '', true);
+                    this.spinner.hide();
+                }
+            }, err => { this.spinner.hide(); this.notificationService.error("Error al descargar PDF", '', true); });
         }, err => { this.spinner.hide(); });
 
 
@@ -83,8 +103,8 @@ export class AcountStateViewComponent implements OnInit {
                 a.href = "data:application/octet-stream;base64," + res.base64;
                 a.download = res.nombre;
                 a.click();
+                this.notificationService.success("Documento descargado correctamente.", '', true);
                 this.spinner.hide();
-                window.close();
             }
         }, err => { this.spinner.hide(); this.notificationService.error("Error al descargar PDF", '', true); });
     }

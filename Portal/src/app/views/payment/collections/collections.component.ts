@@ -803,28 +803,28 @@ export class CollectionsComponent implements OnInit {
       if (this.selectedProgramacion == 1) //Clasica
       {
 
-        if (this.fecha == null) {
-          this.notificationService.warning('Debe ingresar fecha de programación para envío.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        }
-        if (this.fecha.year < fechaActual.year) {
-          this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        } else if (this.fecha.month < fechaActual.month) {
-          this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        } else if (this.fecha.day <= fechaActual.day) {
-          this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
-          this.paso = 1;
-          e.goToStep(p1);
-          return;
-        }
+        // if (this.fecha == null) {
+        //   this.notificationService.warning('Debe ingresar fecha de programación para envío.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // }
+        // if (this.fecha.year < fechaActual.year) {
+        //   this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // } else if (this.fecha.month < fechaActual.month) {
+        //   this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // } else if (this.fecha.day <= fechaActual.day) {
+        //   this.notificationService.warning('Fecha inicio no puede ser menor o igual a fecha actual.', '', true);
+        //   this.paso = 1;
+        //   e.goToStep(p1);
+        //   return;
+        // }
 
         if (this.selectedHorario == null) {
           this.notificationService.warning('Debe seleccionar la hora de envío', '', true);

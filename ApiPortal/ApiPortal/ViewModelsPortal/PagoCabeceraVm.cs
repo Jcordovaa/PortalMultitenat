@@ -19,5 +19,6 @@
 
         public List<PagoDetalleVm>? PagosDetalle { get; set; }
         public List<PasarelaPagoLogVm>? PasarelaPagoLog { get; set; }
+        public int TotalFilas { get; set; }
     }
 }

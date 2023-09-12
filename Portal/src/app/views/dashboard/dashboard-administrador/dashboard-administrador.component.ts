@@ -71,6 +71,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     docPagado: any = null;
     tiposDocumentos: any[] = [];
     searchRut: string = '';
+    searchCodAux: string = '';
     noResultText = '';
     documentos: any[] = [];
     documentosPorPagina: any[] = [];
@@ -96,8 +97,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     clienteMostrar: number = -1;
     topDeudores: any[] = [];
     idPago: number = null;
-    estadosPagos: any[] = [{ id: 1, nombre: 'TODOS' }, { id: 2, nombre: 'FINALIZADO' }, { id: 3, nombre: 'FINALIZADO SIN COMPROBANTE' }];
-    selectedEstadoPagos: number = 1;
+    estadosPagos: any[] = [{ id: 0, nombre: 'TODOS' }, { id: 2, nombre: 'FINALIZADO' }, { id: 4, nombre: 'FINALIZADO SIN COMPROBANTE' }];
+    selectedEstadoPagos: number = 0;
     pagoComprobante: any = null;
     deudaVsPago: any[] = [];
     compraDetalleAux = null;
@@ -108,6 +109,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     updatePagados = true;
     updatePagadosEvent = new EventEmitter<any>();
     cliente: any = null;
+
 
     constructor(private dashboardsService: DashboardsService,
         private clienteService: ClientesService,
@@ -528,23 +530,39 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         const user = this.authService.getuser();
 
         if (this.tipoDoc == 4) {
+            let fechaInicioMes: Date = new Date();
+            fechaInicioMes.setDate(1);
+            let fechaActual: Date = new Date();
+
+            this.dateHasta = {
+                year: fechaActual.getFullYear(),
+                month: fechaActual.getMonth() + 1, // Los meses en NgbDateStruct son de 1 a 12
+                day: fechaActual.getDate()
+            };
+
+            this.dateDesde = {
+                year: fechaInicioMes.getFullYear(),
+                month: fechaInicioMes.getMonth() + 1, // Los meses en NgbDateStruct son de 1 a 12
+                day: fechaInicioMes.getDate()
+            };
+
             if (user != null) {
                 this.spinner.show();
-                let codaux = '0';
-                if (this.searchRut != null && this.searchRut != '') {
-                    codaux = this.searchRut.replace('.', '').split('-')[0];
+                let filtro = {
+                    cantidad: 10,
+                    pagina: 1,
+                    fechaDesde: fechaInicioMes,
+                    fechaHasta: fechaActual
                 }
 
                 this.noResultText = "No se encontraron resultados"
-                this.clienteService.getDocumentosPagadosAdministrador().subscribe((res: any[]) => {
+                this.clienteService.getDocumentosPagadosAdministrador(filtro).subscribe((res: any[]) => {
 
-                    this.documentosPagados = res;
-                    this.documentosPagadosPorPagina = res.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
-                    this.documentosPagadosFiltro = res;
+                    this.documentosPagadosPorPagina = res;
                     this.configDocumentos = {
                         itemsPerPage: this.paginadorDocumentos.endRow,
                         currentPage: 1,
-                        totalItems: this.documentosPagados.length
+                        totalItems: this.documentosPagadosPorPagina.length > 0 ? this.documentosPagadosPorPagina[0].totalFilas : 0
                     };
                     this.spinner.hide();
                 }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
@@ -717,13 +735,30 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     }
 
     changePageDocumentosPagados(event: any) {
-        this.paginadorDocumentos.startRow = ((event - 1) * 10);
-        this.paginadorDocumentos.endRow = (event * 10);
-        this.paginadorDocumentos.sortBy = 'desc';
-        this.configDocumentos.currentPage = event;
-        this.documentosPagadosPorPagina = this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
-        // this.updatePagados = true
-        // this.updatePagadosEvent.emit(this.documentosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow));
+        let fHasta = null;
+        if (this.dateHasta != null) {
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+        }
+
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        }
+        this.spinner.show();
+
+        this.noResultText = "No se encontraron resultados";
+
+        let filtro = {
+            codAux: this.searchCodAux,
+            rut: this.searchRut,
+            tipoBusqueda: this.selectedEstadoPagos,
+            numComprobante: this.folio,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
+            pagina: event
+        }
+
+        this.getDocumentosPagados(filtro);
 
     }
 
@@ -740,7 +775,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         if (this.dateDesde != null) {
             fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
         }
-    debugger
+        debugger
         let model = {
             TipoBusqueda: this.tipoDoc,
             fechaDesde: fDesde,
@@ -782,49 +817,51 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
 
     filterDocsPagados() {
-        debugger
-        this.documentosPagadosFiltro = this.documentosPagados;
 
-        if (this.selectedEstadoPagos == 2) {
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.comprobanteContable != '' && x.comprobanteContable != null)
-        } else if (this.selectedEstadoPagos == 3) {
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.comprobanteContable == '' || x.comprobanteContable == null)
-        }
-
-        if (this.searchRut != null && this.searchRut != '') {
-            let codAux = this.searchRut.replace('.', '').replace('.', '').split('-')[0];
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.rut == this.searchRut)
-        }
-
-        if (this.folio != null) {
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.comprobanteContable == this.folio)
-        }
-
-        if (this.dateDesde != null) {
-            const fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => new Date(x.fechaPago) >= fDesde)
-        }
-
+        let fHasta = null;
         if (this.dateHasta != null) {
-            const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => new Date(x.fechaPago) <= fHasta)
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+        }
+
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
         }
 
         this.paginadorDocumentos.startRow = 0;
         this.paginadorDocumentos.endRow = 10;
         this.paginadorDocumentos.sortBy = 'desc';
-        this.configDocumentos = {
-            itemsPerPage: this.paginadorDocumentos.endRow,
-            currentPage: 1,
-            totalItems: this.documentosPagadosFiltro.length
-        };
 
+        this.spinner.show();
 
-        this.updatePagados = true
-        //this.updatePagadosEvent.emit(this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow));
-        this.documentosPagadosPorPagina = this.documentosPagadosFiltro.slice(this.paginadorDocumentos.startRow, this.paginadorDocumentos.endRow);
+        this.noResultText = "No se encontraron resultados";
 
+        let filtro = {
+            codAux: this.searchCodAux,
+            rut: this.searchRut,
+            tipoBusqueda: this.selectedEstadoPagos,
+            numComprobante: this.folio,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
+            pagina: 1
+        }
 
+        this.getDocumentosPagados(filtro);
+    }
+
+    getDocumentosPagados(filtro: any) {
+        debugger
+        this.clienteService.getDocumentosPagadosAdministrador(filtro).subscribe((res: any[]) => {
+
+            this.documentosPagadosPorPagina = res;
+            this.configDocumentos = {
+                itemsPerPage: this.paginadorDocumentos.endRow,
+                currentPage: filtro.pagina,
+                totalItems: this.documentosPagadosPorPagina.length > 0 ? this.documentosPagadosPorPagina[0].totalFilas : 0
+            };
+
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
     }
 
     changeEstadoPagos() {
@@ -839,6 +876,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         this.dateHasta = null;
         this.folio = null;
         this.searchRut = null;
+        this.searchCodAux = null;
+
 
         this.filterDocs();
     }
@@ -849,8 +888,8 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         this.dateHasta = null;
         this.folio = null;
         this.searchRut = null;
-        this.selectedEstadoPagos = 1;
-
+        this.searchCodAux = null;
+        this.selectedEstadoPagos = 0;
         this.filterDocsPagados();
     }
 

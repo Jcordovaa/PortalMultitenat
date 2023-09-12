@@ -121,6 +121,8 @@ namespace ApiPortal.Controllers
                             continue;
                         }
                     }
+                    DateTime today = DateTime.Today;
+                    int ultimoDiaDelMes = DateTime.DaysInMonth(today.Year, today.Month);
 
                     switch (automatizacion.IdPerioricidad)
                     {
@@ -137,16 +139,27 @@ namespace ApiPortal.Controllers
                             }
                             break;
                         case 3:
-                            if (DateTime.Now.Day != 30)
+                            if (DateTime.Now.Day != ultimoDiaDelMes)
                             {
                                 continue;
                             }
                             break;
                         case 4:
-                            if (DateTime.Now.Day != automatizacion.DiaEnvio)
+                            if(automatizacion.DiaEnvio < ultimoDiaDelMes)
                             {
-                                continue;
+                                if (DateTime.Now.Day != automatizacion.DiaEnvio)
+                                {
+                                    continue;
+                                }
                             }
+                            else
+                            {
+                                if(DateTime.Now.Day != ultimoDiaDelMes)
+                                {
+                                    continue;
+                                }
+                            }
+                          
                             break;
                         case 5:
                             if ((int)DateTime.Now.DayOfWeek != automatizacion.DiaEnvio)

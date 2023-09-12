@@ -2003,6 +2003,9 @@ hr {
   .tm_invoice.tm_style2 .tm_invoice_head .tm_text_right {
     text-align: left;
   }
+   .tm_invoice_center {
+    text-align: center;
+  }
   .tm_invoice.tm_style2 .tm_invoice_info {
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
@@ -2534,26 +2537,42 @@ hr {
   }
 }
 
+html, body {
+    height: 383mm; /* Altura en milímetros */
+    margin: 0; /* Elimina márgenes predeterminados */
+    padding: 0; /* Elimina relleno predeterminado */
+	overflow: hidden;
+}
+
+   .footer2 {
+            position: absolute; /* Establece la posición absoluta para el div del pie de página */
+            bottom: 0; /* Lo coloca en la parte inferior */
+            left: 0; /* Lo coloca en la esquina izquierda */
+            width: 100%; /* Ajusta el ancho para ocupar toda la página */
+            padding: 10px; /* Espaciado interno del pie de página */
+        }
+		
+		
   </style>
 </head>
 
 <body>
-  <div class="tm_container">
-    <div class="tm_invoice_wrap">
-      <div class="tm_invoice tm_style1" id="tm_download_section">
-        <div class="tm_invoice_in">
-          <div class="tm_invoice_head tm_align_center tm_mb20">
-            <div class="tm_invoice_left">
-               <div class="tm_logo"><img src="{LOGO}" alt="Logo"></div>
+  <div class="tm_container" style="height: 383mm;">
+    <div class="tm_invoice_wrap" style="height: 383mm;">
+      <div class="tm_invoice tm_style1" id="tm_download_section" style="height: 363mm;">
+        <div class="tm_invoice_in" style="height: 363mm;">
+		 <div  style="text-align: center;">
+    <div class="tm_logo" style="display: inline-block;">
+        <img src="{LOGO}" alt="Logo">
+    </div>
+</div>         
+       	 <div  style="text-align: center;">
+              <div class="tm_primary_color tm_f50 tm_text_uppercase">{NOMBREDOCUMENTO}</div>
             </div>
-            <div class="tm_invoice_right tm_text_right">
-              <div class="tm_primary_color tm_f50 tm_text_uppercase">ESTADO DE CUENTA</div>
-            </div>
-          </div>
           <div class="tm_invoice_info tm_mb20">
             <div class="tm_invoice_seperator tm_gray_bg"></div>
             <div class="tm_invoice_info_list">
-              <p class="tm_invoice_date tm_m0">Fecha: <b class="tm_primary_color">FECHA</b></p>
+              <p class="tm_invoice_date tm_m0">Fecha: <b class="tm_primary_color">{FECHA}</b></p>
             </div>
           </div>
           <div class="tm_invoice_head tm_mb10">
@@ -2617,24 +2636,19 @@ hr {
             </div>
           </div>
           <hr class="tm_mb20">
-          <div class="tm_text_center">
+           <div class="tm_text_center">
             <p class="tm_mb5"><b class="tm_primary_color"></b></p>
             <p class="tm_m0">Documento generado automáticamente desde Portal
                         de Clientes Softland.</p>
 						<div class="centradomail"><img src="{IMAGENFOOTER}" alt="" /></div>
           </div><!-- .tm_note -->
         </div>
-      </div>
-      <div class="tm_invoice_btns tm_hide_print">
-        <a href="javascript:window.print()" class="tm_invoice_btn tm_color1">
-          <span class="tm_btn_icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M384 368h24a40.12 40.12 0 0040-40V168a40.12 40.12 0 00-40-40H104a40.12 40.12 0 00-40 40v160a40.12 40.12 0 0040 40h24" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><rect x="128" y="240" width="256" height="208" rx="24.32" ry="24.32" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><path d="M384 128v-24a40.12 40.12 0 00-40-40H168a40.12 40.12 0 00-40 40v24" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><circle cx="392" cy="184" r="24" fill='currentColor'/></svg>
-          </span>
-          <span class="tm_btn_text">Imprimir</span>
-        </a>
+		
       </div>
     </div>
+	 
   </div>
+
   <script src="assets/js/jquery.min.js"></script>
   <script src="assets/js/jspdf.min.js"></script>
   <script src="assets/js/html2canvas.min.js"></script>

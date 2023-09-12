@@ -145,7 +145,7 @@ namespace ApiPortal.Services
 
         #region COBRANZAS AUTOMATICAS
 
-        public byte[] generaDetalleCobranza(DetalleEnvioCobranzaVm cobranza)
+        public byte[] generaDetalleCobranza(DetalleEnvioCobranzaVm cobranza, string nombreCobranza)
         {
             //Stream buffer = new MemoryStream();
             byte[] buffer;
@@ -160,6 +160,7 @@ namespace ApiPortal.Services
 
                 //Remplaza valores cabecera
                 reporte = reporte.Replace("{FECHA}", DateTime.Now.ToShortDateString());
+                reporte = reporte.Replace("{NOMBREDOCUMENTO}", nombreCobranza);
                 reporte = reporte.Replace("{RUTALUMNO}", cobranza.RutCliente);
                 reporte = reporte.Replace("{NOMBREALUMNO}", cobranza.NombreCliente);
                 reporte = reporte.Replace("{RUTAPODERADO}", "");
@@ -196,7 +197,10 @@ namespace ApiPortal.Services
                 }
 
                 SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
+                converter.Options.PdfPageSize = SelectPdf.PdfPageSize.A4;
+                converter.Options.AllowContentHeightResize = true;
                 SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlCompleto);
+            
 
                 using (MemoryStream memoryStream = new MemoryStream())
                 {

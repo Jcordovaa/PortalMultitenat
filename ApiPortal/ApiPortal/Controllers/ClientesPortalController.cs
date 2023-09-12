@@ -1586,7 +1586,7 @@ namespace ApiPortal.Controllers
                 if (model.IdCobranza != 0 && model.IdCobranza != null)
                 {
                     var cobranza = _context.CobranzaCabeceras.Where(x => x.IdCobranza == model.IdCobranza).FirstOrDefault();
-                    if(cobranza.FechaFin != null)
+                    if (cobranza.FechaFin != null)
                     {
                         if (cobranza.FechaFin.Value.Date >= DateTime.Now.Date)
                         {
@@ -1689,7 +1689,7 @@ namespace ApiPortal.Controllers
 
                         }
                     }
-                   
+
                 }
 
 
@@ -2904,8 +2904,8 @@ namespace ApiPortal.Controllers
             }
         }
 
-        [HttpGet("GetDocumentosPagados"), Authorize]
-        public async Task<ActionResult> GetDocumentosPagados()
+        [HttpPost("GetDocumentosPagados"), Authorize]
+        public async Task<ActionResult> GetDocumentosPagados(FilterVm filtro)
         {
 
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
@@ -2919,9 +2919,42 @@ namespace ApiPortal.Controllers
             {
                 List<PagoCabeceraVm> retorno = new List<PagoCabeceraVm>();
 
-                var documentos = _context.PagosCabeceras.Where(x => x.IdPagoEstado == 2 || x.IdPagoEstado == 4).OrderByDescending(x => x.IdPago).ToList();
+                var documentos = _context.PagosCabeceras.Where(x => x.IdPagoEstado == 2 || x.IdPagoEstado == 4).OrderByDescending(x => x.IdPago).AsQueryable();
 
-                foreach (var item in documentos)
+                if (!string.IsNullOrEmpty(filtro.CodAux))
+                {
+                    documentos = documentos.Where(x => x.CodAux == filtro.CodAux).AsQueryable();
+                }
+
+                if (!string.IsNullOrEmpty(filtro.Rut))
+                {
+                    documentos = documentos.Where(x => x.Rut == filtro.Rut).AsQueryable();
+                }
+
+                if (!string.IsNullOrEmpty(filtro.NumComprobante))
+                {
+                    documentos = documentos.Where(x => x.ComprobanteContable == filtro.NumComprobante).AsQueryable();
+                }
+
+
+                if (filtro.TipoBusqueda != null && filtro.TipoBusqueda != 0)
+                {
+                    documentos = documentos.Where(x => x.IdPagoEstado == filtro.TipoBusqueda).AsQueryable();
+                }
+
+                if (filtro.fechaDesde != null)
+                {
+                    documentos = documentos.Where(x => x.FechaPago.Value.Date >= filtro.fechaDesde.Value.Date).AsQueryable();
+                }
+
+                if (filtro.fechaHasta != null)
+                {
+                    documentos = documentos.Where(x => x.FechaPago.Value.Date <= filtro.fechaHasta.Value.Date).AsQueryable();
+                }
+
+                var pagos = documentos.Skip((filtro.Pagina - 1) * 10).Take(10).ToList();
+
+                foreach (var item in pagos)
                 {
                     PagoCabeceraVm pago = new PagoCabeceraVm();
                     pago.CodAux = item.CodAux;
@@ -3011,6 +3044,11 @@ namespace ApiPortal.Controllers
                     pago.ClientesPortal = cliente;
 
                     retorno.Add(pago);
+                }
+
+                if (retorno.Count > 0)
+                {
+                    retorno[0].TotalFilas = documentos.Count();
                 }
 
                 logApi.Termino = DateTime.Now;
@@ -3543,7 +3581,13 @@ namespace ApiPortal.Controllers
                         }
 
                         //Agrega detalle para envió
-                        var docStream = genera.generaDetalleCobranza(DetalleCobranza);
+                        string nombreDocumento = string.Empty;
+                        var cobranza = _context.CobranzaCabeceras.FirstOrDefault();
+                        if (cobranza != null)
+                        {
+                            nombreDocumento = cobranza.IdTipoCobranza == 1 ? "Estado de Cuenta" : "Documentos Próximos a Vencer";
+                        }
+                        var docStream = genera.generaDetalleCobranza(DetalleCobranza, nombreDocumento);
                         string base64 = Convert.ToBase64String(docStream);
 
                         pdf.Nombre = "Estado de Cuenta.pdf";
@@ -3585,7 +3629,7 @@ namespace ApiPortal.Controllers
 
                     var documentos = await softlandService.ObtenerDocumentosAutomaizacion(automatizacion.TipoDocumentos, model.CodAux, 0, logApi.Id);
 
-                    switch (automatizacion.IdAutomatizacion)
+                    switch (automatizacion.IdTipoAutomatizacion)
                     {
                         case 1:
                             if (automatizacion.NumDoc.Count > 0)
@@ -3633,7 +3677,12 @@ namespace ApiPortal.Controllers
                             doc.ListaDocumentos.Add(aux);
                         }
 
-                        var docStream = genera.generaDetalleCobranza(doc);
+                        string nombreDocumento = string.Empty;
+
+
+                        nombreDocumento = automatizacion.IdTipoAutomatizacion == 1 || automatizacion.IdTipoAutomatizacion == 2 ? "Documentos Próximos a Vencer" : "Estado de Cuenta";
+
+                        var docStream = genera.generaDetalleCobranza(doc, nombreDocumento);
                         string base64 = Convert.ToBase64String(docStream);
 
                         pdf.Nombre = "Estado de Cuenta.pdf";

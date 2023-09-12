@@ -11,7 +11,7 @@ export class LoginGuard implements CanActivate {
     constructor(private authService: AuthService, private router: Router) { }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        if (this.authService.isLogged() && state.url.indexOf('activate-account') == -1) {
+        if (this.authService.isLogged() && state.url.indexOf('activate-account') == -1 && state.url.indexOf('account-state-view') == -1  && state.url.indexOf('pay') == -1 ) {
             var user = this.authService.getuser();
             if(user){
                 if(user.esUsuario === true){

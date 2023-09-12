@@ -525,6 +525,13 @@
                             </div>
 
                             <div class="col-md-4 form-group mb-3">
+                                <label for="firstName">Código Auxiliar</label>
+                                <input type="text" autocomplete="off" 
+                                    class="form-control" id="codAuxS" name="codAuxS" [(ngModel)]="searchCodAux"
+                                    placeholder="Código Auxiliar">
+                            </div>
+
+                            <div class="col-md-4 form-group mb-3">
                                 <label for="picker1">Estado Pago</label>
                                 <ng-select class="customAC" style="border-radius: 40px !important;"
                                     [items]="estadosPagos" appendTo="body" bindLabel="nombre"
@@ -610,6 +617,7 @@
 
                                             <thead>
                                                 <tr>
+                                                    <th>Cód. Aux.</th>
                                                     <th>RUT Cliente</th>
                                                     <th>Nombre Cliente</th>
                                                     <th>Nro. Pago</th>
@@ -624,6 +632,7 @@
                                             <tbody>
                                                 <tr
                                                     *ngFor="let documento of documentosPagadosPorPagina | paginate: configDocumentos">
+                                                    <td>{{documento.codAux}}</td>
                                                     <td>{{documento.clientesPortal.rut}}</td>
                                                     <td>{{documento.clientesPortal.nombre}}</td>
                                                     <td>{{documento.idPago}}</td>
@@ -702,6 +711,8 @@
                                                         style="min-width: 80px; min-height: 80px;" width="80px"
                                                         height="80px" src="./assets/images/icon/documento.png"></td> -->
                                                     <td>
+                                                        <strong>Cód. Aux.:
+                                                        </strong>{{documento.codAux}}<br />
                                                         <strong>RUT Cliente:
                                                         </strong>{{documento.clientesPortal.rut}}<br />
                                                         <strong>Nombre Cliente:
@@ -773,7 +784,7 @@
                                 </div>
 
 
-                                <div class="col-md-12 mt-3" *ngIf="documentosPagadosFiltro?.length > 0">
+                                <div class="col-md-12 mt-3" *ngIf="documentosPagadosPorPagina?.length > 0">
                                     <pagination-controls (pageChange)="changePageDocumentosPagados($event)" maxSize="6"
                                         responsive="true" previousLabel="" nextLabel="">
                                     </pagination-controls>

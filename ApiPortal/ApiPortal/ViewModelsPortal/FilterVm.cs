@@ -12,7 +12,7 @@
         //Para Envio de accesos
         //1 Todos los clientes
         //2 solo los que no tienen acceso creado
-        public int TipoBusqueda { get; set; }
+        public int? TipoBusqueda { get; set; }
 
         public Nullable<DateTime> fechaDesde { get; set; }
         public Nullable<DateTime> fechaHasta { get; set; }
@@ -24,5 +24,6 @@
         public Nullable<int> IdCobranza { get; set; }
         public string? AutomatizacionJson { get; set; }
         public int Pagina { get; set; }
+        public string? NumComprobante { get; set; }
     }
 }

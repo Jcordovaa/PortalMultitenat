@@ -453,8 +453,11 @@ export class AutomationComponent implements OnInit {
   }
 
   validaNumeros() {
-    if (this.nuevaAutomaetizacion.diaEnvio > 30) {
+    if (this.nuevaAutomaetizacion.diaEnvio > 31) {
       this.nuevaAutomaetizacion.diaEnvio = 30;
+    }
+    if (this.nuevaAutomaetizacion.diaEnvio < 1) {
+      this.nuevaAutomaetizacion.diaEnvio = 1;
     }
   }
 
