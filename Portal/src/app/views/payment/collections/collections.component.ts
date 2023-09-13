@@ -534,6 +534,15 @@ export class CollectionsComponent implements OnInit {
     return true
   }
 
+  get IsStepTreeOk() {
+
+    if (this.correosSeleccionados == 0) {
+      return false;
+    }
+    return true
+  }
+
+  
   get IsStepFinalOk() {
     if (this.nombreCobranza == null || this.nombreCobranza == '') {
       return false

@@ -950,27 +950,36 @@ namespace ApiPortal.Controllers
 
 
         [HttpPost("CallbackPago")]
-        public async Task<ActionResult> CallbackPago([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front) //FCA 13-02-2023
+        public async Task<ActionResult> CallbackPagoPost([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front) //FCA 13-02-2023
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
             logApi.Api = "api/Softland/CallbackPago";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+            LogApi logApi2 = new LogApi();
+            logApi.Api = "api/Softland/CallbackPago LLEGA";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            sf.guardarLogApi(logApi2);
             try
             {        
-                string mensaje = "Pago procesado";
-
-                if (string.IsNullOrEmpty(datosPago) && idPago != 0) //1. Validamos que los datos retornen con información
+                if (string.IsNullOrEmpty(datosPago) || idPago == 0) //1. Validamos que los datos retornen con información
                 {
-                    mensaje = "Llamado no contiene la información del pago";
+                    return BadRequest();
                 }
                 else  //2. Actualizamos estado de pago para retornar al cliente y el log de softlandpay
                 {
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    int reprocesos = (int)api.ReintentosCallback;
+                    int procesos = 1;
+                    gotoCallback:
+                    int milliseconds = (int)api.MilisegundosReintoCalback;
+
                     using (var client = new HttpClient())
                     {
-                        var pago = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();
-                        var api = _context.ApiSoftlands.FirstOrDefault();
+                        var pago = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();   
                         var pasarela = _context.PasarelaPagos.Where(x => x.IdPasarela == idPasarela).FirstOrDefault();
                         var logValida = _context.PasarelaPagoLogs.Where(x => x.IdPago == idPago).FirstOrDefault();
                         string accesToken = api.Token;
@@ -1092,13 +1101,188 @@ namespace ApiPortal.Controllers
                     }
                 }
 
-                return Ok(mensaje);
+                return Ok();
             }
             catch (Exception ex)
             {
-                //FCA 14-01-2022 SE AGREGA LOG
-                LogicalThreadContext.Properties["requestUri"] = "Api/venta/callbackSoftlandpay";
-                log.Error(ex.Message, ex);
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Softland/CallbackPagoPost";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("CallbackPago")]
+        public async Task<ActionResult> CallbackPagoGet([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front) //FCA 13-02-2023
+        {
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/Softland/CallbackPago";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+            LogApi logApi2 = new LogApi();
+            logApi.Api = "api/Softland/CallbackPago LLEGA";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+            sf.guardarLogApi(logApi2);
+            try
+            {
+                if (string.IsNullOrEmpty(datosPago) || idPago == 0) //1. Validamos que los datos retornen con información
+                {
+                    return BadRequest();
+                }
+                else  //2. Actualizamos estado de pago para retornar al cliente y el log de softlandpay
+                {
+                    var api = _context.ApiSoftlands.FirstOrDefault();
+                    int reprocesos = (int)api.ReintentosCallback;
+                    int procesos = 1;
+                    gotoCallback:
+                    int milliseconds = (int)api.MilisegundosReintoCalback;
+
+                    using (var client = new HttpClient())
+                    {
+                        var pago = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();                    
+                        var pasarela = _context.PasarelaPagos.Where(x => x.IdPasarela == idPasarela).FirstOrDefault();
+                        var logValida = _context.PasarelaPagoLogs.Where(x => x.IdPago == idPago).FirstOrDefault();
+                        string accesToken = api.Token;
+
+
+                        string url = pasarela.AmbienteConsultarPago.Replace("{ID}", logValida.Token)
+                                                      .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S");
+
+
+
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            ResultadoEstadoPagoVPOS result = JsonConvert.DeserializeObject<ResultadoEstadoPagoVPOS>(content);
+
+                            if (result.Estado == "PAGADO" || result.Estado == "AUTHORIZED") //Pago exitoso generar comprobante
+                            {
+                               
+
+                                //Genera comprobante contable por el pago realizado
+                                PagoComprobanteVm comprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
+
+                                logValida.Estado = result.Estado;
+                                logValida.Fecha = DateTime.Now;
+                                logValida.MedioPago = result.Medio_pago;
+                                logValida.Cuotas = Convert.ToInt32(result.Cuotas);
+                                logValida.Tarjeta = result.Forma_pago;
+
+                                _context.Entry(logValida).Property(x => x.Fecha).IsModified = true;
+                                _context.Entry(logValida).Property(x => x.Estado).IsModified = true;
+                                _context.Entry(logValida).Property(x => x.MedioPago).IsModified = true;
+                                _context.Entry(logValida).Property(x => x.Cuotas).IsModified = true;
+                                _context.Entry(logValida).Property(x => x.Tarjeta).IsModified = true;
+                                await _context.SaveChangesAsync();
+
+                                if (comprobante.PagoId == 0)
+                                {
+                                    logApi.Termino = DateTime.Now;
+                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                    sf.guardarLogApi(logApi);
+
+                                    return Ok();
+                                }
+                                else
+                                {
+                                    if (idCobranza != 0)
+                                    {
+
+                                        var detallesPago = _context.PagosDetalles.Where(x => x.IdPago == idPago).ToList();
+                                        string rutDesencriptado = Encrypt.Base64Decode(rutCliente);
+                                        var detallesCobranza = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza && x.RutCliente == rutDesencriptado).ToList();
+                                        var docsCliente = await sf.GetAllDocumentosContabilizadosCliente(pago.CodAux, logApi.Id);
+                                        foreach (var detalleCobranza in detallesCobranza)
+                                        {
+                                            var detPago = detallesPago.OrderByDescending(x => x.IdPagoDetalle).Where(x => x.Folio == detalleCobranza.Folio && detalleCobranza.TipoDocumento == x.TipoDocumento).FirstOrDefault();
+                                            if (detPago != null)
+                                            {
+                                                detalleCobranza.FechaPago = pago.FechaPago;
+                                                detalleCobranza.HoraPago = pago.HoraPago;
+                                                detalleCobranza.ComprobanteContable = comprobante.NumComprobante;
+                                                detalleCobranza.IdPago = idPago;
+                                                detalleCobranza.Pagado += detPago.Apagar;
+
+                                                var existDoc = docsCliente.Where(x => x.Numdoc == detalleCobranza.Folio && x.Ttdcod == detalleCobranza.TipoDocumento).FirstOrDefault();
+                                                if (existDoc != null)
+                                                {
+                                                    detalleCobranza.IdEstado = 4;
+                                                }
+                                                else
+                                                {
+                                                    detalleCobranza.IdEstado = 5;
+                                                }
+
+                                                _context.CobranzaDetalles.Attach(detalleCobranza);
+                                                _context.Entry(detalleCobranza).Property(x => x.FechaPago).IsModified = true;
+                                                _context.Entry(detalleCobranza).Property(x => x.HoraPago).IsModified = true;
+                                                _context.Entry(detalleCobranza).Property(x => x.ComprobanteContable).IsModified = true;
+                                                _context.Entry(detalleCobranza).Property(x => x.IdPago).IsModified = true;
+                                                _context.Entry(detalleCobranza).Property(x => x.IdEstado).IsModified = true;
+                                                _context.Entry(detalleCobranza).Property(x => x.Pagado).IsModified = true;
+
+                                            }
+
+                                        }
+                                        _context.SaveChanges();
+                                    }
+                                    ClientesPortalController clientesController = new ClientesPortalController(_context, _webHostEnvironment, _admin, _contextAccessor);
+                                    await clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
+
+                                    logApi.Termino = DateTime.Now;
+                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                    sf.guardarLogApi(logApi);
+
+                                    return Ok();
+                                }
+
+                            }
+                            else
+                            {
+                                procesos = procesos + 1;
+                                Thread.Sleep(milliseconds);
+
+                                goto gotoCallback;
+                            }
+
+                        }
+                        else
+                        {
+                            procesos = procesos + 1;
+                            Thread.Sleep(milliseconds);
+
+                            goto gotoCallback;
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Softland/CallbackPagoGet";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
                 return BadRequest(ex.Message);
             }
         }

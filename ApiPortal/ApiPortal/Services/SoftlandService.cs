@@ -8351,9 +8351,12 @@ namespace ApiPortal.Services
                             client.DefaultRequestHeaders.Add("SApiKey", accesToken); //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
                             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-                            var multipart = new MultipartFormDataContent();
-                            multipart.Add(new StringContent(jsonString), "vJson");
-                            multipart.Add(new StringContent(api.AreaDatos), "areaDatos");
+                            var formData = new List<KeyValuePair<string, string>>
+                                {
+                                    new KeyValuePair<string, string>("vJson", jsonString),
+                                 };
+                            HttpContent data = new FormUrlEncodedContent(formData);
+
 
                             LogApiDetalle logApiDetalle = new LogApiDetalle();
                             logApiDetalle.IdLogApi = logApiId;
@@ -8361,7 +8364,7 @@ namespace ApiPortal.Services
                             logApiDetalle.Metodo = "ContabilizaPagos";
 
 
-                            HttpResponseMessage response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
+                            HttpResponseMessage response = await client.PostAsync(client.BaseAddress, data).ConfigureAwait(false);
 
                             logApiDetalle.Termino = DateTime.Now;
                             logApiDetalle.Segundos = (int?)Math.Round((logApiDetalle.Termino - logApiDetalle.Inicio).Value.TotalSeconds);

@@ -2541,7 +2541,7 @@ html, body {
     height: 383mm; /* Altura en milímetros */
     margin: 0; /* Elimina márgenes predeterminados */
     padding: 0; /* Elimina relleno predeterminado */
-	overflow: hidden;
+
 }
 
    .footer2 {
@@ -2557,10 +2557,10 @@ html, body {
 </head>
 
 <body>
-  <div class="tm_container" style="height: 383mm;">
-    <div class="tm_invoice_wrap" style="height: 383mm;">
-      <div class="tm_invoice tm_style1" id="tm_download_section" style="height: 363mm;">
-        <div class="tm_invoice_in" style="height: 363mm;">
+  <div class="tm_container" style="min-height: 383mm;">
+    <div class="tm_invoice_wrap" style="min-height: 383mm;">
+      <div class="tm_invoice tm_style1" id="tm_download_section" style="min-height: 383mm;">
+        <div class="tm_invoice_in" style="min-height: 383mm;">
 		 <div  style="text-align: center;">
     <div class="tm_logo" style="display: inline-block;">
         <img src="{LOGO}" alt="Logo">
@@ -2593,9 +2593,11 @@ html, body {
               </p>
             </div>
           </div>
+		  <!--TABLADETALLE-->
           <div class="tm_table tm_style1">
             <div class="tm_round_border tm_radius_0">
               <div class="tm_table_responsive">
+			  <!--TABLADETALLE-->
                 <table>
                   <thead>
                     <tr>
@@ -2635,6 +2637,7 @@ html, body {
               </div>
             </div>
           </div>
+		  <!--TABLADETALLE-->
           <hr class="tm_mb20">
            <div class="tm_text_center">
             <p class="tm_mb5"><b class="tm_primary_color"></b></p>

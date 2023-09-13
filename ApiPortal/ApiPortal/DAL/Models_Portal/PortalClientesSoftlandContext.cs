@@ -14,7 +14,7 @@ namespace ApiPortal.Dal.Models_Portal
         }
 
         public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options, IHttpContextAccessor contextAccessor)
-            : base(options)
+             : base(options)
         {
             _contextAccessor = contextAccessor;
         }
@@ -23,7 +23,6 @@ namespace ApiPortal.Dal.Models_Portal
         {
             _contextAccessor = contextAccessor;
         }
-
 
         public virtual DbSet<Acceso> Accesos { get; set; } = null!;
         public virtual DbSet<ApiSoftland> ApiSoftlands { get; set; } = null!;
@@ -74,7 +73,6 @@ namespace ApiPortal.Dal.Models_Portal
                 var currentTenant = _contextAccessor.HttpContext?.GetTenant();
                 optionsBuilder.UseSqlServer(currentTenant.Items["ConnectionString"].ToString());
             }
-
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

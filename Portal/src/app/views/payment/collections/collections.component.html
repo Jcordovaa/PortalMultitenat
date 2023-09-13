@@ -736,11 +736,10 @@
                 </div>
             </wizard-step>
 
-            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)">
+            <wizard-step #step3 [title]="'Envíos'" (onNext)="onStep3Next($event)" [isValid]="IsStepTreeOk">
                 <div class="row" *ngIf="selectedProgramacion == 1">
                     <div class="col-md-12 mb-3 mt-3">
-                        <span style="font-size: 16px; font-weight: 600;">Detalle de los correos que se enviarán a los
-                            clientes.</span>
+                        <span style="font-size: 16px; font-weight: 600;">Seleccione a los clientes que desea enviarles correo de cobranza o pre cobranza (dependiendo del tipo de envío indicado en el   paso 1)</span>
                     </div>
                     <div class="form-group col-md-3 mb-3">
                         <label for="rutCliente" class="text-lbl">Rut Cliente</label>
@@ -1004,6 +1003,14 @@
 
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="detalleClientes?.length == 0 ">
+
+                    <div class="col-md-12">
+                        <ngb-alert class="alert-card text-center" [dismissible]="false">
+                            No existen resultados para la consulta
+                        </ngb-alert>
                     </div>
                 </div>
             </wizard-step>

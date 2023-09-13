@@ -18,7 +18,7 @@ namespace ApiPortal.Security.TenantService
             }
 
             //return await Task.FromResult(_httpContext.Request.Host.Host);
-            if(_httpContext.Request.Path.Value == "/api/ProcesaPagos/GeneraPagoElectronico")
+            if(_httpContext.Request.Path.Value == "/api/ProcesaPagos/GeneraPagoElectronico" || _httpContext.Request.Path.Value == "/api/Softland/CallbackPago")
             {
                 
                 string tenant = Encrypt.Base64Decode(_httpContext.Request.QueryString.Value.Split("tenant").Last().Remove(0, 1));

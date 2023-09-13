@@ -49,5 +49,9 @@ namespace ApiPortal.Dal.Models_Portal
         public string? UrlAlmacenamientoArchivos { get; set; }
         public string? CuentasPasarelaPagos { get; set; }
         public string? ConsultaAuxiliar { get; set; }
+        public int? ReintentosCallback { get; set; }
+        public int? ReintentosRedirect { get; set; }
+        public int? MilisegundosReintoCalback { get; set; }
+        public int? MiliSegundosReintentoRedirect { get; set; }
     }
 }

@@ -919,50 +919,52 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
 
 
     exportPagados() {
-        let data = this.documentosPagados;
-
-        if (this.searchRut != null && this.searchRut != '') {
-            let codAux = this.searchRut.replace('.', '').replace('.', '').split('-')[0];
-            data = data.filter(x => x.codAux == codAux)
-        }
-        if (this.folio != null) {
-            data = data.filter(x => x.comprobanteContable == this.folio)
-        }
-        if (this.dateDesde != null) {
-            const fDesde = new Date(this.dateDesde.year, this.dateHasta.month - 1, this.dateDesde.day, 0, 0, 0);
-            data = data.filter(x => new Date(x.fechaPago) >= fDesde)
-        }
+        let fHasta = null;
         if (this.dateHasta != null) {
-            const fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 23, 59, 59);
-            data = data.filter(x => new Date(x.fechaPago) <= fHasta)
+            fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
         }
 
-        if (this.selectedEstadoPagos == 2) {
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.comprobanteContable != '' && x.comprobanteContable != null)
-        } else if (this.selectedEstadoPagos == 3) {
-            this.documentosPagadosFiltro = this.documentosPagadosFiltro.filter(x => x.comprobanteContable == '' || x.comprobanteContable == null)
+        let fDesde = null;
+        if (this.dateDesde != null) {
+            fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+        }
+        this.spinner.show();
+
+
+        let filtro = {
+            codAux: this.searchCodAux,
+            rut: this.searchRut,
+            tipoBusqueda: this.selectedEstadoPagos,
+            numComprobante: this.folio,
+            fechaDesde: fDesde,
+            fechaHasta: fHasta,
         }
 
-        let listaExportacion = [];
-        let fechaPago;
-        data.forEach((element) => {
-            if (element.fechaPago == null || element.fechaPago == undefined) {
-                fechaPago = '';
-            } else {
-                fechaPago = new Date(element.fechaPago);
-                fechaPago = fechaPago.getDate() + "/" + (fechaPago.getMonth() + 1) + "/" + fechaPago.getFullYear();
-            }
+        this.clienteService.getDocumentosPagadosExportAdministrador(filtro).subscribe((res: any[]) => {
+            let listaExportacion = [];
+            res.forEach((element) => {
+                let fechaPago: any = null;
+                if (element.fechaPago == null || element.fechaPago == undefined) {
+                    fechaPago = '';
+                } else {
+                    fechaPago = new Date(element.fechaPago);
+                    fechaPago = fechaPago.getDate() + "/" + (fechaPago.getMonth() + 1) + "/" + fechaPago.getFullYear();
+                }
 
-            var fechaEmision;
-            fechaEmision = new Date(element.fechaEmision);
-            fechaEmision = fechaEmision.getDate() + "/" + (fechaEmision.getMonth() + 1) + "/" + fechaEmision.getFullYear();
-            let numComprobante = element.comprobanteContable == '' || element.comprobanteContable == null ? ' Error al generar comprobante' : element.comprobanteContable;
-            const model = { Rut_Cliente: element.rut, Numero_Comprobante: numComprobante, Monto: element.montoPago, Fecha_Pago: fechaPago, Hora_Pago: element.horaPago };
-            listaExportacion.push(model);
-        });
-        let nombre = "Pagos";
+                var fechaEmision;
+                fechaEmision = new Date(element.fechaEmision);
+                fechaEmision = fechaEmision.getDate() + "/" + (fechaEmision.getMonth() + 1) + "/" + fechaEmision.getFullYear();
+                let numComprobante = element.comprobanteContable == '' || element.comprobanteContable == null ? 'Pendiente generación de comprobante' : element.comprobanteContable;
+                const model = { Rut_Cliente: element.rut, Numero_Comprobante: numComprobante, Monto: element.montoPago, Fecha_Pago: fechaPago, Hora_Pago: element.horaPago };
+                listaExportacion.push(model);
+            });
+            let nombre = "Pagos";
 
-        this.exportAsExcelFile(listaExportacion, nombre);
+            this.exportAsExcelFile(listaExportacion, nombre);
+            this.spinner.hide();
+        }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener documentos', '', true); });
+
+
     }
 
     public exportAsExcelFile(rows: any[], excelFileName: string): void {

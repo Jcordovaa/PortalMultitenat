@@ -3074,6 +3074,176 @@ namespace ApiPortal.Controllers
         }
 
 
+        [HttpPost("GetDocumentosPagadosExport"), Authorize]
+        public async Task<ActionResult> GetDocumentosPagadosExport(FilterVm filtro)
+        {
+
+            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+            LogApi logApi = new LogApi();
+            logApi.Api = "api/ClientesPortal/GetDocumentosPagadosExport";
+            logApi.Inicio = DateTime.Now;
+            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+
+            try
+            {
+                List<PagoCabeceraVm> retorno = new List<PagoCabeceraVm>();
+
+                var documentos = _context.PagosCabeceras.Where(x => x.IdPagoEstado == 2 || x.IdPagoEstado == 4).OrderByDescending(x => x.IdPago).AsQueryable();
+
+                if (!string.IsNullOrEmpty(filtro.CodAux))
+                {
+                    documentos = documentos.Where(x => x.CodAux == filtro.CodAux).AsQueryable();
+                }
+
+                if (!string.IsNullOrEmpty(filtro.Rut))
+                {
+                    documentos = documentos.Where(x => x.Rut == filtro.Rut).AsQueryable();
+                }
+
+                if (!string.IsNullOrEmpty(filtro.NumComprobante))
+                {
+                    documentos = documentos.Where(x => x.ComprobanteContable == filtro.NumComprobante).AsQueryable();
+                }
+
+
+                if (filtro.TipoBusqueda != null && filtro.TipoBusqueda != 0)
+                {
+                    documentos = documentos.Where(x => x.IdPagoEstado == filtro.TipoBusqueda).AsQueryable();
+                }
+
+                if (filtro.fechaDesde != null)
+                {
+                    documentos = documentos.Where(x => x.FechaPago.Value.Date >= filtro.fechaDesde.Value.Date).AsQueryable();
+                }
+
+                if (filtro.fechaHasta != null)
+                {
+                    documentos = documentos.Where(x => x.FechaPago.Value.Date <= filtro.fechaHasta.Value.Date).AsQueryable();
+                }
+
+                var pagos = documentos.ToList();
+
+                foreach (var item in pagos)
+                {
+                    PagoCabeceraVm pago = new PagoCabeceraVm();
+                    pago.CodAux = item.CodAux;
+                    pago.ComprobanteContable = item.ComprobanteContable;
+                    pago.Correo = item.Correo;
+                    pago.EsPagoRapido = (int)item.EsPagoRapido;
+                    pago.FechaPago = (DateTime)item.FechaPago;
+                    pago.HoraPago = item.HoraPago;
+                    pago.IdCliente = item.IdCliente;
+                    pago.IdPago = item.IdPago;
+                    pago.IdPagoEstado = (int)item.IdPagoEstado;
+                    pago.IdPasarela = (int)item.IdPasarela;
+                    pago.MontoPago = (Single)item.MontoPago;
+                    pago.Nombre = item.Nombre;
+                    pago.Rut = item.Rut;
+
+                    List<PagoDetalleVm> detalles = new List<PagoDetalleVm>();
+                    item.PagosDetalles = _context.PagosDetalles.Where(x => x.IdPago == item.IdPago).ToList();
+                    foreach (var det in item.PagosDetalles)
+                    {
+                        PagoDetalleVm detalle = new PagoDetalleVm();
+                        detalle.APagar = (Single)det.Apagar;
+                        detalle.CuentaContableDocumento = det.CuentaContableDocumento;
+                        detalle.FechaEmision = (DateTime)det.FechaEmision;
+                        detalle.FechaVencimiento = (DateTime)det.FechaVencimiento;
+                        detalle.Folio = (int)det.Folio;
+                        detalle.IdPago = det.IdPago;
+                        detalle.IdPagoDetalle = det.IdPagoDetalle;
+                        detalle.Saldo = (Single)det.Saldo;
+                        detalle.TipoDocumento = det.TipoDocumento;
+                        detalle.Total = (Single)det.Total;
+                        detalles.Add(detalle);
+                    }
+
+                    List<PasarelaPagoLogVm> logs = new List<PasarelaPagoLogVm>();
+                    item.PasarelaPagoLogs = _context.PasarelaPagoLogs.Where(x => x.IdPago == item.IdPago).ToList();
+                    foreach (var log in item.PasarelaPagoLogs)
+                    {
+                        PasarelaPagoLogVm detalle = new PasarelaPagoLogVm();
+                        detalle.Codigo = log.Codigo;
+                        detalle.Cuotas = (int)log.Cuotas;
+                        detalle.Estado = log.Estado;
+                        detalle.Fecha = (DateTime)log.Fecha;
+                        detalle.Id = log.Id;
+                        detalle.IdPago = (int)log.IdPago;
+                        detalle.IdPasarela = (int)log.IdPasarela;
+                        detalle.MedioPago = log.MedioPago;
+                        detalle.Monto = (decimal)log.Monto;
+                        detalle.OrdenCompra = log.OrdenCompra;
+                        detalle.Tarjeta = log.Tarjeta;
+                        detalle.Token = log.Token;
+                        detalle.Url = log.Url;
+
+                        logs.Add(detalle);
+                    }
+
+
+
+                    pago.PasarelaPagoLog = logs;
+                    pago.PagosDetalle = detalles;
+
+                    ClientesPortalVm cliente = new ClientesPortalVm();
+
+                    if (item.IdClienteNavigation != null)
+                    {
+                        cliente.CodAux = item.IdClienteNavigation.CodAux;
+                        cliente.Correo = item.IdClienteNavigation.Correo;
+                        cliente.IdCliente = item.IdClienteNavigation.IdCliente;
+                        cliente.Nombre = item.IdClienteNavigation.Nombre;
+                        cliente.Rut = item.IdClienteNavigation.Rut;
+
+                    }
+                    else
+                    {
+                        var c = _context.ClientesPortals.Where(x => x.CodAux == item.CodAux).FirstOrDefault();
+                        if (c != null)
+                        {
+                            cliente.CodAux = c.CodAux;
+                            cliente.Correo = c.Correo;
+                            cliente.IdCliente = c.IdCliente;
+                            cliente.Nombre = c.Nombre;
+                            cliente.Rut = c.Rut;
+                        }
+                    }
+
+
+                    pago.ClientesPortal = cliente;
+
+                    retorno.Add(pago);
+                }
+
+                if (retorno.Count > 0)
+                {
+                    retorno[0].TotalFilas = documentos.Count();
+                }
+
+                logApi.Termino = DateTime.Now;
+                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                sf.guardarLogApi(logApi);
+
+                return Ok(retorno);
+
+
+            }
+            catch (Exception ex)
+            {
+                LogProceso log = new LogProceso();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/ClientesPortal/GetDocumentosPagadosExport";
+                _context.LogProcesos.Add(log);
+                _context.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpPost("GetResumenDocumentosCliente"), Authorize]
         public async Task<ActionResult> GetResumenDocumentosXCliente(FilterVm filter)
         {
@@ -3590,7 +3760,7 @@ namespace ApiPortal.Controllers
                         var docStream = genera.generaDetalleCobranza(DetalleCobranza, nombreDocumento);
                         string base64 = Convert.ToBase64String(docStream);
 
-                        pdf.Nombre = "Estado de Cuenta.pdf";
+                        pdf.Nombre = nombreDocumento + ".pdf";
                         pdf.Base64 = base64;
 
                         logApi.Termino = DateTime.Now;
@@ -3657,7 +3827,6 @@ namespace ApiPortal.Controllers
 
                     if (documentos.Count() > 0)
                     {
-
                         DetalleEnvioCobranzaVm doc = new DetalleEnvioCobranzaVm();
                         doc.RutCliente = documentos[0].RutCliente;
                         doc.NombreCliente = (string.IsNullOrEmpty(documentos[0].NombreCliente)) ? string.Empty : documentos[0].NombreCliente;
@@ -3685,7 +3854,7 @@ namespace ApiPortal.Controllers
                         var docStream = genera.generaDetalleCobranza(doc, nombreDocumento);
                         string base64 = Convert.ToBase64String(docStream);
 
-                        pdf.Nombre = "Estado de Cuenta.pdf";
+                        pdf.Nombre = nombreDocumento + ".pdf";
                         pdf.Base64 = base64;
 
                         logApi.Termino = DateTime.Now;

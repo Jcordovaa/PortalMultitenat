@@ -365,8 +365,12 @@ export class ClientesService {
 
   getDocumentosPagadosAdministrador(filtro: any): Observable<any> {
     const body = JSON.stringify(filtro);
-    debugger
     return this.http.post<any>(`${this.apiUrl}/GetDocumentosPagados`,body,  this.utils.getHeaders(true));
+  }
+
+  getDocumentosPagadosExportAdministrador(filtro: any): Observable<any> {
+    const body = JSON.stringify(filtro);
+    return this.http.post<any>(`${this.apiUrl}/GetDocumentosPagadosExport`,body,  this.utils.getHeaders(true));
   }
 
  //FCA 05-07-2022
