@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { LocalStoreService } from "./local-store.service";
 import { Utils } from '../../shared/utils'
 import { NotificationService } from "./notificacion.service";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 
 @Injectable({
   providedIn: "root"
@@ -13,7 +14,7 @@ export class AuthService {
   authenticated = true;
   private apiUrl: string = '';
 
-  constructor(private store: LocalStoreService, private utils: Utils, private http: HttpClient, private router: Router , private notificationService: NotificationService) {
+  constructor(private store: LocalStoreService,  private modalService: NgbModal, private utils: Utils, private http: HttpClient, private router: Router , private notificationService: NotificationService) {
     this.apiUrl = this.utils.ServerWithApiUrl + 'auth';
     this.checkAuth();
   }
@@ -102,6 +103,7 @@ export class AuthService {
   }
 
   async signoutExpiredToken(){
+    this.modalService.dismissAll();
     const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Será redirigido al inicio de sesión');
     if (response.isConfirmed) {
       this.signout();

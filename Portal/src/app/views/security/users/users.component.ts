@@ -207,7 +207,7 @@ export class UsersComponent implements OnInit {
       });
 
     } else {
-
+      debugger
       this.securityService.editUsuario(this.usuario).subscribe(res => {
         this.notificationService.success('Correcto', 'Correcto', true);
         this.getUsuarios();

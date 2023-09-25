@@ -130,8 +130,9 @@ export class ActivateAccountComponent implements OnInit {
         this.step = 2;
       }, err => {
         this.loading = false;
+        debugger
         if (err && err.error != null && err.error != "") {
-          this.ns.error(err.error.message, '', true);
+          this.ns.error(err.error, '', true);
         } else {
           this.ns.error('Ocurrió un error al validar cuenta.', '', true);
         }
