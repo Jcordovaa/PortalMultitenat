@@ -3252,7 +3252,7 @@ namespace ApiPortal.Services
                             //AQUI DEBE ENVIAR CORREO A EMPRESA A LOS DESTINATARIOS CONFIGURADOS EN LA TABLA CONFIGURACIONCORREO CON COMPROBANTE PDF DEL PAGO TRANSBANK TAL COMO LO HACE LA TIENDA Y OCUPAR STREAM  
                             var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                             var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
-                            string fecha = DateTime.Now.Day.ToString() + "/" + DateTime.Now.Month.ToString() + "/" + DateTime.Now.Year.ToString();
+                            string fecha = DateTime.Now.ToString("dd/MM/yyyy");
                             string hora = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString();
                             string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
 
@@ -8402,7 +8402,7 @@ namespace ApiPortal.Services
 
                                         var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                                         var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
-                                        string fecha = pago.FechaPago.Value.Day.ToString() + "/" + pago.FechaPago.Value.Month.ToString() + "/" + pago.FechaPago.Value.Year.ToString();
+                                        string fecha = pago.FechaPago.Value.ToString("dd/MM/yyyy");
                                         string hora = pago.HoraPago;
                                         string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
                                         string comprobanteHtml = string.Empty;

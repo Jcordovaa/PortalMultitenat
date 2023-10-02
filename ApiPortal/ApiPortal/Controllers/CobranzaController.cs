@@ -1269,7 +1269,7 @@ namespace ApiPortal.Controllers
                     cd.FolioDTE = item.FolioDte;
                     cd.EmailCliente = item.EmailCliente;
                     cd.NombreCliente = item.NombreCliente;
-                    cd.FechaPagoTexto = (item.FechaPago != null) ? item.FechaPago.Value.ToShortDateString() : "";
+                    cd.FechaPagoTexto = (item.FechaPago != null) ? item.FechaPago.Value.ToString("dd/MM/yyyy") : "";
                     cd.CodAuxCliente = item.CodAuxCliente;
                     retorno.Add(cd);
                 }

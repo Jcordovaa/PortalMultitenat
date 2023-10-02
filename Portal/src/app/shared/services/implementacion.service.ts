@@ -99,7 +99,7 @@ export class ImplementacionService {
             if (subObject.hasOwnProperty(subProp)) {
               if (subObject[subProp] !== null) {
                 const formattedSubProp = this.capitalizeFirstLetter(subProp);
-                
+
                 // Verificar si la propiedad es de tipo Date
                 if (subObject[subProp] instanceof Date) {
                   // Aquí puedes manejar la propiedad Date como desees
@@ -128,12 +128,12 @@ export class ImplementacionService {
       }
     }
 
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     // formData.append('IdTenant', tenant.idTenant)
     // formData.append('IdEmpresa', tenant.idEmpresa)
     // formData.append('Identifier', tenant.identifier)
@@ -150,8 +150,8 @@ export class ImplementacionService {
     // formData.append('IdPlan', tenant.idPlan)
     // formData.append('IdImplementador', tenant.idImplementador)
     // formData.append('IdLineaProducto', tenant.idLineaProducto)
-    
-  
+
+
     // idLineaProducto?: number
     // idAreaComercial?: number
     // datosImplementacion?: DatosImplementacion
@@ -180,11 +180,11 @@ export class ImplementacionService {
     if (!tenant) {
       return Promise.resolve();
     }
-  
+
     return new Promise((resolve, reject) => {
       let formData = new FormData();
       let xhr = new XMLHttpRequest();
-  
+
       // Itera sobre las propiedades de la clase TenantVm
       for (const prop in tenant) {
         if (tenant.hasOwnProperty(prop)) {
@@ -207,7 +207,7 @@ export class ImplementacionService {
           }
         }
       }
-  
+
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
@@ -217,7 +217,7 @@ export class ImplementacionService {
           }
         }
       };
-  
+
       xhr.open('POST', `${this.apiUrl}/CreaActualizaTenant`, true);
       xhr.setRequestHeader('Authorization', this.utils.getHeaders(true).headers.get('Authorization'));
       xhr.send(formData);
@@ -233,7 +233,7 @@ export class ImplementacionService {
       if (obj.hasOwnProperty(prop)) {
         const value = obj[prop];
         const key = parentKey ? `${parentKey}.${prop}` : prop;
-  
+
         if (value instanceof File) {
           formData.append(key, value);
         } else if (value instanceof Date) {
@@ -246,6 +246,11 @@ export class ImplementacionService {
         }
       }
     }
+  }
+
+  getTemplate(tipo: number, nombreEmpresa: string, config: any): Observable<any> {
+    const body = JSON.stringify(config);
+    return this.http.post<any>(`${this.apiUrl}/getTemplate/${tipo}/${nombreEmpresa}`, body, this.utils.getHeaders(true));
   }
 
 }

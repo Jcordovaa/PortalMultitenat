@@ -179,8 +179,10 @@ export class UsersComponent implements OnInit {
       return;
     }
 
+    this.spinner.show();
     this.usuario.idPerfil = this.selectedPerfil.idPerfil;
     this.usuario.password = this.password1;
+    this.usuario.activo =  this.usuario.activo ? 1 : 0
 
     if (this.usuario.idUsuario == 0) {
 

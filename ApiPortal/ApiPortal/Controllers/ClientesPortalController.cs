@@ -3514,7 +3514,7 @@ namespace ApiPortal.Controllers
                     var config = _context.ConfiguracionPagoClientes.FirstOrDefault();
                     var configEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                     var configDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
-                    string fecha = pago.FechaPago.Value.Day.ToString() + "/" + pago.FechaPago.Value.Month.ToString() + "/" + pago.FechaPago.Value.Year.ToString();
+                    string fecha = pago.FechaPago.Value.ToString("dd/MM/yyyy");
                     string hora = pago.HoraPago;
                     string logo = configEmpresa.UrlPortal + "/" + configEmpresa.Logo;
                     string comprobanteHtml = string.Empty;

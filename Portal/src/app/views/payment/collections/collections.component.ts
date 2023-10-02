@@ -765,7 +765,7 @@ export class CollectionsComponent implements OnInit {
         return;
       });
       this.spinner.hide();
-      const response = await this.notificationService.warningAync('', 'Se creara la cobranza o pre cobranza según los parámetros indicados, esto puede tardar varios minutos, se le enviara un correo cuando finalice la creación de esta.');
+      const response = await this.notificationService.warningAync('', 'Se creará la cobranza o pre-cobranza según los parámetros indicados, esto puede tardar varios minutos, se le enviará un correo cuando finalice la creación de esta.');
       if (response.isConfirmed) {
         this.nuevaCobranza = false;
         this.muestraCabecera = false;

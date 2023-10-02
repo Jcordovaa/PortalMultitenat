@@ -118,373 +118,6 @@
   </div>
 </div>
 
-<div class="row" *ngIf="esCreacion == 1" style="width: 100%; padding-bottom: 20px;">
-  <div class="col-md-12" style="padding-top: 20px;">
-    <div class="card">
-
-      <div class="card-content" style="margin-left: 10px;">
-        <br>
-        <br>
-        <div class="row">
-          <button type="button" style="margin-left: 20px;" class="btn btn-outline-dark"
-            (click)="volver()">Volver</button>
-        </div>
-        <br>
-        <br>
-
-        <div class="form-group col-md-6 mb-3">
-          <div class="form-group">
-            <label for="picker1">Rut <span class="camporequerido">*</span></label>
-            <div class="input-group">
-              <input type="text"
-                [ngClass]="rutem.errors && (rutem.dirty || rutem.touched) ? 'form-control is-invalid' : 'form-control'"
-                #rutem="ngModel" name="rutem" [(ngModel)]="empresaImplementacion.rut" maxlength="12"
-                (blur)="validaRut()" />
-            </div>
-            <p *ngIf="rutem.errors && (rutem.dirty || rutem.touched)" class="text-danger"
-              style="margin-top: 2px; font-size: 12px">
-              <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
-                RUT es requerido.
-              </span>
-            </p>
-          </div>
-        </div>
-
-        <form-wizard>
-          <wizard-step [title]="'Datos Cliente'" [isValid]="basicForm.form.valid" (onNext)="onStep1Next($event)">
-            <form #basicForm="ngForm" name="basicForm">
-              <div class="row">
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Rut <span class="camporequerido">*</span></label>
-                    <div class="input-group">
-                      <input type="text"
-                        [ngClass]="rutem.errors && (rutem.dirty || rutem.touched) ? 'form-control is-invalid' : 'form-control'"
-                        #rutem="ngModel" name="rutem" [(ngModel)]="empresaImplementacion.rut" maxlength="12"
-                        (blur)="validaRut()" />
-                    </div>
-                    <p *ngIf="rutem.errors && (rutem.dirty || rutem.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 12px">
-                      <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
-                        RUT es requerido.
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6">
-
-                  <div class="form-group">
-                    <label for="picker1">Razón Social <span class="camporequerido">*</span></label>
-                    <div class="input-group">
-                      <input type="text"
-                        [ngClass]="razonSocial.errors && (razonSocial.dirty || razonSocial.touched) ? 'form-control is-invalid' : 'form-control'"
-                        name="razonSocial" #razonSocial="ngModel" [(ngModel)]="empresaImplementacion.razonSocial"
-                        maxlength="100">
-                    </div>
-                    <p *ngIf="razonSocial.errors && (razonSocial.dirty || razonSocial.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 12px">
-                      <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
-                        Razón Social es requerida.
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-12">
-
-                  <div class="form-group">
-                    <label for="picker1">Nombre Contacto</label>
-                    <div class="input-group">
-                      <input type="text" [ngClass]="'form-control'" name="nomCon" #nomCon="ngModel" maxlength="100"
-                        [(ngModel)]="contactoCliente.nomCon">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6 mb-3">
-
-                  <div class="form-group">
-                    <label for="picker1">Teléfono Contacto</label>
-                    <div class="input-group">
-                      <input type="number" [ngClass]="'form-control'" name="telCon" #telCon="ngModel" maxlength="25"
-                        [(ngModel)]="contactoCliente.fonCon">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-12">
-
-                  <div class="form-group">
-                    <label for="picker1">Correo Contacto</label>
-                    <div class="input-group">
-                      <input type="text" [ngClass]="'form-control'" name="email" #email="ngModel" maxlength="100"
-                        [(ngModel)]="empresaImplementacion.email">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </wizard-step>
-
-          <wizard-step [title]="'Contactos'"
-            [isValid]="basicForm.form.valid && empresaImplementacion.contactos.length > 0"
-            (onNext)="onStep2Next($event)">
-            <form #basicForm="ngForm" name="basicForm">
-              <div class="row">
-
-                <div class="form-group col-md-12">
-
-                  <div class="form-group">
-                    <label for="picker1">Nombre</label>
-                    <div class="input-group">
-                      <input type="text" [ngClass]="'form-control'" name="nomCon" #nomCon="ngModel" maxlength="100"
-                        [(ngModel)]="contactoCliente.nomCon">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-12">
-                  <div class="form-group">
-                    <label for="picker1">Cargo</label>
-                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="cargos"
-                      bindLabel="nombreCargo" placeholder="Cargo" #cargo="ngModel" name="cargo"
-                      [(ngModel)]="selectedCargoContacto" bindValue="codCargo">
-                    </ng-select>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6 mb-3">
-
-                  <div class="form-group">
-                    <label for="picker1">Teléfono</label>
-                    <div class="input-group">
-                      <input type="number" [ngClass]="'form-control'" name="telCon" #telCon="ngModel" maxlength="25"
-                        [(ngModel)]="contactoCliente.fonCon">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6 mb-3">
-
-                  <div class="form-group">
-                    <label for="picker1">Correo</label>
-                    <div class="input-group">
-                      <input type="text" [ngClass]="'form-control'" name="emailCon" #emailCon="ngModel" maxlength="100"
-                        [(ngModel)]="contactoCliente.email">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row" style="align-items: center;  justify-content: center;">
-                <button type="button" class="btn btn-outline-dark" (click)="addContacto()">Agregar</button>
-              </div>
-
-
-
-              <div class="row" *ngIf="empresaImplementacion.contactos.length == 0" style="margin-top: 40px;">
-                <div class="col-md-12">
-                  <ngb-alert class="alert-card text-center" [dismissible]="false">
-                    Debe agregar almenos un contacto
-                  </ngb-alert>
-                </div>
-              </div>
-
-              <div class="row mt-2" style="overflow-y: scroll; max-height:300px;"
-                *ngIf="empresaImplementacion.contactos.length > 0">
-                <div class="table-responsive col-md-12" style=" margin-top: 40px;">
-                  <table class="table table-hover table-bordered">
-                    <thead>
-                      <tr>
-                        <th scope="col" style="width: 20%;">Codigo Auxiliar</th>
-                        <th scope="col" style="width: 20%;">Nombre</th>
-                        <th scope="col" style="width: 100%;">Cargo</th>
-                        <th scope="col" style="width: 50%;">Telefono</th>
-                        <th scope="col" style="width: 50%;">Correo</th>
-                        <th scope="col" style="width: 50%;">Eliminar</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let c of empresaImplementacion.contactos">
-                        <td>{{ c.codAuc }}</td>
-                        <td>{{ c.nomCon }}</td>
-                        <td>{{ c.carCon }}</td>
-                        <td>{{ c.fonCon }}</td>
-                        <td>{{ c.email }}</td>
-                        <td><img (click)="delete(c)" container="body" ngbTooltip="Eliminar" style="cursor: pointer;"
-                            src="assets/images/Icon/Delete.png" width="30" height="30" alt="Eliminar"></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-            </form>
-          </wizard-step>
-
-          <wizard-step [title]="'Datos Implementación'" [isValid]="basicForm2.form.valid"
-            (onNext)="onStep3Next($event)">
-
-            <form #basicForm2="ngForm">
-              <div class="row">
-                <div class="form-group col-md-12">
-                  <div class="form-group">
-                    <label for="picker1">Implementador<span class="camporequerido">*</span></label>
-                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="implementadores"
-                      bindLabel="nombres" required placeholder="Implementador" #imple="ngModel" name="imple"
-                      [(ngModel)]="selectedImplementador" bindValue="idUsuario">
-                    </ng-select>
-                    <p *ngIf="imple.errors && (imple.dirty || imple.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 13px">
-                      Implementador es requerido
-                    </p>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="fechaVencimiento" style="margin-right: 10px; margin-top: 5px;">Fecha Nota de
-                      venta:</label>
-                    <input required type="date" name="fechaVe" class="form-control"
-                      [ngModel]="selectedFechaNv | date:'yyyy-MM-dd'" (ngModelChange)="selectedFechaNv = $event">
-                  </div>
-
-                </div>
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Ticket HelpDesk</label>
-                    <div class="input-group">
-                      <input type="number" [ngClass]="'form-control'" name="thd" #thd="ngModel" required maxlength="100"
-                        [(ngModel)]="empresaImplementacion.nroTicketHD">
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Ticket FreshDesk</label>
-                    <div class="input-group">
-                      <input type="number" [ngClass]="'form-control'" name="tfd" #tfd="ngModel" required maxlength="100"
-                        [(ngModel)]="empresaImplementacion.nroTicketFD">
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Area Softland<span class="camporequerido">*</span></label>
-                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="areaSoftland"
-                      bindLabel="nombre" required placeholder="Area Softland" #areaSof="ngModel" name="areaSof"
-                      [(ngModel)]="selectedAreaSoftland" bindValue="idAreaComercial">
-                    </ng-select>
-                    <p *ngIf="areaSof.errors && (areaSof.dirty || areaSof.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 13px">
-                      Area Softland es requerida
-                    </p>
-                  </div>
-                </div>
-
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Plan Contratado<span class="camporequerido">*</span></label>
-                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="planesTol"
-                      bindLabel="nombre" required placeholder="Plan contratado" #plan="ngModel" name="plan"
-                      [(ngModel)]="selectedPlan" bindValue="idPlan">
-                    </ng-select>
-                    <p *ngIf="plan.errors && (plan.dirty || plan.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 13px">
-                      Plan es requerido
-                    </p>
-                  </div>
-                </div>
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="picker1">Linea de Producto<span class="camporequerido">*</span></label>
-                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="lineaProducto"
-                      bindLabel="nombre" required placeholder="Linea de producto" #lin="ngModel" name="lin"
-                      [(ngModel)]="selectedLienaProducto" bindValue="idLinea">
-                    </ng-select>
-                    <p *ngIf="lin.errors && (lin.dirty || lin.touched)" class="text-danger"
-                      style="margin-top: 2px; font-size: 13px">
-                      Linea de Producto es requerida
-                    </p>
-                  </div>
-                </div>
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha correo notificación
-                      softland:</label>
-                    <input type="date" name="fechaNotSoft" class="form-control" required
-                      [ngModel]="selectedFechaNotificacionSoftland | date:'yyyy-MM-dd'"
-                      (ngModelChange)="selectedFechaNotificacionSoftland = $event" (change)="changeFechaNotificacion()">
-                  </div>
-                </div>
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha Inicio De
-                      Contrato:</label>
-                    <input type="date" name="fechaIn" class="form-control" required
-                      [ngModel]="selectedFechaInicio | date:'yyyy-MM-dd'"
-                      (ngModelChange)="selectedFechaInicio = $event">
-                  </div>
-                </div>
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="fechaVencimiento" style="margin-right: 10px; margin-top: 5px;">Fecha Fin De
-                      Contrato:</label>
-                    <input type="date" name="fechaVe" class="form-control" required
-                      [ngModel]="selectedFechaTermino | date:'yyyy-MM-dd'"
-                      (ngModelChange)="selectedFechaTermino = $event">
-                  </div>
-                </div>
-
-
-
-
-
-
-                <div class="form-group col-md-6 mb-3">
-                  <div class="form-group">
-                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha vencimiento SSL:</label>
-                    <input type="date" name="fechaSSL" class="form-control" required
-                      [ngModel]="selectedFechaVSSL | date:'yyyy-MM-dd'" (ngModelChange)="selectedFechaVSSL = $event">
-                  </div>
-                </div>
-
-
-              </div>
-            </form>
-          </wizard-step>
-
-          <wizard-step [title]="'Final'" (onComplete)="onComplete($event,empresaTol)">
-
-            <div class="text-center mt-4 mb-4">
-              <i class="i-Checked-User text-32 mb-3 text-success d-inline-block"></i>
-              <h5 class="font-weight-light">Se han completado los todos los pasos, presione 'Terminar' para guardar
-                cliente. </h5>
-            </div>
-
-          </wizard-step>
-
-        </form-wizard>
-        <!-- end card -->
-      </div>
-    </div>
-  </div>
-</div>
 
 <ng-template #modalNuevo let-modal>
   <div class="modal-header">
@@ -954,8 +587,8 @@
             <div class="form-group">
               <label for="picker1">Cuentas Contables</label>
               <div class="input-group">
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContables"
-                  bindLabel="nombre" placeholder="Cuentas Contables" #cc="ngModel" name="cc"
+                <ng-select class="customAC" style="border-radius: 40px !important;width: inherit;"
+                  [items]="cuentasContables" bindLabel="nombre" placeholder="Cuentas Contables" #cc="ngModel" name="cc"
                   [(ngModel)]="selectedCuentasContables" bindValue="codigo" [multiple]="true" [closeOnSelect]="true">
                 </ng-select>
               </div>
@@ -966,8 +599,8 @@
             <div class="form-group">
               <label for="picker1">Tipos de documentos</label>
               <div class="input-group">
-                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
-                  bindLabel="desDoc" placeholder="Tipos de documentos" #td="ngModel" name="td"
+                <ng-select class="customAC" style="border-radius: 40px !important; width: inherit;"
+                  [items]="tiposDocumentos" bindLabel="desDoc" placeholder="Tipos de documentos" #td="ngModel" name="td"
                   [(ngModel)]="selectedTiposDocumentos" bindValue="codDoc" [multiple]="true" [closeOnSelect]="true">
                 </ng-select>
               </div>
@@ -992,7 +625,9 @@
 
           <div class="form-group col-md-6 mb-3">
             <div class="form-group">
-              <label for="picker1">Cantidad Compras Dashboard</label>
+              <label for="picker1">Cantidad Compras Dashboard <img container="body" ngbTooltip="Saber más"
+                  style="cursor: pointer;" (click)="openInfoModal(modalBasicInfo, 4)"
+                  src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22"></label>
               <div class="input-group">
                 <input type="number" class="form-control" placeholder="Cantidad compras" #cantidad="ngModel"
                   name="cantidad" [(ngModel)]="tenant.datosImplementacion.configuracionPortal.cantidadUltimasCompras" />
@@ -1003,7 +638,9 @@
           <div class="form-group col-md-6 mb-3">
             <div class="form-group">
               <label for="picker1">Cantidad Días Documentos Por
-                Vencer</label>
+                Vencer <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 9)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22"></label>
               <div class="input-group">
                 <input type="number" class="form-control" placeholder="Cantidad Días" #cantidadDias="ngModel"
                   name="cantidadDias" [(ngModel)]="tenant.datosImplementacion.configuracionPagoCliente.diasPorVencer" />
@@ -1021,6 +658,9 @@
                   type="checkbox" id="exampleCheck4" name="exampleCheck4" />
 
                 <span class="slider"></span>
+                <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 2)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22">
               </label>
 
 
@@ -1035,6 +675,9 @@
                   id="exampleCheck6" name="exampleCheck6" />
 
                 <span class="slider"></span>
+                <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 3)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22">
               </label>
 
 
@@ -1049,6 +692,9 @@
                 <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido" type="checkbox"
                   id="exampleCheck5" name="exampleCheck5" />
                 <span class="slider"></span>
+                <img container="body" ngbTooltip="Saber más" id="img6" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 6)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22">
               </label>
 
             </div>
@@ -1071,6 +717,9 @@
                 <span class="slider" style="background-color: grey;"
                   *ngIf="!tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido"></span>
                 <span *ngIf="tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido" class="slider"></span>
+                <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 8)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22">
               </label>
             </div>
           </div>
@@ -1082,6 +731,9 @@
                 <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.permiteAbonoParcial" type="checkbox"
                   id="exampleCheck7" name="exampleCheck7" />
                 <span class="slider"></span>
+                <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                  (click)="openInfoModal(modalBasicInfo, 7)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                  width="22" height="22">
               </label>
             </div>
           </div>
@@ -1089,16 +741,16 @@
 
 
         <div class="row borderRow" style="margin-top: 20px;">
-          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center; ">
             <div class="form-group">
               <H4>PASARELAS DE PAGO</H4>
             </div>
           </div>
 
           <div class="col-md-12">
-            <div class="row borderRow">
+            <div class="row borderRow" style="margin-left: 30px; margin-right: 30px;">
 
-              <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+              <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center; ">
                 <div class="form-group">
                   <H4>TRANSBANK</H4>
                 </div>
@@ -1163,8 +815,9 @@
                 <div class="form-group">
                   <label for="picker1">Documento Contable</label>
                   <div class="input-group">
-                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
-                      bindLabel="desDoc" #tdTbk="ngModel" name="tdTbk"
+                    <ng-select class="customAC" style="border-radius: 40px !important; width: inherit;"
+                      [items]="tiposDocumentos" bindLabel="desDoc" #tdTbk="ngModel" name="tdTbk"
+                      placeholder="Documento Contable"
                       [(ngModel)]="tenant.datosImplementacion.documentoContableTransbank" bindValue="codDoc"
                       [multiple]="false" [closeOnSelect]="true">
                     </ng-select>
@@ -1176,9 +829,9 @@
                 <div class="form-group">
                   <label for="picker1">Cuenta Contable</label>
                   <div class="input-group">
-                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContablesPago"
-                      bindLabel="nombre" placeholder="Cuentas Contables" #ccTbk="ngModel" name="ccTbk"
-                      [(ngModel)]="tenant.datosImplementacion.cuentaContableTransbank" bindValue="codigo"
+                    <ng-select class="customAC" style="border-radius: 40px !important;width: inherit;"
+                      [items]="cuentasContablesPago" bindLabel="nombre" placeholder="Cuenta Contable" #ccTbk="ngModel"
+                      name="ccTbk" [(ngModel)]="tenant.datosImplementacion.cuentaContableTransbank" bindValue="codigo"
                       [multiple]="false" [closeOnSelect]="true">
                     </ng-select>
                   </div>
@@ -1189,7 +842,8 @@
           </div>
 
           <div class="col-md-12">
-            <div class="row borderRow" style="margin-top: 20px;">
+            <div class="row borderRow"
+              style="margin-top: 20px; margin-left: 30px; margin-right: 30px; margin-bottom: 20px;">
 
               <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
                 <div class="form-group">
@@ -1213,8 +867,9 @@
                 <div class="form-group">
                   <label for="picker1">Documento Contable</label>
                   <div class="input-group">
-                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
-                      bindLabel="desDoc" #tdVpos="ngModel" name="tdVpos"
+                    <ng-select class="customAC" style="border-radius: 40px !important; width: inherit;"
+                      [items]="tiposDocumentos" bindLabel="desDoc" #tdVpos="ngModel" name="tdVpos"
+                      placeholder="Documento Contable"
                       [(ngModel)]="tenant.datosImplementacion.documentoContableVirtualPos" bindValue="codDoc"
                       [multiple]="false" [closeOnSelect]="true">
                     </ng-select>
@@ -1226,9 +881,9 @@
                 <div class="form-group">
                   <label for="picker1">Cuenta Contable</label>
                   <div class="input-group">
-                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContablesPago"
-                      bindLabel="nombre" placeholder="Cuentas Contables" #ccVpos="ngModel" name="ccVpos"
-                      [(ngModel)]="tenant.datosImplementacion.cuentaContableVirtualPos" bindValue="codigo"
+                    <ng-select class="customAC" style="border-radius: 40px !important;width: inherit;"
+                      [items]="cuentasContablesPago" bindLabel="nombre" placeholder="Cuenta Contable" #ccVpos="ngModel"
+                      name="ccVpos" [(ngModel)]="tenant.datosImplementacion.cuentaContableVirtualPos" bindValue="codigo"
                       [multiple]="false" [closeOnSelect]="true">
                     </ng-select>
                   </div>
@@ -1249,16 +904,6 @@
           <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
             <div class="form-group">
               <H4>ENVÍO DE CORREOS</H4>
-            </div>
-          </div>
-          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
-            <div class="form-group">
-              <label for="picker1">Area de datos</label>
-              <div class="input-group">
-                <input type="text" class="form-control" (change)="conexionApiValid = false" #areaDatosTenant="ngModel"
-                  name="areaDatosTenant" [(ngModel)]="tenant.datosImplementacion.apiSoftland.areaDatos"
-                  (blur)="generaToken()" maxlength="100" />
-              </div>
             </div>
           </div>
 
@@ -1329,6 +974,28 @@
             </div>
           </div>
 
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Asunto Correo Pago Cliente</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
+                  name="asuntoPago" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoPagoCliente" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Notificación Pago</label>
+              <div class="input-group">
+                <tag-input id="correos1" name="correos1" inputClass="form-control" style="width: inherit;"
+                  [(ngModel)]='correo1' secondaryPlaceholder="Ingrese correo y presione enter"
+                  (onAdd)="onAdd($event, 1)" theme='primary'
+                  [placeholder]="'Ingrese correo y presione enter'"></tag-input>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group col-md-12 mb-3" style="margin-top: 15px;">
             <div class="form-group">
               <label class="switch switch-success mr-3">
@@ -1340,26 +1007,8 @@
             </div>
           </div>
 
-          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
-            <div class="form-group">
-              <label for="picker1">Notificación Pago</label>
-              <div class="input-group">
-                <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
-                  secondaryPlaceholder="Ingrese correo y presione enter" (onAdd)="onAdd($event, 1)" theme='primary'
-                  [placeholder]="'Inserte correo'"></tag-input>
-              </div>
-            </div>
-          </div>
 
-          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
-            <div class="form-group">
-              <label for="picker1">Asunto Correo Pago Cliente</label>
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
-                  name="asuntoPago" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoPagoCliente" />
-              </div>
-            </div>
-          </div>
+
         </div>
 
 
@@ -1428,6 +1077,12 @@
                         </div>
                       </div>
 
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(1, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
 
@@ -1465,6 +1120,14 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoPagoCliente"></textarea>
                         </div>
                       </div>
+
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(2, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
+
 
                     </div>
                   </div>
@@ -1504,6 +1167,11 @@
                         </div>
                       </div>
 
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(3, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1541,6 +1209,12 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCambioDatos"></textarea>
                         </div>
                       </div>
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(4, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1576,6 +1250,12 @@
                           <textarea class="form-control" placeholder="Mensaje" #mensajeCambioClave="ngModel" required
                             maxlength="500" name="mensajeCambioClave"
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCambioClave"></textarea>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(5, modalBasic)">Pre visualizar</button>
                         </div>
                       </div>
                     </div>
@@ -1616,6 +1296,11 @@
                         </div>
                       </div>
 
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(7, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1654,6 +1339,11 @@
                         </div>
                       </div>
 
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(8, modalBasic)">Pre visualizar</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1688,6 +1378,13 @@
                           <textarea class="form-control" placeholder="Mensaje" #mensajeCobranza="ngModel" required
                             maxlength="500" name="mensajeCobranza"
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCobranza"></textarea>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(11, modalBasic)">Pre
+                            visualizar</button>
                         </div>
                       </div>
                     </div>
@@ -1726,6 +1423,13 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoPreCobranza"></textarea>
                         </div>
                       </div>
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(12, modalBasic)">Pre
+                            visualizar</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1761,6 +1465,13 @@
                           <textarea class="form-control" placeholder="Mensaje" #mensajeEstadoCuenta="ngModel" required
                             maxlength="500" name="mensajeEstadoCuenta"
                             [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoEstadoCuenta"></textarea>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-12 mt-3 text-center">
+                          <button class="btn btn-primary" (click)="previsualizar(13, modalBasic)">Pre
+                            visualizar</button>
                         </div>
                       </div>
                     </div>
@@ -1804,6 +1515,9 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPortada"
                             pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color principal"
                             [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 10)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1822,6 +1536,9 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagoRapido"
                             pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                             [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo,11)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1840,6 +1557,9 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonInicioSesion"
                             pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                             [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 12)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1858,16 +1578,9 @@
                             [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagar"
                             pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                             [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
-                        </div>
-                      </div>
-
-                      <div class="col-md-12 form-group">
-                        <label for="firstName2">Texto Descargar Cobranza</label>
-                        <div class="input-group">
-                          <input type="text" maxlength="1000" class="form-control"
-                            placeholder="Texto Descargar Cobranza" #msjDescargarCobranza="ngModel"
-                            name="msjDescargarCobranza"
-                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoDescargaCobranza" />
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 13)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1878,6 +1591,9 @@
                             accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPortada2"
                             (change)="onChangeConfigDiseno($event, 1)" (change)="previewConfigDiseno($event, 1)"
                             name="imagenLogoPortada2">
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 14)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1901,6 +1617,9 @@
                             accept="image/x-png,image/gif,image/jpeg" id="fileImagePortada"
                             (change)="onChangeConfigDiseno($event, 2)" (change)="previewConfigDiseno($event, 2)"
                             name="imagen">
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 15)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1935,6 +1654,9 @@
                             accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPrincipalSidebar"
                             (change)="onChangeConfigDiseno($event, 3)" (change)="previewConfigDiseno($event, 3)"
                             name="imagen">
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 17)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1958,6 +1680,9 @@
                             accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoSecundarioSidebar"
                             (change)="onChangeConfigDiseno($event, 4)" (change)="previewConfigDiseno($event, 4)"
                             name="imagen">
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 18)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1990,6 +1715,9 @@
                             placeholder="Mensaje Cobranza Expirada" #msjCobranzaExpirada="ngModel"
                             name="msjCobranzaExpirada"
                             [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoCobranzaExpirada" />
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 64)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -1999,7 +1727,11 @@
                         <div class="input-group">
                           <input type="file" class="form-control" placeholder="Ruta"
                             accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerPagoRapido"
-                            (change)="onChangeConfigDiseno($event, 5)" (change)="previewConfigDiseno($event, 5)" name="imagen">
+                            (change)="onChangeConfigDiseno($event, 5)" (change)="previewConfigDiseno($event, 5)"
+                            name="imagen">
+                          <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasicInfo, 19)" src="https://img.icons8.com/fluent/96/info.png"
+                            alt="" width="22" height="22">
                         </div>
                       </div>
 
@@ -2026,15 +1758,6 @@
                     </div>
                     <div class="card-body" *ngIf="dashboardCliente == 1">
                       <div class="form-group col-md-12 mb-3">
-                        <div class="col-md-12 form-group">
-                          <label for="firstName2">Texto Aviso</label>
-                          <div class="input-group">
-                            <input type="text" maxlength="1000" class="form-control" placeholder="Texto Aviso"
-                              #txtAviso="ngModel" name="ngModel"
-                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoNoConsideraTodaDeuda" />
-                          </div>
-                        </div>
-
                         <div class="form-group col-md-8 mb-3">
                           <label for="picker1">Color Recuadro Documentos Pendientes</label>
                           <div class="input-group">
@@ -2050,6 +1773,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoDocumentos"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 27)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2069,6 +1795,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPendientes"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 28)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2088,6 +1817,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoVencidos"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 29)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2107,6 +1839,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoVencidos"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 30)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2126,6 +1861,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPorVencer"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 31)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2145,6 +1883,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPorVencer"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 32)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2164,6 +1905,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorSeleccionDocumentos"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 33)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2183,6 +1927,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoUltimasCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 34)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2202,6 +1949,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonUltimasCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 35)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2222,6 +1972,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonUltimasCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 36)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2242,6 +1995,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoBotonUltimasCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 37)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2252,6 +2008,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageUltimasCompras"
                               (change)="onChangeConfigDiseno($event, 6)" (change)="previewConfigDiseno($event, 6)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 38)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2294,6 +2053,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoMisCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 44)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2314,6 +2076,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPendientesMisCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 45)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2333,6 +2098,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoProductosMisCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 46)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2353,6 +2121,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoGuiasMisCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 47)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2372,6 +2143,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorIconosMisCompras"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 48)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2390,6 +2164,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonBuscar"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 49)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2400,6 +2177,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoMisCompras"
                               (change)="onChangeConfigDiseno($event, 7)" (change)="previewConfigDiseno($event, 7)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 50)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2423,6 +2203,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerMisCompras"
                               (change)="onChangeConfigDiseno($event, 8)" (change)="previewConfigDiseno($event, 8)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 51)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2466,6 +2249,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonModificarPerfil"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 52)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2485,6 +2271,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonClavePerfil"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 53)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2504,6 +2293,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonesPerfil"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 55)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2523,6 +2315,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonCancelarModalPerfil"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 56)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2542,6 +2337,9 @@
                               [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonGuardarModalPerfil"
                               pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
                               [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 57)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2552,6 +2350,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageUsuario"
                               (change)="onChangeConfigDiseno($event, 9)" (change)="previewConfigDiseno($event, 9)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 58)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2574,6 +2375,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerMiPerfil"
                               (change)="onChangeConfigDiseno($event, 10)" (change)="previewConfigDiseno($event, 10)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 59)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2597,6 +2401,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoContactos"
                               (change)="onChangeConfigDiseno($event, 11)" (change)="previewConfigDiseno($event, 11)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 60)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2620,6 +2427,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoClavePerfil"
                               (change)="onChangeConfigDiseno($event, 12)" (change)="previewConfigDiseno($event, 12)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 61)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2643,6 +2453,9 @@
                               accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoEditarPerfil"
                               (change)="onChangeConfigDiseno($event, 13)" (change)="previewConfigDiseno($event, 13)"
                               name="imagen">
+                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                              (click)="openInfoModal(modalBasicInfo, 62)"
+                              src="https://img.icons8.com/fluent/96/info.png" alt="" width="22" height="22">
                           </div>
                         </div>
 
@@ -2692,5 +2505,43 @@
   <div class="modal-footer">
     <button style="cursor: pointer;" type="button" class="btn btn-outline-dark"
       (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>
+
+
+<ng-template #modalBasic let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitleCorreos}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="card-body" style="overflow: auto;">
+      <iframe style="pointer-events: none;" [src]="url"></iframe>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>
+
+<ng-template #modalBasicInfo let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitleInfo}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <p>{{modalContent}}</p>
+      <div class="text-center">
+        <img style="cursor: pointer;" (click)="openImage()" class="img-fluid" [src]="modalImage | sinimagen" alt="">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.dismiss('Cross click')">Cerrar</button>
   </div>
 </ng-template>

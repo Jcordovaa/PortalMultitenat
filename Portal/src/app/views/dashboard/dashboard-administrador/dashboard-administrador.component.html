@@ -53,8 +53,10 @@
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="card-box" style="background-color: rgb(61, 81, 185);">
                         <div class="inner">
-                            <h3>${{ cantidadPagados | monto }} </h3>
-                            <p>{{totalPagados}} Pagos mes en curso</p>
+                            <h3>${{ cantidadPagados | monto }}</h3>
+                            <p>{{totalPagados}} Pagos mes en curso <img container="body" ngbTooltip="Si desea ver pagos de meses anteriores, debe presionar el botón ver mas y filtrar según las fechas" style="cursor: pointer;"
+                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="20"
+                                height="20"></p>
                         </div>
                         <a (click)="obtenerDocumentos(4)" style="cursor: pointer;" class="card-box-footer">Ver Más <i
                                 class="i-Arrow-Down"></i></a>

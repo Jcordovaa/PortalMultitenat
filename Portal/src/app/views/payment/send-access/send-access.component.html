@@ -11,9 +11,15 @@
 <div class="row">
     <div class="col-md-12">
         <div class="card mb-4">
-            <ngb-alert class="alert-card text-center" [dismissible]="false">
-                En esta lista solo se incluirán los auxiliares que estén clasificados como clientes en su ficha.
-               </ngb-alert>
+            <ngb-alert class="alert-card" [dismissible]="false" style="font-size: calc(0.25rem + 0.5vw) !important;">
+                <ul style="list-style-type: circle !important">
+                    <li style="display: list-item">En esta lista solo se incluirán los auxiliares que estén clasificados
+                        como clientes en su ficha.</li>
+                    <br>
+                    <li style="display: list-item">Se recomienda incorporar un cargo especifico en el contacto de la
+                        ficha auxiliar para facilitar el envío de las credenciales.</li>
+                </ul>
+            </ngb-alert>
             <div class="card-body">
                 <form>
                     <div class="row">
@@ -126,7 +132,8 @@
                     </div>
 
 
-                    <div class="col-md-12" style="PADDING-LEFT: 0px;padding-right: 0px;" *ngIf="showDetail && clientes.length > 0">
+                    <div class="col-md-12" style="PADDING-LEFT: 0px;padding-right: 0px;"
+                        *ngIf="showDetail && clientes.length > 0">
                         <div class="desktop">
                             <div class="card" style="margin-right: -16px;margin-left: -16px;">
                                 <div class="card-content">

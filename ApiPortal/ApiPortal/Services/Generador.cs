@@ -159,7 +159,7 @@ namespace ApiPortal.Services
                 string logoSoftlandFooter = configEmpresa.UrlPortal + "/assets/images/Softlandpiemail.png";
 
                 //Remplaza valores cabecera
-                reporte = reporte.Replace("{FECHA}", DateTime.Now.ToShortDateString());
+                reporte = reporte.Replace("{FECHA}", DateTime.Now.ToString("dd/MM/yyyy"));
                 reporte = reporte.Replace("{NOMBREDOCUMENTO}", nombreCobranza);
                 reporte = reporte.Replace("{RUTALUMNO}", cobranza.RutCliente);
                 reporte = reporte.Replace("{NOMBREALUMNO}", cobranza.NombreCliente);
@@ -171,7 +171,7 @@ namespace ApiPortal.Services
                 reporte = reporte.Replace("{TELEFONOEMPRESA}", configEmpresa.Telefono);
                 reporte = reporte.Replace("{NOMBREEMPRESA}", configEmpresa.NombreEmpresa);
                 reporte = reporte.Replace("{RUTEMPRESA}", configEmpresa.RutEmpresa);
-                reporte = reporte.Replace("{MONTODEUDA}", "$" + String.Format("{0:#,##0}", cobranza.MontoDeuda));
+                reporte = reporte.Replace("{MONTODEUDA}",  String.Format("{0:#,##0}", cobranza.MontoDeuda));
                 reporte = reporte.Replace("{IMAGENFOOTER}", logoSoftlandFooter);
 
                 //Separamo del html la opcion donde va el detalle
@@ -184,7 +184,7 @@ namespace ApiPortal.Services
                     string strNumber = String.Format("{0:#,##0}", item.Monto);
                     detalleDocs = detalleDocs + cadenas[1].Replace("{numeroDoc}", item.Folio.ToString())
                                                           .Replace("{TipoDoc}", item.TipoDocumento)
-                                                          .Replace("{FechaDoc}", item.FechaVencimiento.ToShortDateString())
+                                                          .Replace("{FechaDoc}", item.FechaVencimiento.ToString("dd/MM/yyyy"))
                                                           .Replace("{montoDoc}", strNumber);
                 }
 

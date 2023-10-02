@@ -9,6 +9,7 @@ import { ConfiguracionService } from 'src/app/shared/services/configuracion.serv
 import { Utils } from 'src/app/shared/utils';
 import { ImplementacionService } from 'src/app/shared/services/implementacion.service';
 import { EmpresaImplementacion, Tenant } from 'src/app/shared/models/empresaimplementacion.model';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export interface IPreviewImgs {
   url?: string;
@@ -28,6 +29,10 @@ export class CompanyComponent implements OnInit {
 
   public viewMode: 'list' | 'grid' = 'list';
   public modalTitle: string = '';
+  public modalTitleCorreos: string = '';
+  public modalTitleInfo: string = '';
+  public modalContent: string = '';
+  public modalImage: string = '';
   public noResultsText: string = '';
   public selectedEstado: number = 0;
   public esCreacion: number = 0;
@@ -122,12 +127,13 @@ export class CompanyComponent implements OnInit {
   public urlImagenIconoEstadoPerfil: IPreviewImgs = null;
   public defaultImageFavicon: FileList = null;
   public urlImagenFavicon: IPreviewImgs = null;
-
+  template: string = '';
+  url: any = null;
   constructor(
     private spinner: NgxSpinnerService,
     private modalService: NgbModal,
     private notificationService: NotificationService,
-    private authService: AuthService, private configService: ConfiguracionService, private utils: Utils, private implementacionService: ImplementacionService) {
+    private authService: AuthService, private configService: ConfiguracionService, private utils: Utils, private implementacionService: ImplementacionService, private sanitizer: DomSanitizer) {
   }
 
   ngOnInit() {
@@ -309,6 +315,57 @@ export class CompanyComponent implements OnInit {
     this.selectedCuentasContables = null;
     this.selectedTiposDocumentos = null;
     this.correo1 = [];
+    this.general = 0;
+    this.pagos= 0;
+    this.activacion= 0;
+    this.cambioDatos= 0;
+    this.actualizaClave= 0;
+    this.actualizaCorreo= 0;
+    this.recuperaClave= 0;
+    this.envioDocumentos= 0;
+    this.notificacionPago= 0;
+    this.notificacionPagoSinComprobante= 0;
+    this.cobranza= 0;
+    this.preCobranza= 0;
+    this.estadoCuenta= 0;
+    this.defaultImageLogoPortada = null;
+    this.urlImagenLogoPortada = null;
+    this.inicioDeSesion= 0;
+    this.sidebar= 0;
+    this.pagoRapido= 0;
+    this.dashboardCliente= 0;
+    this.misCompras= 0;
+    this.miPerfil= 0;
+    this.defaultImageLogoPortadaDiseno = null;
+    this.urlImagenLogoPortadaDiseno = null;
+    this.defaultImagenPortada = null;
+    this.urlImagenPortada = null;
+    this.defaultImageLogoPrincipalSidebar = null;
+    this.urlImagenLogoPrincipalSidebar = null;
+    this.defaultImageLogoSecundarioSidebar = null;
+    this.urlImagenLogoSecundarioSidebar = null;
+    this.defaultImageBannerPagoRapido = null;
+    this.urlImagenBannerPagoRapido = null;
+    this.defaultImageUltimasCompras = null;
+    this.urlImagenUltimasCompras = null;
+    this.defaultImageMisCompras = null;
+    this.urlImagenMisCompras = null;
+    this.defaultImageBannerMisCompras = null;
+    this.urlImagenBannerMisCompras = null;
+    this.defaultImageBannerPerfil = null;
+    this.urlImagenBannerPerfil = null;
+    this.defaultImagenUsuario = null;
+    this.urlImagenUsuario = null;
+    this.defaultImageIconoContactos = null;
+    this.urlImagenIconoContactos = null;
+    this.defaultImageIconoClavePerfil = null;
+    this.urlImagenIconoClavePerfil = null;
+    this.defaultImageIconoEditarPerfil = null;
+    this.urlImagenIconoEditarPerfil = null;
+    this.defaultImageIconoEstadoPerfil = null;
+    this.urlImagenIconoEstadoPerfil = null;
+    this.defaultImageFavicon = null;
+    this.urlImagenFavicon = null;
     if (tenant != null) {
       this.tenant = tenant;
     } else {
@@ -2019,5 +2076,398 @@ export class CompanyComponent implements OnInit {
       }
       return;
     }
+  }
+
+  previsualizar(tipo: number, content) {
+    this.spinner.show();
+    switch (tipo) {
+      case 1:
+        this.modalTitleCorreos = 'GENERAL';
+        break;
+
+      case 2:
+        this.modalTitleCorreos = 'PAGOS';
+        break;
+      case 3:
+        this.modalTitleCorreos = 'ENVÍO DE ACCESO';
+        break;
+      case 4:
+        this.modalTitleCorreos = 'ACTUALIZACIÓN DE DATOS CLIENTE';
+        break;
+      case 5:
+        this.modalTitleCorreos = 'ACTUALIZACIÓN DE CLAVE';
+        break;
+      case 6:
+
+        break;
+      case 7:
+        this.modalTitleCorreos = 'RECUPERAR CLAVE';
+        break;
+      case 8:
+        this.modalTitleCorreos = 'ENVÍO DE DOCUMENTOS';
+        break;
+      case 9:
+
+        break;
+      case 10:
+
+        break;
+      case 11:
+        this.modalTitleCorreos = 'ENVÍO COBRANZA';
+        break;
+      case 12:
+        this.modalTitleCorreos = 'ENVÍO PRE COBRANZA';
+        break;
+      case 13:
+        this.modalTitleCorreos = 'ENVÍO ESTADO DE CUENTA';
+        break;
+    }
+
+    this.implementacionService.getTemplate(tipo, this.tenant.nombreEmpresa, this.tenant.datosImplementacion.configuracionCorreo).subscribe((res: any) => {
+
+      this.template = res.body;
+      if (tipo == 1) {
+        this.template = this.template.replace('{LOGO}', this.urlImagenLogoPortada.url);
+      }
+      this.url = this.sanitizer.bypassSecurityTrustResourceUrl('data:text/html;charset=utf-8,' + encodeURIComponent(this.template));
+      this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title', windowClass: 'modalPrevisualizar' });
+      let el = document.getElementsByClassName('modal-content');
+      el[2].setAttribute("style", "width: 160%; margin-left: -100px;");
+      this.spinner.hide();
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error cargar previsualización', '', true); });
+  }
+
+  openInfoModal(content: any, type: number) {
+    switch (type) {
+      case 1:
+        this.modalTitleInfo = 'Mostrar Estado Cliente';
+        this.modalContent = 'Al habilitar esta opción se mostrará el estado "Desbloqueado" o "Bloqueado" en el dashboard del cliente.';
+        this.modalImage = 'assets/images/config/muestra_estado_cliente.jpg';
+        break;
+      case 2:
+        this.modalTitleInfo = 'Mostrar Contactos en Perfil';
+        this.modalContent = 'Al habilitar esta opción permitirá al cliente ver en la página "Mi Perfil" los contactos asociados a su cuenta.';
+        this.modalImage = 'assets/images/config/contactos.jpg';
+        break;
+      case 3:
+        this.modalTitleInfo = 'Exportar a Excel';
+        this.modalContent = 'Al habilitar esta opción permitirá exportar a Excel en las siguientes pantallas: Dashboard Cliente (Documentos pendientes, vencidos y por vencer), ' +
+          'Mis compras (Compras facturadas, notas de venta pendientes de facturar y Productos) y Estado de cuenta ';
+        this.modalImage = 'assets/images/config/exportar_excel.jpg';
+        break;
+      case 4:
+        this.modalTitleInfo = 'Cantidad Compras Dashboard';
+        this.modalContent = 'Cantidad de últimas compras a mostrar en Dashboard cliente.';
+        this.modalImage = 'assets/images/config/cantidad_compras.jpg';
+        break;
+      case 5:
+        this.modalTitleInfo = 'Mostrar Estado Sobregiro';
+        this.modalContent = 'Al habilitar esta opción mostrará si el cliente se encuentra sobregirado en el dashboard cliente.';
+        this.modalImage = 'assets/images/config/muestra_sobregiro_cliente.jpg';
+        break;
+      case 6:
+        this.modalTitleInfo = 'Habilitar Paga Tu Cuenta';
+        this.modalContent = 'Habilita la opción  de realizar un Paga Tu Cuenta en la página  de inicio.';
+        this.modalImage = 'assets/images/config/pago_rapido.jpg';
+        break;
+      case 7:
+        this.modalTitleInfo = 'Permite Abono Parcial';
+        this.modalContent = 'Si está habilitado, aparece columna adicional en estado cuenta que permite al cliente realizar un pago parcial.';
+        this.modalImage = 'assets/images/config/abono_parcial.jpg';
+        break;
+      case 8:
+        this.modalTitleInfo = 'Habilitar Búsqueda por Documento Paga Tu Cuenta';
+        this.modalContent = 'Al habilitar esta opción se permitirá Paga Tu Cuenta por número de documento. Para modificar esta opción debe estar habilitado Paga Tu Cuenta';
+        this.modalImage = 'assets/images/config/doc_pago_rapido.jpg';
+        break;
+      case 9:
+        this.modalTitleInfo = 'Cantidad Días Documentos Por Vencer';
+        this.modalContent = 'Cantidad de días antes del vencimiento desde los cuales los documentos se considerarán "Por Vencer", tanto en el Dashboard administrador como en el Dashboard cliente (Si no se indica días o se deja en 0 se considerarán todos los documentos que estén en estado "Pendiente").';
+        this.modalImage = 'assets/images/config/dias_por_vencer.jpg';
+        break;
+      case 10:
+        this.modalTitleInfo = 'Color Fondo';
+        this.modalContent = 'Color del fondo de la pantalla de inicio del portal en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorFondoPortada.jpg';
+        break;
+      case 11:
+        this.modalTitleInfo = 'Color Botón Paga Tu Cuenta';
+        this.modalContent = 'Color del botón "PAGA TU CUENTA" de la pantalla de inicio del portal en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonPagoRapido.jpg';
+        break;
+      case 12:
+        this.modalTitleInfo = 'Color Botón Inicio de Sesión';
+        this.modalContent = 'Color del botón "INICIAR SESIÓN" de la pantalla de inicio del portal en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonInicioSesion.jpg';
+        break;
+      case 13:
+        this.modalTitleInfo = 'Color Botón Pagar';
+        this.modalContent = 'Color del botón "PAGAR" de la pantalla de inicio del portal en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonPagar.jpg';
+        break;
+      case 14:
+        this.modalTitleInfo = 'Logo';
+        this.modalContent = 'Logo mostrado en la pantalla de inicio del portal.';
+        this.modalImage = 'assets/images/config/logoPortada.jpg';
+        break;
+      case 15:
+        this.modalTitleInfo = 'Imagen Portada';
+        this.modalContent = 'Imagen mostrada en la pantalla de inicio del portal.';
+        this.modalImage = 'assets/images/config/imagenFondoInicio.jpg';
+        break;
+      case 16:
+        this.modalTitleInfo = 'Favicon';
+        this.modalContent = 'Icono mostrado como favicon del portal, este debe ser en formato .ico.';
+        this.modalImage = 'assets/images/config/faviconInicio.jpg';
+        break;
+      case 17:
+        this.modalTitleInfo = 'Logo Principal';
+        this.modalContent = 'Logo principal mostrado en el menú lateral del portal.';
+        this.modalImage = 'assets/images/config/logoSideBar.jpg';
+        break;
+      case 18:
+        this.modalTitleInfo = 'Logo Secundario';
+        this.modalContent = 'Logo secundario mostrado en el menú lateral del portal.';
+        this.modalImage = 'assets/images/config/logoSecundarioSideBar.jpg';
+        break;
+      case 19:
+        this.modalTitleInfo = 'Banner';
+        this.modalContent = 'Imagen mostrada en el banner de la pantalla de Paga Tu Cuenta.';
+        this.modalImage = 'assets/images/config/bannerPagoRapido.jpg';
+        break;
+      case 20:
+        this.modalTitleInfo = 'Título Documentos Pendientes';
+        this.modalContent = 'Título que se mostrará en el recuadro de documentos pendientes en la pantalla Mi Dashboard del cliente.';
+        this.modalImage = 'assets/images/config/tituloDocumentosPendientes.jpg';
+        break;
+      case 21:
+        this.modalTitleInfo = 'Título Documentos Vencidos';
+        this.modalContent = 'Título que se mostrará en el recuadro de documentos vencidos  en la pantalla Mi Dashboard del cliente.';
+        this.modalImage = 'assets/images/config/tituloDocumentosVencidos.jpg';
+        break;
+      case 22:
+        this.modalTitleInfo = 'Título Documentos Por Vencer';
+        this.modalContent = 'Título que se mostrará en el recuadro de documentos en la pantalla Mi Dashboard del cliente.';
+        this.modalImage = 'assets/images/config/tituloDocumentosPorVencer.jpg';
+        break;
+      case 23:
+        this.modalTitleInfo = 'Título Últimas Compras';
+        this.modalContent = 'Título que se mostrará en la sección "Últimas Compras" en la pantalla Mi Dashboard del cliente.';
+        this.modalImage = 'assets/images/config/tituloUltimasCompras.jpg';
+        break;
+      case 24:
+        this.modalTitleInfo = 'Título Moneda Principal';
+        this.modalContent = 'Título que se mostrará en la pestaña del detalle de documentos pendientes, vencidos y por vencer  en la pantalla Mi Dashboard del cliente, generados en la moneda seleccionada como Moneda Nacional en la configuración del portal.';
+        this.modalImage = 'assets/images/config/tituloMonedaPrincipal.jpg';
+        break;
+      case 25:
+        this.modalTitleInfo = 'Título Segunda Moneda';
+        this.modalContent = 'Título que se mostrará en la pestaña del detalle de documentos pendientes, vencidos y por vencer  en la pantalla Mi Dashboard del cliente, generados en la moneda seleccionada como Segunda Moneda en la configuración del portal.';
+        this.modalImage = 'assets/images/config/tituloSegundaMoneda.jpg';
+        break;
+      case 26:
+        this.modalTitleInfo = 'Texto Aviso';
+        this.modalContent = 'Texto de notificación que se mostrará en el dashboard del cliente y en la pantalla de Paga Tu cuenta.';
+        this.modalImage = 'assets/images/config/textoAviso.jpg';
+        break;
+      case 27:
+        this.modalTitleInfo = 'Color Recuadro Documentos Pendientes';
+        this.modalContent = 'Color del recuadro de Documentos Pendientes de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosPendientes.jpg';
+        break;
+      case 28:
+        this.modalTitleInfo = 'Color Texto Documentos Pendientes';
+        this.modalContent = 'Color del texto del recuadro de Documentos Pendientes de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosPendientes.jpg';
+        break;
+      case 29:
+        this.modalTitleInfo = 'Color Recuadro Documentos Vencidos';
+        this.modalContent = 'Color del recuadro de Documentos Vencidos de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosVencidos.jpg';
+        break;
+      case 30:
+        this.modalTitleInfo = 'Color Texto Documentos Vencidos';
+        this.modalContent = 'Color del texto del recuadro de Documentos Vencidos de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosVencidos.jpg';
+        break;
+      case 31:
+        this.modalTitleInfo = 'Color Recuadro Documentos Por Vencer';
+        this.modalContent = 'Color del recuadro de Documentos Por Vencer de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosPorVencer.jpg';
+        break;
+      case 32:
+        this.modalTitleInfo = 'Color Texto Documentos Por Vencer';
+        this.modalContent = 'Color del texto del recuadro de Documentos Vencidos de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorDocumentosPorVencer.jpg';
+        break;
+      case 33:
+        this.modalTitleInfo = 'Color Selección Recuadro Documentos';
+        this.modalContent = 'Color del recuadro de Documentos pendientes, vencidos y por vencer al ser seleccionados para ver el detalle en la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorSeleccionDocumentos.jpg';
+        break;
+      case 34:
+        this.modalTitleInfo = 'Color Fondo Últimas Compras';
+        this.modalContent = 'Color del fondo para el título de la sección "Últimas Compras" de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorFondoUltimasCompras.jpg';
+        break;
+      case 35:
+        this.modalTitleInfo = 'Color Botón Detalle Últimas Compras';
+        this.modalContent = 'Color del Botón "Ver Detalle"  de la sección Últimas Compras de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonDetalleUltimasCompras.jpg';
+        break;
+      case 36:
+        this.modalTitleInfo = 'Color Selección Botón Detalle Últimas Compras';
+        this.modalContent = 'Color del botón "Ver Detalle"  de la sección Últimas Compras de la pantalla Mi Dashboard del cliente al pasar el cursor sobre él, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorSeleccionBotonDetalle.jpg';
+        break;
+      case 37:
+        this.modalTitleInfo = 'Color Texto Botón Detalle Últimas Compras';
+        this.modalContent = 'Color del texto del botón "Ver Detalle"  de la sección Últimas Compras de la pantalla Mi Dashboard del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonDetalleUltimasCompras.jpg';
+        break;
+      case 38:
+        this.modalTitleInfo = 'Imagen Últimas Compras';
+        this.modalContent = 'Imagen o Icono mostrado en la sección Últimas Compras de la pantalla Mi Dashboard del cliente.';
+        this.modalImage = 'assets/images/config/imagenUltimasCompras.jpg';
+        break;
+      case 39:
+        this.modalTitleInfo = 'Título Mis Compras';
+        this.modalContent = 'Título mostrado en la pantalla Mis Compras.';
+        this.modalImage = 'assets/images/config/tituloMisCompras.jpg';
+        break;
+      case 40:
+        this.modalTitleInfo = 'Título Compras Facturadas';
+        this.modalContent = 'Título que se mostrará en el recuadro de Compras Facturadas en la pantalla Mis Compras del cliente.';
+        this.modalImage = 'assets/images/config/tituloComprasFacturadas.jpg';
+        break;
+      case 41:
+        this.modalTitleInfo = 'Título Compras Pendientes Por Facturar';
+        this.modalContent = 'Título que se mostrará en el recuadro de Compras Pendientes Por Facturar en la pantalla Mis Compras del cliente.';
+        this.modalImage = 'assets/images/config/tituloComprasPendientes.jpg';
+        break;
+      case 42:
+        this.modalTitleInfo = 'Título Productos Comprados';
+        this.modalContent = 'Título que se mostrará en el recuadro de Productos Comprados en la pantalla Mis Compras del cliente.';
+        this.modalImage = 'assets/images/config/tituloProductosComprados.jpg';
+        break;
+      case 43:
+        this.modalTitleInfo = 'Título Guías Pendientes de Facturar';
+        this.modalContent = 'Título que se mostrará en el recuadro Guías Pendientes de Facturar en la pantalla Mis Compras del cliente.';
+        this.modalImage = 'assets/images/config/tituloGuiasPendientes.jpg';
+        break;
+      case 44:
+        this.modalTitleInfo = 'Color Recuadro Compras Facturadas';
+        this.modalContent = 'Color del recuadro de Compras Facturadas de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/fondoComprasFacturadas.jpg';
+        break;
+      case 45:
+        this.modalTitleInfo = 'Color Recuadro Compras Pendientes Por Facturar';
+        this.modalContent = 'Color del recuadro de Compras Pendientes de Facturar de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/fondoComprasPendientes.jpg';
+        break;
+      case 46:
+        this.modalTitleInfo = 'Color Recuadro Productos Comprados';
+        this.modalContent = 'Color del recuadro Productos Comprados de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/fondoProductosComprados.jpg';
+        break;
+      case 47:
+        this.modalTitleInfo = 'Color Recuadro Guías Pendientes de Facturar';
+        this.modalContent = 'Color del recuadro Guías Pendientes de Facturar de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorGuiasPendientes.jpg';
+        break;
+      case 48:
+        this.modalTitleInfo = 'Color Texto Recuadros Mis Compras';
+        this.modalContent = 'Color del texto en los recuadros de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorTextoMisCompras.jpg';
+        break;
+      case 49:
+        this.modalTitleInfo = 'Color Botón Buscar';
+        this.modalContent = 'Color del botón "Buscar" en el detalle de la pantalla Mis Compras del cliente, en formato hexadecimal.';
+        this.modalImage = 'assets/images/config/colorBotonBuscar.jpg';
+        break;
+      case 50:
+        this.modalTitleInfo = 'Icono Mis Compras';
+        this.modalContent = 'Icono mostrado en la pantalla Mis Compras.';
+        this.modalImage = 'assets/images/config/iconoMisCompras.jpg';
+        break;
+      case 51:
+        this.modalTitleInfo = 'Banner Mis Compras';
+        this.modalContent = 'Banner mostrado en la pantalla Mis Compras.';
+        this.modalImage = 'assets/images/config/bannerMisCompras.jpg';
+        break;
+      case 52:
+        this.modalTitleInfo = 'Color Botón Modificar Datos';
+        this.modalContent = 'Color del botón "Modificar Datos" de la pantalla Mi Perfil del cliente.';
+        this.modalImage = 'assets/images/config/botonModificarDatos.jpg';
+        break;
+      case 53:
+        this.modalTitleInfo = 'Color Botón Cambio de Clave';
+        this.modalContent = 'Color del botón "Cambio de Clave" de la pantalla Mi Perfil del cliente.';
+        this.modalImage = 'assets/images/config/botonCambioClave.jpg';
+        break;
+      case 54:
+        this.modalTitleInfo = 'Color Botón Estado de Cuenta';
+        this.modalContent = 'Color del botón "Estado de Cuenta" de la pantalla Mi Perfil del cliente.';
+        this.modalImage = 'assets/images/config/botonEstadoCuenta.jpg';
+        break;
+      case 55:
+        this.modalTitleInfo = 'Color Selección Botón';
+        this.modalContent = 'Color de los botón "Modificar Datos", "Cambio de Clave" y "Estado de Cuenta" de la pantalla Mi Perfil del cliente al pasar el cursor por encima.';
+        this.modalImage = 'assets/images/config/botonSeleccionPerfil.jpg';
+        break;
+      case 56:
+        this.modalTitleInfo = 'Color Botón Cancelar pop up';
+        this.modalContent = 'Color del botón "Cancelar" en la ventana emergente al seleccionar Modificar Datos.';
+        this.modalImage = 'assets/images/config/colorBotonCancelar.jpg';
+        break;
+      case 57:
+        this.modalTitleInfo = 'Color Botón Guardar pop up';
+        this.modalContent = 'Color del botón "Guardar" en la ventana emergente al seleccionar Modificar Datos o Cambio de Clave.';
+        this.modalImage = 'assets/images/config/colorBotonGuardar.jpg';
+        break;
+      case 58:
+        this.modalTitleInfo = 'Icono Mi Perfil';
+        this.modalContent = 'Icono mostrado en la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/iconoMiPerfil.jpg';
+        break;
+      case 59:
+        this.modalTitleInfo = 'Banner Mi Perfil';
+        this.modalContent = 'Banner mostrado en la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/bannerMiPerfil.jpg';
+        break;
+      case 60:
+        this.modalTitleInfo = 'Icono Contactos';
+        this.modalContent = 'Icono mostrado en pestaña Contactos de la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/iconoContactos.jpg';
+        break;
+      case 61:
+        this.modalTitleInfo = 'Icono Cambio de Clave';
+        this.modalContent = 'Icono mostrado sobre el botón Cambio de Clave Datos en la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/iconoCambioClave.jpg';
+        break;
+      case 62:
+        this.modalTitleInfo = 'Icono Modificar Datos';
+        this.modalContent = 'Icono mostrado sobre el botón Modificar Datos en la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/iconoModificarDatos.jpg';
+        break;
+      case 63:
+        this.modalTitleInfo = 'Icono Estado de Cuenta';
+        this.modalContent = 'Icono mostrado sobre el botón Estado de Cuenta en la pantalla Mi Perfil.';
+        this.modalImage = 'assets/images/config/iconoEstadoCuenta.jpg';
+        break;
+
+      case 64:
+        this.modalTitleInfo = 'Mensaje Cobranza Expirada';
+        this.modalContent = 'Mensaje mostrado al cliente al ingresar a la pantalla "Paga Tu Cuenta" mediante el link enviado en una cobranza, cuando esta se encuentre expirada.';
+        this.modalImage = '';
+        break;
+
+      case 65:
+        this.modalTitleInfo = 'Texto Descargar Cobranza';
+        this.modalContent = 'Mensaje mostrado al cliente al ingresar al portal mediante el link "Descargar" enviado en una cobranza.';
+        this.modalImage = 'assets/images/config/textoDescargaCobranza.jpg';
+        break;
+    }
+    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
   }
 }

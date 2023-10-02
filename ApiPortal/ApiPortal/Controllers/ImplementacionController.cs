@@ -1269,12 +1269,10 @@ namespace ApiPortal.Controllers
                     newTenant.TelefonoImplementador = tenant.TelefonoImplementador;
                     newTenant.IdTenant = (int)tenant.IdTenant;
 
-                    _admin.Entry(newTenant);
-                    _admin.SaveChanges();
+                  
 
                     configuracionEmpresa.UrlPortal = tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal;
-                    newContextPortal.Entry(newTenant);
-
+                 
                     configuracionCorreo.AsuntoAccesoCliente = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoAccesoCliente;
                     configuracionCorreo.AsuntoAvisoPagoCliente = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoAvisoPagoCliente;
                     configuracionCorreo.AsuntoCambioClave = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoCambioClave;
@@ -1322,14 +1320,12 @@ namespace ApiPortal.Controllers
                     configuracionCorreo.TituloPreCobranza = tenant.DatosImplementacion.ConfiguracionCorreo.TituloPreCobranza;
                     configuracionCorreo.TituloRecuperarClave = tenant.DatosImplementacion.ConfiguracionCorreo.TituloRecuperarClave;
                     configuracionCorreo.Usuario = tenant.DatosImplementacion.ConfiguracionCorreo.Usuario;
-                    newContextPortal.Entry(configuracionCorreo);
-
+                
                     configuracionPagoCliente.CuentasContablesDeuda = tenant.DatosImplementacion.ConfiguracionPagoCliente.CuentasContablesDeuda;
                     configuracionPagoCliente.TiposDocumentosDeuda = tenant.DatosImplementacion.ConfiguracionPagoCliente.TiposDocumentosDeuda;
                     configuracionPagoCliente.DiasPorVencer = tenant.DatosImplementacion.ConfiguracionPagoCliente.DiasPorVencer;
                     configuracionPagoCliente.GlosaComprobante = tenant.DatosImplementacion.ConfiguracionPagoCliente.GlosaComprobante;
-                    newContextPortal.Entry(configuracionPagoCliente);
-
+                 
                     configuracionDiseno.BannerMisCompras = tenant.DatosImplementacion.ConfiguracionDiseno.BannerMisCompras;
                     configuracionDiseno.BannerPagoRapido = tenant.DatosImplementacion.ConfiguracionDiseno.BannerPagoRapido;
                     configuracionDiseno.BannerPortal = tenant.DatosImplementacion.ConfiguracionDiseno.BannerPortal;
@@ -1395,13 +1391,11 @@ namespace ApiPortal.Controllers
                     configuracionDiseno.TituloResumenContable = tenant.DatosImplementacion.ConfiguracionDiseno.TituloResumenContable;
                     configuracionDiseno.TituloUltimasCompras = tenant.DatosImplementacion.ConfiguracionDiseno.TituloUltimasCompras;
                     configuracionDiseno.TituloVencidosDashboard = tenant.DatosImplementacion.ConfiguracionDiseno.TituloVencidosDashboard;
-                    newContextPortal.Entry(configuracionDiseno);
-
+                  
                     apiSoftland.AreaDatos = tenant.DatosImplementacion.ApiSoftland.AreaDatos;
                     apiSoftland.Url = tenant.DatosImplementacion.ApiSoftland.Url;
                     apiSoftland.Token = tenant.DatosImplementacion.ApiSoftland.Token;
-                    newContextPortal.Entry(apiSoftland);
-
+                  
                     configuracionPortal.CantidadUltimasCompras = tenant.DatosImplementacion.ConfiguracionPortal.CantidadUltimasCompras;
                     configuracionPortal.HabilitaPagoRapido = tenant.DatosImplementacion.ConfiguracionPortal.HabilitaPagoRapido;
                     configuracionPortal.MuestraBotonEnviarCorreo = tenant.DatosImplementacion.ConfiguracionPortal.MuestraBotonEnviarCorreo;
@@ -1422,8 +1416,7 @@ namespace ApiPortal.Controllers
                     configuracionPortal.ResumenContabilizado = tenant.DatosImplementacion.ConfiguracionPortal.ResumenContabilizado;
                     configuracionPortal.UtilizaDocumentoPagoRapido = tenant.DatosImplementacion.ConfiguracionPortal.UtilizaDocumentoPagoRapido;
                     configuracionPortal.UtilizaNumeroDireccion = tenant.DatosImplementacion.ConfiguracionPortal.UtilizaNumeroDireccion;
-                    newContextPortal.Entry(configuracionPortal);
-
+                 
                     transbank.Ambiente = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWTransbankGenerarPago";
                     transbank.TipoDocumento = tenant.DatosImplementacion.DocumentoContableTransbank;
                     transbank.AmbienteConsultarPago = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWTransbankObtenerEstadoPago?id_transaccion={ID}&esProductivo={ESPRODUCTIVO}";
@@ -1438,8 +1431,14 @@ namespace ApiPortal.Controllers
                     virtualPos.AmbienteConsultarPago = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWVirtualPosObtenerEstadoPago?id_transaccion={ID}&esProductivo={ESPRODUCTIVO}";
                     virtualPos.CuentaContable = tenant.DatosImplementacion.CuentaContableVirtualPos;
                     virtualPos.Estado = tenant.DatosImplementacion.UtilizaVirtualPos;
-                    newContextPortal.Entry(virtualPos);
 
+                    newContextPortal.Entry(virtualPos);
+                    newContextPortal.Entry(configuracionPortal);
+                    newContextPortal.Entry(apiSoftland);
+                    newContextPortal.Entry(configuracionDiseno);
+                    newContextPortal.Entry(configuracionPagoCliente);
+                    newContextPortal.Entry(configuracionCorreo);
+                    _admin.Entry(newTenant);
                     await newContextPortal.SaveChangesAsync();
                     await _admin.SaveChangesAsync();
                 }
@@ -1450,6 +1449,185 @@ namespace ApiPortal.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("getTemplate/{tipo}/{nombreEmpresa}"), Authorize]
+        public async Task<ActionResult> getTemplate(int tipo, string nombreEmpresa, [FromBody] ConfiguracionCorreo model)
+        {
+            try
+            {
+                string body = string.Empty;
+
+                switch (tipo)
+                {
+                    case 1:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/activacionCuenta.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+
+                        body = body.Replace("{EMPRESA}", nombreEmpresa);
+                        body = body.Replace("{TEXTO}", model.TextoMensajeActivacion);
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{RUT}", "11.111.111-1");
+                        body = body.Replace("{CORREO}", "prueba@prueba.cl");
+                        body = body.Replace("{CLAVE}", "123456");
+                        body = body.Replace("{Titulo}", model.TituloAccesoCliente);
+                        body = body.Replace("{ColorBoton}", model.ColorBoton);
+                        string datosCliente = Encrypt.Base64Encode("123456" + ";" + "prueba@prueba.cl");
+                        body = body.Replace("{ENLACE}", "");
+                        break;
+
+                    case 2:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioDocumentos.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+
+                        body = body.Replace("{TextoCorreo}", model.TextoPagoCliente);
+                        body = body.Replace("{TituloCorreo}", model.TituloPagoCliente);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        break;
+
+                    case 3:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/activacionCuenta.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+
+                        body = body.Replace("{EMPRESA}", nombreEmpresa);
+                        body = body.Replace("{TEXTO}", model.TextoMensajeActivacion);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{RUT}", "11.111.111-1");
+                        body = body.Replace("{CORREO}", "prueba@prueba.cl");
+                        body = body.Replace("{CLAVE}", "123456");
+                        body = body.Replace("{Titulo}", model.TituloAccesoCliente);
+                        body = body.Replace("{ColorBoton}", model.ColorBoton);
+                        body = body.Replace("{ENLACE}", "");
+                        break;
+
+                    case 4:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioDocumentos.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+                        body = body.Replace("{TextoCorreo}", model.AsuntoCambioDatos);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{TituloCorreo}", model.TituloCambioDatos);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        break;
+
+                    case 5:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioClave.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{CLAVE}", "123456");
+                        body = body.Replace("{logo}", model.LogoCorreo);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{Titulo}", model.TituloCambioClave);
+                        body = body.Replace("{Texto}", model.TextoCambioClave);
+                        break;
+
+                    case 6:
+
+                        break;
+
+                    case 7:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioClave.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{Texto}", model.TextoRecuperarClave);
+                        body = body.Replace("{logo}", model.LogoCorreo);
+                        body = body.Replace("{NOMBRE}", "prueba@prueba.cl");
+                        body = body.Replace("{CLAVE}", "123456");
+                        body = body.Replace("{Titulo}", model.TituloRecuperarClave);
+                        break;
+
+                    case 8:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/envioDocumentos.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+                        body = body.Replace("{TextoCorreo}", model.TextoEnvioDocumentos);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{TituloCorreo}", model.TituloEnvioDocumentos);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        break;
+
+                    case 9:
+
+                        break;
+
+                    case 10:
+
+                        break;
+
+                    case 11:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/cobranza.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{ENLACE}", $"portal/#/sessions/pay/0/0/0/0");
+                        body = body.Replace("{ColorBoton}", model.ColorBoton);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{TituloCorreo}", model.TituloCobranza);
+                        body = body.Replace("{TextoCorreo}", model.TextoCobranza);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        body = body.Replace("{ENLACEDOCUMENTO}", "");
+
+                        break;
+
+                    case 12:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/cobranza.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{ENLACE}", "");
+                        body = body.Replace("{ColorBoton}", model.ColorBoton);
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{TituloCorreo}", model.TituloPreCobranza);
+                        body = body.Replace("{TextoCorreo}", model.TextoPreCobranza);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        body = body.Replace("{ENLACEDOCUMENTO}", "");
+                        break;
+
+                    case 13:
+                        using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/MailTemplates/cobranza.component.html")))
+                        {
+                            body = reader.ReadToEnd();
+                        }
+                        body = body.Replace("{NOMBRE}", "Cliente de Prueba");
+                        body = body.Replace("{ColorBoton}", model.ColorBoton);
+                        body = body.Replace("{ENLACE}", "");
+                        body = body.Replace("{NombreEmpresa}", nombreEmpresa);
+                        body = body.Replace("{TituloCorreo}", model.TituloEstadoCuenta);
+                        body = body.Replace("{TextoCorreo}", model.TextoEstadoCuenta);
+                        body = body.Replace("{LOGO}", model.LogoCorreo);
+                        body = body.Replace("{ENLACEDOCUMENTO}", "");
+                        break;
+                }
+
+                var html = new
+                {
+                    body = body
+                };
+
+                return Ok(html);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
