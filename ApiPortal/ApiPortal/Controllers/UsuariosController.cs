@@ -229,7 +229,7 @@ namespace ApiPortal.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var user = _context.Usuarios.Where(x => x.Email == usuarios.Email).FirstOrDefault();
+                var user = _context.Usuarios.Where(x => x.IdUsuario == usuarios.IdUsuario).FirstOrDefault();
 
                 if (user != null)
                 {
@@ -274,6 +274,10 @@ namespace ApiPortal.Controllers
 
                     }
 
+                }
+                else
+                {
+                    return BadRequest();
                 }
 
                 logApi.Termino = DateTime.Now;
