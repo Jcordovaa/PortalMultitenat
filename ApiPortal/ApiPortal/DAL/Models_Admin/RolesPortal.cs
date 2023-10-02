@@ -7,6 +7,7 @@ namespace ApiPortal.Dal.Models_Admin
     {
         public RolesPortal()
         {
+            PermisosImplementacions = new HashSet<PermisosImplementacion>();
             UsuariosPortals = new HashSet<UsuariosPortal>();
         }
 
@@ -14,6 +15,7 @@ namespace ApiPortal.Dal.Models_Admin
         public string? Nombre { get; set; }
         public int? Estado { get; set; }
 
+        public virtual ICollection<PermisosImplementacion> PermisosImplementacions { get; set; }
         public virtual ICollection<UsuariosPortal> UsuariosPortals { get; set; }
     }
 }

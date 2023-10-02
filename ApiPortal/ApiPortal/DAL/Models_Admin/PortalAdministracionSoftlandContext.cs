@@ -16,12 +16,16 @@ namespace ApiPortal.Dal.Models_Admin
         {
         }
 
+        public virtual DbSet<AccesoImplementacion> AccesoImplementacions { get; set; } = null!;
         public virtual DbSet<AreaComercial> AreaComercials { get; set; } = null!;
+        public virtual DbSet<ConfiguracionCorreoImplementacion> ConfiguracionCorreoImplementacions { get; set; } = null!;
+        public virtual DbSet<ConfiguracionImplementacion> ConfiguracionImplementacions { get; set; } = null!;
         public virtual DbSet<CsvEmpresasSii> CsvEmpresasSiis { get; set; } = null!;
         public virtual DbSet<EmpresaEstado> EmpresaEstados { get; set; } = null!;
         public virtual DbSet<EmpresasPortal> EmpresasPortals { get; set; } = null!;
         public virtual DbSet<Implementador> Implementadors { get; set; } = null!;
         public virtual DbSet<LineaProducto> LineaProductos { get; set; } = null!;
+        public virtual DbSet<PermisosImplementacion> PermisosImplementacions { get; set; } = null!;
         public virtual DbSet<Plane> Planes { get; set; } = null!;
         public virtual DbSet<RolesPortal> RolesPortals { get; set; } = null!;
         public virtual DbSet<Tenant> Tenants { get; set; } = null!;
@@ -39,6 +43,17 @@ namespace ApiPortal.Dal.Models_Admin
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AccesoImplementacion>(entity =>
+            {
+                entity.HasKey(e => e.IdAcceso);
+
+                entity.ToTable("AccesoImplementacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<AreaComercial>(entity =>
             {
                 entity.HasKey(e => e.IdArea);
@@ -49,6 +64,135 @@ namespace ApiPortal.Dal.Models_Admin
 
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<ConfiguracionCorreoImplementacion>(entity =>
+            {
+                entity.HasKey(e => e.IdConfiguracionCorreo)
+                    .HasName("PK_ConfiguracionCorreo");
+
+                entity.ToTable("ConfiguracionCorreoImplementacion");
+
+                entity.Property(e => e.AsuntoAccesoUsuario)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AsuntoCambioClave)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AsuntoCambioCorreo)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AsuntoEnvioDocumentos)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AsuntoRecuperarClave)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Clave)
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ColorBoton)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CorreoOrigen)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LogoCorreo)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SmtpServer)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ssl).HasColumnName("SSL");
+
+                entity.Property(e => e.TextoAccesoUsuario)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoCambioClave)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoCambioCorreo)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoCambioDatos)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoEnvioDocumentos)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoMensajeActivacion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TextoRecuperarClave)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TituloAccesoUsuario)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TituloCambioClave)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TituloCambioCorreo)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TituloEnvioDocumentos)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TituloRecuperarClave)
+                    .HasMaxLength(170)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Usuario)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<ConfiguracionImplementacion>(entity =>
+            {
+                entity.HasKey(e => e.IdConfiguracion);
+
+                entity.ToTable("ConfiguracionImplementacion");
+
+                entity.Property(e => e.ApiSoftland)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AppService)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DominioImplementacion)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IpAppService)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TokenApiSoftland)
+                    .HasMaxLength(2000)
                     .IsUnicode(false);
             });
 
@@ -90,6 +234,10 @@ namespace ApiPortal.Dal.Models_Admin
 
                 entity.ToTable("EmpresasPortal");
 
+                entity.Property(e => e.CorreoImplementador)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.FechaInicioContrato).HasColumnType("date");
 
                 entity.Property(e => e.FechaInicioImplementacion).HasColumnType("date");
@@ -97,6 +245,10 @@ namespace ApiPortal.Dal.Models_Admin
                 entity.Property(e => e.FechaTerminoContrato).HasColumnType("date");
 
                 entity.Property(e => e.FechaTerminoImplementacion).HasColumnType("date");
+
+                entity.Property(e => e.NombreImplementador)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.OtImplementacion)
                     .HasMaxLength(50)
@@ -109,6 +261,10 @@ namespace ApiPortal.Dal.Models_Admin
 
                 entity.Property(e => e.Rut)
                     .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TelefonoImplementador)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.IdAreaComercialNavigation)
@@ -165,6 +321,23 @@ namespace ApiPortal.Dal.Models_Admin
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<PermisosImplementacion>(entity =>
+            {
+                entity.HasKey(e => e.IdPermiso);
+
+                entity.ToTable("PermisosImplementacion");
+
+                entity.HasOne(d => d.IdAccesoNavigation)
+                    .WithMany(p => p.PermisosImplementacions)
+                    .HasForeignKey(d => d.IdAcceso)
+                    .HasConstraintName("FK_PermisosImplementacion_AccesoImplementacion");
+
+                entity.HasOne(d => d.IdRolNavigation)
+                    .WithMany(p => p.PermisosImplementacions)
+                    .HasForeignKey(d => d.IdRol)
+                    .HasConstraintName("FK_PermisosImplementacion_RolesPortal");
+            });
+
             modelBuilder.Entity<Plane>(entity =>
             {
                 entity.HasKey(e => e.IdPlan);
@@ -199,18 +372,68 @@ namespace ApiPortal.Dal.Models_Admin
                     .HasMaxLength(2000)
                     .IsUnicode(false);
 
+                entity.Property(e => e.CorreoImplementador)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Dominio)
                     .HasMaxLength(500)
                     .IsUnicode(false);
+
+                entity.Property(e => e.FechaInicioContrato).HasColumnType("date");
+
+                entity.Property(e => e.FechaInicioImplementacion).HasColumnType("date");
+
+                entity.Property(e => e.FechaTerminoContrato).HasColumnType("date");
+
+                entity.Property(e => e.FechaTerminoImplementacion).HasColumnType("date");
 
                 entity.Property(e => e.Identifier)
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.NombreImplementador)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.OtImplementacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("OT_Implementacion");
+
+                entity.Property(e => e.TelefonoImplementador)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.EstadoNavigation)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(d => d.Estado)
+                    .HasConstraintName("FK_Tenant_Empresa_Estado");
+
+                entity.HasOne(d => d.IdAreaComercialNavigation)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(d => d.IdAreaComercial)
+                    .HasConstraintName("FK_Tenant_AreaComercial");
+
                 entity.HasOne(d => d.IdEmpresaNavigation)
                     .WithMany(p => p.Tenants)
                     .HasForeignKey(d => d.IdEmpresa)
                     .HasConstraintName("FK_Tenant_EmpresasPortal");
+
+                entity.HasOne(d => d.IdImplementadorNavigation)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(d => d.IdImplementador)
+                    .HasConstraintName("FK_Tenant_Implementador");
+
+                entity.HasOne(d => d.IdLineaProductoNavigation)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(d => d.IdLineaProducto)
+                    .HasConstraintName("FK_Tenant_LineaProducto");
+
+                entity.HasOne(d => d.IdPlanNavigation)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(d => d.IdPlan)
+                    .HasConstraintName("FK_Tenant_Planes");
             });
 
             modelBuilder.Entity<UsuariosPortal>(entity =>

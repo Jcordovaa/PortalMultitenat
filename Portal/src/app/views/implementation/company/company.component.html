@@ -1,0 +1,2696 @@
+<div class="breadcrumb">
+  <h1>Empresas</h1>
+  <ul>
+    <li><a href="">Implementación</a></li>
+    <li>Empresas</li>
+  </ul>
+</div>
+
+<div class="separator-breadcrumb border-top"></div>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <label for="lastName">Razón Social</label>
+    <input type="text" name="searcher" [(ngModel)]="paginador.search" class="form-control" placeholder="Nombre Empresa">
+  </div>
+  <div class="col-md-4">
+    <label for="lastName">RUT</label>
+    <input type="text" name="rutEmpresa" [(ngModel)]="paginador.rutEmpresa" class="form-control" (blur)="validaRut()"
+      placeholder="RUT Empresa">
+  </div>
+  <div class="col-md-4">
+    <label for="lastName">Estado</label>
+    <select [(ngModel)]="paginador.estado" class="form-control" [value]="selectedEstado" name="tipo" #tipo="ngModel"
+      required>
+      <option value="0">TODOS
+      </option>
+      <option value="1">ASIGNADO
+      </option>
+      <option value="2">EN IMPLEMENTACIÓN
+      </option>
+      <option value="3">EN PRODUCCIÓN
+      </option>
+    </select>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12 form-group mb-4 align-self-end">
+    <button type="button" class="btn btn-primary justify-content-between align-items-center mr-3"
+      style="margin-top: 20px;" (click)="filtrar()">
+      <i class="search-icon i-Magnifi-Glass1 mr-3"></i> <span class="mr-3">Buscar</span></button>
+    <button id="sss2" (click)="limpiarFiltros()" class="btn btn-secondary mr-3" style="margin-top: 20px;"><span><i
+          class="i-Paint-Brush"></i>
+        Limpiar</span></button>
+    <button type="button" class="btn btn-secondary mr-3" style="margin-top: 20px;"
+      (click)="openModal(modalNuevo, null)">
+      <i class="i-Add mt-3 mr-1"></i> Nueva Empresa</button>
+
+  </div>
+</div>
+
+
+
+<!-- DATA LIST -->
+<div class="row">
+
+  <div class="col-md-12  ">
+    <!-- SINGLE LIST ITEM -->
+    <div *ngIf="empresas?.length > 0 " class="material-datatables table-responsive">
+      <table id=" dtDocumentos" class="table table-striped table-bordered table-hover " datatable="ng" width="100%">
+
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>RUT</th>
+            <th>Razón Social</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let empresa of empresas | paginate: config">
+            <td>{{empresa.idEmpresa}}</td>
+            <td>{{empresa.rut}}</td>
+            <td>{{empresa.razonSocial}}</td>
+            <td style="vertical-align:middle;">
+              <div ngbDropdown>
+                <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                  class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                  id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="text-body align-middle mr-25 feather feather-more-vertical">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="12" cy="5" r="1"></circle>
+                    <circle cx="12" cy="19" r="1"></circle>
+                  </svg></button>
+                <div ngbDropdownMenu style="z-index: 99999;">
+                  <button (click)="openModal(modalNuevo, empresa)" style="cursor: pointer;" ngbDropdownItem><i
+                      class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Editar</button>
+                  <button *ngIf="empresa?.tenants.length == 0" (click)="eliminar(empresa.idEmpresa)"
+                    style="cursor: pointer;" ngbDropdownItem><i class="i-Remove-File"
+                      style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
+                  <button (click)="openModalTenants(modalTenants,empresa)" style="cursor: pointer;" ngbDropdownItem><i
+                      class="i-Data-Backup" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Implementaciones
+                    Portal</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- PAGINATION CONTROL -->
+    <div class="col-md-12 mt-3" *ngIf="empresas?.length > 0">
+      <pagination-controls (pageChange)="changePage($event)" maxSize="6" responsive="true" previousLabel=""
+        nextLabel="">
+      </pagination-controls>
+      <!-- <pagination-controls (pageChange)="page = $event" previousLabel="" nextLabel=""></pagination-controls> -->
+    </div>
+  </div>
+
+</div>
+
+<div class="row" *ngIf="empresas?.length == 0 && loaded ">
+  <div class="col-md-12">
+    <ngb-alert class="alert-card text-center" [dismissible]="false">
+      No se encontraron resultados
+    </ngb-alert>
+  </div>
+</div>
+
+<div class="row" *ngIf="esCreacion == 1" style="width: 100%; padding-bottom: 20px;">
+  <div class="col-md-12" style="padding-top: 20px;">
+    <div class="card">
+
+      <div class="card-content" style="margin-left: 10px;">
+        <br>
+        <br>
+        <div class="row">
+          <button type="button" style="margin-left: 20px;" class="btn btn-outline-dark"
+            (click)="volver()">Volver</button>
+        </div>
+        <br>
+        <br>
+
+        <div class="form-group col-md-6 mb-3">
+          <div class="form-group">
+            <label for="picker1">Rut <span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="rutem.errors && (rutem.dirty || rutem.touched) ? 'form-control is-invalid' : 'form-control'"
+                #rutem="ngModel" name="rutem" [(ngModel)]="empresaImplementacion.rut" maxlength="12"
+                (blur)="validaRut()" />
+            </div>
+            <p *ngIf="rutem.errors && (rutem.dirty || rutem.touched)" class="text-danger"
+              style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                RUT es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <form-wizard>
+          <wizard-step [title]="'Datos Cliente'" [isValid]="basicForm.form.valid" (onNext)="onStep1Next($event)">
+            <form #basicForm="ngForm" name="basicForm">
+              <div class="row">
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Rut <span class="camporequerido">*</span></label>
+                    <div class="input-group">
+                      <input type="text"
+                        [ngClass]="rutem.errors && (rutem.dirty || rutem.touched) ? 'form-control is-invalid' : 'form-control'"
+                        #rutem="ngModel" name="rutem" [(ngModel)]="empresaImplementacion.rut" maxlength="12"
+                        (blur)="validaRut()" />
+                    </div>
+                    <p *ngIf="rutem.errors && (rutem.dirty || rutem.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        RUT es requerido.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6">
+
+                  <div class="form-group">
+                    <label for="picker1">Razón Social <span class="camporequerido">*</span></label>
+                    <div class="input-group">
+                      <input type="text"
+                        [ngClass]="razonSocial.errors && (razonSocial.dirty || razonSocial.touched) ? 'form-control is-invalid' : 'form-control'"
+                        name="razonSocial" #razonSocial="ngModel" [(ngModel)]="empresaImplementacion.razonSocial"
+                        maxlength="100">
+                    </div>
+                    <p *ngIf="razonSocial.errors && (razonSocial.dirty || razonSocial.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 12px">
+                      <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                        Razón Social es requerida.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-12">
+
+                  <div class="form-group">
+                    <label for="picker1">Nombre Contacto</label>
+                    <div class="input-group">
+                      <input type="text" [ngClass]="'form-control'" name="nomCon" #nomCon="ngModel" maxlength="100"
+                        [(ngModel)]="contactoCliente.nomCon">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+
+                  <div class="form-group">
+                    <label for="picker1">Teléfono Contacto</label>
+                    <div class="input-group">
+                      <input type="number" [ngClass]="'form-control'" name="telCon" #telCon="ngModel" maxlength="25"
+                        [(ngModel)]="contactoCliente.fonCon">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-12">
+
+                  <div class="form-group">
+                    <label for="picker1">Correo Contacto</label>
+                    <div class="input-group">
+                      <input type="text" [ngClass]="'form-control'" name="email" #email="ngModel" maxlength="100"
+                        [(ngModel)]="empresaImplementacion.email">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </wizard-step>
+
+          <wizard-step [title]="'Contactos'"
+            [isValid]="basicForm.form.valid && empresaImplementacion.contactos.length > 0"
+            (onNext)="onStep2Next($event)">
+            <form #basicForm="ngForm" name="basicForm">
+              <div class="row">
+
+                <div class="form-group col-md-12">
+
+                  <div class="form-group">
+                    <label for="picker1">Nombre</label>
+                    <div class="input-group">
+                      <input type="text" [ngClass]="'form-control'" name="nomCon" #nomCon="ngModel" maxlength="100"
+                        [(ngModel)]="contactoCliente.nomCon">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-12">
+                  <div class="form-group">
+                    <label for="picker1">Cargo</label>
+                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="cargos"
+                      bindLabel="nombreCargo" placeholder="Cargo" #cargo="ngModel" name="cargo"
+                      [(ngModel)]="selectedCargoContacto" bindValue="codCargo">
+                    </ng-select>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+
+                  <div class="form-group">
+                    <label for="picker1">Teléfono</label>
+                    <div class="input-group">
+                      <input type="number" [ngClass]="'form-control'" name="telCon" #telCon="ngModel" maxlength="25"
+                        [(ngModel)]="contactoCliente.fonCon">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+
+                  <div class="form-group">
+                    <label for="picker1">Correo</label>
+                    <div class="input-group">
+                      <input type="text" [ngClass]="'form-control'" name="emailCon" #emailCon="ngModel" maxlength="100"
+                        [(ngModel)]="contactoCliente.email">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" style="align-items: center;  justify-content: center;">
+                <button type="button" class="btn btn-outline-dark" (click)="addContacto()">Agregar</button>
+              </div>
+
+
+
+              <div class="row" *ngIf="empresaImplementacion.contactos.length == 0" style="margin-top: 40px;">
+                <div class="col-md-12">
+                  <ngb-alert class="alert-card text-center" [dismissible]="false">
+                    Debe agregar almenos un contacto
+                  </ngb-alert>
+                </div>
+              </div>
+
+              <div class="row mt-2" style="overflow-y: scroll; max-height:300px;"
+                *ngIf="empresaImplementacion.contactos.length > 0">
+                <div class="table-responsive col-md-12" style=" margin-top: 40px;">
+                  <table class="table table-hover table-bordered">
+                    <thead>
+                      <tr>
+                        <th scope="col" style="width: 20%;">Codigo Auxiliar</th>
+                        <th scope="col" style="width: 20%;">Nombre</th>
+                        <th scope="col" style="width: 100%;">Cargo</th>
+                        <th scope="col" style="width: 50%;">Telefono</th>
+                        <th scope="col" style="width: 50%;">Correo</th>
+                        <th scope="col" style="width: 50%;">Eliminar</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let c of empresaImplementacion.contactos">
+                        <td>{{ c.codAuc }}</td>
+                        <td>{{ c.nomCon }}</td>
+                        <td>{{ c.carCon }}</td>
+                        <td>{{ c.fonCon }}</td>
+                        <td>{{ c.email }}</td>
+                        <td><img (click)="delete(c)" container="body" ngbTooltip="Eliminar" style="cursor: pointer;"
+                            src="assets/images/Icon/Delete.png" width="30" height="30" alt="Eliminar"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </form>
+          </wizard-step>
+
+          <wizard-step [title]="'Datos Implementación'" [isValid]="basicForm2.form.valid"
+            (onNext)="onStep3Next($event)">
+
+            <form #basicForm2="ngForm">
+              <div class="row">
+                <div class="form-group col-md-12">
+                  <div class="form-group">
+                    <label for="picker1">Implementador<span class="camporequerido">*</span></label>
+                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="implementadores"
+                      bindLabel="nombres" required placeholder="Implementador" #imple="ngModel" name="imple"
+                      [(ngModel)]="selectedImplementador" bindValue="idUsuario">
+                    </ng-select>
+                    <p *ngIf="imple.errors && (imple.dirty || imple.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 13px">
+                      Implementador es requerido
+                    </p>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="fechaVencimiento" style="margin-right: 10px; margin-top: 5px;">Fecha Nota de
+                      venta:</label>
+                    <input required type="date" name="fechaVe" class="form-control"
+                      [ngModel]="selectedFechaNv | date:'yyyy-MM-dd'" (ngModelChange)="selectedFechaNv = $event">
+                  </div>
+
+                </div>
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Ticket HelpDesk</label>
+                    <div class="input-group">
+                      <input type="number" [ngClass]="'form-control'" name="thd" #thd="ngModel" required maxlength="100"
+                        [(ngModel)]="empresaImplementacion.nroTicketHD">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Ticket FreshDesk</label>
+                    <div class="input-group">
+                      <input type="number" [ngClass]="'form-control'" name="tfd" #tfd="ngModel" required maxlength="100"
+                        [(ngModel)]="empresaImplementacion.nroTicketFD">
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Area Softland<span class="camporequerido">*</span></label>
+                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="areaSoftland"
+                      bindLabel="nombre" required placeholder="Area Softland" #areaSof="ngModel" name="areaSof"
+                      [(ngModel)]="selectedAreaSoftland" bindValue="idAreaComercial">
+                    </ng-select>
+                    <p *ngIf="areaSof.errors && (areaSof.dirty || areaSof.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 13px">
+                      Area Softland es requerida
+                    </p>
+                  </div>
+                </div>
+
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Plan Contratado<span class="camporequerido">*</span></label>
+                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="planesTol"
+                      bindLabel="nombre" required placeholder="Plan contratado" #plan="ngModel" name="plan"
+                      [(ngModel)]="selectedPlan" bindValue="idPlan">
+                    </ng-select>
+                    <p *ngIf="plan.errors && (plan.dirty || plan.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 13px">
+                      Plan es requerido
+                    </p>
+                  </div>
+                </div>
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="picker1">Linea de Producto<span class="camporequerido">*</span></label>
+                    <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="lineaProducto"
+                      bindLabel="nombre" required placeholder="Linea de producto" #lin="ngModel" name="lin"
+                      [(ngModel)]="selectedLienaProducto" bindValue="idLinea">
+                    </ng-select>
+                    <p *ngIf="lin.errors && (lin.dirty || lin.touched)" class="text-danger"
+                      style="margin-top: 2px; font-size: 13px">
+                      Linea de Producto es requerida
+                    </p>
+                  </div>
+                </div>
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha correo notificación
+                      softland:</label>
+                    <input type="date" name="fechaNotSoft" class="form-control" required
+                      [ngModel]="selectedFechaNotificacionSoftland | date:'yyyy-MM-dd'"
+                      (ngModelChange)="selectedFechaNotificacionSoftland = $event" (change)="changeFechaNotificacion()">
+                  </div>
+                </div>
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha Inicio De
+                      Contrato:</label>
+                    <input type="date" name="fechaIn" class="form-control" required
+                      [ngModel]="selectedFechaInicio | date:'yyyy-MM-dd'"
+                      (ngModelChange)="selectedFechaInicio = $event">
+                  </div>
+                </div>
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="fechaVencimiento" style="margin-right: 10px; margin-top: 5px;">Fecha Fin De
+                      Contrato:</label>
+                    <input type="date" name="fechaVe" class="form-control" required
+                      [ngModel]="selectedFechaTermino | date:'yyyy-MM-dd'"
+                      (ngModelChange)="selectedFechaTermino = $event">
+                  </div>
+                </div>
+
+
+
+
+
+
+                <div class="form-group col-md-6 mb-3">
+                  <div class="form-group">
+                    <label for="fechaInicio" style="margin-right: 10px; margin-top: 5px;">Fecha vencimiento SSL:</label>
+                    <input type="date" name="fechaSSL" class="form-control" required
+                      [ngModel]="selectedFechaVSSL | date:'yyyy-MM-dd'" (ngModelChange)="selectedFechaVSSL = $event">
+                  </div>
+                </div>
+
+
+              </div>
+            </form>
+          </wizard-step>
+
+          <wizard-step [title]="'Final'" (onComplete)="onComplete($event,empresaTol)">
+
+            <div class="text-center mt-4 mb-4">
+              <i class="i-Checked-User text-32 mb-3 text-success d-inline-block"></i>
+              <h5 class="font-weight-light">Se han completado los todos los pasos, presione 'Terminar' para guardar
+                cliente. </h5>
+            </div>
+
+          </wizard-step>
+
+        </form-wizard>
+        <!-- end card -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #modalNuevo let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <form #myForm="ngForm" name="cate-form">
+      <div class="row">
+        <div class="form-group col-md-12">
+
+          <div class="form-group">
+            <label for="picker1">Rut <span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="rutem.errors && (rutem.dirty || rutem.touched) ? 'form-control is-invalid' : 'form-control'"
+                #rutem="ngModel" name="rutem" [(ngModel)]="empresaImplementacion.rut" maxlength="12" placeholder="RUT"
+                (blur)="validaRutEmpresaImplementacion()" />
+            </div>
+            <p *ngIf="rutem.errors && (rutem.dirty || rutem.touched)" class="text-danger"
+              style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="rutem.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                RUT es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1">Razón Social <span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="razonSocial.errors && (razonSocial.dirty || razonSocial.touched) ? 'form-control is-invalid' : 'form-control'"
+                name="razonSocial" #razonSocial="ngModel" [(ngModel)]="empresaImplementacion.razonSocial"
+                maxlength="100" placeholder="Razón Social">
+            </div>
+            <p *ngIf="razonSocial.errors && (razonSocial.dirty || razonSocial.touched)" class="text-danger"
+              style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="razonSocial.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Razón Social es requerida.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1">Tipo de cliente<span class="camporequerido">*</span></label>
+            <ng-select class="customACTD" style="border-radius: 0px !important;" [items]="tiposCliente"
+              bindLabel="nombre" required placeholder="Tipo de cliente" #tipoC="ngModel" name="tipoC"
+              [(ngModel)]="empresaImplementacion.tipoCliente" bindValue="id">
+            </ng-select>
+            <p *ngIf="tipoC.errors && (tipoC.dirty || tipoC.touched)" class="text-danger"
+              style="margin-top: 2px; font-size: 13px">
+              Tipo de cliente es requerido
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'" type="button"
+      class="btn btn-outline-dark" (click)="save()">Guardar</button>
+  </div>
+</ng-template>
+
+
+<ng-template id="modalTenants" #modalTenants let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Implementaciones Portal</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="row">
+      <div class="col d-flex justify-content-center align-items-center">
+        <button type="button" class="btn btn-primary" (click)="nuevaImplementacion(modalNuevoTenant, null)">
+          <i class="i-Add mr-1"></i>Nueva Implementación
+        </button>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 20px;">
+
+      <div class="col-md-12  ">
+        <!-- SINGLE LIST ITEM -->
+        <div *ngIf=" empresaTenants?.tenants.length > 0 " class="material-datatables table-responsive">
+          <table id="dtDocumentos" class="table table-striped table-bordered table-hover " datatable="ng" width="100%">
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Dominio</th>
+                <th>Estado</th>
+                <th>Fecha Inicio Contrato</th>
+                <th>Fecha Termino Contrato</th>
+                <th>Fecha Inicio Implementación</th>
+                <th>Fecha Termino Implementación</th>
+                <th>OT</th>
+                <th>Implementador</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tenant of empresaTenants?.tenants">
+                <td>{{tenant.idTenant}}</td>
+                <td>{{tenant.dominio}}</td>
+                <td>{{tenant?.estadoTenant?.nombre}}</td>
+                <td>{{tenant.fechaInicioContrato | date: 'dd/MM/yyyy' }}</td>
+                <td>{{tenant.fechaTerminoContrato | date: 'dd/MM/yyyy' }}</td>
+                <td>{{tenant.fechaInicioImplementacion | date: 'dd/MM/yyyy' }}</td>
+                <td>{{tenant.fechaTerminoImplementacion | date: 'dd/MM/yyyy' }}</td>
+                <td>{{tenant.otImplementacion}}</td>
+                <td>{{tenant?.implementador?.nombre}}</td>
+                <td style="vertical-align:middle;">
+                  <div ngbDropdown>
+                    <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
+                      class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
+                      id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="text-body align-middle mr-25 feather feather-more-vertical">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="12" cy="5" r="1"></circle>
+                        <circle cx="12" cy="19" r="1"></circle>
+                      </svg></button>
+                    <div ngbDropdownMenu style="z-index: 99999;">
+                      <button (click)="nuevaImplementacion(modalNuevoTenant, tenant)" style="cursor: pointer;"
+                        ngbDropdownItem><i class="i-Receipt"
+                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Editar</button>
+                      <button *ngIf="tenant.estado != 3" (click)="eliminarTenant(tenant)" style="cursor: pointer;"
+                        ngbDropdownItem><i class="i-Remove-File"
+                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 20px;" class="row" *ngIf="empresaTenants?.tenants.length == 0">
+      <div class="col-md-12">
+        <ngb-alert class="alert-card text-center" [dismissible]="false">
+          Sin Implementaciones
+        </ngb-alert>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button style="cursor: pointer;" type="button" class="btn btn-outline-dark"
+      (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>
+
+<ng-template id="modalNuevoTenant" #modalNuevoTenant let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Nueva Implementación</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="form-group col-md-6 mb-3">
+        <div class="form-group">
+          <label for="picker1">Rut</label>
+          <div class="input-group">
+            <input type="text" disabled class="form-control" #rutTenant="ngModel" name="rutTenant"
+              [(ngModel)]="tenant.rutEmpresa" />
+          </div>
+        </div>
+      </div>
+      <div class="form-group col-md-6 mb-3">
+        <div class="form-group">
+          <label for="picker1">Razón Social</label>
+          <div class="input-group">
+            <input type="text" disabled class="form-control" #nombreEmpresaTenant="ngModel" name="nombreEmpresaTenant"
+              [(ngModel)]="tenant.nombreEmpresa" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form-wizard>
+      <wizard-step [title]="'Datos Cliente'" [isValid]="IsStepDatosClienteOk">
+        <form #basicForm="ngForm" name="basicForm">
+          <div class="row">
+
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Area Comercial</label>
+              <select [(ngModel)]="tenant.idAreaComercial" class="form-control" name="areaComImplementacion"
+                #areaComImplementacion="ngModel">
+                <option *ngFor="let e of areasComerciales" [ngValue]="e.idArea">
+                  {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Linea de Producto</label>
+              <select [(ngModel)]="tenant.idLineaProducto" class="form-control" name="lineaPImplementacion"
+                #lineaPImplementacion="ngModel">
+                <option *ngFor="let e of lineasProductos" [ngValue]="e.idLinea">
+                  {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Plan</label>
+              <select [(ngModel)]="tenant.idPlan" class="form-control" name="planImplementacion"
+                #planImplementacion="ngModel">
+                <option *ngFor="let e of planes" [ngValue]="e.idPlan">
+                  {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-6 form-group mb-3">
+              <label for="lastName">Implementador</label>
+              <select [(ngModel)]="tenant.idImplementador" class="form-control" name="impImplementacion"
+                #impImplementacion="ngModel">
+                <option *ngFor="let e of implementadores" [ngValue]="e.idImplementador">
+                  {{ e.nombre }}
+                </option>
+              </select>
+            </div>
+
+
+            <div class="form-group col-md-12 mb-3">
+              <div class="form-group">
+                <label for="picker1">Nombre Contacto Implementación</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" #nomConImplementacion="ngModel" name="nomConImplementacion"
+                    [(ngModel)]="tenant.nombreImplementador" maxlength="150" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Teléfono Contacto Implementación</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" #telConImplementacion="ngModel" name="telConImplementacion"
+                    [(ngModel)]="tenant.telefonoImplementador" maxlength="50" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Correo Contacto Implementación</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" #corrConImplementacion="ngModel" name="corrConImplementacion"
+                    [(ngModel)]="tenant.correoImplementador" (blur)="validaEmail()" maxlength="150" />
+                </div>
+              </div>
+            </div>
+
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Fecha Inicio Contrato</label>
+                <div class="input-group">
+                  <input type="date" name="fechInContrato" class="form-control" required
+                    [ngModel]="tenant.fechaInicioContrato| date:'yyyy-MM-dd'"
+                    (ngModelChange)="tenant.fechaInicioContrato = $event">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Fecha Termino Contrato</label>
+                <div class="input-group">
+                  <input type="date" name="fechTermContrato" class="form-control" required
+                    [ngModel]="tenant.fechaTerminoContrato | date:'yyyy-MM-dd'"
+                    (ngModelChange)="tenant.fechaTerminoContrato = $event">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Fecha Inicio Implementación</label>
+                <div class="input-group">
+                  <input type="date" name="fechInImplementacion" class="form-control" required
+                    [ngModel]="tenant.fechaInicioImplementacion | date:'yyyy-MM-dd'"
+                    (ngModelChange)="tenant.fechaInicioImplementacion = $event">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Fecha Termino Implementación</label>
+                <div class="input-group">
+                  <input type="date" name="fechTermImplementacion" class="form-control" required
+                    [ngModel]="tenant.fechaTerminoImplementacion | date:'yyyy-MM-dd'"
+                    (ngModelChange)="tenant.fechaTerminoImplementacion = $event">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">OT Implementación</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" #OtImplementacion="ngModel" name="OtImplementacion"
+                    [(ngModel)]="tenant.otImplementacion" maxlength="50" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">URL Portal</label>
+                <div class="input-group">
+                  <input type="text" class="form-control"
+                    placeholder="ejemplo: https://portalclientedemo.softlandcloud.cl" #urlTenant="ngModel"
+                    name="urlTenant" [(ngModel)]="tenant.datosImplementacion.configuracionEmpresa.urlPortal"
+                    (blur)="validaUrlPortal()" maxlength="1000" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </wizard-step>
+
+      <wizard-step [title]="'Conexiones'" [isValid]="IsStepConexionesOk" (onNext)="onStepConexionesNext()">
+        <form #basicFormConexion="ngForm" name="basicFormConexion">
+          <div class="row borderRow">
+            <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+              <div class="form-group">
+                <H4>API <i *ngIf="conexionApiValid" class="i-Yes" style="color: green;"></i><i *ngIf="!conexionApiValid"
+                    class="i-Close" style="color: red;"></i></H4>
+              </div>
+            </div>
+            <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="picker1">Area de datos</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" (change)="conexionApiValid = false" #areaDatosTenant="ngModel"
+                    name="areaDatosTenant" [(ngModel)]="tenant.datosImplementacion.apiSoftland.areaDatos"
+                    (blur)="generaToken()" maxlength="100" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="picker1">URL API</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" (change)="conexionApiValid = false" (blur)="validaUrlApi()"
+                    #urlApiTenant="ngModel" placeholder="ejemplo: https://apiportal.softlandcloud.cl/api/"
+                    name="urlApiTenant" [(ngModel)]="tenant.datosImplementacion.apiSoftland.url" maxlength="500" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-12 mb-3">
+              <div class="form-group">
+                <label for="picker1">API Key</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" (change)="conexionApiValid = false" #apiKeyTenant="ngModel"
+                    name="apiKeyTenant" [(ngModel)]="tenant.datosImplementacion.apiSoftland.token" maxlength="500" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+              <div class="form-group">
+                <button type="button" class="btn btn-primary justify-content-between align-items-center mr-3"
+                  style="margin-top: 20px;" (click)="validarConexionApi()">
+                  Validar Conexión</button>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="row borderRow" style="margin-top: 20px;">
+            <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+              <div class="form-group">
+                <H4>Base de datos portal <i *ngIf="conexionBaseDatosValid" class="i-Yes" style="color: green;"></i><i
+                    *ngIf="!conexionBaseDatosValid" class="i-Close" style="color: red;"></i></H4>
+              </div>
+            </div>
+            <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="picker1">Servidor</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" (change)="conexionBaseDatosValid = false"
+                    #servidorPortal="ngModel" name="servidorPortal"
+                    [(ngModel)]="tenant.datosImplementacion.servidorPortal" maxlength="100" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+              <div class="form-group">
+                <label for="picker1">Base de Datos</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" (change)="conexionBaseDatosValid = false" #bdPortal="ngModel"
+                    name="bdPortal" [(ngModel)]="tenant.datosImplementacion.baseDatosPortal" maxlength="100" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Usuario</label>
+                <div class="input-group">
+                  <input type="text" (change)="conexionBaseDatosValid = false" class="form-control"
+                    #usuarioPortal="ngModel" name="usuarioPortal"
+                    [(ngModel)]="tenant.datosImplementacion.usuarioBaseDatosPortal" maxlength="100" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6 mb-3">
+              <div class="form-group">
+                <label for="picker1">Clave</label>
+                <div class="input-group">
+                  <input class="form-control" (change)="conexionBaseDatosValid = false" id="pass" #clavePortal="ngModel"
+                    name="clavePortal" [(ngModel)]="tenant.datosImplementacion.claveBaseDatosPortal" maxlength="100"
+                    type="password">
+                  <span *ngIf="!showViewPasswordButton" class="password-toggle" (click)="verPass()">
+                    <img [src]="icon">
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+              <div class="form-group">
+                <button type="button" class="btn btn-primary justify-content-between align-items-center mr-3"
+                  style="margin-top: 20px;" (click)="validaConexionBaseDatos()">
+                  Validar Conexión</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </wizard-step>
+
+      <wizard-step [title]="'Configuración Portal'" [isValid]="IsStepConfiguracionPortalOk">
+        <div class="row borderRow">
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+            <div class="form-group">
+              <H4>PORTAL</H4>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3">
+            <div class="form-group">
+              <label for="picker1">Cuentas Contables</label>
+              <div class="input-group">
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContables"
+                  bindLabel="nombre" placeholder="Cuentas Contables" #cc="ngModel" name="cc"
+                  [(ngModel)]="selectedCuentasContables" bindValue="codigo" [multiple]="true" [closeOnSelect]="true">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3">
+            <div class="form-group">
+              <label for="picker1">Tipos de documentos</label>
+              <div class="input-group">
+                <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
+                  bindLabel="desDoc" placeholder="Tipos de documentos" #td="ngModel" name="td"
+                  [(ngModel)]="selectedTiposDocumentos" bindValue="codDoc" [multiple]="true" [closeOnSelect]="true">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3">
+            <div class="form-group">
+              <label for="picker1">Glosa Comprobante</label>
+              <div class="input-group">
+                <input type="text" aria-describedby="basic-addon2" class="form-control"
+                  placeholder="Glosa Comprobante Contable" #gComprobante="ngModel" name="gComprobante"
+                  [(ngModel)]="tenant.datosImplementacion.configuracionPagoCliente.glosaComprobante" />
+                <div class="input-group-append">
+                  <span class="input-group-text" id="basic-addon2">
+                    [Tipo de documento] [Folio]
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3">
+            <div class="form-group">
+              <label for="picker1">Cantidad Compras Dashboard</label>
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Cantidad compras" #cantidad="ngModel"
+                  name="cantidad" [(ngModel)]="tenant.datosImplementacion.configuracionPortal.cantidadUltimasCompras" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3">
+            <div class="form-group">
+              <label for="picker1">Cantidad Días Documentos Por
+                Vencer</label>
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Cantidad Días" #cantidadDias="ngModel"
+                  name="cantidadDias" [(ngModel)]="tenant.datosImplementacion.configuracionPagoCliente.diasPorVencer" />
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
+            <div class="input-group">
+              <label class="switch switch-success mr-3">
+                <span class="size">Mostrar Contactos en Perfil </span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.muestraContactosPerfil"
+                  type="checkbox" id="exampleCheck4" name="exampleCheck4" />
+
+                <span class="slider"></span>
+              </label>
+
+
+            </div>
+          </div>
+
+          <div class="col-md-5 form-group mb-3" style="margin-top: 20px;">
+            <div class="input-group">
+              <label class="switch switch-success mr-3">
+                <span class="size">Permite Exportar a Excel </span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.permiteExportarExcel" type="checkbox"
+                  id="exampleCheck6" name="exampleCheck6" />
+
+                <span class="slider"></span>
+              </label>
+
+
+            </div>
+          </div>
+
+          <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
+
+            <div class="input-group">
+              <label class="switch switch-success mr-3">
+                <span class="size">Habilitar Paga Tu Cuenta</span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido" type="checkbox"
+                  id="exampleCheck5" name="exampleCheck5" />
+                <span class="slider"></span>
+              </label>
+
+            </div>
+          </div>
+
+
+          <div class="col-md-5 form-group mb-3" style="margin-top: 20px;">
+            <div class="input-group">
+              <label class="switch switch-success mr-3">
+                <span class="size" style="color: grey;"
+                  *ngIf="!tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido">Habilitar Búsqueda por
+                  Documento</span>
+                <span class="size" *ngIf="tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido">Habilitar
+                  Búsqueda por
+                  Documento</span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.utilizaDocumentoPagoRapido"
+                  type="checkbox" [disabled]="!tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido"
+                  id="exampleCheck50" name="exampleCheck50" />
+
+                <span class="slider" style="background-color: grey;"
+                  *ngIf="!tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido"></span>
+                <span *ngIf="tenant.datosImplementacion.configuracionPortal.habilitaPagoRapido" class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
+            <div class="input-group">
+              <label class="switch switch-success mr-3">
+                <span class="size" style="width: 20px;">Permite abono parcial </span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionPortal.permiteAbonoParcial" type="checkbox"
+                  id="exampleCheck7" name="exampleCheck7" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row borderRow" style="margin-top: 20px;">
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+            <div class="form-group">
+              <H4>PASARELAS DE PAGO</H4>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="row borderRow">
+
+              <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+                <div class="form-group">
+                  <H4>TRANSBANK</H4>
+                </div>
+              </div>
+
+              <div class="col-md-6 form-group mb-3" style="margin-top: 15px;">
+
+                <div class="input-group">
+                  <label class="switch switch-success mr-3">
+                    <span class="size">Habilitar</span>
+                    <input [(ngModel)]="tenant.datosImplementacion.utilizaTransbank" type="checkbox"
+                      id="exampleCheckTransbank" name="exampleCheckTransbank" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+
+              <div *ngIf="tenant.datosImplementacion.utilizaTransbank" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Ambiente</label>
+                  <div class="input-group">
+                    <select [(ngModel)]="tenant.datosImplementacion.ambienteTransbank"
+                      (change)="cambiaAmbienteTbk(pasarela)" class="form-control" name="ambiente2" #ambiente2="ngModel"
+                      required>
+                      <option [ngValue]="0">
+                        Integración
+                      </option>
+                      <option [ngValue]="1">
+                        Producción
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="tenant.datosImplementacion.utilizaTransbank" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Código de Comercio</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" #codigoComercioTbk="ngModel" required maxlength="5000"
+                      name="codigoComercioTbk" [(ngModel)]="tenant.datosImplementacion.codigoComercioTransbank" />
+                  </div>
+                </div>
+              </div>
+
+
+              <div *ngIf="tenant.datosImplementacion.utilizaTransbank" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Api Key</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" #apiKeyTbk="ngModel" required maxlength="150"
+                      name="apiKeyTbk" [(ngModel)]="tenant.datosImplementacion.apiKeyTransbank" />
+                    <span class="password-toggle" (click)="verApiKeyTbk()">
+                      <img [src]="iconApiKey">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="tenant.datosImplementacion.utilizaTransbank" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Documento Contable</label>
+                  <div class="input-group">
+                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
+                      bindLabel="desDoc" #tdTbk="ngModel" name="tdTbk"
+                      [(ngModel)]="tenant.datosImplementacion.documentoContableTransbank" bindValue="codDoc"
+                      [multiple]="false" [closeOnSelect]="true">
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="tenant.datosImplementacion.utilizaTransbank" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Cuenta Contable</label>
+                  <div class="input-group">
+                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContablesPago"
+                      bindLabel="nombre" placeholder="Cuentas Contables" #ccTbk="ngModel" name="ccTbk"
+                      [(ngModel)]="tenant.datosImplementacion.cuentaContableTransbank" bindValue="codigo"
+                      [multiple]="false" [closeOnSelect]="true">
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-md-12">
+            <div class="row borderRow" style="margin-top: 20px;">
+
+              <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+                <div class="form-group">
+                  <H4>VIRTUAL POS</H4>
+                </div>
+              </div>
+
+              <div class="col-md-12 form-group mb-3" style="margin-top: 15px;">
+
+                <div class="input-group">
+                  <label class="switch switch-success mr-3">
+                    <span class="size">Habilitar</span>
+                    <input [(ngModel)]="tenant.datosImplementacion.utilizaVirtualPos" type="checkbox"
+                      id="exampleCheckTransbank" name="exampleCheckTransbank" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div *ngIf="tenant.datosImplementacion.utilizaVirtualPos" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Documento Contable</label>
+                  <div class="input-group">
+                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="tiposDocumentos"
+                      bindLabel="desDoc" #tdVpos="ngModel" name="tdVpos"
+                      [(ngModel)]="tenant.datosImplementacion.documentoContableVirtualPos" bindValue="codDoc"
+                      [multiple]="false" [closeOnSelect]="true">
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="tenant.datosImplementacion.utilizaVirtualPos" class="form-group col-md-6 mb-3">
+                <div class="form-group">
+                  <label for="picker1">Cuenta Contable</label>
+                  <div class="input-group">
+                    <ng-select class="customAC" style="border-radius: 40px !important;" [items]="cuentasContablesPago"
+                      bindLabel="nombre" placeholder="Cuentas Contables" #ccVpos="ngModel" name="ccVpos"
+                      [(ngModel)]="tenant.datosImplementacion.cuentaContableVirtualPos" bindValue="codigo"
+                      [multiple]="false" [closeOnSelect]="true">
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+
+      </wizard-step>
+
+
+      <wizard-step [title]="'Configuración Correo'" [isValid]="IsStepConfiguracionCorreoOk">
+        <div class="row borderRow">
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+            <div class="form-group">
+              <H4>ENVÍO DE CORREOS</H4>
+            </div>
+          </div>
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Area de datos</label>
+              <div class="input-group">
+                <input type="text" class="form-control" (change)="conexionApiValid = false" #areaDatosTenant="ngModel"
+                  name="areaDatosTenant" [(ngModel)]="tenant.datosImplementacion.apiSoftland.areaDatos"
+                  (blur)="generaToken()" maxlength="100" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Servidor SMTP</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Servidor SMTP" #smtp="ngModel" required
+                  maxlength="50" name="smtp" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.smtpServer" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Usuario</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Usuario" #user="ngModel" required maxlength="50"
+                  name="user" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.usuario" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Clave</label>
+              <div class="input-group">
+                <input type="password" class="form-control" placeholder="Clave" #pass="ngModel" required maxlength="150"
+                  name="claveCorreoPortal" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.clave" />
+                <span class="password-toggle" (click)="verPassCorreo()">
+                  <img [src]="iconClaveCorreo">
+                </span>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Correo Origen</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Usuario" #correoOrigen="ngModel" required
+                  maxlength="100" name="correoOrigen"
+                  [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.correoOrigen"
+                  (blur)="validaEmailConfiguracionCorreo()" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Nombre Origen</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Correo Origen" #nombreOrigen="ngModel" required
+                  maxlength="100" name="nombreOrigen"
+                  [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.nombreCorreos" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Puerto</label>
+              <div class="input-group">
+                <input type="number" class="form-control" placeholder="Puerto" #port="ngModel" required maxlength="150"
+                  name="port" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.puerto" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label class="switch switch-success mr-3">
+                <span>SSL</span>
+                <input [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.ssl" type="checkbox"
+                  id="exampleCheckSSL" name="exampleCheckSSL" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Notificación Pago</label>
+              <div class="input-group">
+                <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
+                  secondaryPlaceholder="Ingrese correo y presione enter" (onAdd)="onAdd($event, 1)" theme='primary'
+                  [placeholder]="'Inserte correo'"></tag-input>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
+            <div class="form-group">
+              <label for="picker1">Asunto Correo Pago Cliente</label>
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" maxlength="150"
+                  name="asuntoPago" [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoPagoCliente" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row borderRow" style="margin-top: 20px;">
+          <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
+            <div class="form-group">
+              <H4>DISEÑO DE CORREOS</H4>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="col-md-10">
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(1)">
+                      GENERAL <i class="arrowIcon"><img
+                          [src]="general == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="general == 1">
+                      <p>En esta sección podrá configurar el logo que se visualizarán los correos y el color de los
+                        botones si éste tuviera</p>
+                      <div class="form-group col-md-8 mb-3">
+                        <label for="picker1">Color Botones</label>
+                        <div class="input-group">
+                          <!--FCA 08-06-2022-->
+                          <div class="circle" style="margin-top: 5px;"
+                            [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionCorreo.colorBoton}">
+                            <!-- <content></content> -->
+                            <!-- content is now deprecated -->
+                          </div>
+                          <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                            required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                            [(colorPicker)]="config.colorBoton" class="form-control" (blur)="verificaColor()"
+                            name="colorBtn" #colorBtn="ngModel"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.colorBoton"
+                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color principal"
+                            [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          <!-- <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasic, 10)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                            width="22" height="22"> -->
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Logo (172px X 53px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPortada"
+                            (change)="onChange($event)" (change)="preview($event, 1)" name="imagen">
+                          <!-- <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                            (click)="openInfoModal(modalBasic, 14)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                            width="22" height="22"> -->
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenLogoPortada != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenLogoPortada.url" alt="" width="180"
+                            height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImg()" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(2)">
+                      PAGOS <i class="arrowIcon"><img
+                          [src]="pagos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="pagos == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                        notificación para los clientes que realicen un pago a través del portal.</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoPago="ngModel" required
+                            maxlength="170" name="asuntoPago"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoPagoCliente" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloPago="ngModel" required
+                            maxlength="170" name="tituloPago"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloPagoCliente" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajePago="ngModel" required
+                            maxlength="500" name="mensajePago"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoPagoCliente"></textarea>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(3)">
+                      ENVÍO DE ACCESO <i class="arrowIcon"><img
+                          [src]="activacion == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="activacion == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de acceso.
+                      </p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoActivacion="ngModel"
+                            required maxlength="170" name="asuntoActivacion"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoAccesoCliente" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloActivacion="ngModel"
+                            required maxlength="170" name="tituloActivacion"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloAccesoCliente" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajePago="ngModel" required
+                            maxlength="500" name="mensajePago"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoMensajeActivacion"></textarea>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(4)">
+                      ACTUALIZACIÓN DE DATOS CLIENTE<i class="arrowIcon"><img
+                          [src]="cambioDatos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="cambioDatos == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                        notificación cuando el cliente actualice sus datos en la pantalla Mi Perfil.</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoModificacion="ngModel"
+                            required maxlength="170" name="asuntoModificacion"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoCambioDatos" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloCambioDatos="ngModel"
+                            required maxlength="170" name="tituloCambioDatos"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloCambioDatos" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeCambioDatos="ngModel" required
+                            maxlength="500" name="mensajeCambioDatos"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCambioDatos"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(5)">
+                      ACTUALIZACIÓN DE CLAVE<i class="arrowIcon"><img
+                          [src]="actualizaClave == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="actualizaClave == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                        notificación cuando el cliente actualice su clave en la pantalla Mi Perfil.</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoCambioClave="ngModel"
+                            required maxlength="170" name="asuntoCambioClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoCambioClave" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloCambioClave="ngModel"
+                            required maxlength="170" name="tituloCambioClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloCambioClave" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeCambioClave="ngModel" required
+                            maxlength="500" name="mensajeCambioClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCambioClave"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(7)">
+                      RECUPERAR CLAVE<i class="arrowIcon"><img
+                          [src]="recuperaClave == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="recuperaClave == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos de
+                        notificación cuando el cliente realice la recuperación de clave.</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoRecuperaClave="ngModel"
+                            required maxlength="170" name="asuntoRecuperaClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoRecuperarClave" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloRecuperaClave="ngModel"
+                            required maxlength="170" name="tituloRecuperaClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloRecuperarClave" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeRecuperaClave="ngModel" required
+                            maxlength="500" name="mensajeRecuperaClave"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoRecuperarClave"></textarea>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(8)">
+                      ENVÍO DE DOCUMENTOS<i class="arrowIcon"><img
+                          [src]="envioDocumentos == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="envioDocumentos == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los correos cuando se
+                        envíen documentos asociados a nota de venta y facturas</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoDocumentos="ngModel"
+                            required maxlength="170" name="asuntoDocumentos"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoEnvioDocumentos" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloDocumentos="ngModel"
+                            required maxlength="170" name="tituloDocumentos"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloEnvioDocumentos" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeDocumentos="ngModel" required
+                            maxlength="500" name="mensajeDocumentos"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoEnvioDocumentos"></textarea>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(11)">
+                      ENVÍO COBRANZA<i class="arrowIcon"><img
+                          [src]="cobranza == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="cobranza == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en las cobranzas</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoCobranza="ngModel"
+                            required maxlength="170" name="asuntoCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoCobranza" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloCobranza="ngModel"
+                            required maxlength="170" name="tituloCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloCobranza" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeCobranza="ngModel" required
+                            maxlength="500" name="mensajeCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoCobranza"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(12)">
+                      ENVÍO PRE COBRANZA<i class="arrowIcon"><img
+                          [src]="preCobranza == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="preCobranza == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en las pre cobranzas</p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoPreCobranza="ngModel"
+                            required maxlength="170" name="asuntoPreCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoPreCobranza" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloPreCobranza="ngModel"
+                            required maxlength="170" name="tituloPreCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloPreCobranza" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajePreCobranza="ngModel" required
+                            maxlength="500" name="mensajePreCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoPreCobranza"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(13)">
+                      ENVÍO ESTADO DE CUENTA<i class="arrowIcon"><img
+                          [src]="estadoCuenta == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="estadoCuenta == 1">
+                      <p>En esta sección podrá configurar el asunto, título y mensaje enviado en los estados de cuenta
+                      </p>
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Asunto</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Asunto" #asuntoEstadoCuenta="ngModel"
+                            required maxlength="170" name="asuntoEstadoCuenta"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.asuntoEstadoCuenta" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Título</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Título" #tituloEstadoCuenta="ngModel"
+                            required maxlength="170" name="tituloEstadoCuenta"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.tituloEstadoCuenta" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-12 mb-3">
+                        <label for="picker1">Mensaje</label>
+                        <div class="input-group">
+                          <textarea class="form-control" placeholder="Mensaje" #mensajeEstadoCuenta="ngModel" required
+                            maxlength="500" name="mensajeEstadoCuenta"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionCorreo.textoEstadoCuenta"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </wizard-step>
+
+      <wizard-step [title]="'Diseño Portal'" [isValid]="IsStepConfiguracionDisenoOk">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card mb-4">
+              <div class="card-body">
+
+
+                <div class="col-md-10">
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(1)">
+                      INICIO <i class="arrowIcon"><img
+                          [src]="inicioDeSesion == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="inicioDeSesion == 1">
+                      <div class="form-group col-md-8 mb-3">
+                        <label for="picker1">Color Fondo</label>
+                        <div class="input-group">
+                          <!--FCA 08-06-2022-->
+                          <div class="circle" style="margin-top: 5px;"
+                            [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoPortada}">
+                            <!-- <content></content> -->
+                            <!-- content is now deprecated -->
+                          </div>
+                          <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                            required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                            [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPortada"
+                            cpPosition="bottom"
+                            [ngClass]="colorPrin.errors && (colorPrin.dirty || colorPrin.touched) ? 'form-control is-invalid' : 'form-control'"
+                            (blur)="verificaColorConfigDiseno(1)" name="colorPrin" #colorPrin="ngModel"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPortada"
+                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color principal"
+                            [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-8 mb-3">
+                        <label for="picker1">Color Botón Paga Tu Cuenta</label>
+                        <div class="input-group">
+                          <!--FCA 17-05-2022-->
+                          <div class="circle" style="margin-top: 5px;"
+                            [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonPagoRapido}">
+                          </div> <!--FCA 08-06-2022-->
+                          <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                            required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                            [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagoRapido"
+                            [ngClass]="colorSec.errors && (colorSec.dirty || colorSec.touched) ? 'form-control is-invalid' : 'form-control'"
+                            (blur)="verificaColorConfigDiseno(2)" name="colorSec" #colorSec="ngModel"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagoRapido"
+                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                            [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-8 mb-3">
+                        <label for="picker1">Color Botón Inicio de Sesión</label>
+                        <div class="input-group">
+                          <!--FCA 17-05-2022-->
+                          <div class="circle" style="margin-top: 5px;"
+                            [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonInicioSesion}">
+                          </div> <!--FCA 08-06-2022-->
+                          <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                            required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                            [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonInicioSesion"
+                            [ngClass]="colorbtnInicio.errors && (colorbtnInicio.dirty || colorbtnInicio.touched) ? 'form-control is-invalid' : 'form-control'"
+                            (blur)="verificaColorConfigDiseno(3)" name="colorbtnInicio" #colorbtnInicio="ngModel"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonInicioSesion"
+                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                            [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-8 mb-3">
+                        <label for="picker1">Color Botón Pagar</label>
+                        <div class="input-group">
+                          <!--FCA 17-05-2022-->
+                          <div class="circle" style="margin-top: 5px;"
+                            [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonPagar}">
+                          </div> <!--FCA 08-06-2022-->
+                          <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                            required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                            [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagar"
+                            [ngClass]="colorbtnPagar.errors && (colorbtnPagar.dirty || colorbtnPagar.touched) ? 'form-control is-invalid' : 'form-control'"
+                            (blur)="verificaColorConfigDiseno(4)" name="colorbtnPagar" #colorbtnPagar="ngModel"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonPagar"
+                            pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                            [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 form-group">
+                        <label for="firstName2">Texto Descargar Cobranza</label>
+                        <div class="input-group">
+                          <input type="text" maxlength="1000" class="form-control"
+                            placeholder="Texto Descargar Cobranza" #msjDescargarCobranza="ngModel"
+                            name="msjDescargarCobranza"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoDescargaCobranza" />
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Logo (200px X 56px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPortada2"
+                            (change)="onChangeConfigDiseno($event, 1)" (change)="previewConfigDiseno($event, 1)"
+                            name="imagenLogoPortada2">
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenLogoPortadaDiseno != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenLogoPortadaDiseno.url" alt="" width="180"
+                            height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImgConfigDiseno(1)" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Imagen Portada (1710px X 796px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImagePortada"
+                            (change)="onChangeConfigDiseno($event, 2)" (change)="previewConfigDiseno($event, 2)"
+                            name="imagen">
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenPortada != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenPortada.url" alt="" width="180" height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImgConfigDiseno(2)" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(2)">
+                      SIDE BAR <i class="arrowIcon"><img
+                          [src]="sidebar == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="sidebar == 1">
+
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Logo Principal (200px X 56px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoPrincipalSidebar"
+                            (change)="onChangeConfigDiseno($event, 3)" (change)="previewConfigDiseno($event, 3)"
+                            name="imagen">
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenLogoPrincipalSidebar != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenLogoPrincipalSidebar.url" alt="" width="180"
+                            height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImgConfigDiseno(3)" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Logo Secundario (40px X 40px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImageLogoSecundarioSidebar"
+                            (change)="onChangeConfigDiseno($event, 4)" (change)="previewConfigDiseno($event, 4)"
+                            name="imagen">
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenLogoSecundarioSidebar != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenLogoSecundarioSidebar.url" alt="" width="180"
+                            height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImgConfigDiseno(4)" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(3)">
+                      PAGA TU CUENTA<i class="arrowIcon"><img
+                          [src]="pagoRapido == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="pagoRapido == 1">
+
+                      <div class="col-md-12 form-group">
+                        <label for="firstName2">Mensaje Cobranza Expirada</label>
+                        <div class="input-group">
+                          <input type="text" maxlength="1000" class="form-control"
+                            placeholder="Mensaje Cobranza Expirada" #msjCobranzaExpirada="ngModel"
+                            name="msjCobranzaExpirada"
+                            [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoCobranzaExpirada" />
+                        </div>
+                      </div>
+
+
+                      <div class="col-md-12 form-group">
+                        <label for="picker1">Banner (2.000px X 150px)</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" placeholder="Ruta"
+                            accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerPagoRapido"
+                            (change)="onChangeConfigDiseno($event, 5)" (change)="previewConfigDiseno($event, 5)" name="imagen">
+                        </div>
+                      </div>
+
+                      <div *ngIf="urlImagenBannerPagoRapido != null" class="row mt-4 justify-content-center">
+                        <div class="card card-ecommerce-2 o-hidden mb-4">
+                          <img class="card-img-top" [src]="urlImagenBannerPagoRapido.url" alt="" width="180"
+                            height="180px" />
+                          <div class="row">
+                            <div class="card-action">
+                              <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                (click)="deletePreviewImgConfigDiseno(5)" class="icon i-Close-Window"></i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(4)">
+                      DASHBOARD CLIENTE <i class="arrowIcon"><img
+                          [src]="dashboardCliente == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="dashboardCliente == 1">
+                      <div class="form-group col-md-12 mb-3">
+                        <div class="col-md-12 form-group">
+                          <label for="firstName2">Texto Aviso</label>
+                          <div class="input-group">
+                            <input type="text" maxlength="1000" class="form-control" placeholder="Texto Aviso"
+                              #txtAviso="ngModel" name="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.textoNoConsideraTodaDeuda" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Documentos Pendientes</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoDocumentos}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoDocumentos"
+                              [ngClass]="colorFondoP.errors && (colorFondoP.dirty || colorFondoP.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(5)" name="colorFondoP" #colorFondoP="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoDocumentos"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Texto Documentos Pendientes</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorTextoPendientes}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPendientes"
+                              [ngClass]="colorTextoPendientes.errors && (colorTextoPendientes.dirty || colorTextoPendientes.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(6)" name="colorTextoPendientes"
+                              #colorTextoPendientes="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPendientes"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Documentos Vencidos</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoVencidos}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoVencidos"
+                              [ngClass]="colorFondoVencidos.errors && (colorFondoVencidos.dirty || colorFondoVencidos.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(7)" name="colorFondoVencidos"
+                              #colorFondoVencidos="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoVencidos"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Texto Documentos Vencidos</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorTextoVencidos}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorTextoVencidos"
+                              [ngClass]="colorTextoVencidos.errors && (colorTextoVencidos.dirty || colorTextoVencidos.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(8)" name="colorTextoVencidos"
+                              #colorTextoVencidos="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoVencidos"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Documentos Por Vencer</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoPorVencer}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPorVencer"
+                              [ngClass]="colorFondoPorVencer.errors && (colorFondoPorVencer.dirty || colorFondoPorVencer.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(9)" name="colorFondoPorVencer"
+                              #colorFondoPorVencer="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPorVencer"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Texto Documentos Por Vencer</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorTextoPorVencer}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPorVencer"
+                              [ngClass]="colorTextoPorVencer.errors && (colorTextoPorVencer.dirty || colorTextoPorVencer.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(10)" name="colorTextoPorVencer"
+                              #colorTextoPorVencer="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoPorVencer"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Selección Recuadro Documentos</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorSeleccionDocumentos}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorSeleccionDocumentos"
+                              [ngClass]="colorSeleccionDocumentos.errors && (colorSeleccionDocumentos.dirty || colorSeleccionDocumentos.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(11)" name="colorSeleccionDocumentos"
+                              #colorSeleccionDocumentos="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorSeleccionDocumentos"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Fondo Últimas Compras</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoUltimasCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoUltimasCompras"
+                              [ngClass]="colorFondoUltimasCompras.errors && (colorFondoUltimasCompras.dirty || colorFondoUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(12)" name="colorFondoUltimasCompras"
+                              #colorFondoUltimasCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoUltimasCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Detalle Últimas Compras</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonUltimasCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonUltimasCompras"
+                              [ngClass]="colorBotonUltimasCompras.errors && (colorBotonUltimasCompras.dirty || colorBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(13)" name="colorBotonUltimasCompras"
+                              #colorBotonUltimasCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonUltimasCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Selección Botón Detalle Últimas
+                            Compras</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorHoverBotonUltimasCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonUltimasCompras"
+                              [ngClass]="colorHoverBotonUltimasCompras.errors && (colorHoverBotonUltimasCompras.dirty || colorHoverBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(14)" name="colorHoverBotonUltimasCompras"
+                              #colorHoverBotonUltimasCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonUltimasCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Texto Botón Detalle Últimas
+                            Compras</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorTextoBotonUltimasCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorTextoBotonUltimasCompras"
+                              [ngClass]="colorTextoBotonUltimasCompras.errors && (colorTextoBotonUltimasCompras.dirty || colorTextoBotonUltimasCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(15)" name="colorTextoBotonUltimasCompras"
+                              #colorTextoBotonUltimasCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorTextoBotonUltimasCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Imagen Últimas Compras (60px X 74px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageUltimasCompras"
+                              (change)="onChangeConfigDiseno($event, 6)" (change)="previewConfigDiseno($event, 6)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenUltimasCompras != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenUltimasCompras.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(6)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(5)">
+                      MIS COMPRAS <i class="arrowIcon"><img
+                          [src]="misCompras == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="misCompras == 1">
+                      <div class="form-group col-md-12 mb-3">
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Compras Facturadas</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoMisCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoMisCompras"
+                              [ngClass]="colorFondoMisCompras.errors && (colorFondoMisCompras.dirty || colorFondoMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(16)" name="colorFondoMisCompras"
+                              #colorFondoMisCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoMisCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Compras Pendientes Por
+                            Facturar</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoPendientesMisCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPendientesMisCompras"
+                              [ngClass]="colorFondoPendientesMisCompras.errors && (colorFondoPendientesMisCompras.dirty || colorFondoPendientesMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(17)" name="colorFondoPendientesMisCompras"
+                              #colorFondoPendientesMisCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoPendientesMisCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Productos Comprados</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoProductosMisCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoProductosMisCompras"
+                              [ngClass]="colorFondoProductosMisCompras.errors && (colorFondoProductosMisCompras.dirty || colorFondoProductosMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(18)" name="colorFondoProductosMisCompras"
+                              #colorFondoProductosMisCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoProductosMisCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Recuadro Guías Pendientes de
+                            Facturar</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorFondoGuiasMisCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorFondoGuiasMisCompras"
+                              [ngClass]="colorFondoGuiasMisCompras.errors && (colorFondoGuiasMisCompras.dirty || colorFondoGuiasMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(19)" name="colorFondoGuiasMisCompras"
+                              #colorFondoGuiasMisCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorFondoGuiasMisCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Texto Recuadros Mis Compras</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorIconosMisCompras}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorIconosMisCompras"
+                              [ngClass]="colorIconosMisCompras.errors && (colorIconosMisCompras.dirty || colorIconosMisCompras.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(20)" name="colorIconosMisCompras"
+                              #colorIconosMisCompras="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorIconosMisCompras"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Buscar</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonBuscar}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonBuscar"
+                              [ngClass]="colorBotonBuscar.errors && (colorBotonBuscar.dirty || colorBotonBuscar.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(21)" name="colorBotonBuscar" #colorBotonBuscar="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonBuscar"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Icono Mis Compras (72px X 72px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoMisCompras"
+                              (change)="onChangeConfigDiseno($event, 7)" (change)="previewConfigDiseno($event, 7)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenMisCompras != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenMisCompras.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(7)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Banner Mis Compras (2.000px X 150px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerMisCompras"
+                              (change)="onChangeConfigDiseno($event, 8)" (change)="previewConfigDiseno($event, 8)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenBannerMisCompras != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenBannerMisCompras.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(8)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card mb-4 margenDesktop">
+                    <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccionConfigDiseno(6)">
+                      MI PERFIL <i class="arrowIcon"><img
+                          [src]="miPerfil == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
+                    </div>
+                    <div class="card-body" *ngIf="miPerfil == 1">
+                      <div class="form-group col-md-12 mb-3">
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Modificar Datos</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonModificarPerfil}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonModificarPerfil"
+                              [ngClass]="colorBotonModificarPerfil.errors && (colorBotonModificarPerfil.dirty || colorBotonModificarPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(22)" name="colorBotonModificarPerfil"
+                              #colorBotonModificarPerfil="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonModificarPerfil"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Cambio de Clave</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonClavePerfil}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonClavePerfil"
+                              [ngClass]="colorBotonClavePerfil.errors && (colorBotonClavePerfil.dirty || colorBotonClavePerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(23)" name="colorBotonClavePerfil"
+                              #colorBotonClavePerfil="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonClavePerfil"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Seleccion Botón</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorHoverBotonesPerfil}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonesPerfil"
+                              [ngClass]="colorHoverBotonesPerfil.errors && (colorHoverBotonesPerfil.dirty || colorHoverBotonesPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(25)" name="colorHoverBotonesPerfil"
+                              #colorHoverBotonesPerfil="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorHoverBotonesPerfil"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Cancelar pop up</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonCancelarModalPerfil}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonCancelarModalPerfil"
+                              [ngClass]="colorBotonCancelarModalPerfil.errors && (colorBotonCancelarModalPerfil.dirty || colorBotonCancelarModalPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(26)" name="colorBotonCancelarModalPerfil"
+                              #colorBotonCancelarModalPerfil="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonCancelarModalPerfil"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="form-group col-md-8 mb-3">
+                          <label for="picker1">Color Botón Guardar pop up</label>
+                          <div class="input-group">
+                            <!--FCA 17-05-2022-->
+                            <div class="circle" style="margin-top: 5px;"
+                              [ngStyle]="{ 'background-color': tenant.datosImplementacion.configuracionDiseno.colorBotonGuardarModalPerfil}">
+                            </div> <!--FCA 08-06-2022-->
+                            <input style="margin-left: 10px;" [cpOKButton]="true" [cpSaveClickOutside]="true"
+                              required="true" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                              [(colorPicker)]="tenant.datosImplementacion.configuracionDiseno.colorBotonGuardarModalPerfil"
+                              [ngClass]="colorBotonGuardarModalPerfil.errors && (colorBotonGuardarModalPerfil.dirty || colorBotonGuardarModalPerfil.touched) ? 'form-control is-invalid' : 'form-control'"
+                              (blur)="verificaColorConfigDiseno(27)" name="colorBotonGuardarModalPerfil"
+                              #colorBotonGuardarModalPerfil="ngModel"
+                              [(ngModel)]="tenant.datosImplementacion.configuracionDiseno.colorBotonGuardarModalPerfil"
+                              pattern="^#+([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$" placeholder="Color secundario"
+                              [cpRemoveColorButtonClass]="" [cpOutputFormat]="'hex'" />
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Icono Mi Perfil (72px X 72px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageUsuario"
+                              (change)="onChangeConfigDiseno($event, 9)" (change)="previewConfigDiseno($event, 9)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenUsuario != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenUsuario.url" alt="" width="180" height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(9)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Banner Mi Perfil (2.000px X 150px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageBannerMiPerfil"
+                              (change)="onChangeConfigDiseno($event, 10)" (change)="previewConfigDiseno($event, 10)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenBannerPerfil != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenBannerPerfil.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(10)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Icono Contactos (80px X 80px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoContactos"
+                              (change)="onChangeConfigDiseno($event, 11)" (change)="previewConfigDiseno($event, 11)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenIconoContactos != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenIconoContactos.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(11)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Icono Cambio de Clave (80px X 80px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoClavePerfil"
+                              (change)="onChangeConfigDiseno($event, 12)" (change)="previewConfigDiseno($event, 12)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenIconoClavePerfil != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenIconoClavePerfil.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(12)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                          <label for="picker1">Icono Modificar Datos (80px X 80px)</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" placeholder="Ruta"
+                              accept="image/x-png,image/gif,image/jpeg" id="fileImageIconoEditarPerfil"
+                              (change)="onChangeConfigDiseno($event, 13)" (change)="previewConfigDiseno($event, 13)"
+                              name="imagen">
+                          </div>
+                        </div>
+
+                        <div *ngIf="urlImagenIconoEditarPerfil != null" class="row mt-4 justify-content-center">
+                          <div class="card card-ecommerce-2 o-hidden mb-4">
+                            <img class="card-img-top" [src]="urlImagenIconoEditarPerfil.url" alt="" width="180"
+                              height="180px" />
+                            <div class="row">
+                              <div class="card-action">
+                                <i ngbTooltip="Remover" placement="bottom" container="body" style="cursor: pointer;"
+                                  (click)="deletePreviewImgConfigDiseno(13)" class="icon i-Close-Window"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </wizard-step>
+
+      <wizard-step [title]="'Final'" (onComplete)="onComplete()">
+
+        <div class="text-center mt-4 mb-4">
+          <i class="i-Checked-User text-32 mb-3 text-success d-inline-block"></i>
+          <h5 class="font-weight-light">Se han completado los todos los pasos, presione 'Terminar' para guardar los
+            datos.</h5>
+        </div>
+
+      </wizard-step>
+
+    </form-wizard>
+
+    <div style="margin-top: 20px;" class="row" *ngIf="empresaTenants?.tenants.length == 0">
+      <div class="col-md-12">
+        <ngb-alert class="alert-card text-center" [dismissible]="false">
+          Sin Implementaciones
+        </ngb-alert>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button style="cursor: pointer;" type="button" class="btn btn-outline-dark"
+      (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>

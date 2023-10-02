@@ -1,0 +1,78 @@
+.dropdown-toggle::after{
+    content: none;
+  }
+
+  li > img{
+    margin-left: 50%;
+    margin-right: 50%;
+  }
+  
+  .dropdown-menu.show {
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: auto !important;
+    right: 5px !important;
+    will-change: transform;
+    transform: translate(0px, 34px);
+  }
+
+  .borderRow{
+    border: 1px solid transparent; 
+    border-color: #ddd; 
+    border-radius: 20px;
+  }
+.password-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 9999;
+}
+
+.password-toggle img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  /* Agrega otros estilos necesarios para la imagen */
+}
+
+@media (min-width:992px) {
+  .margenDesktop{
+    margin-left: 10%;
+  }
+}
+
+.card-header {
+  background-color: #26bdef;
+  color: white;
+  font-size: larger;
+  font-weight: 500;
+  display: flex;
+}
+
+/*FCA 02-06-2022*/
+.circle{
+  height: 25px;
+width: 25px;
+background-color: #bbb;
+border-radius: 50%;
+display: inline-block;
+
+}
+
+.arrowIcon{
+margin-left: auto !important;
+}
+
+
+iframe {
+  zoom: 0.2;
+  width: 3600px;
+  height: 2500px;
+}

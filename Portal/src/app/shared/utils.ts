@@ -9,20 +9,20 @@ import { ITipoApi } from '../shared/enums/TipoApi';
     providedIn: 'root'
 })
 export class Utils {
-     //public Server: string = 'https://localhost:44375';
-    //public Server: string = 'https://localhost:7043'; //NET CORE
+    //public Server: string = 'https://localhost:44375';
+    public Server: string = 'https://localhost:7043'; //NET CORE
     //public Server: string = 'https://apiportal.intgra.cl/';
     //public Server: string = 'https://apiportal.intgra.cl/';  //BERRYLION
     //APP SERVICE:
     // public Server: string = 'https://apiportalclientedemo2.softlandcloud.cl';
     //public Server: string = 'https://apiportalclientedemo1.softlandcloud.cl';
     //public Server: string = 'https://apiportalcliente.softlandcloud.cl'; 
-    public Server: string = 'https://apiportal.softlandcloud.cl'; //multitenant
-    
+    //public Server: string = 'https://apiportal.softlandcloud.cl'; //multitenant
+
     public ApiUrl: string = 'api/';
     public ServerWithApiUrl = this.Server + '/' + this.ApiUrl;
 
-    constructor(private notificationService: NotificationService, private router: Router) {}
+    constructor(private notificationService: NotificationService, private router: Router) { }
 
     static isMobile() {
         return window && window.matchMedia('(max-width: 767px)').matches;
@@ -61,15 +61,28 @@ export class Utils {
 
     getHeaders(withAuth: boolean = true) {
         const headers = {
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json'
         };
-    
+
         if (withAuth) {
-          headers['Authorization'] = `Bearer ${this.getToken()}`;
+            headers['Authorization'] = `Bearer ${this.getToken()}`;
         }
-    
+
         return { headers: new HttpHeaders(headers) };
-      }
+    }
+
+    //FCA IMPLEMENTACION
+    getHeadersMultiPart(withAuth: boolean = true) {
+        const headers = {
+            'Content-Type': 'multipart/form-data'
+        };
+
+        if (withAuth) {
+            headers['Authorization'] = `Bearer ${this.getToken()}`;
+        }
+
+        return { headers: new HttpHeaders(headers) };
+    }
 
     getToken(): string {
         var currentUserAd = localStorage.getItem('currentUserPortal');
@@ -79,51 +92,51 @@ export class Utils {
         return '';
     }
 
-    validateMail (email: string): boolean {
+    validateMail(email: string): boolean {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
 
-   
 
-    isValidRUT (campo: any) {       
+
+    isValidRUT(campo: any) {
         if (campo.length == 0) { return false; }
-            if (campo.length < 8) { return false; }
+        if (campo.length < 8) { return false; }
 
-            campo = campo.replace('-', '')
-            campo = campo.replace(/\./g, '')
+        campo = campo.replace('-', '')
+        campo = campo.replace(/\./g, '')
 
-            var suma = 0;
-            var caracteres = "1234567890kK";
-            var contador = 0;
-            for (var i = 0; i < campo.length; i++) {
-                let u = campo.substring(i, i + 1);
-                if (caracteres.indexOf(u) != -1)
-                    contador++;
-            }
-            if (contador == 0) { return false }
+        var suma = 0;
+        var caracteres = "1234567890kK";
+        var contador = 0;
+        for (var i = 0; i < campo.length; i++) {
+            let u = campo.substring(i, i + 1);
+            if (caracteres.indexOf(u) != -1)
+                contador++;
+        }
+        if (contador == 0) { return false }
 
-            var rut = campo.substring(0, campo.length - 1)
-            var drut = campo.substring(campo.length - 1)
-            var dvr = '0';
-            var mul = 2;
-            var res = 0;
-            var dvi;
+        var rut = campo.substring(0, campo.length - 1)
+        var drut = campo.substring(campo.length - 1)
+        var dvr = '0';
+        var mul = 2;
+        var res = 0;
+        var dvi;
 
-            for (i = rut.length - 1; i >= 0; i--) {
-                suma = suma + rut.charAt(i) * mul
-                if (mul == 7) mul = 2
-                else mul++
-            }
-            res = suma % 11
-            if (res == 1) dvr = 'k'
-            else if (res == 0) dvr = '0'
-            else {
-                dvi = 11 - res
-                dvr = dvi + ""
-            }
-            if (dvr != drut.toLowerCase()) { return false; }
-            else { return true; }   
+        for (i = rut.length - 1; i >= 0; i--) {
+            suma = suma + rut.charAt(i) * mul
+            if (mul == 7) mul = 2
+            else mul++
+        }
+        res = suma % 11
+        if (res == 1) dvr = 'k'
+        else if (res == 0) dvr = '0'
+        else {
+            dvi = 11 - res
+            dvr = dvi + ""
+        }
+        if (dvr != drut.toLowerCase()) { return false; }
+        else { return true; }
     }
 
     estandarizaRut(rut: string) {
@@ -135,12 +148,12 @@ export class Utils {
         }
 
         rut = rut.replace(/\./g, '');
-       
-        var rut_final= "";
 
-        var ultimo= "";
-        var medio= "";
-        var primero= ""; 
+        var rut_final = "";
+
+        var ultimo = "";
+        var medio = "";
+        var primero = "";
 
         var largo = rut.length;
 
@@ -190,7 +203,7 @@ export class Utils {
         rut = cuerpo + '-' + dv
 
         // Si no cumple con el mínimo ej. (n.nnn.nnn)
-        if (cuerpo.length < 7) {  return ""; }
+        if (cuerpo.length < 7) { return ""; }
 
         // Calcular Dígito Verificador
         var suma = 0;
@@ -219,22 +232,21 @@ export class Utils {
         dv = (dv == '0') ? "11" : dv;
 
         // Validar que el Cuerpo coincide con su Dígito Verificador
-        if (dvEsperado.toString() != dv) {  return ""; }
+        if (dvEsperado.toString() != dv) { return ""; }
 
         // Si todo sale bien, eliminar errores (decretar que es válido)
         return this.estandarizaRut(rut);
     }
 
-    transformaDocumento64(base64: any, tipo: string)
-    {
+    transformaDocumento64(base64: any, tipo: string) {
         let byteCharacters = atob(base64);
         let byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         let byteArray = new Uint8Array(byteNumbers);
-        var tipo = (tipo == "XML")? 'application/xml;base64': (tipo == "PDF")? 'application/pdf;base64':'';
-        let file = new Blob([byteArray], {type: tipo});
+        var tipo = (tipo == "XML") ? 'application/xml;base64' : (tipo == "PDF") ? 'application/pdf;base64' : '';
+        let file = new Blob([byteArray], { type: tipo });
         let url = URL.createObjectURL(file);
 
         return url;
@@ -268,7 +280,7 @@ export class Utils {
                 case ITipoApi.OTHER:
                     this.notificationService.error('Ocurrió un error al ejecutar proceso.', '', true);
                     break;
-            }   
+            }
         }
     }
 

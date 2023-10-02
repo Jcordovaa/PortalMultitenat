@@ -11,7 +11,7 @@ export class ConfiguracionCorreoService {
 
     private apiUrl: string = '';
     private apiURL: string = '';
-    private apiRegistro : string = '';
+    private apiRegistro: string = '';
 
     constructor(private utils: Utils, private http: HttpClient) {
         this.apiUrl = this.utils.ServerWithApiUrl + 'configuracionCorreo';
@@ -19,7 +19,7 @@ export class ConfiguracionCorreoService {
         this.apiRegistro = this.utils.ServerWithApiUrl + 'RegistroEnvioCorreos';
     }
 
-    getConfigCorreo (idConfiguracionCorreo: number): Observable<ConfiguracionCorreo> {
+    getConfigCorreo(idConfiguracionCorreo: number): Observable<ConfiguracionCorreo> {
         return this.http.get<ConfiguracionCorreo>(`${this.apiUrl}/${idConfiguracionCorreo}`, this.utils.getHeaders(true));
     }
 
@@ -59,38 +59,38 @@ export class ConfiguracionCorreoService {
 
     subirImagen(archivos: FileList) {
         debugger
-        if(archivos == null){
+        if (archivos == null) {
             return Promise.resolve();
         }
-            return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
-                let formData = new FormData();
-                let xhr = new XMLHttpRequest();
+            let formData = new FormData();
+            let xhr = new XMLHttpRequest();
 
-                for (let i = 0; i <= archivos.length - 1; i++) {
-                    formData.append(archivos[i].name, archivos[i], archivos[i].name);
-                }
+            for (let i = 0; i <= archivos.length - 1; i++) {
+                formData.append(archivos[i].name, archivos[i], archivos[i].name);
+            }
 
-                xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function () {
 
-                    if (xhr.readyState === 4) {
+                if (xhr.readyState === 4) {
 
-                        if (xhr.status === 200) {
-                            resolve(JSON.parse(xhr.response));
-                        } else {
-                            reject(xhr.response);
-                        }
-
+                    if (xhr.status === 200) {
+                        resolve(JSON.parse(xhr.response));
+                    } else {
+                        reject(xhr.response);
                     }
-                };
 
-                xhr.open('POST', `${this.apiUrl}/uploadLogo`, true);
-                xhr.setRequestHeader('Authorization', this.utils.getHeaders(true).headers.get('Authorization'));
-                xhr.send(formData);
+                }
+            };
 
-            });    
+            xhr.open('POST', `${this.apiUrl}/uploadLogo`, true);
+            xhr.setRequestHeader('Authorization', this.utils.getHeaders(true).headers.get('Authorization'));
+            xhr.send(formData);
+
+        });
 
     }
-    
+
 
 }

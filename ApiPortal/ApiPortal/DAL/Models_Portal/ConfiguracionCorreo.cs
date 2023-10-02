@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ConfiguracionCorreo
     {
-        public int IdConfiguracionCorreo { get; set; }
+        public int? IdConfiguracionCorreo { get; set; }
         public string? SmtpServer { get; set; }
         public string? Usuario { get; set; }
         public string? Clave { get; set; }

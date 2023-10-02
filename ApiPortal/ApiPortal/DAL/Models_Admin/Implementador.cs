@@ -8,6 +8,7 @@ namespace ApiPortal.Dal.Models_Admin
         public Implementador()
         {
             EmpresasPortals = new HashSet<EmpresasPortal>();
+            Tenants = new HashSet<Tenant>();
             UsuariosPortals = new HashSet<UsuariosPortal>();
         }
 
@@ -17,6 +18,7 @@ namespace ApiPortal.Dal.Models_Admin
         public int? Estado { get; set; }
 
         public virtual ICollection<EmpresasPortal> EmpresasPortals { get; set; }
+        public virtual ICollection<Tenant> Tenants { get; set; }
         public virtual ICollection<UsuariosPortal> UsuariosPortals { get; set; }
     }
 }

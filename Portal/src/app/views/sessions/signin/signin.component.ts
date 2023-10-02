@@ -158,20 +158,27 @@ export class SigninComponent implements OnInit {
 
                 this.ls.setItem("currentUserPortal", res);
 
-                if (res.esUsuario == false) {
-                    this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
-                        this.ls.setItem("configuracionCompletaPortal", res2);
-                        this.router.navigateByUrl('/dashboard/cliente');
-                    }, err => { this.spinner.hide(); });
-                    //this.spinner.hide();
-                } else {
-                    this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
-                        this.ls.setItem("configuracionCompletaPortal", res2);
-                        this.router.navigateByUrl('/dashboard/administrador');
-                    }, err => { this.spinner.hide(); });
-
-                    //this.spinner.hide();
+                if(res.esImplementador == true){
+                    debugger
+                        this.router.navigateByUrl('/implementation/company');
+                        this.spinner.hide();
+                }else{
+                    if (res.esUsuario == false) {
+                        this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
+                            this.ls.setItem("configuracionCompletaPortal", res2);
+                            this.router.navigateByUrl('/dashboard/cliente');
+                        }, err => { this.spinner.hide(); });
+                        //this.spinner.hide();
+                    } else {
+                        this.configuracionService.getAllConfigPortal().subscribe((res2: any) => {
+                            this.ls.setItem("configuracionCompletaPortal", res2);
+                            this.router.navigateByUrl('/dashboard/administrador');
+                        }, err => { this.spinner.hide(); });
+    
+                        //this.spinner.hide();
+                    }
                 }
+            
 
             }, err => {
                 if (err && err.error != null && err.error != "") {

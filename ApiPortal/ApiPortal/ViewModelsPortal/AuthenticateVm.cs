@@ -14,5 +14,6 @@ namespace ApiPortal.ViewModelsPortal
         public string? Nombre { get; set; }
         public string? CodAux { get; set; }
         public bool? EsUsuario { get; set; }
+        public bool? EsImplementador { get; set; }
     }
 }

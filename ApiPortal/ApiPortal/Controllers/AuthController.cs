@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Cors;
+using iText.Commons.Actions.Contexts;
 
 namespace ApiPortal.Controllers
 {
@@ -20,12 +21,16 @@ namespace ApiPortal.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly PortalClientesSoftlandContext _context;
+        private readonly PortalAdministracionSoftlandContext _admin;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public AuthController(IConfiguration configuration, IUserService userService, PortalClientesSoftlandContext context)
+        public AuthController(IConfiguration configuration, IUserService userService, PortalClientesSoftlandContext context, PortalAdministracionSoftlandContext admin, IHttpContextAccessor contextAccessor)
         {
             _configuration = configuration;
             _userService = userService;
             _context = context;
+            _admin = admin;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpPost("authenticate")]
@@ -33,7 +38,7 @@ namespace ApiPortal.Controllers
         {
             try
             {
-                
+
                 HashPassword aux = new HashPassword();
                 string hashPassword = aux.HashCode(model.Password);
                 bool isCredentialValid = false;
@@ -43,84 +48,130 @@ namespace ApiPortal.Controllers
                 string codAux = string.Empty;
                 int id = 0;
                 Boolean esUsuario = false;
+                Boolean esImplementador = false;
 
-                var configuracionEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
+                var dominioAdmin = _admin.ConfiguracionImplementacions.FirstOrDefault();
 
-                if (model.Rut == configuracionEmpresa.RutEmpresa)//Login usuario administrador Softland
+                if (dominioAdmin.DominioImplementacion == _contextAccessor.HttpContext.Request.Headers["Origin"])
                 {
-                    var usuario = _context.Usuarios.Where(x => x.Email == model.Email && x.Password == hashPassword).FirstOrDefault();
+                    var implementador = _admin.Implementadors.Where(x => x.Rut == model.Rut).FirstOrDefault();
 
+                    var usuario = _admin.UsuariosPortals.Where(x => x.IdImplementador == implementador.IdImplementador && x.Email == model.Email && x.Clave == hashPassword).FirstOrDefault();
                     if (usuario == null)
                         return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
 
-                    if (usuario.CuentaActivada == null || usuario.CuentaActivada == 0)
-                        return BadRequest("Cuenta ingresada aún no ha sido activada por el usuario.");
-
-                    fullName = $"{usuario.Nombres} {usuario.Apellidos}";
-                    isCredentialValid = true;
+                    fullName = $"{usuario.Nombre} {usuario.Apellido}";
                     email = usuario.Email;
-                    esUsuario = true;
+                    rut = implementador.Rut;
+                    isCredentialValid = true;
                     id = usuario.IdUsuario;
-                }
-                else //Cliente
-                {
+                    esImplementador = true;
 
-                    var cliente = new ClientesPortal();
-                    if (string.IsNullOrEmpty(model.CodAux))
+                    if (isCredentialValid)
                     {
-                        //Solo un registro por rut de empresa
-                        cliente = _context.ClientesPortals.Where(x => x.Rut == model.Rut && x.Correo == model.Email && x.Clave == hashPassword).FirstOrDefault();
+                        //Obtiene cantidad de horas duración token
+
+                        int horas = 9; //Por defecto en caso de error o que parametro no este configurado sera de 1 hora duraciín
+
+                        var token = this.CrearToken(model.Email, horas);
+                        return Ok(new
+                        {
+                            Email = email,
+                            Rut = rut,
+                            CodAux = codAux,
+                            Token = token.Token,
+                            Nombre = fullName,
+                            EsUsuario = esUsuario,
+                            IdUsuario = id,
+                            EsImplementador = esImplementador
+                        });
                     }
                     else
                     {
-                        //Mas de un registro por rut de empresa
-                        cliente = _context.ClientesPortals.Where(x => x.Rut == model.Rut && x.CodAux == model.CodAux && x.Correo == model.Email && x.Clave == hashPassword).FirstOrDefault();
+                        return Unauthorized();
                     }
-
-
-                    if (cliente == null)
-                        return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
-
-                    if (cliente.ActivaCuenta == null || cliente.ActivaCuenta == 0)
-                        return BadRequest("Cuenta ingresada aún no ha sido activada.");
-
-                    fullName = $"{cliente.Nombre}";
-                    email = cliente.Correo;
-                    rut = cliente.Rut;
-                    codAux = cliente.CodAux;
-                    isCredentialValid = true;
-                    id = cliente.IdCliente;
-                }
-
-                if (isCredentialValid)
-                {
-                    //Obtiene cantidad de horas duración token
-                    var parametros = _context.Parametros.Where(x => x.Nombre == "HorasToken").FirstOrDefault();
-                    int horas = 1; //Por defecto en caso de error o que parametro no este configurado sera de 1 hora duraciín
-                    if (parametros!= null)
-                    {
-                        if (!string.IsNullOrEmpty(parametros.Valor))
-                        {
-                            horas = Convert.ToInt32(parametros.Valor);
-                        }                        
-                    }
-
-                    var token = this.CrearToken(model.Email, horas);
-                    return Ok(new
-                    {
-                        Email = email,
-                        Rut = rut,
-                        CodAux = codAux,
-                        Token = token.Token,
-                        Nombre = fullName,
-                        EsUsuario = esUsuario,
-                        IdUsuario = id
-                    });
                 }
                 else
                 {
-                    return Unauthorized();
+                    var configuracionEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
+
+                    if (model.Rut == configuracionEmpresa.RutEmpresa)//Login usuario administrador Softland
+                    {
+                        var usuario = _context.Usuarios.Where(x => x.Email == model.Email && x.Password == hashPassword).FirstOrDefault();
+
+                        if (usuario == null)
+                            return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
+
+                        if (usuario.CuentaActivada == null || usuario.CuentaActivada == 0)
+                            return BadRequest("Cuenta ingresada aún no ha sido activada por el usuario.");
+
+                        fullName = $"{usuario.Nombres} {usuario.Apellidos}";
+                        isCredentialValid = true;
+                        email = usuario.Email;
+                        esUsuario = true;
+                        id = usuario.IdUsuario;
+                    }
+                    else //Cliente
+                    {
+
+                        var cliente = new ClientesPortal();
+                        if (string.IsNullOrEmpty(model.CodAux))
+                        {
+                            //Solo un registro por rut de empresa
+                            cliente = _context.ClientesPortals.Where(x => x.Rut == model.Rut && x.Correo == model.Email && x.Clave == hashPassword).FirstOrDefault();
+                        }
+                        else
+                        {
+                            //Mas de un registro por rut de empresa
+                            cliente = _context.ClientesPortals.Where(x => x.Rut == model.Rut && x.CodAux == model.CodAux && x.Correo == model.Email && x.Clave == hashPassword).FirstOrDefault();
+                        }
+
+
+                        if (cliente == null)
+                            return BadRequest("Inicio de sesión inválido, compruebe sus credenciales.");
+
+                        if (cliente.ActivaCuenta == null || cliente.ActivaCuenta == 0)
+                            return BadRequest("Cuenta ingresada aún no ha sido activada.");
+
+                        fullName = $"{cliente.Nombre}";
+                        email = cliente.Correo;
+                        rut = cliente.Rut;
+                        codAux = cliente.CodAux;
+                        isCredentialValid = true;
+                        id = cliente.IdCliente;
+                    }
+
+                    if (isCredentialValid)
+                    {
+                        //Obtiene cantidad de horas duración token
+                        var parametros = _context.Parametros.Where(x => x.Nombre == "HorasToken").FirstOrDefault();
+                        int horas = 1; //Por defecto en caso de error o que parametro no este configurado sera de 1 hora duraciín
+                        if (parametros != null)
+                        {
+                            if (!string.IsNullOrEmpty(parametros.Valor))
+                            {
+                                horas = Convert.ToInt32(parametros.Valor);
+                            }
+                        }
+
+                        var token = this.CrearToken(model.Email, horas);
+                        return Ok(new
+                        {
+                            Email = email,
+                            Rut = rut,
+                            CodAux = codAux,
+                            Token = token.Token,
+                            Nombre = fullName,
+                            EsUsuario = esUsuario,
+                            IdUsuario = id
+                        });
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
                 }
+
             }
             catch (Exception e)
             {

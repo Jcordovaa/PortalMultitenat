@@ -23,6 +23,10 @@ namespace ApiPortal.Dal.Models_Admin
         public int? IdLineaProducto { get; set; }
         public string? OtImplementacion { get; set; }
         public int? IdEstado { get; set; }
+        public string? NombreImplementador { get; set; }
+        public string? TelefonoImplementador { get; set; }
+        public string? CorreoImplementador { get; set; }
+        public int? TipoCliente { get; set; }
 
         public virtual AreaComercial? IdAreaComercialNavigation { get; set; }
         public virtual EmpresaEstado? IdEstadoNavigation { get; set; }

@@ -52,6 +52,10 @@ const adminRoutes: Routes = [
     loadChildren: () => import('./views/pages/pages.module').then(m => m.PagesModule)
   },
   {
+    path: 'implementation',
+    loadChildren: () => import('./views/implementation/implementation.module').then(m => m.ImplementationModule)
+  },
+  {
     path: 'security',
     loadChildren: () => import('./views/security/security.module').then(m => m.SecurityModule)
   },
@@ -73,73 +77,73 @@ const paymentRoutes: Routes = [
 ];
 
 const routes: Routes = initType() == "PAYMENT" ? [
-    {
-      path: '',
-      redirectTo: 'sessions/paymentportal',
-      pathMatch: 'full'
-    },
-    {
-      path: '',
-      component: AuthPayLayoutComponent,
-      children: [
-        {
-          path: 'sessions',
-          loadChildren: () => import('./views/sessions/sessions.module').then(m => m.SessionsModule),
-          canActivate: [ PaymentGuard ]
-        }
-      ]
-    },
-    {
-      path: '',
-      component: AdminLayoutSidebarCompactComponent,
-      canActivate: [ CanActivateViaAuthPortalGuard ],
-      children: paymentRoutes
-    },
-    {
-      path: '**',
-      redirectTo: 'others/404'
-    }
-] 
-: 
-[
   {
     path: '',
-    redirectTo: 'sessions/signin',
+    redirectTo: 'sessions/paymentportal',
     pathMatch: 'full'
   },
   {
     path: '',
-    component: AuthLayoutComponent,
+    component: AuthPayLayoutComponent,
     children: [
       {
         path: 'sessions',
         loadChildren: () => import('./views/sessions/sessions.module').then(m => m.SessionsModule),
-        canActivate: [ LoginGuard ]
-      }
-    ]
-  },
-  {
-    path: '',
-    component: BlankLayoutComponent,
-    children: [
-      {
-        path: 'others',
-        loadChildren: () => import('./views/others/others.module').then(m => m.OthersModule)
+        canActivate: [PaymentGuard]
       }
     ]
   },
   {
     path: '',
     component: AdminLayoutSidebarCompactComponent,
-    canActivate: [ CanActivateViaAuthGuard ],
-    children: adminRoutes
+    canActivate: [CanActivateViaAuthPortalGuard],
+    children: paymentRoutes
   },
   {
     path: '**',
     redirectTo: 'others/404'
   }
-  
-];
+]
+  :
+  [
+    {
+      path: '',
+      redirectTo: 'sessions/signin',
+      pathMatch: 'full'
+    },
+    {
+      path: '',
+      component: AuthLayoutComponent,
+      children: [
+        {
+          path: 'sessions',
+          loadChildren: () => import('./views/sessions/sessions.module').then(m => m.SessionsModule),
+          canActivate: [LoginGuard]
+        }
+      ]
+    },
+    {
+      path: '',
+      component: BlankLayoutComponent,
+      children: [
+        {
+          path: 'others',
+          loadChildren: () => import('./views/others/others.module').then(m => m.OthersModule)
+        }
+      ]
+    },
+    {
+      path: '',
+      component: AdminLayoutSidebarCompactComponent,
+      canActivate: [CanActivateViaAuthGuard],
+      children: adminRoutes
+    },
+    {
+      path: '**',
+      redirectTo: 'others/404'
+    }
+
+  ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true })],

@@ -10,6 +10,12 @@ using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Packaging;
 using ApiPortal.Dal.Models_Portal;
+using ApiPortal.ViewModelsAdmin;
+using ApiPortal.DAL.Models_Admin;
+using System.Runtime.Intrinsics.X86;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ApiPortal.Services
 {
@@ -9935,6 +9941,277 @@ namespace ApiPortal.Services
                 _context.SaveChanges();
             }
 
+        }
+
+
+        //FCA IMPLEMENTACION
+        public async Task<bool> validaConexionApiImplementacionAsync(ApiSoftlandVm api)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    string accesToken = api.Token;
+                    string url = api.Url + api.ConsultaTiposDeDocumentos;
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", api.Token);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+
+
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public async Task<bool> validaConexionBaseDatosAsync(DatosImplementacionVm datosImplementacion)
+        {
+            try
+            {
+                string connectionString = "Data Source=" + datosImplementacion.ServidorPortal + ";Initial Catalog=" + datosImplementacion.BaseDatosPortal + ";" +
+                                      "user id=" + datosImplementacion.UsuarioBaseDatosPortal + ";password=" + datosImplementacion.ClaveBaseDatosPortal + ";";
+                SqlConnection con = new SqlConnection(connectionString);
+
+                con.Open();
+                con.Close();
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesImplementacionAsync(ApiSoftlandVm api)
+        {
+            List<CuentasContablesSoftlandDTO> retorno = new List<CuentasContablesSoftlandDTO>();
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    string accesToken = api.Token;
+                    string url = api.Url + api.ConsultaPlanDeCuentas;
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", api.Token);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+
+
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<CuentasContablesSoftlandAPIDTO>> listaCuentasContables = JsonConvert.DeserializeObject<List<List<CuentasContablesSoftlandAPIDTO>>>(content);
+                        var cuentasContables = listaCuentasContables[0].Where(x => !string.IsNullOrEmpty(x.PCCODI)).ToList();
+
+                        retorno = cuentasContables.ConvertAll(x => new CuentasContablesSoftlandDTO
+                        {
+                            Codigo = x.PCCODI,
+                            Nombre = x.PCDESC
+                        });
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        throw new Exception("Error al obtener datos");
+
+                    }
+                }
+                return retorno;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+        }
+
+        public async Task<List<TipoDocSoftlandDTO>> GetAllTiposDocumentosImplementacionAsync(ApiSoftlandVm api)
+        {
+            List<TipoDocSoftlandDTO> retorno = new List<TipoDocSoftlandDTO>();
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    string accesToken = api.Token;
+                    string url = api.Url + api.ConsultaTiposDeDocumentos;
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", api.Token);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+
+
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<TipoDocSoftlandAPIDTO>> listaTipoDocs = JsonConvert.DeserializeObject<List<List<TipoDocSoftlandAPIDTO>>>(content);
+
+                        var documentos = listaTipoDocs[0].Where(x => !string.IsNullOrEmpty(x.CodDoc)).ToList();
+
+                        retorno = documentos.ConvertAll(x => new TipoDocSoftlandDTO
+                        {
+                            CodDoc = x.CodDoc,
+                            DesDoc = x.DesDoc
+                        });
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        throw new Exception("Error al obtener datos");
+
+                    }
+                }
+                return retorno;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+        }
+
+        public async Task<List<CuentasContablesSoftlandDTO>> GetAllCuentasContablesPasarela(ApiSoftlandVm api)
+        {
+            List<CuentasContablesSoftlandDTO> retorno = new List<CuentasContablesSoftlandDTO>();
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    string accesToken = api.Token;
+                    string url = api.Url + api.CuentasPasarelaPagos;
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                    client.DefaultRequestHeaders.Add("SApiKey", api.Token);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+
+
+                    HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        List<List<CuentasContablesSoftlandAPIDTO>> listaCuentasContables = JsonConvert.DeserializeObject<List<List<CuentasContablesSoftlandAPIDTO>>>(content);
+                        var cuentasContables = listaCuentasContables[0].Where(x => !string.IsNullOrEmpty(x.PCCODI)).ToList();
+                        retorno = cuentasContables.ConvertAll(x => new CuentasContablesSoftlandDTO
+                        {
+                            Codigo = x.PCCODI,
+                            Nombre = x.PCDESC
+                        });
+                    }
+                    else
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        throw new Exception("Error al obtener datos");
+
+                    }
+                }
+                return retorno;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+        }
+        public async Task<bool> validaConexionBaseDatosAsync(string conectionString)
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(conectionString);
+
+                con.Open();
+                con.Close();
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+        }
+
+        public void CrearTablas(string conectionString)
+        {
+
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(conectionString))
+                {
+                    connection.Open();
+
+                    // Lee el script SQL desde el archivo
+                    string script = string.Empty;
+                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads/Crea Tablas.sql")))
+                    {
+                        script = reader.ReadToEnd();
+                    }
+
+
+                    // Ejecuta el script utilizando SMO
+                    Server server = new Server(new ServerConnection(connection));
+                    server.ConnectionContext.ExecuteNonQuery(script);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+        public bool TableExists(string connectionString)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = con;
+                    cmd.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = @TableName";
+                    cmd.Parameters.AddWithValue("@TableName", "Usuarios");
+
+                    int tableCount = (int)cmd.ExecuteScalar();
+
+                    return tableCount > 0;
+                }
+            }
         }
     }
 }

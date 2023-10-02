@@ -79,6 +79,7 @@ export class ConfiguracionPagoCliente {
     glosaPago?: string;
     segundaMonedaUtilizada?: string;
     diasPorVencer?: number;
+    documentosCobranza?: string //FCA IMPLEMENTACION
 
     constructor() {
         this.idConfiguracionPago = 0;
@@ -93,6 +94,7 @@ export class ConfiguracionPagoCliente {
         this.glosaPago = '';
         this.segundaMonedaUtilizada = '';
         this.diasPorVencer = 0;
+        this.documentosCobranza = '' //FCA IMPLEMENTACION
     }
 }
 

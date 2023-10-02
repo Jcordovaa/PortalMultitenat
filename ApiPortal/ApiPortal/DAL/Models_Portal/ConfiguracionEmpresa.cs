@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ConfiguracionEmpresa
     {
-        public int IdConfiguracionEmpresa { get; set; }
+        public int? IdConfiguracionEmpresa { get; set; }
         public string? RutEmpresa { get; set; }
         public string? NombreEmpresa { get; set; }
         public string? Direccion { get; set; }

@@ -1,4 +1,5 @@
-﻿using ApiPortal.Dal.Models_Portal;
+﻿using ApiPortal.Dal.Models_Admin;
+using ApiPortal.Dal.Models_Portal;
 using ApiPortal.Services;
 using ApiPortal.ViewModelsPortal;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +17,12 @@ namespace ApiPortal.Controllers
     {
         private readonly PortalClientesSoftlandContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public PermisosController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment)
+        private readonly PortalAdministracionSoftlandContext _admin;
+        public PermisosController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, PortalAdministracionSoftlandContext admin)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _admin = admin;
         }
 
         [HttpGet("GetPermisos"), Authorize]
@@ -409,22 +411,45 @@ namespace ApiPortal.Controllers
             try
             {
                 var permisos = new List<Permiso>();
-                if (model.EsUsuario == true)
+                if(model.EsImplementador == true)
                 {
-                    var usuario = await _context.Usuarios.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
-
+                    var usuario = await _admin.UsuariosPortals.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
                     if (usuario == null)
                     {
                         return NotFound();
                     }
-
-                    permisos = await _context.Permisos.Where(x => x.IdPerfil == usuario.IdPerfil).ToListAsync();
+                    var permisosPortal = await _admin.PermisosImplementacions.Where(x => x.IdRol == usuario.IdRol).ToListAsync();
+                    permisos = permisosPortal.ConvertAll(x => new Permiso
+                    {
+                        Actualizar = x.Actualizar,
+                        Consultar = x.Consultar,
+                        IdAcceso = x.IdAcceso,
+                        IdPerfil = x.IdRol,
+                        IdPermiso = x.IdPermiso,
+                        Insertar = x.Insertar,
+                        Modificar = x.Modificar
+                    });
                 }
                 else
                 {
-                    //Perfil 2: Usuario cliente
-                    permisos = await _context.Permisos.Where(x => x.IdPerfil == 2).ToListAsync();
+                    if (model.EsUsuario == true)
+                    {
+                        var usuario = await _context.Usuarios.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
+
+                        if (usuario == null)
+                        {
+                            return NotFound();
+                        }
+
+                        permisos = await _context.Permisos.Where(x => x.IdPerfil == usuario.IdPerfil).ToListAsync();
+                    }
+                    else
+                    {
+                        //Perfil 2: Usuario cliente
+                        permisos = await _context.Permisos.Where(x => x.IdPerfil == 2).ToListAsync();
+                    }
                 }
+              
 
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);

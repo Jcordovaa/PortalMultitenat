@@ -22,8 +22,16 @@ export class AuthGuard implements CanActivate {
 
         if (user) {
             const isAdmin = user.esUsuario === true; // Suponiendo que 0 es el valor para administradores
-
+            const isImplementador = user.esImplementador === true;
             const requiresAdminPermission = next.data.requiresAdmin === true;
+            const requiresImplementationPermission = next.data.requiresImplementation === true;
+
+            if (requiresImplementationPermission && !isImplementador) {
+                this.localStoreService.removeItem('currentUserPortal');
+
+                this.router.navigateByUrl("/sessions/signin");
+                return false;
+            }
 
             if (requiresAdminPermission && !isAdmin) {
                 // Si la ruta requiere permisos de administrador y el usuario no es administrador,

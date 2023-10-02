@@ -5,6 +5,7 @@ using ApiPortal.Dal.Models_Portal;
 using ApiPortal.Security.Extensions;
 using ApiPortal.Security.TenantService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,6 +27,14 @@ builder.Services.AddScoped<IMemoryCache, MemoryCache>();
 
 builder.Services.AddHttpContextAccessor();
 
+//FCA IMPLEMENTACION
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new RequestFormLimitsAttribute
+    {
+        MultipartBodyLengthLimit = int.MaxValue, // Ajusta el límite según tus necesidades
+    });
+});
 
 
 
@@ -36,11 +45,11 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Ingrese JSON Web Token solicitado por autenticación",        
+        Description = "Ingrese JSON Web Token solicitado por autenticación",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
-        Scheme = "Bearer"         
+        Scheme = "Bearer"
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -98,6 +107,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
+
 app.Use(async (context, next) =>
 {
 
@@ -111,6 +122,22 @@ app.Use(async (context, next) =>
         context.Response.Headers.Add("Access-Control-Max-Age", "3600");
         context.Response.StatusCode = (int)HttpStatusCode.OK;
         return;
+    }
+
+    if (context.Request.Path == "/implementation/company" && context.Request.HasFormContentType)
+    {
+        var form = context.Request.Form;
+        if (form != null)
+        {
+            foreach (var key in form.Keys)
+            {
+                var values = form[key];
+                foreach (var value in values)
+                {
+                    var item = $"Clave: {key}, Valor: {value}";
+                }
+            }
+        }
     }
     await next();
 });

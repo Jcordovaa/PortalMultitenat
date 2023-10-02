@@ -119,7 +119,9 @@ export class ConfiguracionEmpresa {
     twitter?: string;
     youtube?: string;
     linkedin?: string;
-
+    urlPortal?: string; //FCA IMPLEMENTACION
+    logo?: string;
+    web?: string;
 
     constructor() {
         this.idConfiguracionEmpresa = 0;
@@ -134,5 +136,9 @@ export class ConfiguracionEmpresa {
         this.twitter = '';
         this.youtube = '';
         this.linkedin = '';
+        //FCA IMPLEMENTACION
+        this.urlPortal = '';
+        this.logo = '';
+        this.web = '';
     }
 }

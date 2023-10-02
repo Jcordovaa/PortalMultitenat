@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ConfiguracionPagoCliente
     {
-        public int IdConfiguracionPago { get; set; }
+        public int? IdConfiguracionPago { get; set; }
         public string? CuentasContablesDeuda { get; set; }
         public string? TiposDocumentosDeuda { get; set; }
         public int? AnioTributario { get; set; }

@@ -45,6 +45,7 @@ export class SidebarCompactComponent implements OnInit {
               //{ id: 4, icon: 'i-Male', name: 'Mi Perfil', state: '/payment/profile', type: 'link' },
               { id: 5, icon: 'i-Book', name: 'Estado de Cuenta / Paga tu cuenta', state: '/payment/accounts-state', type: 'link' },
               { id: 5, icon: 'i-Shopping-Cart', name: 'Mis Compras', state: '/payment/shopping', type: 'link' },   
+             
                                
           ]
        },       
@@ -75,7 +76,8 @@ export class SidebarCompactComponent implements OnInit {
             sub: [
               { id: 15, icon: 'i-Book', name: 'Asistidas', state: '/payment/collections', type: 'link' } ,
               { id: 17, icon: 'i-Book', name: 'Automatizadas', state: '/payment/automation', type: 'link' } ,
-              { id: 16, icon: 'i-Book', name: 'Clientes Excluidos', state: '/payment/excluded', type: 'link' } 
+              { id: 16, icon: 'i-Book', name: 'Clientes Excluidos', state: '/payment/excluded', type: 'link' },
+             // { id: 15, icon: 'i-Home1', name: 'Empresas', state: '/implementation/company', type: 'link' },
              
             ]
         }
@@ -94,6 +96,18 @@ export class SidebarCompactComponent implements OnInit {
             { icon: 'i-Shopping-Cart', name: 'Compras', state: '/payment/shopping', type: 'link' },
             { icon: 'i-Mail-Send', name: 'Envío de Cobranza', state: '/payment/send-collections', type: 'link' },
             { icon: 'i-Gear', name: 'Configuración', state: '/payment/config', type: 'link' }
+        ]
+    }
+  ];
+
+  implementationMenu: IMenuItem[] = [
+    {   
+        name: 'Implementación',
+        description: '',
+        type: 'dropDown',
+        icon: 'i-Money-Bag',
+        sub: [
+            { id: 1, icon: 'i-Home1', name: 'Inicio', state: '/implementation/company', type: 'link' },
         ]
     }
   ];
@@ -127,55 +141,103 @@ export class SidebarCompactComponent implements OnInit {
             email: user.email,
             password: '-',
             codAux: user.codaux,
-            esUsuario: user.esUsuario
+            esUsuario: user.esUsuario,
+            esImplementador: user.esImplementador
           };
 
          
 
           this.securityService.getPermisosByEmail(data).subscribe(res => {
-            this.defaultMenu.forEach(menu => {
+            if(user.esImplementador){
+              this.implementationMenu.forEach(menu => {
 
-              if (menu.id != null) {
-                let added = res.find(x => x.idAcceso == menu.id)
-                if (added != null) {
-                  menu.visible = true;
-                } else {
-                  menu.visible = false;
-                }
-
-                menu.sub.forEach(submenu => {
-                  let added = res.find(x => x.idAcceso == submenu.id)
+                if (menu.id != null) {
+                  let added = res.find(x => x.idAcceso == menu.id)
                   if (added != null) {
-                    submenu.visible = true;
+                    menu.visible = true;
                   } else {
-                    submenu.visible = false;
+                    menu.visible = false;
                   }
-                });
-              } else {
-                menu.visible = true;
-              }
-            });
-
-            let newMenu: any = [];
-
-            this.defaultMenu.forEach(element => {
-              if (element.visible) {              
-
-                let sm = element.sub.filter(x => x.visible == true)
-                if (sm && sm.length > 0) {
-                  element.sub = Object.assign([], sm);
+  
+                  menu.sub.forEach(submenu => {
+                    let added = res.find(x => x.idAcceso == submenu.id)
+                    if (added != null) {
+                      submenu.visible = true;
+                    } else {
+                      submenu.visible = false;
+                    }
+                  });
                 } else {
-                  if (element.id != null) {
-                    element.sub = [];
-                  }                
+                  menu.visible = true;
                 }
+              });
+  
+              let newMenu: any = [];
+  
+              this.implementationMenu.forEach(element => {
+                if (element.visible) {              
+  
+                  let sm = element.sub.filter(x => x.visible == true)
+                  if (sm && sm.length > 0) {
+                    element.sub = Object.assign([], sm);
+                  } else {
+                    if (element.id != null) {
+                      element.sub = [];
+                    }                
+                  }
+  
+                  newMenu.push(element);
+                }
+              });
+  
+              this.nav = newMenu;
+              this.setActiveFlag();
+            }else{
+              this.defaultMenu.forEach(menu => {
 
-                newMenu.push(element);
-              }
-            });
-
-            this.nav = newMenu;
-            this.setActiveFlag();
+                if (menu.id != null) {
+                  let added = res.find(x => x.idAcceso == menu.id)
+                  if (added != null) {
+                    menu.visible = true;
+                  } else {
+                    menu.visible = false;
+                  }
+  
+                  menu.sub.forEach(submenu => {
+                    let added = res.find(x => x.idAcceso == submenu.id)
+                    if (added != null) {
+                      submenu.visible = true;
+                    } else {
+                      submenu.visible = false;
+                    }
+                  });
+                } else {
+                  menu.visible = true;
+                }
+              });
+  
+              let newMenu: any = [];
+  
+              this.defaultMenu.forEach(element => {
+                if (element.visible) {              
+  
+                  let sm = element.sub.filter(x => x.visible == true)
+                  if (sm && sm.length > 0) {
+                    element.sub = Object.assign([], sm);
+                  } else {
+                    if (element.id != null) {
+                      element.sub = [];
+                    }                
+                  }
+  
+                  newMenu.push(element);
+                }
+              });
+  
+              this.nav = newMenu;
+              this.setActiveFlag();
+            }
+          
            
             
           }, err => { this.spinner.hide(); });

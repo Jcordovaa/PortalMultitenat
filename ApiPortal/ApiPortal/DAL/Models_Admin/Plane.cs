@@ -8,6 +8,7 @@ namespace ApiPortal.Dal.Models_Admin
         public Plane()
         {
             EmpresasPortals = new HashSet<EmpresasPortal>();
+            Tenants = new HashSet<Tenant>();
         }
 
         public int IdPlan { get; set; }
@@ -16,5 +17,6 @@ namespace ApiPortal.Dal.Models_Admin
         public int? Estado { get; set; }
 
         public virtual ICollection<EmpresasPortal> EmpresasPortals { get; set; }
+        public virtual ICollection<Tenant> Tenants { get; set; }
     }
 }

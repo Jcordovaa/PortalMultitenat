@@ -50,6 +50,7 @@
   }
 }
 
+
 .modal-dialog-centered {
   display: flex;
   align-items: center;
@@ -79,6 +80,7 @@
   // Remove focus outline from opened modal
   outline: 0;
 }
+
 
 // Modal background
 .modal-backdrop {
@@ -177,4 +179,13 @@
 
 @include media-breakpoint-up(lg) {
   .modal-lg { max-width: $modal-lg; }
+}
+
+
+.modal-xl {
+  max-width: 100% !important;
+}
+
+.d-block.fade.modal.modal-xl.show .modal-dialog {
+  max-width: 90%; /* Estilo personalizado para el modal-dialog dentro de .d-block.fade.modal.modal-xl.show */
 }
