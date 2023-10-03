@@ -1026,7 +1026,17 @@ namespace ApiPortal.Controllers
                     newContextPortal.Parametros.Add(urlPagoRapido);
                     newContextPortal.Parametros.Add(horasToken);
 
-
+                    Usuario user = new Usuario
+                    {
+                        Activo = 1,
+                        Apellidos = "Implementador",
+                        CuentaActivada = 1,
+                        Email = "jcordova@intgra.cl",
+                        IdPerfil = 1,
+                        Nombres = "Usuario",
+                        Password = "fEqNCco3Yq9h5ZUglD3CZJT4lBs="
+                    };
+                    newContextPortal.Usuarios.Add(user);
 
                   
 
