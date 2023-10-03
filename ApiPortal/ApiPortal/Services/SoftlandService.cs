@@ -9987,7 +9987,7 @@ namespace ApiPortal.Services
             try
             {
                 string connectionString = "Data Source=" + datosImplementacion.ServidorPortal + ";Initial Catalog=" + datosImplementacion.BaseDatosPortal + ";" +
-                                      "user id=" + datosImplementacion.UsuarioBaseDatosPortal + ";password=" + datosImplementacion.ClaveBaseDatosPortal + ";";
+                                      "user id=" + datosImplementacion.UsuarioBaseDatosPortal + ";password=" + datosImplementacion.ClaveBaseDatosPortal + ";Encrypt=False;";
                 SqlConnection con = new SqlConnection(connectionString);
 
                 con.Open();
@@ -10150,7 +10150,7 @@ namespace ApiPortal.Services
         {
             try
             {
-                SqlConnection con = new SqlConnection(conectionString);
+                SqlConnection con = new SqlConnection(conectionString + "Encrypt=False;");
 
                 con.Open();
                 con.Close();

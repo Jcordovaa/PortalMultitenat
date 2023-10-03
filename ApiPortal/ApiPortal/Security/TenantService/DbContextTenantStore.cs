@@ -22,43 +22,17 @@ namespace ApiPortal.Security.TenantService
             var cacheKey = $"Cache_{identifier}";
             var tenant = _cache.Get<Tenant>(cacheKey);
 
+
             if (tenant is null)
             {
-                var tenantAdmin = _context.ConfiguracionImplementacions.FirstOrDefault();
-                if(tenant != null)
-                {
-                    if (identifier == tenantAdmin.DominioImplementacion)
-                    {
-                        tenant = new Tenant(1, tenantAdmin.DominioImplementacion);
+                var entity = await _context.Tenants
+                    .FirstOrDefaultAsync(q => q.Identifier == identifier)
+                        ?? throw new ArgumentException($"identifier no es un tenant válido: " + identifier);
 
-                        //tenant.Items["Name"] = entity.RazonSocial;
-                        tenant.Items["ConnectionString"] = _context.Database.GetDbConnection().ConnectionString;
-                    }
-                    else
-                    {
-                        var entity = await _context.Tenants
-                                       .FirstOrDefaultAsync(q => q.Identifier == identifier)
-                                           ?? throw new ArgumentException($"identifier no es un tenant válido: " + identifier);
+                tenant = new Tenant(entity.IdTenant, entity.Identifier);
 
-                        tenant = new Tenant(entity.IdTenant, entity.Identifier);
-
-                        //tenant.Items["Name"] = entity.RazonSocial;
-                        tenant.Items["ConnectionString"] = entity.ConnectionString;
-                    }
-                }
-                else
-                {
-                    var entity = await _context.Tenants
-                                     .FirstOrDefaultAsync(q => q.Identifier == identifier)
-                                         ?? throw new ArgumentException($"identifier no es un tenant válido: " + identifier);
-
-                    tenant = new Tenant(entity.IdTenant, entity.Identifier);
-
-                    //tenant.Items["Name"] = entity.RazonSocial;
-                    tenant.Items["ConnectionString"] = entity.ConnectionString;
-                }
-                
-           
+                //tenant.Items["Name"] = entity.RazonSocial;
+                tenant.Items["ConnectionString"] = entity.ConnectionString;
 
                 _cache.Set(cacheKey, tenant);
             }

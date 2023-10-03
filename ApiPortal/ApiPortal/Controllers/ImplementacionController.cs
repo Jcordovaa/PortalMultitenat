@@ -533,7 +533,8 @@ namespace ApiPortal.Controllers
                             TituloEstadoCuenta = "Estado de cuenta",
                             AsuntoEstadoCuenta = "Estado de cuenta",
                             TextoEstadoCuenta = "Estimado Cliente, en el presente correo podra encontrar información sobre su estado de cuenta.",
-                            TextoPagoSinComprobante = "Se ha realizado un pago a través del portal pero no fue posible generar el comprobante contable, a continuación encontrará los datos del cliente para validar y reprocesar o generar el comprobante."
+                            TextoPagoSinComprobante = "Se ha realizado un pago a través del portal pero no fue posible generar el comprobante contable, a continuación encontrará los datos del cliente para validar y reprocesar o generar el comprobante.",
+                            LogoCorreo = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/LogoCorreo.png"
                         },
                         ConfiguracionPortal = new ConfiguracionPortal
                         {
@@ -623,7 +624,20 @@ namespace ApiPortal.Controllers
                             TituloPendientesDashboard = "Documentos Pendientes",
                             TituloVencidosDashboard = "Documentos Vencidos",
                             TituloPorVencerDashboard = "Documentos por vencer",
-                            TituloOtraMoneda = "Otras Monedas"
+                            TituloOtraMoneda = "Otras Monedas",
+                            BannerMisCompras = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/BannerMisCompras.png",
+                            BannerPagoRapido = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/BannerPagoRapido.png",
+                            BannerPortal = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/BannerPortal.png",
+                            IconoClavePerfil = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/IconoClavePerfil.png",
+                            IconoContactos = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/IconoContactos.png",
+                            IconoEditarPerfil = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/IconoEditarPerfil.png",
+                            IconoMisCompras = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/IconoMisCompras.png",
+                            ImagenPortada = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/ImagenPortada.png",
+                            ImagenUltimasCompras = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/ImagenUltimasCompras.png",
+                            ImagenUsuario = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/ImagenUsuario.png",
+                            LogoPortada = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/LogoPortada.png",
+                            LogoMinimalistaSidebar = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/SoftlandLatera.png",
+                            LogoSidebar = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/logov2.png"
                         },
                         ConfiguracionEmpresa = new ConfiguracionEmpresa
                         {
@@ -699,6 +713,30 @@ namespace ApiPortal.Controllers
                 var existenTablas = sf.TableExists(tenant.ConnectionString);
                 if (tenant.IdTenant == 0 || tenant.IdTenant == null || !existenTablas)
                 {
+                    var empresa = _admin.EmpresasPortals.Where(x => x.Rut == tenant.RutEmpresa).FirstOrDefault();
+                    Tenant newTenant = new Tenant
+                    {
+                        ConnectionString = tenant.ConnectionString,
+                        CorreoImplementador = tenant.CorreoImplementador,
+                        Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
+                        Estado = 3,
+                        FechaInicioContrato = tenant.FechaInicioContrato,
+                        FechaInicioImplementacion = tenant.FechaInicioImplementacion,
+                        FechaTerminoContrato = tenant.FechaTerminoContrato,
+                        FechaTerminoImplementacion = tenant.FechaTerminoImplementacion,
+                        IdAreaComercial = tenant.IdAreaComercial,
+                        IdEmpresa = empresa.IdEmpresa,
+                        Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
+                        IdImplementador = tenant.IdImplementador,
+                        IdLineaProducto = tenant.IdLineaProducto,
+                        IdPlan = tenant.IdPlan,
+                        NombreImplementador = tenant.NombreImplementador,
+                        OtImplementacion = tenant.OtImplementacion,
+                        TelefonoImplementador = tenant.TelefonoImplementador
+                    };
+
+                    _admin.Tenants.Add(newTenant);
+                    await _admin.SaveChangesAsync();
 
                     string connectionString = tenant.DatosImplementacion.ApiSoftland.CadenaAlmacenamientoAzure;
                     BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
@@ -990,36 +1028,37 @@ namespace ApiPortal.Controllers
 
 
 
-                    var empresa = _admin.EmpresasPortals.Where(x => x.Rut == tenant.RutEmpresa).FirstOrDefault();
-                    Tenant newTenant = new Tenant
-                    {
-                        ConnectionString = tenant.ConnectionString,
-                        CorreoImplementador = tenant.CorreoImplementador,
-                        Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
-                        Estado = 3,
-                        FechaInicioContrato = tenant.FechaInicioContrato,
-                        FechaInicioImplementacion = tenant.FechaInicioImplementacion,
-                        FechaTerminoContrato = tenant.FechaTerminoContrato,
-                        FechaTerminoImplementacion = tenant.FechaTerminoImplementacion,
-                        IdAreaComercial = tenant.IdAreaComercial,
-                        IdEmpresa = empresa.IdEmpresa,
-                        Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
-                        IdImplementador = tenant.IdImplementador,
-                        IdLineaProducto = tenant.IdLineaProducto,
-                        IdPlan = tenant.IdPlan,
-                        NombreImplementador = tenant.NombreImplementador,
-                        OtImplementacion = tenant.OtImplementacion,
-                        TelefonoImplementador = tenant.TelefonoImplementador
-                    };
-
-                    _admin.Tenants.Add(newTenant);
+                  
 
                     await newContextPortal.SaveChangesAsync();
-                    await _admin.SaveChangesAsync();
+                  
 
                 }
                 else
                 {
+                    var newTenant = _admin.Tenants.Where(x => x.IdTenant == tenant.IdTenant).FirstOrDefault();
+
+
+                    newTenant.ConnectionString = tenant.ConnectionString;
+                    newTenant.CorreoImplementador = tenant.CorreoImplementador;
+                    newTenant.Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
+                    newTenant.Estado = 3;
+                    newTenant.FechaInicioContrato = tenant.FechaInicioContrato;
+                    newTenant.FechaInicioImplementacion = tenant.FechaInicioImplementacion;
+                    newTenant.FechaTerminoContrato = tenant.FechaTerminoContrato;
+                    newTenant.FechaTerminoImplementacion = tenant.FechaTerminoImplementacion;
+                    newTenant.IdAreaComercial = tenant.IdAreaComercial;
+                    newTenant.IdEmpresa = tenant.IdEmpresa;
+                    newTenant.Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
+                    newTenant.IdImplementador = tenant.IdImplementador;
+                    newTenant.IdLineaProducto = tenant.IdLineaProducto;
+                    newTenant.IdPlan = tenant.IdPlan;
+                    newTenant.NombreImplementador = tenant.NombreImplementador;
+                    newTenant.OtImplementacion = tenant.OtImplementacion;
+                    newTenant.TelefonoImplementador = tenant.TelefonoImplementador;
+                    newTenant.IdTenant = (int)tenant.IdTenant;
+                    _admin.Entry(newTenant);
+                    await _admin.SaveChangesAsync();
 
                     string connectionString = tenant.DatosImplementacion.ApiSoftland.CadenaAlmacenamientoAzure;
                     BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
@@ -1247,29 +1286,8 @@ namespace ApiPortal.Controllers
                     var transbank = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 1).FirstOrDefault();
                     var virtualPos = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 5).FirstOrDefault();
 
-                    var newTenant = _admin.Tenants.Where(x => x.IdTenant == tenant.IdTenant).FirstOrDefault();
+                
 
-
-                    newTenant.ConnectionString = tenant.ConnectionString;
-                    newTenant.CorreoImplementador = tenant.CorreoImplementador;
-                    newTenant.Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
-                    newTenant.Estado = 3;
-                    newTenant.FechaInicioContrato = tenant.FechaInicioContrato;
-                    newTenant.FechaInicioImplementacion = tenant.FechaInicioImplementacion;
-                    newTenant.FechaTerminoContrato = tenant.FechaTerminoContrato;
-                    newTenant.FechaTerminoImplementacion = tenant.FechaTerminoImplementacion;
-                    newTenant.IdAreaComercial = tenant.IdAreaComercial;
-                    newTenant.IdEmpresa = tenant.IdEmpresa;
-                    newTenant.Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
-                    newTenant.IdImplementador = tenant.IdImplementador;
-                    newTenant.IdLineaProducto = tenant.IdLineaProducto;
-                    newTenant.IdPlan = tenant.IdPlan;
-                    newTenant.NombreImplementador = tenant.NombreImplementador;
-                    newTenant.OtImplementacion = tenant.OtImplementacion;
-                    newTenant.TelefonoImplementador = tenant.TelefonoImplementador;
-                    newTenant.IdTenant = (int)tenant.IdTenant;
-
-                  
 
                     configuracionEmpresa.UrlPortal = tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal;
                  
@@ -1438,9 +1456,9 @@ namespace ApiPortal.Controllers
                     newContextPortal.Entry(configuracionDiseno);
                     newContextPortal.Entry(configuracionPagoCliente);
                     newContextPortal.Entry(configuracionCorreo);
-                    _admin.Entry(newTenant);
+                
                     await newContextPortal.SaveChangesAsync();
-                    await _admin.SaveChangesAsync();
+              
                 }
 
 

@@ -52,7 +52,7 @@ namespace ApiPortal.Controllers
 
                 var dominioAdmin = _admin.ConfiguracionImplementacions.FirstOrDefault();
 
-                if (dominioAdmin.DominioImplementacion == _contextAccessor.HttpContext.Request.Headers["Origin"])
+                if (dominioAdmin.DominioImplementacion == new Uri(_contextAccessor.HttpContext.Request.Headers["Origin"]).Host)
                 {
                     var implementador = _admin.Implementadors.Where(x => x.Rut == model.Rut).FirstOrDefault();
 

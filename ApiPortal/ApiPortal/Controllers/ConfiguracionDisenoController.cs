@@ -9,6 +9,8 @@ using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Collections.Specialized.BitVector32;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using ApiPortal.Dal.Models_Admin;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ApiPortal.Controllers
 {
@@ -20,46 +22,67 @@ namespace ApiPortal.Controllers
         private readonly PortalClientesSoftlandContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly PortalAdministracionSoftlandContext _admin;
 
-        public ConfiguracionDisenoController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor)
+        public ConfiguracionDisenoController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, PortalAdministracionSoftlandContext admin)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _httpContextAccessor = httpContextAccessor;
+            _admin = admin;
         }
 
         [HttpGet("GetConfiguracion")]
         public async Task<ActionResult> GetConfiguracion()
         {
-            SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-            LogApi logApi = new LogApi();
-            logApi.Api = "api/ConfiguracionDiseno/GetConfiguracion";
-            logApi.Inicio = DateTime.Now;
-            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
 
-            try
+            var dominioAdmin = _admin.ConfiguracionImplementacions.FirstOrDefault();
+
+            if (dominioAdmin.DominioImplementacion == _httpContextAccessor.HttpContext.Request.Headers["Origin"])
             {
-                var configuracion = _context.ConfiguracionDisenos.FirstOrDefault();
 
-                logApi.Termino = DateTime.Now;
-                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-                sf.guardarLogApi(logApi);
+                ConfiguracionDiseno configuracion = new ConfiguracionDiseno
+                {
+                    ColorBotonInicioSesion = "#333",
+                    ColorBotonPagar = "#333",
 
+                };
                 return Ok(configuracion);
             }
-            catch (Exception ex)
+            else
             {
-                LogProceso log = new LogProceso();
-                log.Fecha = DateTime.Now;
-                log.Hora = DateTime.Now.ToString("HH:mm:ss");
-                log.Excepcion = ex.StackTrace;
-                log.Mensaje = ex.Message;
-                log.Ruta = "api/ConfiguracionDiseno/GetConfiguracion";
-                _context.LogProcesos.Add(log);
-                _context.SaveChanges();
-                return BadRequest(ex.Message);
+                SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
+                LogApi logApi = new LogApi();
+                logApi.Api = "api/ConfiguracionDiseno/GetConfiguracion";
+                logApi.Inicio = DateTime.Now;
+                logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+                try
+                {
+                    var configuracion = _context.ConfiguracionDisenos.FirstOrDefault();
+
+                    logApi.Termino = DateTime.Now;
+                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                    sf.guardarLogApi(logApi);
+
+                    return Ok(configuracion);
+                }
+                catch (Exception ex)
+                {
+                    LogProceso log = new LogProceso();
+                    log.Fecha = DateTime.Now;
+                    log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                    log.Excepcion = ex.StackTrace;
+                    log.Mensaje = ex.Message;
+                    log.Ruta = "api/ConfiguracionDiseno/GetConfiguracion";
+                    _context.LogProcesos.Add(log);
+                    _context.SaveChanges();
+                    return BadRequest(ex.Message);
+                }
             }
+           
+
+
+        
         }
 
 
@@ -71,7 +94,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionDiseno/SaveConfiguracion";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -206,7 +229,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionDiseno/UploadImages";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -214,14 +237,14 @@ namespace ApiPortal.Controllers
                 var configuracionDiseno = _context.ConfiguracionDisenos.FirstOrDefault();
                 var apiSoftland = _context.ApiSoftlands.FirstOrDefault();
 
-                string rutSinFormato = apiSoftland.UrlAlmacenamientoArchivos.Split('/')[apiSoftland.UrlAlmacenamientoArchivos.Split('/').Length -2].ToString();
+                string rutSinFormato = apiSoftland.UrlAlmacenamientoArchivos.Split('/')[apiSoftland.UrlAlmacenamientoArchivos.Split('/').Length - 2].ToString();
                 HttpResponseMessage response = new HttpResponseMessage();
                 var httpRequest = _httpContextAccessor.HttpContext.Request;
                 if (httpRequest.Form.Files.Count > 0)
                 {
                     foreach (var file in httpRequest.Form.Files)
                     {
-                       
+
                         var postedFile = file;
 
                         //JCA 01-06-2023: Cambio por Blob service de azure
@@ -234,12 +257,12 @@ namespace ApiPortal.Controllers
                         BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
                         bool exists = await containerClient.ExistsAsync();
-                        if (!exists) 
+                        if (!exists)
                         {
                             //Contenedor no existe, debemos crearlo con acceso publico
                             containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName, PublicAccessType.Blob);
                         }
-                            
+
 
                         //Cambiamos nombre archivo
                         Utils util = new Utils();
@@ -363,7 +386,7 @@ namespace ApiPortal.Controllers
                                 _context.Entry(configuracionDiseno).Property(x => x.IconoEstadoPerfil).IsModified = true;
                                 break;
                         }
-                        
+
                     }
                     await _context.SaveChangesAsync();
                 }

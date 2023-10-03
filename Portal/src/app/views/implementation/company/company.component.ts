@@ -514,21 +514,21 @@ export class CompanyComponent implements OnInit {
       return false;
     }
 
-    if (this.tenant.fechaInicioContrato == null) {
-      return false;
-    }
+    // if (this.tenant.fechaInicioContrato == null) {
+    //   return false;
+    // }
 
-    if (this.tenant.fechaTerminoContrato == null) {
-      return false;
-    }
+    // if (this.tenant.fechaTerminoContrato == null) {
+    //   return false;
+    // }
 
-    if (this.tenant.fechaInicioImplementacion == null) {
-      return false;
-    }
+    // if (this.tenant.fechaInicioImplementacion == null) {
+    //   return false;
+    // }
 
-    if (this.tenant.fechaTerminoImplementacion == null) {
-      return false;
-    }
+    // if (this.tenant.fechaTerminoImplementacion == null) {
+    //   return false;
+    // }
 
     if (this.tenant.datosImplementacion.configuracionEmpresa.urlPortal == null || this.tenant.datosImplementacion.configuracionEmpresa.urlPortal == '') {
       return false;
@@ -2013,7 +2013,7 @@ export class CompanyComponent implements OnInit {
       c1 += `${element.value};`;
     });
 
-    this.config.correoAvisoPago = c1.length > 0 ? c1.substring(0, c1.length - 1) : '';
+    this.config.correoAvisoPago = c1;
     this.tenant.estado = 3
     this.tenant.datosImplementacion.utilizaTransbank =  this.tenant.datosImplementacion.utilizaTransbank ? 1 : 0
     this.tenant.datosImplementacion.utilizaVirtualPos =  this.tenant.datosImplementacion.utilizaVirtualPos ? 1 : 0
