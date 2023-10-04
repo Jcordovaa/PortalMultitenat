@@ -133,7 +133,7 @@ namespace ApiPortal.Controllers
 
                 //Creamos url que se enviara a tbk y una vez finalizada la transacción retornara para poder identificar en que flujo se ejecuta
                 //string urlReturn = pasarela.Protocolo + httpHost + $"/api/Softland/CallbackPago?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}"; ;
-                string urlReturn = "https://eoykk81g1au1suh.m.pipedream.net";
+                string urlReturn = sample_baseurl + $"?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
                 //Creamos la url que se utilizara para finalizar el proceso
                 string urlFinal = sample_baseurl + $"?action=end&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
 
@@ -765,7 +765,7 @@ namespace ApiPortal.Controllers
 
                             using (var client = new HttpClient())
                             {
-                               
+
                                 string accesToken = api.Token;
                                 string datosPagoDescrinptados = Encrypt.Base64Decode(datosPago);
 
@@ -893,11 +893,10 @@ namespace ApiPortal.Controllers
 
                             break;
                         case "end": //end proceso final cuando la trassaccion es retornada desde vpos
-
-                            int reprocesos = (int)api.ReintentosRedirect;
+                            int reprocesos = 5;
                             int procesos = 1;
                             gotoCallback:
-                            int milliseconds = (int)api.MiliSegundosReintentoRedirect;
+                            int milliseconds = 1500;
 
                             vm.Token = "";
                             vm.Url = "";
@@ -913,90 +912,178 @@ namespace ApiPortal.Controllers
                             {
                                 if (procesos <= reprocesos)
                                 {
-                                    if (logValida.Estado == "PAGADO" || logValida.Estado == "AUTHORIZED")
+                                    using (var client = new HttpClient())
                                     {
+                                        //var api = _context.ApiSoftlands.FirstOrDefault();
+                                        string accesToken = api.Token;
 
-                                        var pagoFinal = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();
-                                        if (string.IsNullOrEmpty(pagoFinal.ComprobanteContable))
+
+                                        string url = pasarela.AmbienteConsultarPago.Replace("{ID}", logValida.Token)
+                                                                      .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S");
+
+
+
+                                        client.BaseAddress = new Uri(url);
+                                        client.DefaultRequestHeaders.Accept.Clear();
+                                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                        if (response.IsSuccessStatusCode)
                                         {
-                                            string folios = string.Empty;
-                                            if (pago.PagosDetalles.Count > 0)
+                                            var content = await response.Content.ReadAsStringAsync();
+                                            ResultadoEstadoPagoVPOS result = JsonConvert.DeserializeObject<ResultadoEstadoPagoVPOS>(content);
+
+                                            if (result.Estado == "PAGADO" || result.Estado == "AUTHORIZED") //Pago exitoso generar comprobante
                                             {
-                                                foreach (var item in pago.PagosDetalles)
+                                                logValida.Estado = result.Estado;
+                                                logValida.Fecha = DateTime.Now;
+                                                logValida.MedioPago = result.Medio_pago;
+                                                logValida.Cuotas = Convert.ToInt32(result.Cuotas);
+                                                logValida.Tarjeta = result.Forma_pago;
+
+                                                _context.Entry(logValida).Property(x => x.Fecha).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Estado).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.MedioPago).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Cuotas).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Tarjeta).IsModified = true;
+                                                await _context.SaveChangesAsync();
+
+                                                //Genera comprobante contable por el pago realizado
+                                                PagoComprobanteVm comprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
+
+                                                if (comprobante.PagoId == 0)
                                                 {
-                                                    if (string.IsNullOrEmpty(folios))
+                                                    string folios = string.Empty;
+                                                    if (pago.PagosDetalles.Count > 0)
                                                     {
-                                                        folios = ";" + item.Folio.ToString();
+                                                        foreach (var item in pago.PagosDetalles)
+                                                        {
+                                                            if (string.IsNullOrEmpty(folios))
+                                                            {
+                                                                folios = ";" + item.Folio.ToString();
+                                                            }
+                                                            else
+                                                            {
+                                                                folios = folios + "-" + item.Folio.ToString();
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                    if (redirectTo == TbkRedirect.PagoRapido)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                                                        {
+
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
+
+                                                        }
+                                                        else
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                                                        }
+
                                                     }
                                                     else
                                                     {
-                                                        folios = folios + "-" + item.Folio.ToString();
+                                                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
                                                     }
-                                                }
 
-                                            }
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
 
-                                            if (redirectTo == TbkRedirect.PagoRapido)
-                                            {
-                                                if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
-                                                {
-
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
-
+                                                    return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
                                                 else
                                                 {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                                                    if (idCobranza != 0)
+                                                    {
+
+                                                        var detallesPago = _context.PagosDetalles.Where(x => x.IdPago == idPago).ToList();
+                                                        string rutDesencriptado = Encrypt.Base64Decode(rutCliente);
+                                                        var detallesCobranza = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza && x.RutCliente == rutDesencriptado).ToList();
+                                                        var docsCliente = await sf.GetAllDocumentosContabilizadosCliente(pago.CodAux, logApi.Id);
+                                                        foreach (var detalleCobranza in detallesCobranza)
+                                                        {
+                                                            var detPago = detallesPago.OrderByDescending(x => x.IdPagoDetalle).Where(x => x.Folio == detalleCobranza.Folio && detalleCobranza.TipoDocumento == x.TipoDocumento).FirstOrDefault();
+                                                            if (detPago != null)
+                                                            {
+                                                                detalleCobranza.FechaPago = pago.FechaPago;
+                                                                detalleCobranza.HoraPago = pago.HoraPago;
+                                                                detalleCobranza.ComprobanteContable = comprobante.NumComprobante;
+                                                                detalleCobranza.IdPago = idPago;
+                                                                detalleCobranza.Pagado += detPago.Apagar;
+
+                                                                var existDoc = docsCliente.Where(x => x.Numdoc == detalleCobranza.Folio && x.Ttdcod == detalleCobranza.TipoDocumento).FirstOrDefault();
+                                                                if (existDoc != null)
+                                                                {
+                                                                    detalleCobranza.IdEstado = 4;
+                                                                }
+                                                                else
+                                                                {
+                                                                    detalleCobranza.IdEstado = 5;
+                                                                }
+
+                                                                _context.CobranzaDetalles.Attach(detalleCobranza);
+                                                                _context.Entry(detalleCobranza).Property(x => x.FechaPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.HoraPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.ComprobanteContable).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.IdPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.IdEstado).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.Pagado).IsModified = true;
+
+                                                            }
+
+                                                        }
+                                                        _context.SaveChanges();
+                                                    }
+                                                    ClientesPortalController clientesController = new ClientesPortalController(_context, _webHostEnvironment, _admin, _contextAccessor);
+                                                    await clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
+                                                    if (redirectTo == TbkRedirect.PagoRapido)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
+                                                        }
+                                                        else
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+
+                                                    }
+
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
+
+                                                    return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
 
                                             }
                                             else
                                             {
-                                                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
+                                                procesos = procesos + 1;
+                                                Thread.Sleep(milliseconds);
+
+                                                goto gotoCallback;
                                             }
 
-                                            logApi.Termino = DateTime.Now;
-                                            logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-                                            sf.guardarLogApi(logApi);
-
-                                            return Redirect($"{redirectUrl}?state={ruta64}");
                                         }
                                         else
                                         {
-                                            if (redirectTo == TbkRedirect.PagoRapido)
-                                            {
-                                                if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
-                                                {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
-                                                }
-                                                else
-                                                {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
-                                                }
-                                            }
-                                            else
-                                            {
-                                                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+                                            procesos = procesos + 1;
+                                            Thread.Sleep(milliseconds);
 
-                                            }
-
-                                            logApi.Termino = DateTime.Now;
-                                            logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-                                            sf.guardarLogApi(logApi);
-
-                                            return Redirect($"{redirectUrl}?state={ruta64}");
+                                            goto gotoCallback;
                                         }
-
-
                                     }
-                                    else
-                                    {
-                                        procesos = procesos + 1;
-                                        Thread.Sleep(milliseconds);
-
-                                        goto gotoCallback;
-                                    }
-
 
                                     procesos = procesos + 1;
                                     Thread.Sleep(milliseconds);
@@ -1036,6 +1123,148 @@ namespace ApiPortal.Controllers
                             }
 
                             break;
+                            //int reprocesos = (int)api.ReintentosRedirect;
+                            //int procesos = 1;
+                            //gotoCallback:
+                            //int milliseconds = (int)api.MiliSegundosReintentoRedirect;
+
+                            //vm.Token = "";
+                            //vm.Url = "";
+                            //vm.Step = "end";
+                            //vm.Message = message;
+                            //vm.AuthorizationCode = string.Empty; ;
+                            //vm.Amount = (double)monto;
+                            //vm.BuyOrder = "";
+
+                            //var logValida = _context.PasarelaPagoLogs.Where(x => x.IdPago == idPago).FirstOrDefault();
+
+                            //if (logValida != null)
+                            //{
+                            //    if (procesos <= reprocesos)
+                            //    {
+                            //        if (logValida.Estado == "PAGADO" || logValida.Estado == "AUTHORIZED")
+                            //        {
+
+                            //            var pagoFinal = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();
+                            //            if (string.IsNullOrEmpty(pagoFinal.ComprobanteContable))
+                            //            {
+                            //                string folios = string.Empty;
+                            //                if (pago.PagosDetalles.Count > 0)
+                            //                {
+                            //                    foreach (var item in pago.PagosDetalles)
+                            //                    {
+                            //                        if (string.IsNullOrEmpty(folios))
+                            //                        {
+                            //                            folios = ";" + item.Folio.ToString();
+                            //                        }
+                            //                        else
+                            //                        {
+                            //                            folios = folios + "-" + item.Folio.ToString();
+                            //                        }
+                            //                    }
+
+                            //                }
+
+                            //                if (redirectTo == TbkRedirect.PagoRapido)
+                            //                {
+                            //                    if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                            //                    {
+
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
+
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                            //                    }
+
+                            //                }
+                            //                else
+                            //                {
+                            //                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
+                            //                }
+
+                            //                logApi.Termino = DateTime.Now;
+                            //                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //                sf.guardarLogApi(logApi);
+
+                            //                return Redirect($"{redirectUrl}?state={ruta64}");
+                            //            }
+                            //            else
+                            //            {
+                            //                if (redirectTo == TbkRedirect.PagoRapido)
+                            //                {
+                            //                    if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
+                            //                    }
+                            //                }
+                            //                else
+                            //                {
+                            //                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+
+                            //                }
+
+                            //                logApi.Termino = DateTime.Now;
+                            //                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //                sf.guardarLogApi(logApi);
+
+                            //                return Redirect($"{redirectUrl}?state={ruta64}");
+                            //            }
+
+
+                            //        }
+                            //        else
+                            //        {
+                            //            procesos = procesos + 1;
+                            //            Thread.Sleep(milliseconds);
+
+                            //            goto gotoCallback;
+                            //        }
+
+
+                            //        procesos = procesos + 1;
+                            //        Thread.Sleep(milliseconds);
+
+
+                            //        goto gotoCallback;
+                            //    }
+                            //    else
+                            //    {
+                            //        //error al procesar
+                            //        if (redirectTo == TbkRedirect.PagoRapido)
+                            //        {
+                            //            if (!string.IsNullOrEmpty(rutEncriptado))
+                            //            {
+                            //                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago + ";0"));
+                            //            }
+                            //            else
+                            //            {
+                            //                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago + ";1"));
+                            //            }
+                            //        }
+                            //        else
+                            //        {
+                            //            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago));
+
+                            //        }
+
+                            //        logApi.Termino = DateTime.Now;
+                            //        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //        sf.guardarLogApi(logApi);
+
+                            //        return Redirect($"{redirectUrl}?state={ruta64}");
+
+                            //    }
+
+
+                            //}
+
+                            //break;
                     }
                 }
                 #endregion
@@ -1153,7 +1382,7 @@ namespace ApiPortal.Controllers
 
                 //Creamos url que se enviara a tbk y una vez finalizada la transacción retornara para poder identificar en que flujo se ejecuta
                 //string urlReturn = pasarela.Protocolo + httpHost + $"/api/Softland/CallbackPago?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}"; ;
-                string urlReturn = "https://eoykk81g1au1suh.m.pipedream.net";
+                string urlReturn = sample_baseurl + $"?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
                 //Creamos la url que se utilizara para finalizar el proceso
                 string urlFinal = sample_baseurl + $"?action=end&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
 
@@ -1785,7 +2014,7 @@ namespace ApiPortal.Controllers
 
                             using (var client = new HttpClient())
                             {
-                                
+
                                 string accesToken = api.Token;
                                 string datosPagoDescrinptados = Encrypt.Base64Decode(datosPago);
 
@@ -1913,11 +2142,10 @@ namespace ApiPortal.Controllers
 
                             break;
                         case "end": //end proceso final cuando la trassaccion es retornada desde vpos
-
-                            int reprocesos = (int)api.ReintentosRedirect;
+                            int reprocesos = 5;
                             int procesos = 1;
                             gotoCallback:
-                            int milliseconds = (int)api.MiliSegundosReintentoRedirect;
+                            int milliseconds = 1500;
 
                             vm.Token = "";
                             vm.Url = "";
@@ -1933,90 +2161,178 @@ namespace ApiPortal.Controllers
                             {
                                 if (procesos <= reprocesos)
                                 {
-                                    if (logValida.Estado == "PAGADO" || logValida.Estado == "AUTHORIZED")
+                                    using (var client = new HttpClient())
                                     {
+                                        //var api = _context.ApiSoftlands.FirstOrDefault();
+                                        string accesToken = api.Token;
 
-                                        var pagoFinal = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();
-                                        if (string.IsNullOrEmpty(pagoFinal.ComprobanteContable))
+
+                                        string url = pasarela.AmbienteConsultarPago.Replace("{ID}", logValida.Token)
+                                                                      .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S");
+
+
+
+                                        client.BaseAddress = new Uri(url);
+                                        client.DefaultRequestHeaders.Accept.Clear();
+                                        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                        client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                                        HttpResponseMessage response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                        if (response.IsSuccessStatusCode)
                                         {
-                                            string folios = string.Empty;
-                                            if (pago.PagosDetalles.Count > 0)
+                                            var content = await response.Content.ReadAsStringAsync();
+                                            ResultadoEstadoPagoVPOS result = JsonConvert.DeserializeObject<ResultadoEstadoPagoVPOS>(content);
+
+                                            if (result.Estado == "PAGADO" || result.Estado == "AUTHORIZED") //Pago exitoso generar comprobante
                                             {
-                                                foreach (var item in pago.PagosDetalles)
+                                                logValida.Estado = result.Estado;
+                                                logValida.Fecha = DateTime.Now;
+                                                logValida.MedioPago = result.Medio_pago;
+                                                logValida.Cuotas = Convert.ToInt32(result.Cuotas);
+                                                logValida.Tarjeta = result.Forma_pago;
+
+                                                _context.Entry(logValida).Property(x => x.Fecha).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Estado).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.MedioPago).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Cuotas).IsModified = true;
+                                                _context.Entry(logValida).Property(x => x.Tarjeta).IsModified = true;
+                                                await _context.SaveChangesAsync();
+
+                                                //Genera comprobante contable por el pago realizado
+                                                PagoComprobanteVm comprobante = await sf.GeneraComprobantesContablesAsync(idPago, logValida.Token, logApi.Id);
+
+                                                if (comprobante.PagoId == 0)
                                                 {
-                                                    if (string.IsNullOrEmpty(folios))
+                                                    string folios = string.Empty;
+                                                    if (pago.PagosDetalles.Count > 0)
                                                     {
-                                                        folios = ";" + item.Folio.ToString();
+                                                        foreach (var item in pago.PagosDetalles)
+                                                        {
+                                                            if (string.IsNullOrEmpty(folios))
+                                                            {
+                                                                folios = ";" + item.Folio.ToString();
+                                                            }
+                                                            else
+                                                            {
+                                                                folios = folios + "-" + item.Folio.ToString();
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                    if (redirectTo == TbkRedirect.PagoRapido)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                                                        {
+
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
+
+                                                        }
+                                                        else
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                                                        }
+
                                                     }
                                                     else
                                                     {
-                                                        folios = folios + "-" + item.Folio.ToString();
+                                                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
                                                     }
-                                                }
 
-                                            }
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
 
-                                            if (redirectTo == TbkRedirect.PagoRapido)
-                                            {
-                                                if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
-                                                {
-
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
-
+                                                    return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
                                                 else
                                                 {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                                                    if (idCobranza != 0)
+                                                    {
+
+                                                        var detallesPago = _context.PagosDetalles.Where(x => x.IdPago == idPago).ToList();
+                                                        string rutDesencriptado = Encrypt.Base64Decode(rutCliente);
+                                                        var detallesCobranza = _context.CobranzaDetalles.Where(x => x.IdCobranza == idCobranza && x.RutCliente == rutDesencriptado).ToList();
+                                                        var docsCliente = await sf.GetAllDocumentosContabilizadosCliente(pago.CodAux, logApi.Id);
+                                                        foreach (var detalleCobranza in detallesCobranza)
+                                                        {
+                                                            var detPago = detallesPago.OrderByDescending(x => x.IdPagoDetalle).Where(x => x.Folio == detalleCobranza.Folio && detalleCobranza.TipoDocumento == x.TipoDocumento).FirstOrDefault();
+                                                            if (detPago != null)
+                                                            {
+                                                                detalleCobranza.FechaPago = pago.FechaPago;
+                                                                detalleCobranza.HoraPago = pago.HoraPago;
+                                                                detalleCobranza.ComprobanteContable = comprobante.NumComprobante;
+                                                                detalleCobranza.IdPago = idPago;
+                                                                detalleCobranza.Pagado += detPago.Apagar;
+
+                                                                var existDoc = docsCliente.Where(x => x.Numdoc == detalleCobranza.Folio && x.Ttdcod == detalleCobranza.TipoDocumento).FirstOrDefault();
+                                                                if (existDoc != null)
+                                                                {
+                                                                    detalleCobranza.IdEstado = 4;
+                                                                }
+                                                                else
+                                                                {
+                                                                    detalleCobranza.IdEstado = 5;
+                                                                }
+
+                                                                _context.CobranzaDetalles.Attach(detalleCobranza);
+                                                                _context.Entry(detalleCobranza).Property(x => x.FechaPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.HoraPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.ComprobanteContable).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.IdPago).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.IdEstado).IsModified = true;
+                                                                _context.Entry(detalleCobranza).Property(x => x.Pagado).IsModified = true;
+
+                                                            }
+
+                                                        }
+                                                        _context.SaveChanges();
+                                                    }
+                                                    ClientesPortalController clientesController = new ClientesPortalController(_context, _webHostEnvironment, _admin, _contextAccessor);
+                                                    await clientesController.EnviaCorreoComprobante(idPago).ConfigureAwait(false);
+                                                    if (redirectTo == TbkRedirect.PagoRapido)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
+                                                        }
+                                                        else
+                                                        {
+                                                            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+
+                                                    }
+
+                                                    logApi.Termino = DateTime.Now;
+                                                    logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                                    sf.guardarLogApi(logApi);
+
+                                                    return Redirect($"{redirectUrl}?state={ruta64}");
                                                 }
 
                                             }
                                             else
                                             {
-                                                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
+                                                procesos = procesos + 1;
+                                                Thread.Sleep(milliseconds);
+
+                                                goto gotoCallback;
                                             }
 
-                                            logApi.Termino = DateTime.Now;
-                                            logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-                                            sf.guardarLogApi(logApi);
-
-                                            return Redirect($"{redirectUrl}?state={ruta64}");
                                         }
                                         else
                                         {
-                                            if (redirectTo == TbkRedirect.PagoRapido)
-                                            {
-                                                if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
-                                                {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
-                                                }
-                                                else
-                                                {
-                                                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
-                                                }
-                                            }
-                                            else
-                                            {
-                                                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+                                            procesos = procesos + 1;
+                                            Thread.Sleep(milliseconds);
 
-                                            }
-
-                                            logApi.Termino = DateTime.Now;
-                                            logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
-                                            sf.guardarLogApi(logApi);
-
-                                            return Redirect($"{redirectUrl}?state={ruta64}");
+                                            goto gotoCallback;
                                         }
-
-
                                     }
-                                    else
-                                    {
-                                        procesos = procesos + 1;
-                                        Thread.Sleep(milliseconds);
-
-                                        goto gotoCallback;
-                                    }
-
 
                                     procesos = procesos + 1;
                                     Thread.Sleep(milliseconds);
@@ -2056,6 +2372,148 @@ namespace ApiPortal.Controllers
                             }
 
                             break;
+                            //int reprocesos = (int)api.ReintentosRedirect;
+                            //int procesos = 1;
+                            //gotoCallback:
+                            //int milliseconds = (int)api.MiliSegundosReintentoRedirect;
+
+                            //vm.Token = "";
+                            //vm.Url = "";
+                            //vm.Step = "end";
+                            //vm.Message = message;
+                            //vm.AuthorizationCode = string.Empty; ;
+                            //vm.Amount = (double)monto;
+                            //vm.BuyOrder = "";
+
+                            //var logValida = _context.PasarelaPagoLogs.Where(x => x.IdPago == idPago).FirstOrDefault();
+
+                            //if (logValida != null)
+                            //{
+                            //    if (procesos <= reprocesos)
+                            //    {
+                            //        if (logValida.Estado == "PAGADO" || logValida.Estado == "AUTHORIZED")
+                            //        {
+
+                            //            var pagoFinal = _context.PagosCabeceras.Include(x => x.PagosDetalles).Where(x => x.IdPago == idPago).FirstOrDefault();
+                            //            if (string.IsNullOrEmpty(pagoFinal.ComprobanteContable))
+                            //            {
+                            //                string folios = string.Empty;
+                            //                if (pago.PagosDetalles.Count > 0)
+                            //                {
+                            //                    foreach (var item in pago.PagosDetalles)
+                            //                    {
+                            //                        if (string.IsNullOrEmpty(folios))
+                            //                        {
+                            //                            folios = ";" + item.Folio.ToString();
+                            //                        }
+                            //                        else
+                            //                        {
+                            //                            folios = folios + "-" + item.Folio.ToString();
+                            //                        }
+                            //                    }
+
+                            //                }
+
+                            //                if (redirectTo == TbkRedirect.PagoRapido)
+                            //                {
+                            //                    if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                            //                    {
+
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";0" + folios));
+
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + ";1" + folios));
+                            //                    }
+
+                            //                }
+                            //                else
+                            //                {
+                            //                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("4;" + idPago + folios));
+                            //                }
+
+                            //                logApi.Termino = DateTime.Now;
+                            //                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //                sf.guardarLogApi(logApi);
+
+                            //                return Redirect($"{redirectUrl}?state={ruta64}");
+                            //            }
+                            //            else
+                            //            {
+                            //                if (redirectTo == TbkRedirect.PagoRapido)
+                            //                {
+                            //                    if (!string.IsNullOrEmpty(rutEncriptado) && rutEncriptado != "0")
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";0"));
+                            //                    }
+                            //                    else
+                            //                    {
+                            //                        ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago + ";1"));
+                            //                    }
+                            //                }
+                            //                else
+                            //                {
+                            //                    ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("1;" + idPago));
+
+                            //                }
+
+                            //                logApi.Termino = DateTime.Now;
+                            //                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //                sf.guardarLogApi(logApi);
+
+                            //                return Redirect($"{redirectUrl}?state={ruta64}");
+                            //            }
+
+
+                            //        }
+                            //        else
+                            //        {
+                            //            procesos = procesos + 1;
+                            //            Thread.Sleep(milliseconds);
+
+                            //            goto gotoCallback;
+                            //        }
+
+
+                            //        procesos = procesos + 1;
+                            //        Thread.Sleep(milliseconds);
+
+
+                            //        goto gotoCallback;
+                            //    }
+                            //    else
+                            //    {
+                            //        //error al procesar
+                            //        if (redirectTo == TbkRedirect.PagoRapido)
+                            //        {
+                            //            if (!string.IsNullOrEmpty(rutEncriptado))
+                            //            {
+                            //                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago + ";0"));
+                            //            }
+                            //            else
+                            //            {
+                            //                ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago + ";1"));
+                            //            }
+                            //        }
+                            //        else
+                            //        {
+                            //            ruta64 = Convert.ToBase64String(Encoding.UTF8.GetBytes("2;" + idPago));
+
+                            //        }
+
+                            //        logApi.Termino = DateTime.Now;
+                            //        logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                            //        sf.guardarLogApi(logApi);
+
+                            //        return Redirect($"{redirectUrl}?state={ruta64}");
+
+                            //    }
+
+
+                            //}
+
+                            //break;
                     }
                 }
                 #endregion

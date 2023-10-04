@@ -308,7 +308,7 @@ namespace ApiPortal.Services
             }
 
             body = body.Replace("{NombreEmpresa}", empresa);
-            body = body.Replace("{Titulo}", "Creación de "+ datos[2] + " asistida");
+            body = body.Replace("{Titulo}", "Creación de " + datos[2] + " asistida");
             body = body.Replace("{Texto}", texto);
             body = body.Replace("{logo}", logo);
             body = body.Replace("{NombreCobranza}", datos[0]);
@@ -1054,240 +1054,52 @@ namespace ApiPortal.Services
             foreach (var cobranza in listaEnvio)
             {
 
-                //Valida si existen correos disponbles para envio
-                if (correosEnviados >= correosDisponibles)
+
+                //var docStream = genera.generaDetalleCobranza(cobranza);
+
+
+                string body = string.Empty;
+                string rutaCorreo = (item.IdTipoCobranza == 1) ? (item.EnviaEnlacePago == 0) ? "Uploads/MailTemplates/cobranzaSinEnlace.component.html" : "Uploads/MailTemplates/cobranza.component.html" : "Uploads/MailTemplates/precobranza.component.html";
+                string asunto = string.Empty;
+                using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
                 {
-                    //No existen correos por lo que se cambia el estado a 2: ENVIADO PARCIALMENTE
-                    return "2";
+                    body = reader.ReadToEnd();
                 }
-                else
+
+                string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
+                body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
+                if (item.EnviaEnlacePago == 1)
                 {
-                    //var docStream = genera.generaDetalleCobranza(cobranza);
-
-
-                    string body = string.Empty;
-                    string rutaCorreo = (item.IdTipoCobranza == 1) ? (item.EnviaEnlacePago == 0) ? "Uploads/MailTemplates/cobranzaSinEnlace.component.html" : "Uploads/MailTemplates/cobranza.component.html" : "Uploads/MailTemplates/precobranza.component.html";
-                    string asunto = string.Empty;
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
-                    {
-                        body = reader.ReadToEnd();
-                    }
-
-                    string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
-                    body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
-                    if (item.EnviaEnlacePago == 1)
-                    {
-                        body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/{item.IdCobranza}/0");
-                        body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
-                    }
-
-                    if (item.IdTipoCobranza == 1)
-                    {
-                        asunto = auxCorreo.AsuntoCobranza;
-                        body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                        body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
-                        body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
-                        body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
-                    }
-                    else if (item.IdTipoCobranza == 2)
-                    {
-                        asunto = auxCorreo.AsuntoPreCobranza;
-                        body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                        body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
-                        body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
-                        body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
-                    }
-
-                    string codAuxEncriptado = Encrypt.Base64Encode(cobranza.CodAux);
-                    var elanceDocumento = urlFrot + "/#/sessions/account-state-view/" + codAuxEncriptado.Replace("=", "") + "/" + cobranza.IdCobranza + "/0";
-
-                    body = body.Replace("{ENLACEDOCUMENTO}", elanceDocumento);
-
-
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(cobranza.EmailCliente))
-                        {
-                            using (MailMessage mailMessage = new MailMessage())
-                            {
-                                //Attachment documento = new Attachment(new MemoryStream(docStream), "Estado Cuenta.pdf", "application/pdf");
-                                //mailMessage.Attachments.Add(documento);
-
-                                if (cobranza.EmailCliente.Contains(";"))
-                                {
-                                    string[] destinatarios = cobranza.EmailCliente.Split(';');
-                                    foreach (var d in destinatarios)
-                                    {
-                                        if (!string.IsNullOrEmpty(d) && d.Trim() != ";")
-                                        {
-                                            mailMessage.To.Add(new MailAddress(d));
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    mailMessage.To.Add(new MailAddress(cobranza.EmailCliente));
-                                }
-
-                                mailMessage.From = new MailAddress(auxCorreo.CorreoOrigen, auxCorreo.NombreCorreos);
-                                mailMessage.Subject = asunto;
-                                mailMessage.Body = body;
-                                mailMessage.IsBodyHtml = true;
-                                SmtpClient smtp = new SmtpClient();
-                                smtp.Host = auxCorreo.SmtpServer;
-                                smtp.EnableSsl = (auxCorreo.Ssl == 1) ? true : false;
-                                System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
-                                NetworkCred.UserName = auxCorreo.Usuario;
-                                NetworkCred.Password = Encrypt.Base64Decode(auxCorreo.Clave);
-                                smtp.UseDefaultCredentials = false;
-                                smtp.Credentials = NetworkCred;
-                                smtp.Port = Convert.ToInt32(auxCorreo.Puerto);
-                                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                                await smtp.SendMailAsync(mailMessage);
-
-                                this.registraLogCorreo(cobranza.RutCliente, cobranza.RutCliente.Replace(".", "").Split('-')[0], cobranza.EmailCliente);
-                            }
-
-                            //Actualiza Correos enviados
-                            try
-                            {
-                                var commandText = "UPDATE CobranzaDetalle SET IdEstado = @IdEstado, FechaEnvio = @FechaEnvio, HoraEnvio = @HoraEnvio  WHERE IdCobranza = @IdCobranza AND RutCliente = @RutCliente";
-                                var valEstado = new SqlParameter("@IdEstado", 3); //ESTADO ENVIADA
-                                var valFecha = new SqlParameter("@FechaEnvio", DateTime.Now);
-                                var valHora = new SqlParameter("@HoraEnvio", (horaActual < 10) ? $"0{horaActual}:00" : $"{horaActual}:00");
-                                var valRut = new SqlParameter("@RutCliente", cobranza.RutCliente);
-                                var valId = new SqlParameter("@IdCobranza", item.IdCobranza);
-                                _context.Database.ExecuteSqlRaw(commandText, valEstado, valFecha, valHora, valRut, valId);
-                            }
-                            catch (Exception ex)
-                            {
-                                //Registrar en tabla log
-                                LogProceso log = new LogProceso();
-                                log.IdTipoProceso = -1;
-                                log.Fecha = DateTime.Now;
-                                log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                                log.Ruta = @"cobranza\Update\CobranzaDetalle";
-                                log.Mensaje = ex.Message;
-                                log.Excepcion = ex.ToString();
-                                _context.LogProcesos.Add(log);
-                                _context.SaveChanges();
-
-                                estadoLogC = estadoLogC + ";Error al actualizar detalle";
-                            }
-
-                            correosEnviados += cobranza.EmailCliente.Split(';').Count();
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        //Registrar en tabla log
-                        LogProceso log = new LogProceso();
-                        log.IdTipoProceso = -1;
-                        log.Fecha = DateTime.Now;
-                        log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                        log.Ruta = @"cobranza\SendMail";
-                        log.Mensaje = ex.Message;
-                        log.Excepcion = ex.ToString();
-                        _context.LogProcesos.Add(log);
-                        _context.SaveChanges();
-
-                        estadoLogC = estadoLogC + ";Error al enviar correo-2";
-                        if (ex.Message == "Error al enviar correo.")
-                        {
-                            Thread.Sleep(5000);
-                        }
-                    }
-                }
-            }
-
-            return estadoLogC;
-        }
-
-
-        public async Task<int> EnviaAutomatizacionAsync(List<DetalleEnvioCobranzaVm> listaEnvio, Automatizacion automatizacion)
-        {
-            int correosDisponibles = this.calculaDisponiblesCobranza();
-            int correosEnviados = 0;
-            int idEstado = 0;
-            Generador genera = new Generador(_context, _webHostEnvironment);
-            var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-            var auxEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
-            string urlFrot = auxEmpresa.UrlPortal;
-            //Recorremos resultado de cobranza, generamos documento y enviamos correo
-            foreach (var cobranza in listaEnvio)
-            {
-                //Valida si existen correos disponbles para envio
-                if (correosEnviados >= correosDisponibles)
-                {
-                    //No existen correos por lo que se cambia el estado a 2: ENVIADO PARCIALMENTE
-                    return 1;
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(cobranza.EmailCliente))
-                    {
-                        continue;
-                    }
-                    //var docStream = genera.generaDetalleCobranza(cobranza);
-
-                    string body = string.Empty;
-                    string rutaCorreo = "Uploads/MailTemplates/cobranza.component.html";
-
-
-                    string asunto = string.Empty;
-                    using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
-                    {
-                        body = reader.ReadToEnd();
-                    }
-
-                    string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
-                    body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
+                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/{item.IdCobranza}/0");
                     body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
+                }
 
-                    if (automatizacion.IdTipoAutomatizacion == 1)
-                    {
-                        asunto = auxCorreo.AsuntoPreCobranza;
-                        body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
-                        body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                        body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
-                        body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
-                        body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
-                    }
-                    else if (automatizacion.IdTipoAutomatizacion == 2)
-                    {
-                        asunto = auxCorreo.AsuntoEstadoCuenta;
-                        body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
-                        body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                        body = body.Replace("{TituloCorreo}", auxCorreo.TituloEstadoCuenta);
-                        body = body.Replace("{TextoCorreo}", auxCorreo.TextoEstadoCuenta);
-                        body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
-                    }
-                    else if (automatizacion.IdTipoAutomatizacion == 3)
-                    {
-                        asunto = auxCorreo.AsuntoCobranza;
-                        if (automatizacion.AgrupaCobranza == 1)
-                        {
-                            body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
-                        }
-                        else
-                        {
-                            body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/0/{cobranza.ListaDocumentos[0].Folio}/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
-                        }
-                        body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
-                        body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
-                        body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
-                        body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
-                    }
+                if (item.IdTipoCobranza == 1)
+                {
+                    asunto = auxCorreo.AsuntoCobranza;
+                    body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
+                    body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
+                    body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
+                    body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
+                }
+                else if (item.IdTipoCobranza == 2)
+                {
+                    asunto = auxCorreo.AsuntoPreCobranza;
+                    body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
+                    body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
+                    body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
+                    body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
+                }
+
+                string codAuxEncriptado = Encrypt.Base64Encode(cobranza.CodAux);
+                var elanceDocumento = urlFrot + "/#/sessions/account-state-view/" + codAuxEncriptado.Replace("=", "") + "/" + cobranza.IdCobranza + "/0";
+
+                body = body.Replace("{ENLACEDOCUMENTO}", elanceDocumento);
 
 
-                    string codAuxEncriptado = Encrypt.Base64Encode(cobranza.CodAux);
-                    string automatizacionEncriptada = Encrypt.Base64Encode(cobranza.AutomatizacionJson);
-                    var elanceDocumento = urlFrot + "/#/sessions/account-state-view/" + codAuxEncriptado.Replace("=", "") + "/0/" + automatizacionEncriptada;
-
-                    body = body.Replace("{ENLACEDOCUMENTO}", elanceDocumento);
-
-                    try
+                try
+                {
+                    if (!string.IsNullOrEmpty(cobranza.EmailCliente))
                     {
                         using (MailMessage mailMessage = new MailMessage())
                         {
@@ -1329,30 +1141,204 @@ namespace ApiPortal.Services
                             this.registraLogCorreo(cobranza.RutCliente, cobranza.RutCliente.Replace(".", "").Split('-')[0], cobranza.EmailCliente);
                         }
 
+                        //Actualiza Correos enviados
+                        try
+                        {
+                            var commandText = "UPDATE CobranzaDetalle SET IdEstado = @IdEstado, FechaEnvio = @FechaEnvio, HoraEnvio = @HoraEnvio  WHERE IdCobranza = @IdCobranza AND RutCliente = @RutCliente";
+                            var valEstado = new SqlParameter("@IdEstado", 3); //ESTADO ENVIADA
+                            var valFecha = new SqlParameter("@FechaEnvio", DateTime.Now);
+                            var valHora = new SqlParameter("@HoraEnvio", (horaActual < 10) ? $"0{horaActual}:00" : $"{horaActual}:00");
+                            var valRut = new SqlParameter("@RutCliente", cobranza.RutCliente);
+                            var valId = new SqlParameter("@IdCobranza", item.IdCobranza);
+                            _context.Database.ExecuteSqlRaw(commandText, valEstado, valFecha, valHora, valRut, valId);
+                        }
+                        catch (Exception ex)
+                        {
+                            //Registrar en tabla log
+                            LogProceso log = new LogProceso();
+                            log.IdTipoProceso = -1;
+                            log.Fecha = DateTime.Now;
+                            log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                            log.Ruta = @"cobranza\Update\CobranzaDetalle";
+                            log.Mensaje = ex.Message;
+                            log.Excepcion = ex.ToString();
+                            _context.LogProcesos.Add(log);
+                            _context.SaveChanges();
+
+                            estadoLogC = estadoLogC + ";Error al actualizar detalle";
+                        }
+
                         correosEnviados += cobranza.EmailCliente.Split(';').Count();
                     }
-                    catch (Exception ex)
-                    {
-                        //Registrar en tabla log
-                        LogProceso log = new LogProceso();
-                        log.IdTipoProceso = -1;
-                        log.Fecha = DateTime.Now;
-                        log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
-                        log.Ruta = @"Autometizacion\EnviaAutomatizaciones";
-                        log.Mensaje = ex.Message;
-                        log.Excepcion = ex.ToString();
-                        _context.LogProcesos.Add(log);
-                        _context.SaveChanges();
 
-                        //estadoLogC = estadoLogC + ";Error al enviar correo";
-                        //IdEstadoFinal = 2;
-                        if (ex.Message == "Error al enviar correo.")
-                        {
-                            Thread.Sleep(5000);
-                        }
-                        idEstado = 2;
+                }
+                catch (Exception ex)
+                {
+                    //Registrar en tabla log
+                    LogProceso log = new LogProceso();
+                    log.IdTipoProceso = -1;
+                    log.Fecha = DateTime.Now;
+                    log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                    log.Ruta = @"cobranza\SendMail";
+                    log.Mensaje = ex.Message;
+                    log.Excepcion = ex.ToString();
+                    _context.LogProcesos.Add(log);
+                    _context.SaveChanges();
+
+                    estadoLogC = estadoLogC + ";Error al enviar correo-2";
+                    if (ex.Message == "Error al enviar correo.")
+                    {
+                        Thread.Sleep(5000);
                     }
                 }
+
+            }
+
+            return estadoLogC;
+        }
+
+
+        public async Task<int> EnviaAutomatizacionAsync(List<DetalleEnvioCobranzaVm> listaEnvio, Automatizacion automatizacion)
+        {
+            int correosDisponibles = this.calculaDisponiblesCobranza();
+            int correosEnviados = 0;
+            int idEstado = 0;
+            Generador genera = new Generador(_context, _webHostEnvironment);
+            var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+            var auxEmpresa = _context.ConfiguracionEmpresas.FirstOrDefault();
+            string urlFrot = auxEmpresa.UrlPortal;
+            //Recorremos resultado de cobranza, generamos documento y enviamos correo
+            foreach (var cobranza in listaEnvio)
+            {
+
+                if (string.IsNullOrEmpty(cobranza.EmailCliente))
+                {
+                    continue;
+                }
+                //var docStream = genera.generaDetalleCobranza(cobranza);
+
+                string body = string.Empty;
+                string rutaCorreo = "Uploads/MailTemplates/cobranza.component.html";
+
+
+                string asunto = string.Empty;
+                using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
+                {
+                    body = reader.ReadToEnd();
+                }
+
+                string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
+                body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
+                body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
+
+                if (automatizacion.IdTipoAutomatizacion == 1)
+                {
+                    asunto = auxCorreo.AsuntoPreCobranza;
+                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
+                    body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
+                    body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
+                    body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
+                    body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
+                }
+                else if (automatizacion.IdTipoAutomatizacion == 2)
+                {
+                    asunto = auxCorreo.AsuntoEstadoCuenta;
+                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
+                    body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
+                    body = body.Replace("{TituloCorreo}", auxCorreo.TituloEstadoCuenta);
+                    body = body.Replace("{TextoCorreo}", auxCorreo.TextoEstadoCuenta);
+                    body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
+                }
+                else if (automatizacion.IdTipoAutomatizacion == 3)
+                {
+                    asunto = auxCorreo.AsuntoCobranza;
+                    if (automatizacion.AgrupaCobranza == 1)
+                    {
+                        body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
+                    }
+                    else
+                    {
+                        body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/0/{cobranza.ListaDocumentos[0].Folio}/0/" + Encrypt.Base64Encode(cobranza.AutomatizacionJson));
+                    }
+                    body = body.Replace("{NombreEmpresa}", auxEmpresa.NombreEmpresa);
+                    body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
+                    body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
+                    body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
+                }
+
+
+                string codAuxEncriptado = Encrypt.Base64Encode(cobranza.CodAux);
+                string automatizacionEncriptada = Encrypt.Base64Encode(cobranza.AutomatizacionJson);
+                var elanceDocumento = urlFrot + "/#/sessions/account-state-view/" + codAuxEncriptado.Replace("=", "") + "/0/" + automatizacionEncriptada;
+
+                body = body.Replace("{ENLACEDOCUMENTO}", elanceDocumento);
+
+                try
+                {
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        //Attachment documento = new Attachment(new MemoryStream(docStream), "Estado Cuenta.pdf", "application/pdf");
+                        //mailMessage.Attachments.Add(documento);
+
+                        if (cobranza.EmailCliente.Contains(";"))
+                        {
+                            string[] destinatarios = cobranza.EmailCliente.Split(';');
+                            foreach (var d in destinatarios)
+                            {
+                                if (!string.IsNullOrEmpty(d) && d.Trim() != ";")
+                                {
+                                    mailMessage.To.Add(new MailAddress(d));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            mailMessage.To.Add(new MailAddress(cobranza.EmailCliente));
+                        }
+
+                        mailMessage.From = new MailAddress(auxCorreo.CorreoOrigen, auxCorreo.NombreCorreos);
+                        mailMessage.Subject = asunto;
+                        mailMessage.Body = body;
+                        mailMessage.IsBodyHtml = true;
+                        SmtpClient smtp = new SmtpClient();
+                        smtp.Host = auxCorreo.SmtpServer;
+                        smtp.EnableSsl = (auxCorreo.Ssl == 1) ? true : false;
+                        System.Net.NetworkCredential NetworkCred = new System.Net.NetworkCredential();
+                        NetworkCred.UserName = auxCorreo.Usuario;
+                        NetworkCred.Password = Encrypt.Base64Decode(auxCorreo.Clave);
+                        smtp.UseDefaultCredentials = false;
+                        smtp.Credentials = NetworkCred;
+                        smtp.Port = Convert.ToInt32(auxCorreo.Puerto);
+                        System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                        await smtp.SendMailAsync(mailMessage);
+
+                        this.registraLogCorreo(cobranza.RutCliente, cobranza.RutCliente.Replace(".", "").Split('-')[0], cobranza.EmailCliente);
+                    }
+
+                    correosEnviados += cobranza.EmailCliente.Split(';').Count();
+                }
+                catch (Exception ex)
+                {
+                    //Registrar en tabla log
+                    LogProceso log = new LogProceso();
+                    log.IdTipoProceso = -1;
+                    log.Fecha = DateTime.Now;
+                    log.Hora = ((DateTime.Now.Hour < 10) ? "0" + DateTime.Now.Hour.ToString() : DateTime.Now.Hour.ToString()) + ":" + ((DateTime.Now.Minute < 10) ? "0" + DateTime.Now.Minute.ToString() : DateTime.Now.Minute.ToString());
+                    log.Ruta = @"Autometizacion\EnviaAutomatizaciones";
+                    log.Mensaje = ex.Message;
+                    log.Excepcion = ex.ToString();
+                    _context.LogProcesos.Add(log);
+                    _context.SaveChanges();
+
+                    //estadoLogC = estadoLogC + ";Error al enviar correo";
+                    //IdEstadoFinal = 2;
+                    if (ex.Message == "Error al enviar correo.")
+                    {
+                        Thread.Sleep(5000);
+                    }
+                    idEstado = 2;
+                }
+
             }
             return idEstado;
         }

@@ -1738,12 +1738,13 @@ namespace ApiPortal.Controllers
 
 
 
-                    switch (automatizacion.IdAutomatizacion)
+                    switch (automatizacion.IdTipoAutomatizacion)
                     {
                         case 1:
                             if (automatizacion.NumDoc.Count > 0)
                             {
                                 List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+
 
                                 foreach (var folio in automatizacion.NumDoc)
                                 {
@@ -1761,6 +1762,28 @@ namespace ApiPortal.Controllers
                             break;
                         case 3:
                             clients = clients.Where(x => (DateTime.Now.Date - x.FechaVcto.Value.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
+                            if (automatizacion.AgrupaCobranza == 0)
+                            {
+                                if (automatizacion.NumDoc.Count > 0)
+                                {
+                                    List<ClienteSaldosDTO> clientsAux = new List<ClienteSaldosDTO>();
+
+
+                                    foreach (var folio in automatizacion.NumDoc)
+                                    {
+                                        var exist = clients.Where(x => x.Nro == folio).ToList();
+                                        if (exist.Count > 0)
+                                        {
+                                            foreach (var doc in exist)
+                                            {
+                                                clientsAux.Add(doc);
+                                            }
+                                        }
+                                    }
+                                    clients = clientsAux;
+                                }
+                            }
+
                             break;
                     }
                 }
@@ -3806,10 +3829,11 @@ namespace ApiPortal.Controllers
                             {
                                 List<DocumentosCobranzaVm> clientsAux = new List<DocumentosCobranzaVm>();
 
+
                                 foreach (var folio in automatizacion.NumDoc)
                                 {
                                     var exist = documentos.Where(x => x.FolioDocumento == folio).ToList();
-                                    if (exist.Count() > 0)
+                                    if (exist.Count > 0)
                                     {
                                         foreach (var doc in exist)
                                         {
@@ -3822,6 +3846,28 @@ namespace ApiPortal.Controllers
                             break;
                         case 3:
                             documentos = documentos.Where(x => (DateTime.Now.Date - x.FechaVencimiento.Date).TotalDays >= automatizacion.DiasVencimiento).ToList();
+                            if(automatizacion.AgrupaCobranza == 0)
+                            {
+                                if (automatizacion.NumDoc.Count > 0)
+                                {
+                                    List<DocumentosCobranzaVm> clientsAux = new List<DocumentosCobranzaVm>();
+
+
+                                    foreach (var folio in automatizacion.NumDoc)
+                                    {
+                                        var exist = documentos.Where(x => x.FolioDocumento == folio).ToList();
+                                        if (exist.Count > 0)
+                                        {
+                                            foreach (var doc in exist)
+                                            {
+                                                clientsAux.Add(doc);
+                                            }
+                                        }
+                                    }
+                                    documentos = clientsAux;
+                                }
+                            }
+                         
                             break;
                     }
 

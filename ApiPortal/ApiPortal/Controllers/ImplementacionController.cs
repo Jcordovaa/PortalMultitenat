@@ -679,7 +679,7 @@ namespace ApiPortal.Controllers
                         BaseDatosPortal = builder.InitialCatalog,
                         UsuarioBaseDatosPortal = builder.UserID,
                         ClaveBaseDatosPortal = builder.Password,
-                        AmbienteTransbank = (int)(transbank.Estado == null ? 0 : transbank.Estado),
+                        AmbienteTransbank = (int)(transbank.EsProduccion == null ? 0 : transbank.EsProduccion),
                         CodigoComercioTransbank = transbank.CodigoComercio,
                         ApiKeyTransbank = transbank.SecretKey,
                         CuentaContableTransbank = transbank.CuentaContable,
@@ -978,6 +978,7 @@ namespace ApiPortal.Controllers
                     transbank.CuentaContable = tenant.DatosImplementacion.CuentaContableTransbank;
                     transbank.Estado = tenant.DatosImplementacion.UtilizaTransbank;
                     transbank.EsProduccion = tenant.DatosImplementacion.AmbienteTransbank;
+                    transbank.SecretKey = tenant.DatosImplementacion.ApiKeyTransbank;
 
 
                     virtualPos.Ambiente = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VirtualPosGenerarPago?url_redireccion={REDIRECCION}&url_callback={CALLBACK}&id_interno={IDINTERNO}&monto_total={TOTAL}&monto_bruto={BRUTO}&rutCliente={RUT}&tipo={TIPO}&monto_impuestos={IMPUESTO}&nombre_cliente={NOMBRE}&apellido_cliente={APELLIDO}&correo_cliente={CORREO}&esProductivo={ESPRODUCTIVO}";
@@ -1452,6 +1453,7 @@ namespace ApiPortal.Controllers
                     transbank.CuentaContable = tenant.DatosImplementacion.CuentaContableTransbank;
                     transbank.Estado = tenant.DatosImplementacion.UtilizaTransbank;
                     transbank.EsProduccion = tenant.DatosImplementacion.AmbienteTransbank;
+                    transbank.SecretKey = tenant.DatosImplementacion.ApiKeyTransbank;
                     newContextPortal.Entry(transbank);
 
                     virtualPos.Ambiente = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VirtualPosGenerarPago?url_redireccion={REDIRECCION}&url_callback={CALLBACK}&id_interno={IDINTERNO}&monto_total={TOTAL}&monto_bruto={BRUTO}&rutCliente={RUT}&tipo={TIPO}&monto_impuestos={IMPUESTO}&nombre_cliente={NOMBRE}&apellido_cliente={APELLIDO}&correo_cliente={CORREO}&esProductivo={ESPRODUCTIVO}";

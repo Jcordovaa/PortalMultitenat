@@ -274,7 +274,7 @@ export class CompanyComponent implements OnInit {
       return;
     }
 
-    if (this.empresaImplementacion.tipoCliente == 0 || this.empresaImplementacion.tipoCliente == null) {
+    if (this.empresaImplementacion.tipoCliente == null) {
       this.notificationService.warning('Debe ingresar tipo de cliente', '', true);
       return;
     }
@@ -2013,7 +2013,7 @@ export class CompanyComponent implements OnInit {
       c1 += `${element.value};`;
     });
 
-    this.config.correoAvisoPago = c1;
+    this.tenant.datosImplementacion.configuracionCorreo.correoAvisoPago = c1.length > 0 ? c1.substring(0, c1.length - 1) : '';
     this.tenant.estado = 3
     this.tenant.datosImplementacion.utilizaTransbank =  this.tenant.datosImplementacion.utilizaTransbank ? 1 : 0
     this.tenant.datosImplementacion.utilizaVirtualPos =  this.tenant.datosImplementacion.utilizaVirtualPos ? 1 : 0
