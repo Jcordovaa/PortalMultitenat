@@ -163,7 +163,7 @@ export class PayComponent implements OnInit {
           this.rutCliente = window.atob(this.activatedRoute.snapshot.params['rut'])
           var codAux: string = '';
 
-
+          debugger
           const data: any = {
             correo: '',
             rut: this.rutCliente,
@@ -597,6 +597,7 @@ export class PayComponent implements OnInit {
 
 
     var datosPago = window.btoa(encodeURIComponent(this.nombrePago) + ';' + encodeURIComponent(this.apellidoPago) + ';' + this.rutPago + ';' + this.correoPago);
+    debugger
     let rutEncriptado = window.btoa(this.rutCliente);
     let tenant = btoa(window.location.hostname);
     this.spinner.show();
@@ -606,16 +607,15 @@ export class PayComponent implements OnInit {
         if (resVal) {
           this.clientesService.postSavePago(pago).subscribe(
             (res: any) => {
-              this.spinner.hide();
               //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
               let automatizacion = this.automatizacion != null ? this.automatizacion : "0";
               this.pasarelaService.generaPagoElectronico(res, this.selectedPasarela, rutEncriptado, this.idCobranza, automatizacion, datosPago, TbkRedirect.PagoRapido, tenant).subscribe(
-                (res: any) => {
-                  this.spinner.hide();
+                (res: any) => {              
                   //LLama a procesador de pago que se encargara de levantar la pasarela correspondiente
                   if (res.estado == 1) {
                     window.location.href = res.enlacePago;
                   }
+                  this.spinner.hide();
                 },
                 err => { this.spinner.hide(); this.bloqueaBotonPago = false; }
               );

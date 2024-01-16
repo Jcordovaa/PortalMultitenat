@@ -349,7 +349,6 @@ namespace ApiPortal.Controllers
 
                         docCliente[0].EmailCliente = correos;
 
-
                         if (automatizacion.IdTipoAutomatizacion == 3 && automatizacion.AgrupaCobranza != 1)
                         {
                             foreach (var item in docCliente)

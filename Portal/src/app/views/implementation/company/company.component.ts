@@ -27,6 +27,16 @@ interface AutoCompleteModel {
 })
 export class CompanyComponent implements OnInit {
 
+  public idTenantEnrolar: number = 0;
+  public rutEmpresaVpos: string = '';
+  public nombreEmpresaVpos: string = '';
+  public rutContactoVpos: string = '';
+  public nombreContactoVpos: string = '';
+  public correoContactoVpos: string = '';
+  public esProductivoPasarela: number = 0;
+  public apikeyTransbank: string = '';
+  public secretkeyTransbank: string = '';
+  public correoUsuarioAdministrador: string = '';
   public viewMode: 'list' | 'grid' = 'list';
   public modalTitle: string = '';
   public modalTitleCorreos: string = '';
@@ -58,6 +68,7 @@ export class CompanyComponent implements OnInit {
   public iconClaveCorreo: string = 'assets/images/icon/view.png'
   public verApiKey: number = 0; //FCA 10-03-2022
   public iconApiKey: string = 'assets/images/icon/view.png'
+  public titleImplementacion: string = 'Nueva Implementación'
   public loaded: boolean = false;
   public totalItems: number = 0;
   public config: any;
@@ -242,6 +253,28 @@ export class CompanyComponent implements OnInit {
     }
   }
 
+  validaRutContactoVpos() {
+    if (this.rutContactoVpos != "" && this.rutContactoVpos != null) {
+      if (this.utils.isValidRUT(this.rutContactoVpos)) {
+        this.rutContactoVpos = this.utils.checkRut(this.rutContactoVpos);
+      } else {
+        this.rutContactoVpos = '';
+        this.notificationService.warning('Rut ingresado no es valido', '', true);
+      }
+    }
+  }
+
+  validaRutEmpresaVpos() {
+    if (this.rutEmpresaVpos != "" && this.rutEmpresaVpos != null) {
+      if (this.utils.isValidRUT(this.rutEmpresaVpos)) {
+        this.rutEmpresaVpos = this.utils.checkRut(this.rutEmpresaVpos);
+      } else {
+        this.rutEmpresaVpos = '';
+        this.notificationService.warning('Rut ingresado no es valido', '', true);
+      }
+    }
+  }
+
   limpiarFiltros() {
     this.paginador.search = '';
     this.paginador.rutEmpresa = '';
@@ -310,32 +343,33 @@ export class CompanyComponent implements OnInit {
   }
 
   nuevaImplementacion(content: any, tenant: any) {
+    
     this.conexionApiValid = false;
     this.conexionBaseDatosValid = false;
     this.selectedCuentasContables = null;
     this.selectedTiposDocumentos = null;
     this.correo1 = [];
     this.general = 0;
-    this.pagos= 0;
-    this.activacion= 0;
-    this.cambioDatos= 0;
-    this.actualizaClave= 0;
-    this.actualizaCorreo= 0;
-    this.recuperaClave= 0;
-    this.envioDocumentos= 0;
-    this.notificacionPago= 0;
-    this.notificacionPagoSinComprobante= 0;
-    this.cobranza= 0;
-    this.preCobranza= 0;
-    this.estadoCuenta= 0;
+    this.pagos = 0;
+    this.activacion = 0;
+    this.cambioDatos = 0;
+    this.actualizaClave = 0;
+    this.actualizaCorreo = 0;
+    this.recuperaClave = 0;
+    this.envioDocumentos = 0;
+    this.notificacionPago = 0;
+    this.notificacionPagoSinComprobante = 0;
+    this.cobranza = 0;
+    this.preCobranza = 0;
+    this.estadoCuenta = 0;
     this.defaultImageLogoPortada = null;
     this.urlImagenLogoPortada = null;
-    this.inicioDeSesion= 0;
-    this.sidebar= 0;
-    this.pagoRapido= 0;
-    this.dashboardCliente= 0;
-    this.misCompras= 0;
-    this.miPerfil= 0;
+    this.inicioDeSesion = 0;
+    this.sidebar = 0;
+    this.pagoRapido = 0;
+    this.dashboardCliente = 0;
+    this.misCompras = 0;
+    this.miPerfil = 0;
     this.defaultImageLogoPortadaDiseno = null;
     this.urlImagenLogoPortadaDiseno = null;
     this.defaultImagenPortada = null;
@@ -367,9 +401,10 @@ export class CompanyComponent implements OnInit {
     this.defaultImageFavicon = null;
     this.urlImagenFavicon = null;
     if (tenant != null) {
+      this.titleImplementacion = 'Editar Implementación'
       this.tenant = tenant;
     } else {
-      debugger
+      this.titleImplementacion = 'Nueva Implementación'
       this.tenant = new Tenant();
       this.tenant.rutEmpresa = this.empresaTenants.rut;
       this.tenant.nombreEmpresa = this.empresaTenants.razonSocial;
@@ -2015,8 +2050,8 @@ export class CompanyComponent implements OnInit {
 
     this.tenant.datosImplementacion.configuracionCorreo.correoAvisoPago = c1.length > 0 ? c1.substring(0, c1.length - 1) : '';
     this.tenant.estado = 3
-    this.tenant.datosImplementacion.utilizaTransbank =  this.tenant.datosImplementacion.utilizaTransbank ? 1 : 0
-    this.tenant.datosImplementacion.utilizaVirtualPos =  this.tenant.datosImplementacion.utilizaVirtualPos ? 1 : 0
+    this.tenant.datosImplementacion.utilizaTransbank = this.tenant.datosImplementacion.utilizaTransbank ? 1 : 0
+    this.tenant.datosImplementacion.utilizaVirtualPos = this.tenant.datosImplementacion.utilizaVirtualPos ? 1 : 0
     this.tenant.datosImplementacion.configuracionCorreo.ssl = this.tenant.datosImplementacion.configuracionCorreo.ssl ? 1 : 0
     this.tenant.datosImplementacion.configuracionPortal.muestraContactosPerfil = this.tenant.datosImplementacion.configuracionPortal.muestraContactosPerfil ? 1 : 0
     this.tenant.datosImplementacion.configuracionPortal.permiteExportarExcel = this.tenant.datosImplementacion.configuracionPortal.permiteExportarExcel ? 1 : 0
@@ -2040,7 +2075,7 @@ export class CompanyComponent implements OnInit {
 
     this.tenant.datosImplementacion.configuracionPagoCliente.cuentasContablesDeuda = cuentasContables
     this.tenant.datosImplementacion.configuracionPagoCliente.tiposDocumentosDeuda = tiposDocumentos
-
+    debugger
     this.implementacionService.subirTenantYArchivos(this.tenant).then((res: any) => {
       this.getEmpresas();
       this.modalService.dismissAll();
@@ -2467,7 +2502,189 @@ export class CompanyComponent implements OnInit {
         this.modalContent = 'Mensaje mostrado al cliente al ingresar al portal mediante el link "Descargar" enviado en una cobranza.';
         this.modalImage = 'assets/images/config/textoDescargaCobranza.jpg';
         break;
+
+      case 66:
+        this.modalTitleInfo = 'URL API';
+        this.modalContent = 'La url de la api debe ser la url completa de esta (https o http + dominio + /api/) ejemplo: https://apiportal.softlandcloud.cl/api/';
+        this.modalImage = '';
+        break;
+
+      case 67:
+        this.modalTitleInfo = 'URL Portal';
+        this.modalContent = 'La url del portal debe ser la url completa de este (no debe ir con "/" al final y debe incluir https o http). ejemplo: https://portalclientedemo.softlandcloud.cl';
+        this.modalImage = '';
+        break;
     }
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+  enrolarVirtualPos(content: any, tenant: any) {
+    this.idTenantEnrolar = tenant.idTenant;
+    this.rutContactoVpos = '';
+    this.rutEmpresaVpos = '';
+    this.nombreEmpresaVpos = '';
+    this.nombreContactoVpos = '';
+    this.correoContactoVpos = '';
+    this.esProductivoPasarela = 0;
+    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+  enrolarTransbank(content: any, tenant: any) {
+    this.idTenantEnrolar = tenant.idTenant;
+    this.apikeyTransbank = '';
+    this.secretkeyTransbank = '';
+    this.esProductivoPasarela = 0;
+    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+  saveVpos() {
+    if (this.rutContactoVpos == '' || this.rutContactoVpos == null) {
+      this.notificationService.warning('Debe ingresar rut del contacto', '', true);
+      return;
+    }
+
+    if (this.rutEmpresaVpos == '' || this.rutEmpresaVpos == null) {
+      this.notificationService.warning('Debe ingresar rut de la empresa', '', true);
+      return;
+    }
+
+    if (this.nombreEmpresaVpos == '' || this.nombreEmpresaVpos == null) {
+      this.notificationService.warning('Debe ingresar nombre de la empresa', '', true);
+      return;
+    }
+
+    if (this.nombreContactoVpos == '' || this.nombreContactoVpos == null) {
+      this.notificationService.warning('Debe ingresar nombre del contacto', '', true);
+      return;
+    }
+
+    if (this.correoContactoVpos == '' || this.correoContactoVpos == null) {
+      this.notificationService.warning('Debe ingresar correo del contacto', '', true);
+      return;
+    }
+
+
+    this.spinner.show();
+
+    let model = {
+      rutEmpresa: this.rutEmpresaVpos,
+      nombreEmpresa: this.nombreEmpresaVpos,
+      rutContacto: this.rutContactoVpos,
+      nombreContacto: this.nombreContactoVpos,
+      correoContacto: this.correoContactoVpos,
+      idTenant: this.idTenantEnrolar,
+      esProductivo: this.esProductivoPasarela ? 1 : 0
+    };
+
+    this.implementacionService.enrolaVpos(model).subscribe((res: boolean) => {
+      if (res) {
+        this.modalService.dismissAll();
+        this.getEmpresas();
+        this.spinner.hide();
+        this.notificationService.success('Empresa Enrolada correctamente', '', true);
+      } else {
+        this.spinner.hide();
+        this.notificationService.error('No se pudo enrolar empresa', '', true);
+      }
+
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al enrolar empresa', '', true); });
+  }
+
+  saveTransbank() {
+    if (this.apikeyTransbank == '' || this.apikeyTransbank == null) {
+      this.notificationService.warning('Debe ingresar Api key', '', true);
+      return;
+    }
+
+    if (this.secretkeyTransbank == '' || this.secretkeyTransbank == null) {
+      this.notificationService.warning('Debe ingresar secret key', '', true);
+      return;
+    }
+
+
+    this.spinner.show();
+
+    let model = {
+      apiKey: this.apikeyTransbank,
+      secretKey: this.secretkeyTransbank,
+      idTenant: this.idTenantEnrolar,
+      esProductivo: this.esProductivoPasarela ? 1 : 0
+    };
+
+
+    this.implementacionService.enrolaTbk(model).subscribe((res: boolean) => {
+      if (res) {
+        this.modalService.dismissAll();
+        this.getEmpresas();
+        this.spinner.hide();
+
+        this.notificationService.success('Empresa Enrolada correctamente', '', true);
+      } else {
+        this.spinner.hide();
+        this.notificationService.error('No se pudo enrolar empresa', '', true);
+      }
+
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al enrolar empresa', '', true); });
+
+  }
+
+  openModalPasoProduccion(content: any, tenant: any) {
+    this.idTenantEnrolar = tenant.idTenant;
+    this.correoUsuarioAdministrador = '';
+    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
+  }
+
+  async pasoProduccion() {
+    if (this.correoUsuarioAdministrador == '' || this.correoUsuarioAdministrador == null) {
+      this.notificationService.warning('Debe ingresar un correo.', '', true);
+      return;
+    }
+    let usuario = {
+      email: this.correoUsuarioAdministrador
+    };
+
+    const response = await this.notificationService.confirmation('', 'Se cambiara el estado del portal a producción y se enviara las credenciales de acceso al correo indicado. ¿Desea continuar?', 'SI', 'NO');
+    if (response.isConfirmed) {
+      this.spinner.show();
+      this.implementacionService.pasoProduccion(usuario, this.idTenantEnrolar).subscribe((res: any) => {
+        if (res == -1) {
+          this.spinner.hide();
+          this.notificationService.warning('Ya existe un usuario con el correo.', '', true);
+        } else if (res == 0) {
+          this.spinner.hide();
+          this.notificationService.error('Error al enviar correo de notificación, reintentelo', '', true);
+        } else {
+          this.modalService.dismissAll();
+          this.getEmpresas();
+          this.spinner.hide();
+          this.notificationService.success('Correcto', '', true);
+        }
+
+      }, err => {
+        this.spinner.hide();
+        if (err && err.error != null && err.error != "") {
+          this.notificationService.error(err.error, '', true);
+        } else {
+          this.notificationService.error('Ocurrió un error al crear usuario.', '', true);
+        }
+      });
+
+    }
+
+  }
+
+  validaEmailVpos() {
+    if (!this.utils.validateMail(this.correoContactoVpos)) {
+      this.notificationService.warning('Debe ingresar un correo válido.', '', true);
+      this.correoContactoVpos = '';
+      return;
+    }
+  }
+
+  validaEmailUsuarioAdmin() {
+    if (!this.utils.validateMail(this.correoUsuarioAdministrador)) {
+      this.notificationService.warning('Debe ingresar un correo válido.', '', true);
+      this.correoUsuarioAdministrador = '';
+      return;
+    }
   }
 }

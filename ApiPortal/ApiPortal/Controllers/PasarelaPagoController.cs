@@ -93,7 +93,7 @@ namespace ApiPortal.Controllers
 
             try
             {
-                var pasarela = _context.PasarelaPagos.Where(x => x.Estado == 1).AsQueryable();
+                var pasarela = _context.PasarelaPagos.Where(x => x.IdPasarela == 1 || x.IdPasarela == 5).AsQueryable();
                 List<PasarelaPagoVm> pasarelas = new List<PasarelaPagoVm>();
 
                 foreach (var item in pasarela)

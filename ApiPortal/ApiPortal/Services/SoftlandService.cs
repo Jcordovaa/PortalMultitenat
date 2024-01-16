@@ -16,6 +16,7 @@ using System.Runtime.Intrinsics.X86;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using ApiPortal.Dal.Models_Admin;
 
 namespace ApiPortal.Services
 {
@@ -2927,7 +2928,7 @@ namespace ApiPortal.Services
                         {
                             codaux = string.Empty;
                         }
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -2964,7 +2965,7 @@ namespace ApiPortal.Services
                                     using (var client2 = new HttpClient())
                                     {
 
-                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codaux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -3129,7 +3130,7 @@ namespace ApiPortal.Services
                     {
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
-                        string url = api.Url + api.ObtieneModulos.Replace("{AREADATOS}", api.AreaDatos);
+                        string url = api.Url + api.ConsultaMonedas.Replace("{AREADATOS}", api.AreaDatos);
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
@@ -3139,7 +3140,7 @@ namespace ApiPortal.Services
                         LogApiDetalle logApiDetalle = new LogApiDetalle();
                         logApiDetalle.IdLogApi = logApiId;
                         logApiDetalle.Inicio = DateTime.Now;
-                        logApiDetalle.Metodo = "ObtieneModulos";
+                        logApiDetalle.Metodo = "ConsultaMonedas";
 
 
                         HttpResponseMessage response = await client.GetAsync(client.BaseAddress);
@@ -3379,8 +3380,6 @@ namespace ApiPortal.Services
 
                         using (var client = new HttpClient())
                         {
-
-
                             var api = _context.ApiSoftlands.FirstOrDefault();
                             string accesToken = api.Token;
 
@@ -3573,7 +3572,7 @@ namespace ApiPortal.Services
                         string estadoDocs = "V";
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                         string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", rutAux).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -3602,7 +3601,7 @@ namespace ApiPortal.Services
                             if (documentos[0].Count > 0)
                             {
 
-                                retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+                                retorno = documentos[0].ToList();
 
                                 if (retorno.Count > 0)
                                 {
@@ -3685,10 +3684,10 @@ namespace ApiPortal.Services
                         int pagina = filter.Pagina;
                         string folio = "";
                         string rutAux = "";
-                        string estadoDocs = "";
+                        string estadoDocs = "P";
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                         string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -3717,7 +3716,7 @@ namespace ApiPortal.Services
                             if (documentos[0].Count > 0)
                             {
 
-                                retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+                                retorno = documentos[0].ToList();
 
                                 if (retorno.Count > 0)
                                 {
@@ -3794,7 +3793,7 @@ namespace ApiPortal.Services
                     string estadoDocs = "";
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filter.CodAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -3822,7 +3821,7 @@ namespace ApiPortal.Services
                         List<List<DocumentoContabilizadoAPIDTO>> documentos = JsonConvert.DeserializeObject<List<List<DocumentoContabilizadoAPIDTO>>>(content);
                         if (documentos[0].Count > 0)
                         {
-                            retorno = documentos[0].Where(x => x.Saldobase >= 0).ToList();
+                            retorno = documentos[0].ToList();
 
                             if (retorno.Count > 0)
                             {
@@ -4040,7 +4039,7 @@ namespace ApiPortal.Services
                         var fecha = configPortal.AnioTributario.ToString() + "-01-01";
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", DateTime.Now.Year.ToString()).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", "").Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         client.BaseAddress = new Uri(url);
                         client.DefaultRequestHeaders.Accept.Clear();
@@ -6369,7 +6368,7 @@ namespace ApiPortal.Services
 
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
-                        string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", filtro.Cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocContabilizadosResumenxRut.Replace("{CANTIDAD}", filtro.Cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filtro.Pagina.ToString()).Replace("{RUTAUX}", filtro.RutCliente).Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
                         .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
 
@@ -6835,7 +6834,7 @@ namespace ApiPortal.Services
 
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "0").Replace("{AREADATOS}", api.AreaDatos).Replace("codaux={CODAUX}&", "");
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", filtro.CodAuxCliente).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
                         .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
 
@@ -6870,7 +6869,7 @@ namespace ApiPortal.Services
                                     pagina = pagina + 1;
                                     using (var client2 = new HttpClient())
                                     {
-                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasVencimiento.ToString()).Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", estado).Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                                          .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", listaCategorias)
                                          .Replace("{LISTACONDICIONVENTA}", listaCondicionesVenta).Replace("{LISTAVENDEDORES}", listaVendedores);
 
@@ -7130,7 +7129,7 @@ namespace ApiPortal.Services
 
                         int cantidad = 100;
                         int pagina = 1;
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -7166,7 +7165,7 @@ namespace ApiPortal.Services
                                     using (var client2 = new HttpClient())
                                     {
 
-                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                        string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", fechaVencimientoDesde).Replace("{FECHAVENCIMIENTOHASTA}", fechaVencimientoHasta).Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -7703,7 +7702,7 @@ namespace ApiPortal.Services
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
 
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", "").Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         if (!string.IsNullOrEmpty(codAux))
                         {
@@ -7855,7 +7854,7 @@ namespace ApiPortal.Services
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
                     int cantidad = 100;
                     int pagina = 1;
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -7892,7 +7891,7 @@ namespace ApiPortal.Services
                                 using (var client2 = new HttpClient())
                                 {
 
-                                    string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                    string url2 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -8093,7 +8092,7 @@ namespace ApiPortal.Services
                         var api = _context.ApiSoftlands.FirstOrDefault();
                         string accesToken = api.Token;
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", fecha).Replace("{SOLOSALDO}", "1").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{DESDE}", "").Replace("{SOLOSALDO}", "1").Replace("{AREADATOS}", api.AreaDatos).Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
                         if (!string.IsNullOrEmpty(codAux))
                         {
@@ -8600,7 +8599,7 @@ namespace ApiPortal.Services
                         //string url = api.Url + api.DocumentosContabilizados.Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("solosaldo={SOLOSALDO}&", "").Replace("{AREADATOS}", api.AreaDatos);
                         string listadocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : string.Empty;
                         string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : string.Empty;
-                        string url = api.Url + api.DocumentosContabilizadosResumen.Replace("{DESDE}", fecha).Replace("{CODAUX}", codAux).Replace("{LISTADOCUMENTOS}", listadocumentos).Replace("{LISTACUENTAS}", listacuentas).Replace("{DIASXVENCER}", configPortal.DiasPorVencer.ToString());
+                        string url = api.Url + api.DocumentosContabilizadosResumen.Replace("{DESDE}", "").Replace("{CODAUX}", codAux).Replace("{LISTADOCUMENTOS}", listadocumentos).Replace("{LISTACUENTAS}", listacuentas).Replace("{DIASXVENCER}", configPortal.DiasPorVencer.ToString());
 
                         //url = url.Replace("codaux={CODAUX}&", "");
 
@@ -8842,7 +8841,7 @@ namespace ApiPortal.Services
                     using (var client = new HttpClient())
                     {
                         var fecha = configPortal.AnioTributario + "-01-01";
-                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                        string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                        .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -8879,7 +8878,7 @@ namespace ApiPortal.Services
                                     using (var client2 = new HttpClient())
                                     {
 
-                                        string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                        string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                             .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -9107,7 +9106,7 @@ namespace ApiPortal.Services
 
                     string listacuentas = !string.IsNullOrEmpty(configPortal.CuentasContablesDeuda) ? configPortal.CuentasContablesDeuda.Replace(";", ",") : "";
                     string listaDocumentos = !string.IsNullOrEmpty(configPortal.TiposDocumentosDeuda) ? configPortal.TiposDocumentosDeuda.Replace(";", ",") : "";
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", diasPorVencer).Replace("{EMISIONDESDE}", emisionDesde).Replace("{EMISIONHASTA}", emisionHasta).Replace("{ESTADO}", estadoDocs).Replace("{FOLIO}", folio).Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", filter.Pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "1").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -9522,7 +9521,7 @@ namespace ApiPortal.Services
 
                     int cantidad = 100;
                     int pagina = 1;
-                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                    string url = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", codAux).Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -9558,7 +9557,7 @@ namespace ApiPortal.Services
                                 using (var client2 = new HttpClient())
                                 {
 
-                                    string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", fecha).Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
+                                    string url3 = api.Url + api.DocumentosContabilizados.Replace("{CANTIDAD}", cantidad.ToString()).Replace("{CODAUX}", "").Replace("{DESDE}", "").Replace("{DIASPORVENCER}", "").Replace("{EMISIONDESDE}", "").Replace("{EMISIONHASTA}", "").Replace("{ESTADO}", "").Replace("{FOLIO}", "").Replace("{LISTACUENTAS}", listacuentas)
                         .Replace("{LISTADOCUMENTOS}", listaDocumentos).Replace("{PAGINA}", pagina.ToString()).Replace("{RUTAUX}", "").Replace("{SOLOSALDO}", "0").Replace("{MONEDA}", "").Replace("{FECHAVENCIMIENTODESDE}", "").Replace("{FECHAVENCIMIENTOHASTA}", "").Replace("{LISTACAGETORIAS}", "")
                         .Replace("{LISTACONDICIONVENTA}", "").Replace("{LISTAVENDEDORES}", "");
 
@@ -9996,7 +9995,7 @@ namespace ApiPortal.Services
                 return true;
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return false;
             }
@@ -10211,6 +10210,20 @@ namespace ApiPortal.Services
 
                     return tableCount > 0;
                 }
+            }
+        }
+
+
+        public bool EnrolarVposVm(Tenant tenant)
+        {
+            try
+            {
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }

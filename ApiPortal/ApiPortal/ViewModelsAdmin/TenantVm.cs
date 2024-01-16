@@ -25,6 +25,9 @@ namespace ApiPortal.ViewModelsAdmin
         public int? IdAreaComercial { get; set; }
         public string? RutEmpresa { get; set; }
         public string? NombreEmpresa { get; set; }
+        public int? EnroladoVPos { get; set; }
+        public int? EnroladoTbk { get; set; }
+        public DateTime? FechaPasoProduccion { get; set; }
 
         public EmpresaEstadoVm? EstadoTenant { get; set; }
         public  AreaComercialVm? AreaComercial { get; set; }

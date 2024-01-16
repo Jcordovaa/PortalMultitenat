@@ -1,23 +1,22 @@
+
 <div class="main-header">
+    
     <div class="logo">
         <img src="./assets/images/logo.png" alt="">
     </div>
-  
-    <div class="menu-toggle" (click)="toggelSidebar()">   
+
+    <div class="menu-toggle" (click)="toggelSidebar()">
         <div></div>
         <div></div>
         <div></div>
-    </div>
-    <div class="desktop">
-        <!-- <div class="d-flex align-items-center">
-            <h2 class="text-primary text--cap d-inline-block">{{empresa.nombreEmpresa}} | {{empresa.rutEmpresa}}</h2> 
-        </div> -->
     </div>
 
-   
+
+ 
+
     <div class="d-flex align-items-center" *ngIf="showBar">
 
-        
+
         <!-- Mega menu -->
         <!-- <div ngbDropdown class="mega-menu d-none d-md-block">
                 <button ngbDropdownToggle href="#" class="btn text-muted dropdown-toggle mr-3">Mega Menu</button>
@@ -69,7 +68,7 @@
                 <i class="search-icon text-muted i-Magnifi-Glass1"></i>
             </div>
         </div> -->
-  
+
         <div style="margin: auto" *ngIf="showBar"></div>
 
         <div class="header-part-right">
@@ -113,8 +112,8 @@
             </div> -->
 
             <div ngbDropdown [placement]="'bottom-right'" class="user col align-self-end">
-                <img style="cursor: pointer;" src="./assets/images/IconoUsuario.png" id="userDropdown"
-                    ngbDropdownToggle alt="">
+                <img style="cursor: pointer;" src="./assets/images/IconoUsuario.png" id="userDropdown" ngbDropdownToggle
+                    alt="">
                 <div ngbDropdownMenu aria-labelledby="userDropdown">
                     <div class="dropdown-header">
                         <i class="i-Lock-User mr-1"></i> {{userName}}
@@ -126,5 +125,5 @@
             </div>
 
         </div>
-
+    
     </div>

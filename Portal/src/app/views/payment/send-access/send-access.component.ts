@@ -379,7 +379,13 @@ export class SendAccessComponent implements OnInit {
       let model = {
         value: this.clientesSeleccionados,
         enviaTodos: this.checkAll ? 1 : 0,
-        eliminados: this.clientesEliminados
+        eliminados: this.clientesEliminados,
+        vendedor: this.selectedVendedor,
+        condicionVenta: this.selectedCondVenta,
+        categoriaCliente: this.selectedCatCliente,
+        codAux: this.searchCodAux == '' ? null : this.searchCodAux,
+        rut: this.searchRut == '' ? null : this.searchRut,
+        nombre: this.searchNombre == '' ? null : this.searchNombre
       }
       this.clienteService.enviaAcceso(model).subscribe(res => {
         this.clientes = [];

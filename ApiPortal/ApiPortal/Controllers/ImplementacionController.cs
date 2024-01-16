@@ -18,6 +18,11 @@ using System.Security.Policy;
 using Microsoft.SqlServer.Management.Sdk.Sfc;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs;
+using ApiPortal.Security;
+using System.Net;
+using ApiPortal.ModelSoftland;
+using Newtonsoft.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApiPortal.Controllers
 {
@@ -138,7 +143,10 @@ namespace ApiPortal.Controllers
                                 Nombre = j.EstadoNavigation.Nombre
                             },
                             NombreEmpresa = x.RazonSocial,
-                            RutEmpresa = x.Rut
+                            RutEmpresa = x.Rut,
+                            EnroladoVPos = j.EnroladoVpos == null ? 0 : 1,
+                            EnroladoTbk = j.EnroladoTbk == null ? 0 : 1,
+                            FechaPasoProduccion = j.FechaPasoProduccion
                         }),
                         TipoCliente = x.TipoCliente,
                         TotalFilas = empresas.Count()
@@ -149,10 +157,18 @@ namespace ApiPortal.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerEmpresasPorPagina";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -175,10 +191,18 @@ namespace ApiPortal.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerImplementadores";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -200,10 +224,18 @@ namespace ApiPortal.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerAreasComerciales";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -225,10 +257,18 @@ namespace ApiPortal.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerLineasProducto";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -251,10 +291,18 @@ namespace ApiPortal.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerPlanes";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -284,10 +332,18 @@ namespace ApiPortal.Controllers
                 return Ok();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/CrearEmpresa";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -323,10 +379,18 @@ namespace ApiPortal.Controllers
                     return BadRequest();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/EditarEmpresa";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -347,10 +411,18 @@ namespace ApiPortal.Controllers
                     return BadRequest();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return BadRequest();
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/EliminarEmpresa";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -363,9 +435,18 @@ namespace ApiPortal.Controllers
                 var retorno = await sf.validaConexionApiImplementacionAsync(apiModel);
                 return Ok(retorno);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/validaConexionApi";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -378,9 +459,18 @@ namespace ApiPortal.Controllers
                 var retorno = await sf.validaConexionBaseDatosAsync(datosImplementacion);
                 return Ok(retorno);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/validaConexionBaseDatos";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -394,9 +484,18 @@ namespace ApiPortal.Controllers
                 var retorno = await sf.GetAllCuentasContablesImplementacionAsync(apiModel);
                 return Ok(retorno);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerCuentasContables";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -409,9 +508,18 @@ namespace ApiPortal.Controllers
                 var retorno = await sf.GetAllTiposDocumentosImplementacionAsync(apiModel);
                 return Ok(retorno);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerTiposDocumento";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -424,9 +532,18 @@ namespace ApiPortal.Controllers
                 var retorno = await sf.GetAllCuentasContablesPasarela(apiModel);
                 return Ok(retorno);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerCuentasContablesPasarelas";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -468,19 +585,19 @@ namespace ApiPortal.Controllers
                             ObtieneCondicionesVenta = "IW/ObtieneCondicionesVenta",
                             ObtieneListasPrecio = "IW/ObtieneListasPrecio",
                             ObtieneCategoriaClientes = "IW/ObtieneCategoriaClientes",
-                            DocumentosContabilizados = "CW/DocumentosContabilizados?cantidad={CANTIDAD}&codaux={CODAUX}&desde={DESDE}&diasxvencer={DIASPORVENCER}&Emisiondesde={EMISIONDESDE}&emisionhasta={EMISIONHASTA}&estado={ESTADO}&folio={FOLIO}&listacuentas={LISTACUENTAS}&listadocumentos={LISTADOCUMENTOS}&pagina={PAGINA}&rutaux={RUTAUX}&solosaldo={SOLOSALDO}&Vctodesde={FECHAVENCIMIENTODESDE}&Vctohasta={FECHAVENCIMIENTOHASTA}&listacategorias={LISTACAGETORIAS}&listacondicionventa={LISTACONDICIONVENTA}&listavendedores={LISTAVENDEDORES}",
+                            DocumentosContabilizados = "CW/DocumentosContabilizados?cantidad={CANTIDAD}&codaux={CODAUX}&diasxvencer={DIASPORVENCER}&Emisiondesde={EMISIONDESDE}&emisionhasta={EMISIONHASTA}&estado={ESTADO}&folio={FOLIO}&listacuentas={LISTACUENTAS}&listadocumentos={LISTADOCUMENTOS}&pagina={PAGINA}&rutaux={RUTAUX}&solosaldo={SOLOSALDO}&Vctodesde={FECHAVENCIMIENTODESDE}&Vctohasta={FECHAVENCIMIENTOHASTA}&listacategorias={LISTACAGETORIAS}&listacondicionventa={LISTACONDICIONVENTA}&listavendedores={LISTAVENDEDORES}",
                             ObtieneModulos = "IW/ObtieneModulos",
                             ConsultaMonedas = "CW/ConsultaMonedas",
                             ContabilizaPagos = "CW/CWContabilizaPagos",
                             ConsultaCargos = "CW/ObtenerCargos",
-                            DocumentosContabilizadosResumen = "CW/DocumentosContabilizadosResumen?codaux={CODAUX}&desde={DESDE}&diasxvencer={DIASXVENCER}&listacuentas={LISTACUENTAS}&listadocumentos={LISTADOCUMENTOS}",
+                            DocumentosContabilizadosResumen = "CW/DocumentosContabilizadosResumen?codaux={CODAUX}&diasxvencer={DIASXVENCER}&listacuentas={LISTACUENTAS}&listadocumentos={LISTADOCUMENTOS}",
                             TopDeudores = "CW/TopDeudores?CantidadTope={CANTIDADTOPE}&desde={DESDE}&listaCuentas={LISTACUENTAS}&listaTipodocumentos={LISTATIPODOCUMENTOS}",
                             TransbankRegistrarCliente = "VW/VWTransbankRegistrarCliente",
                             DocContabilizadosResumenxRut = "CW/DocContabilizadosResumenxRut?cantidad={CANTIDAD}&codaux={CODAUX}&desde={DESDE}&diasxvencer={DIASXVENCER}&Emisiondesde={EMISIONDESDE}&emisionhasta={EMISIONHASTA}&estado={ESTADO}&folio={FOLIO}&listacuentas={LISTACUENTAS}&listadocumentos={LISTADOCUMENTOS}&moneda={MONEDA}&pagina={PAGINA}&rutaux={RUTAUX}&solosaldo={SOLOSALDO}&Vctodesde={FECHAVENCIMIENTODESDE}&Vctohasta={FECHAVENCIMIENTOHASTA}&listacategorias={LISTACAGETORIAS}&listacondicionventa={LISTACONDICIONVENTA}&listavendedores={LISTAVENDEDORES}",
                             PagosxDocumento = "CW/PagosxDocumento?cantidad={CANTIDAD}&codaux={CODAUX}&documento={DOCUMENTO}&folio={FOLIO}&pagina={PAGINA}",
                             HabilitaLogApi = 0,
                             CadenaAlmacenamientoAzure = "DefaultEndpointsProtocol=https;AccountName=sofcluesstaportalcliente;AccountKey=5nPtQyN7+Frvk5s6YKfZUlpcTLWKGsbDnD2/gMTOgkvKGGM89Lig0G9jysGjA0lHz3Vzn1KtRxQk+AStrdB0VA==;EndpointSuffix=core.windows.net",
-                            UrlAlmacenamientoArchivos = "https://sofcluesstaportalcliente.blob.core.windows.net/" + tenant.RutEmpresa.Replace(".","").Replace("-", "") + "/",
+                            UrlAlmacenamientoArchivos = "https://sofcluesstaportalcliente.blob.core.windows.net/" + tenant.RutEmpresa.Replace(".", "").Replace("-", "") + "/",
                             CuentasPasarelaPagos = "CW/CuentasPasarelaPagos",
                             ReintentosCallback = 5,
                             ReintentosRedirect = 7,
@@ -491,7 +608,7 @@ namespace ApiPortal.Controllers
                         {
                             SmtpServer = "smtp.sendgrid.net",
                             Usuario = "apikey",
-                            Clave = "U0cuS2w2UDBRblpSLUdfWURlNGJVb3M1QS5lV21SZnlqNko3TDgwbjRHanpiSUI4SGZIeVp1b3pVdlNSSWRPd2VzUkRZ",
+                            Clave = Encrypt.Base64Decode("U0cuS2w2UDBRblpSLUdfWURlNGJVb3M1QS5lV21SZnlqNko3TDgwbjRHanpiSUI4SGZIeVp1b3pVdlNSSWRPd2VzUkRZ"),
                             Puerto = 587,
                             Ssl = 1,
                             AsuntoPagoCliente = "Comprobante de Pago",
@@ -534,7 +651,8 @@ namespace ApiPortal.Controllers
                             AsuntoEstadoCuenta = "Estado de cuenta",
                             TextoEstadoCuenta = "Estimado Cliente, en el presente correo podra encontrar información sobre su estado de cuenta.",
                             TextoPagoSinComprobante = "Se ha realizado un pago a través del portal pero no fue posible generar el comprobante contable, a continuación encontrará los datos del cliente para validar y reprocesar o generar el comprobante.",
-                            LogoCorreo = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/LogoCorreo.png"
+                            LogoCorreo = "https://sofcluesstaportalcliente.blob.core.windows.net/imagendefecto/LogoCorreo.png",
+                            CorreoOrigen = "no-responder@softlandcloud.cl"
                         },
                         ConfiguracionPortal = new ConfiguracionPortal
                         {
@@ -579,7 +697,7 @@ namespace ApiPortal.Controllers
                             ColorBotonClavePerfil = "#263db5",
                             ColorBotonEstadoPerfil = "#263db5",
                             ColorBotonGuardarModalPerfil = "#263db5",
-                            ColorBotonInicioSesion = "#263db5",
+                            ColorBotonInicioSesion = "#fff",
                             ColorBotonModificarPerfil = "#263db5",
                             ColorBotonPagar = "#263db5",
                             ColorBotonPagoRapido = "#263db5",
@@ -666,6 +784,10 @@ namespace ApiPortal.Controllers
                     var transbank = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 1).FirstOrDefault();
                     var virtualPos = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 5).FirstOrDefault();
 
+                    if (!string.IsNullOrEmpty(configuracionCorreo.Clave))
+                    {
+                        configuracionCorreo.Clave = Encrypt.Base64Decode(configuracionCorreo.Clave);
+                    }
 
                     tenant.DatosImplementacion = new DatosImplementacionVm
                     {
@@ -695,54 +817,103 @@ namespace ApiPortal.Controllers
 
                 return Ok(tenant);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtieneDatosTenant";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
 
         [HttpPost("CreaActualizaTenant"), Authorize]
-        public async Task<ActionResult> CreaActualizaTenant([FromForm]TenantVm tenant)
+        public async Task<ActionResult> CreaActualizaTenant([FromForm] TenantVm tenant)
         {
             try
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
                 tenant.ConnectionString = "Data Source=" + tenant.DatosImplementacion.ServidorPortal + ";Initial Catalog=" + tenant.DatosImplementacion.BaseDatosPortal + ";" +
-                                    "user id=" + tenant.DatosImplementacion.UsuarioBaseDatosPortal + ";password=" + tenant.DatosImplementacion.ClaveBaseDatosPortal + ";";
+                                    "user id=" + tenant.DatosImplementacion.UsuarioBaseDatosPortal + ";password=" + tenant.DatosImplementacion.ClaveBaseDatosPortal + ";Encrypt=False;";
                 var existenTablas = sf.TableExists(tenant.ConnectionString);
                 if (tenant.IdTenant == 0 || tenant.IdTenant == null || !existenTablas)
                 {
                     var empresa = _admin.EmpresasPortals.Where(x => x.Rut == tenant.RutEmpresa).FirstOrDefault();
-                    Tenant newTenant = new Tenant
-                    {
-                        ConnectionString = tenant.ConnectionString,
-                        CorreoImplementador = tenant.CorreoImplementador,
-                        Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
-                        Estado = 3,
-                        FechaInicioContrato = tenant.FechaInicioContrato,
-                        FechaInicioImplementacion = tenant.FechaInicioImplementacion,
-                        FechaTerminoContrato = tenant.FechaTerminoContrato,
-                        FechaTerminoImplementacion = tenant.FechaTerminoImplementacion,
-                        IdAreaComercial = tenant.IdAreaComercial,
-                        IdEmpresa = empresa.IdEmpresa,
-                        Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
-                        IdImplementador = tenant.IdImplementador,
-                        IdLineaProducto = tenant.IdLineaProducto,
-                        IdPlan = tenant.IdPlan,
-                        NombreImplementador = tenant.NombreImplementador,
-                        OtImplementacion = tenant.OtImplementacion,
-                        TelefonoImplementador = tenant.TelefonoImplementador
-                    };
 
-                    _admin.Tenants.Add(newTenant);
-                    await _admin.SaveChangesAsync();
+                    if (tenant.IdTenant == null || tenant.IdTenant == 0)
+                    {
+                       
+
+                        Dal.Models_Admin.Tenant newTenant = new Dal.Models_Admin.Tenant
+                        {
+                            ConnectionString = tenant.ConnectionString,
+                            CorreoImplementador = tenant.CorreoImplementador,
+                            Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
+                            Estado = 2,
+                            FechaInicioContrato = tenant.FechaInicioContrato,
+                            FechaInicioImplementacion = tenant.FechaInicioImplementacion,
+                            FechaTerminoContrato = tenant.FechaTerminoContrato,
+                            FechaTerminoImplementacion = tenant.FechaTerminoImplementacion,
+                            IdAreaComercial = tenant.IdAreaComercial,
+                            IdEmpresa = empresa.IdEmpresa,
+                            Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host,
+                            IdImplementador = tenant.IdImplementador,
+                            IdLineaProducto = tenant.IdLineaProducto,
+                            IdPlan = tenant.IdPlan,
+                            NombreImplementador = tenant.NombreImplementador,
+                            OtImplementacion = tenant.OtImplementacion,
+                            TelefonoImplementador = tenant.TelefonoImplementador,
+                            EnroladoTbk = 0,
+                            EnroladoVpos = 0,
+                            FechaPasoProduccion = null
+                        };
+                        _admin.Tenants.Add(newTenant);
+                        await _admin.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var newTenant = _admin.Tenants.Where(x => x.IdTenant == tenant.IdTenant).FirstOrDefault();
+
+
+                        newTenant.ConnectionString = tenant.ConnectionString;
+                        newTenant.CorreoImplementador = tenant.CorreoImplementador;
+                        newTenant.Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
+                        newTenant.Estado = tenant.Estado;
+                        newTenant.FechaInicioContrato = tenant.FechaInicioContrato;
+                        newTenant.FechaInicioImplementacion = tenant.FechaInicioImplementacion;
+                        newTenant.FechaTerminoContrato = tenant.FechaTerminoContrato;
+                        newTenant.FechaTerminoImplementacion = tenant.FechaTerminoImplementacion;
+                        newTenant.IdAreaComercial = tenant.IdAreaComercial;
+                        newTenant.IdEmpresa = tenant.IdEmpresa;
+                        newTenant.Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
+                        newTenant.IdImplementador = tenant.IdImplementador;
+                        newTenant.IdLineaProducto = tenant.IdLineaProducto;
+                        newTenant.IdPlan = tenant.IdPlan;
+                        newTenant.NombreImplementador = tenant.NombreImplementador;
+                        newTenant.OtImplementacion = tenant.OtImplementacion;
+                        newTenant.TelefonoImplementador = tenant.TelefonoImplementador;
+                        newTenant.IdTenant = (int)tenant.IdTenant;
+                        newTenant.FechaPasoProduccion = tenant.FechaPasoProduccion;
+                        newTenant.EnroladoTbk = tenant.EnroladoTbk;
+                        newTenant.EnroladoVpos = tenant.EnroladoVPos;
+                        _admin.Entry(newTenant);
+                        await _admin.SaveChangesAsync();
+                    }
+
+
+
 
                     string connectionString = tenant.DatosImplementacion.ApiSoftland.CadenaAlmacenamientoAzure;
                     BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
                     //Validamos si contenedor para empresa existe
-                    string containerName = tenant.RutEmpresa.Replace(".","").Replace("-","");
+                    string containerName = tenant.RutEmpresa.Replace(".", "").Replace("-", "");
                     BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
                     bool exists = await containerClient.ExistsAsync();
@@ -756,7 +927,7 @@ namespace ApiPortal.Controllers
                     //Cambiamos nombre archivo
                     Utils util = new Utils();
 
-                    if(tenant.LogoPortada != null)
+                    if (tenant.LogoPortada != null)
                     {
                         string LogoPortada = util.nombreArchivo(tenant.LogoPortada.FileName, 1);
                         using (var stream = System.IO.File.Create(LogoPortada))
@@ -935,7 +1106,7 @@ namespace ApiPortal.Controllers
                             stream.Position = 0;
                             await blobClient.UploadAsync(stream, overwrite: true);
                             tenant.DatosImplementacion.ConfiguracionDiseno.IconoEstadoPerfil = tenant.DatosImplementacion.ApiSoftland.UrlAlmacenamientoArchivos + IconoEstadoPerfil;
-                        }    
+                        }
                     }
 
                     if (tenant.LogoCorreo != null)
@@ -963,12 +1134,17 @@ namespace ApiPortal.Controllers
                     var transbank = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 1).FirstOrDefault();
                     var virtualPos = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 5).FirstOrDefault();
 
+                    if (!string.IsNullOrEmpty(tenant.DatosImplementacion.ConfiguracionCorreo.Clave))
+                    {
+                        tenant.DatosImplementacion.ConfiguracionCorreo.Clave = Encrypt.Base64Encode(tenant.DatosImplementacion.ConfiguracionCorreo.Clave);
+                    }
 
                     newContextPortal.ConfiguracionEmpresas.Add(tenant.DatosImplementacion.ConfiguracionEmpresa);
                     newContextPortal.ConfiguracionCorreos.Add(tenant.DatosImplementacion.ConfiguracionCorreo);
                     newContextPortal.ConfiguracionPagoClientes.Add(tenant.DatosImplementacion.ConfiguracionPagoCliente);
                     newContextPortal.ConfiguracionDisenos.Add(tenant.DatosImplementacion.ConfiguracionDiseno);
                     newContextPortal.ApiSoftlands.Add(tenant.DatosImplementacion.ApiSoftland);
+                    tenant.DatosImplementacion.ConfiguracionPortal.EstadoImplementacion = 2;
                     newContextPortal.ConfiguracionPortals.Add(tenant.DatosImplementacion.ConfiguracionPortal);
 
                     transbank.Ambiente = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWTransbankGenerarPago";
@@ -1039,10 +1215,10 @@ namespace ApiPortal.Controllers
                     };
                     newContextPortal.Usuarios.Add(user);
 
-                  
+
 
                     await newContextPortal.SaveChangesAsync();
-                  
+
 
                 }
                 else
@@ -1068,6 +1244,9 @@ namespace ApiPortal.Controllers
                     newTenant.OtImplementacion = tenant.OtImplementacion;
                     newTenant.TelefonoImplementador = tenant.TelefonoImplementador;
                     newTenant.IdTenant = (int)tenant.IdTenant;
+                    newTenant.FechaPasoProduccion = tenant.FechaPasoProduccion;
+                    newTenant.EnroladoTbk = tenant.EnroladoTbk;
+                    newTenant.EnroladoVpos = tenant.EnroladoVPos;
                     _admin.Entry(newTenant);
                     await _admin.SaveChangesAsync();
 
@@ -1297,11 +1476,11 @@ namespace ApiPortal.Controllers
                     var transbank = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 1).FirstOrDefault();
                     var virtualPos = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 5).FirstOrDefault();
 
-                
+
 
 
                     configuracionEmpresa.UrlPortal = tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal;
-                 
+
                     configuracionCorreo.AsuntoAccesoCliente = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoAccesoCliente;
                     configuracionCorreo.AsuntoAvisoPagoCliente = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoAvisoPagoCliente;
                     configuracionCorreo.AsuntoCambioClave = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoCambioClave;
@@ -1314,6 +1493,12 @@ namespace ApiPortal.Controllers
                     configuracionCorreo.AsuntoPagoSinComprobante = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoPagoSinComprobante;
                     configuracionCorreo.AsuntoPreCobranza = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoPreCobranza;
                     configuracionCorreo.AsuntoRecuperarClave = tenant.DatosImplementacion.ConfiguracionCorreo.AsuntoRecuperarClave;
+
+                    if (!string.IsNullOrEmpty(tenant.DatosImplementacion.ConfiguracionCorreo.Clave))
+                    {
+                        tenant.DatosImplementacion.ConfiguracionCorreo.Clave = Encrypt.Base64Encode(tenant.DatosImplementacion.ConfiguracionCorreo.Clave);
+                    }
+
                     configuracionCorreo.Clave = tenant.DatosImplementacion.ConfiguracionCorreo.Clave;
                     configuracionCorreo.ColorBoton = tenant.DatosImplementacion.ConfiguracionCorreo.ColorBoton;
                     configuracionCorreo.CorreoAvisoPago = tenant.DatosImplementacion.ConfiguracionCorreo.CorreoAvisoPago;
@@ -1349,12 +1534,12 @@ namespace ApiPortal.Controllers
                     configuracionCorreo.TituloPreCobranza = tenant.DatosImplementacion.ConfiguracionCorreo.TituloPreCobranza;
                     configuracionCorreo.TituloRecuperarClave = tenant.DatosImplementacion.ConfiguracionCorreo.TituloRecuperarClave;
                     configuracionCorreo.Usuario = tenant.DatosImplementacion.ConfiguracionCorreo.Usuario;
-                
+
                     configuracionPagoCliente.CuentasContablesDeuda = tenant.DatosImplementacion.ConfiguracionPagoCliente.CuentasContablesDeuda;
                     configuracionPagoCliente.TiposDocumentosDeuda = tenant.DatosImplementacion.ConfiguracionPagoCliente.TiposDocumentosDeuda;
                     configuracionPagoCliente.DiasPorVencer = tenant.DatosImplementacion.ConfiguracionPagoCliente.DiasPorVencer;
                     configuracionPagoCliente.GlosaComprobante = tenant.DatosImplementacion.ConfiguracionPagoCliente.GlosaComprobante;
-                 
+
                     configuracionDiseno.BannerMisCompras = tenant.DatosImplementacion.ConfiguracionDiseno.BannerMisCompras;
                     configuracionDiseno.BannerPagoRapido = tenant.DatosImplementacion.ConfiguracionDiseno.BannerPagoRapido;
                     configuracionDiseno.BannerPortal = tenant.DatosImplementacion.ConfiguracionDiseno.BannerPortal;
@@ -1420,11 +1605,11 @@ namespace ApiPortal.Controllers
                     configuracionDiseno.TituloResumenContable = tenant.DatosImplementacion.ConfiguracionDiseno.TituloResumenContable;
                     configuracionDiseno.TituloUltimasCompras = tenant.DatosImplementacion.ConfiguracionDiseno.TituloUltimasCompras;
                     configuracionDiseno.TituloVencidosDashboard = tenant.DatosImplementacion.ConfiguracionDiseno.TituloVencidosDashboard;
-                  
+
                     apiSoftland.AreaDatos = tenant.DatosImplementacion.ApiSoftland.AreaDatos;
                     apiSoftland.Url = tenant.DatosImplementacion.ApiSoftland.Url;
                     apiSoftland.Token = tenant.DatosImplementacion.ApiSoftland.Token;
-                  
+
                     configuracionPortal.CantidadUltimasCompras = tenant.DatosImplementacion.ConfiguracionPortal.CantidadUltimasCompras;
                     configuracionPortal.HabilitaPagoRapido = tenant.DatosImplementacion.ConfiguracionPortal.HabilitaPagoRapido;
                     configuracionPortal.MuestraBotonEnviarCorreo = tenant.DatosImplementacion.ConfiguracionPortal.MuestraBotonEnviarCorreo;
@@ -1445,7 +1630,7 @@ namespace ApiPortal.Controllers
                     configuracionPortal.ResumenContabilizado = tenant.DatosImplementacion.ConfiguracionPortal.ResumenContabilizado;
                     configuracionPortal.UtilizaDocumentoPagoRapido = tenant.DatosImplementacion.ConfiguracionPortal.UtilizaDocumentoPagoRapido;
                     configuracionPortal.UtilizaNumeroDireccion = tenant.DatosImplementacion.ConfiguracionPortal.UtilizaNumeroDireccion;
-                 
+
                     transbank.Ambiente = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWTransbankGenerarPago";
                     transbank.TipoDocumento = tenant.DatosImplementacion.DocumentoContableTransbank;
                     transbank.AmbienteConsultarPago = tenant.DatosImplementacion.ApiSoftland.Url + "VW/VWTransbankObtenerEstadoPago?id_transaccion={ID}&esProductivo={ESPRODUCTIVO}";
@@ -1468,17 +1653,26 @@ namespace ApiPortal.Controllers
                     newContextPortal.Entry(configuracionDiseno);
                     newContextPortal.Entry(configuracionPagoCliente);
                     newContextPortal.Entry(configuracionCorreo);
-                
+
                     await newContextPortal.SaveChangesAsync();
-              
+
                 }
 
 
                 return Ok(tenant);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(e.Message);
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/CreaActualizaTenant";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
             }
         }
 
@@ -1657,6 +1851,255 @@ namespace ApiPortal.Controllers
             }
             catch (Exception ex)
             {
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/getTemplate";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("EnrolarTransbank"), Authorize]
+        public async Task<ActionResult> EnrolarTransbank(EnrolarTransbankVm tbk)
+        {
+            try
+            {
+                var tenant = _admin.Tenants.Where(x => x.IdTenant == tbk.IdTenant).FirstOrDefault();
+                if (tenant == null)
+                {
+                    return BadRequest();
+                }
+
+                var options = new DbContextOptionsBuilder<PortalClientesSoftlandContext>().UseSqlServer(tenant.ConnectionString).Options;
+                var builder = new SqlConnectionStringBuilder(tenant.ConnectionString);
+                var newContextPortal = new PortalClientesSoftlandContext(options, _contextAccessor);
+
+                var api = newContextPortal.ApiSoftlands.FirstOrDefault();
+                using (var client = new HttpClient())
+                {
+
+                    string accesToken = api.Token;
+                    string url = api.Url + "VW/VWTransbankRegistrarCliente";
+
+
+                    var data = new Dictionary<string, string>
+                    {
+                        { "apikey", tbk.ApiKey },
+                        { "esProductivo", tbk.EsProductivo == 0 || tbk.EsProductivo == null ? "N" : "S" },
+                        { "secret", tbk.SecretKey },
+                    };
+
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    HttpResponseMessage response = new HttpResponseMessage();
+
+                    var content = new FormUrlEncodedContent(data);
+                    response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
+
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        tenant.EnroladoTbk = 1;
+                        _admin.Entry(tenant).State = EntityState.Modified;
+                        _admin.SaveChanges();
+                        return Ok(true);
+                    }
+                    else
+                    {
+                        return Ok(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/EnrolarTransbank";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("EnrolarVpos"), Authorize]
+        public async Task<ActionResult> EnrolarVpos(EnrolarVposVm vpos)
+        {
+            try
+            {
+                var tenant = _admin.Tenants.Where(x => x.IdTenant == vpos.IdTenant).FirstOrDefault();
+                if (tenant == null)
+                {
+                    return BadRequest();
+                }
+
+                var options = new DbContextOptionsBuilder<PortalClientesSoftlandContext>().UseSqlServer(tenant.ConnectionString).Options;
+                var builder = new SqlConnectionStringBuilder(tenant.ConnectionString);
+                var newContextPortal = new PortalClientesSoftlandContext(options, _contextAccessor);
+
+                var api = newContextPortal.ApiSoftlands.FirstOrDefault();
+                using (var client = new HttpClient())
+                {
+
+                    string accesToken = api.Token;
+                    string url = api.Url + "VW/VWVirtualPosEnrolar";
+
+
+                    var data = new Dictionary<string, string>
+                    {
+                        { "correo_contacto", vpos.CorreoContacto },
+                        { "esProductivo", vpos.EsProductivo == 0 || vpos.EsProductivo == null ? "N" : "S" },
+                        { "nombre_contacto", vpos.NombreContacto },
+                        { "nombre_fantasia", vpos.NombreEmpresa },
+                        { "rut_comercio", vpos.RutEmpresa },
+                        { "rut_contacto", vpos.RutContacto },
+                    };
+
+                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+
+
+                    client.BaseAddress = new Uri(url);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Add("SApiKey", accesToken);
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+                    HttpResponseMessage response = new HttpResponseMessage();
+
+                    var content = new FormUrlEncodedContent(data);
+                    response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
+
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content2 = await response.Content.ReadAsStringAsync();
+                       EnrolarVPosResponse result = JsonConvert.DeserializeObject<EnrolarVPosResponse>(content2);
+
+                        if(result.status == "OK")
+                        {
+                            tenant.EnroladoVpos = 1;
+                            _admin.Entry(tenant).State = EntityState.Modified;
+                            _admin.SaveChanges();
+                            return Ok(true);
+                        }
+                        else
+                        {
+                            return Ok(false);
+                        }              
+                    }
+                    else
+                    {
+                        return Ok(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/EnrolarVpos";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("PasoProduccion/{idtenant}"), Authorize]
+        public async Task<ActionResult> PasoProduccion(int idtenant, [FromBody] UsuariosVm usuario)
+        {
+            try
+            {
+                var tenant = _admin.Tenants.Where(x => x.IdTenant == idtenant).FirstOrDefault();
+                if(tenant == null)
+                {
+                    return BadRequest();
+                }
+
+                tenant.Estado = 3;
+                _admin.Entry(tenant).State = EntityState.Modified;
+               
+                var options = new DbContextOptionsBuilder<PortalClientesSoftlandContext>().UseSqlServer(tenant.ConnectionString).Options;
+                var builder = new SqlConnectionStringBuilder(tenant.ConnectionString);
+                var newContextPortal = new PortalClientesSoftlandContext(options, _contextAccessor);
+
+                var configPortal = newContextPortal.ConfiguracionPortals.FirstOrDefault();
+                configPortal.EstadoImplementacion = 3;
+                newContextPortal.Entry(configPortal).State = EntityState.Modified;
+              
+
+                var existUser = newContextPortal.Usuarios.Where(x => x.Email == usuario.Email).FirstOrDefault();
+                if (existUser != null)
+                {
+                    return Ok(-1);
+                }
+
+                Usuario user = new Usuario();
+                user.Activo = 1;
+                user.Apellidos = "Administrador";
+                user.CuentaActivada = 0;
+                user.Email = usuario.Email.ToLower();
+                user.FechaCreacion = DateTime.Now.Date;
+                user.FechaEnvioValidacion = DateTime.Now.Date;
+                user.IdPerfil = 1;
+                user.Nombres = "Usuario";
+                string pass = RandomPassword.GenerateRandomPassword();
+                HashPassword aux = new HashPassword();
+                user.Password = aux.HashCode(pass);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                newContextPortal.Usuarios.Add(user);
+
+               
+                bool errorEnvio = false;
+                MailService emailService = new MailService(newContextPortal, _webHostEnvironment);
+                errorEnvio = emailService.EnviaAccesoUsuario(user, pass);
+
+                if (errorEnvio)
+                {
+                    return Ok(0);
+                }
+                else
+                {
+                    await newContextPortal.SaveChangesAsync();
+                    _admin.SaveChanges();
+                    return Ok(user);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/PasoProduccion";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
                 return BadRequest(ex.Message);
             }
         }

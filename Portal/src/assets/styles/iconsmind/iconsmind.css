@@ -1302,7 +1302,7 @@ i {
 }
 .i-Data-Block:before {
   content: "\ef1b";
-}
+} 
 .i-Data-Center:before {
   content: "\ef1c";
 }

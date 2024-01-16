@@ -72,28 +72,16 @@
             <td>{{empresa.idEmpresa}}</td>
             <td>{{empresa.rut}}</td>
             <td>{{empresa.razonSocial}}</td>
-            <td style="vertical-align:middle;">
-              <div ngbDropdown>
-                <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
-                  class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
-                  id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" class="text-body align-middle mr-25 feather feather-more-vertical">
-                    <circle cx="12" cy="12" r="1"></circle>
-                    <circle cx="12" cy="5" r="1"></circle>
-                    <circle cx="12" cy="19" r="1"></circle>
-                  </svg></button>
-                <div ngbDropdownMenu style="z-index: 99999;">
-                  <button (click)="openModal(modalNuevo, empresa)" style="cursor: pointer;" ngbDropdownItem><i
-                      class="i-Receipt" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Editar</button>
-                  <button *ngIf="empresa?.tenants.length == 0" (click)="eliminar(empresa.idEmpresa)"
-                    style="cursor: pointer;" ngbDropdownItem><i class="i-Remove-File"
-                      style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
-                  <button (click)="openModalTenants(modalTenants,empresa)" style="cursor: pointer;" ngbDropdownItem><i
-                      class="i-Data-Backup" style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Implementaciones
-                    Portal</button>
-                </div>
-              </div>
+            <td style="vertical-align:middle; align-content: center; align-items: center;">
+              <i (click)="openModal(modalNuevo, empresa)" class="i-File-Edit"
+                style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Editar" placement="bottom"
+                container="body"></i>
+              <i class="i-Remove" *ngIf="empresa?.tenants.length == 0" (click)="eliminar(empresa.idEmpresa)"
+                ngbTooltip="Eliminar" placement="bottom" container="body"
+                style="font-size: 1.4em; margin-left: 10px; cursor: pointer;"></i>
+              <i (click)="openModalTenants(modalTenants,empresa)" class="i-Folder"
+                style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Implementaciones Portal"
+                placement="bottom" container="body"></i>
             </td>
           </tr>
         </tbody>
@@ -240,27 +228,25 @@
                 <td>{{tenant.fechaTerminoImplementacion | date: 'dd/MM/yyyy' }}</td>
                 <td>{{tenant.otImplementacion}}</td>
                 <td>{{tenant?.implementador?.nombre}}</td>
-                <td style="vertical-align:middle;">
-                  <div ngbDropdown>
-                    <button ngbDropdownToggle aria-haspopup="true" aria-expanded="false" type="button"
-                      class="btn dropdown-toggle btn-link text-decoration-none dropdown-toggle-no-caret"
-                      id="__BVID__735__BV_toggle_"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="text-body align-middle mr-25 feather feather-more-vertical">
-                        <circle cx="12" cy="12" r="1"></circle>
-                        <circle cx="12" cy="5" r="1"></circle>
-                        <circle cx="12" cy="19" r="1"></circle>
-                      </svg></button>
-                    <div ngbDropdownMenu style="z-index: 99999;">
-                      <button (click)="nuevaImplementacion(modalNuevoTenant, tenant)" style="cursor: pointer;"
-                        ngbDropdownItem><i class="i-Receipt"
-                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Editar</button>
-                      <button *ngIf="tenant.estado != 3" (click)="eliminarTenant(tenant)" style="cursor: pointer;"
-                        ngbDropdownItem><i class="i-Remove-File"
-                          style="font-size: 1.4em;"></i>&nbsp;&nbsp;&nbsp;Eliminar</button>
-                    </div>
-                  </div>
+                <td style="vertical-align:middle; align-content: center; align-items: center;">
+                  <i (click)="nuevaImplementacion(modalNuevoTenant, tenant)" class="i-Receipt"
+                    style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Editar" placement="bottom"
+                    container="body"></i>
+                  <i class="i-Remove" *ngIf="tenant.estado != 3" (click)="eliminarTenant(tenant)" ngbTooltip="Eliminar"
+                    placement="bottom" container="body"
+                    style="font-size: 1.4em; margin-left: 10px; cursor: pointer;"></i>
+                  <i (click)="enrolarVirtualPos(modalEnrolarVpos,tenant)" class="i-ID-Card"
+                    style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Enrolar VirtualPos"
+                    placement="bottom" container="body"></i>
+                  <i (click)="enrolarTransbank(modalEnrolarTransbank,tenant)" class="i-ID-Card"
+                    style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Enrolar Transbank"
+                    placement="bottom" container="body"></i>
+                  <i *ngIf="tenant.estado != 3" (click)="openModalPasoProduccion(modalProduccion,tenant)" class="i-Yes"
+                    style="font-size: 1.4em; margin-left: 10px; cursor: pointer;" ngbTooltip="Pasar a producción"
+                    placement="bottom" container="body"></i>
                 </td>
+
+           
               </tr>
             </tbody>
           </table>
@@ -286,7 +272,7 @@
 
 <ng-template id="modalNuevoTenant" #modalNuevoTenant let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Nueva Implementación</h4>
+    <h4 class="modal-title" id="modal-basic-title">{{titleImplementacion}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -447,7 +433,9 @@
 
             <div class="form-group col-md-6 mb-3">
               <div class="form-group">
-                <label for="picker1">URL Portal</label>
+                <label for="picker1">URL Portal <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                    (click)="openInfoModal(modalBasicInfo, 67)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                    width="22" height="22"></label>
                 <div class="input-group">
                   <input type="text" class="form-control"
                     placeholder="ejemplo: https://portalclientedemo.softlandcloud.cl" #urlTenant="ngModel"
@@ -482,7 +470,9 @@
 
             <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
               <div class="form-group">
-                <label for="picker1">URL API</label>
+                <label for="picker1">URL API <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                    (click)="openInfoModal(modalBasicInfo, 66)" src="https://img.icons8.com/fluent/96/info.png" alt=""
+                    width="22" height="22"></label>
                 <div class="input-group">
                   <input type="text" class="form-control" (change)="conexionApiValid = false" (blur)="validaUrlApi()"
                     #urlApiTenant="ngModel" placeholder="ejemplo: https://apiportal.softlandcloud.cl/api/"
@@ -614,11 +604,6 @@
                 <input type="text" aria-describedby="basic-addon2" class="form-control"
                   placeholder="Glosa Comprobante Contable" #gComprobante="ngModel" name="gComprobante"
                   [(ngModel)]="tenant.datosImplementacion.configuracionPagoCliente.glosaComprobante" />
-                <div class="input-group-append">
-                  <span class="input-group-text" id="basic-addon2">
-                    [Tipo de documento] [Folio]
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -2535,5 +2520,244 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="modal.dismiss('Cross click')">Cerrar</button>
+  </div>
+</ng-template>
+
+
+
+<ng-template #modalEnrolarVpos let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Enrolar VirtualPos</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <form #myForm="ngForm" name="cate-form">
+      <div class="row">
+        <div class="form-group col-md-12">
+
+          <div class="form-group">
+            <label for="picker1">Nombre empresa<span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="nombreEmpresaVposs.errors && (nombreEmpresaVposs.dirty || nombreEmpresaVposs.touched) ? 'form-control is-invalid' : 'form-control'"
+                #nombreEmpresaVposs="ngModel" name="nombreEmpresaVposs" [(ngModel)]="nombreEmpresaVpos" maxlength="150"
+                placeholder="RUT" />
+            </div>
+            <p *ngIf="nombreEmpresaVposs.errors && (nombreEmpresaVposs.dirty || nombreEmpresaVposs.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="nombreEmpresaVposs.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                RUT es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+
+          <div class="form-group">
+            <label for="picker1">RUT empresa<span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="rutEmpresaVposs.errors && (rutEmpresaVposs.dirty || rutEmpresaVposs.touched) ? 'form-control is-invalid' : 'form-control'"
+                #rutEmpresaVposs="ngModel" name="rutEmpresaVposs" [(ngModel)]="rutEmpresaVpos" maxlength="12"
+                placeholder="RUT" (blur)="validaRutEmpresaVpos()" />
+            </div>
+            <p *ngIf="rutEmpresaVposs.errors && (rutEmpresaVposs.dirty || rutEmpresaVposs.touched)" class="text-danger"
+              style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="rutEmpresaVposs.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                RUT es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+
+          <div class="form-group">
+            <label for="picker1">Rut Contacto<span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="rutContactoVposs.errors && (rutContactoVposs.dirty || rutContactoVposs.touched) ? 'form-control is-invalid' : 'form-control'"
+                #rutContactoVposs="ngModel" name="rutContactoVposs" [(ngModel)]="rutContactoVpos" maxlength="12"
+                placeholder="RUT" (blur)="validaRutContactoVpos()" />
+            </div>
+            <p *ngIf="rutContactoVposs.errors && (rutContactoVposs.dirty || rutContactoVposs.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="rutContactoVposs.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                RUT es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1">Nombre Contacto <span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="nombreContactoVposs.errors && (nombreContactoVposs.dirty || nombreContactoVposs.touched) ? 'form-control is-invalid' : 'form-control'"
+                name="nombreContactoVposs" #nombreContactoVposs="ngModel" [(ngModel)]="nombreContactoVpos"
+                maxlength="100" placeholder="Razón Social">
+            </div>
+            <p *ngIf="nombreContactoVposs.errors && (nombreContactoVposs.dirty || nombreContactoVposs.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="nombreContactoVposs.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Nombre contacto es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1">Correo Contacto <span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="correoContactoVposs.errors && (correoContactoVposs.dirty || correoContactoVposs.touched) ? 'form-control is-invalid' : 'form-control'"
+                name="correoContactoVposs" #correoContactoVposs="ngModel" [(ngModel)]="correoContactoVpos"
+                maxlength="100" placeholder="Correo Contacto" (blur)="validaEmailVpos()">
+            </div>
+            <p *ngIf="correoContactoVposs.errors && (correoContactoVposs.dirty || correoContactoVposs.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="correoContactoVposs.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Nombre contacto es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+
+        <div class="form-group col-md-12 mb-3" style="margin-top: 15px;">
+          <div class="form-group">
+            <label class="switch switch-success mr-3">
+              <span>Es productivo</span>
+              <input [(ngModel)]="esProductivoPasarela" type="checkbox" id="ChekProductivo" name="ChekProductivo" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'" type="button"
+      class="btn btn-outline-dark" (click)="saveVpos()">Enrolar</button>
+  </div>
+</ng-template>
+
+
+<ng-template #modalEnrolarTransbank let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Enrolar Transbank</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <form #myForm="ngForm" name="cate-form">
+      <div class="row">
+        <div class="form-group col-md-12">
+
+          <div class="form-group">
+            <label for="picker1">API Key<span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="apikeyTransbankk.errors && (apikeyTransbankk.dirty || apikeyTransbankk.touched) ? 'form-control is-invalid' : 'form-control'"
+                #apikeyTransbankk="ngModel" name="apikeyTransbankk" [(ngModel)]="apikeyTransbank" maxlength="12"
+                placeholder="RUT" />
+            </div>
+            <p *ngIf="apikeyTransbankk.errors && (apikeyTransbankk.dirty || apikeyTransbankk.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="apikeyTransbankk.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Api key es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1">Secret Key<span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="secretKeyTransbankk.errors && (secretKeyTransbankk.dirty || secretKeyTransbankk.touched) ? 'form-control is-invalid' : 'form-control'"
+                #secretKeyTransbankk="ngModel" name="secretKeyTransbankk" [(ngModel)]="secretkeyTransbank"
+                maxlength="12" placeholder="RUT" />
+            </div>
+            <p *ngIf="secretKeyTransbankk.errors && (secretKeyTransbankk.dirty || secretKeyTransbankk.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="secretKeyTransbankk.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Secret key es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="form-group col-md-12 mb-3" style="margin-top: 15px;">
+        <div class="form-group">
+          <label class="switch switch-success mr-3">
+            <span>Es productivo</span>
+            <input [(ngModel)]="esProductivoPasarela" type="checkbox" id="ChekProductivo" name="ChekProductivo" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="modal-footer">
+    <button [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'" type="button"
+      class="btn btn-outline-dark" (click)="saveTransbank()">Enrolar</button>
+  </div>
+</ng-template>
+
+
+
+<ng-template #modalProduccion let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Paso a producción</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    A continuación indique el correo el usuario administrador del portal:
+    <form #myForm="ngForm" name="cate-form">
+      <div class="row">
+        <div class="form-group col-md-12">
+          <div class="form-group">
+            <label for="picker1"><span class="camporequerido">*</span></label>
+            <div class="input-group">
+              <input type="text"
+                [ngClass]="correoAdministrador.errors && (correoAdministrador.dirty || correoAdministrador.touched) ? 'form-control is-invalid' : 'form-control'"
+                #correoAdministrador="ngModel" name="correoAdministrador" [(ngModel)]="correoUsuarioAdministrador"
+                (blur)="validaEmailUsuarioAdmin()" maxlength="100" placeholder="Correo" />
+            </div>
+            <p *ngIf="correoAdministrador.errors && (correoAdministrador.dirty || correoAdministrador.touched)"
+              class="text-danger" style="margin-top: 2px; font-size: 12px">
+              <span *ngIf="correoAdministrador.errors" class="text-danger" style="margin-top: 2px; font-size: 12px">
+                Correo es requerido.
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="modal-footer">
+    <button [disabled]="!myForm.form.valid" [style.cursor]="!myForm.form.valid ? 'no-drop' : 'pointer'" type="button"
+      class="btn btn-outline-dark" (click)="pasoProduccion()">Enrolar</button>
   </div>
 </ng-template>

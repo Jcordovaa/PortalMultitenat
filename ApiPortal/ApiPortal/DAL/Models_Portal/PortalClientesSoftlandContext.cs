@@ -14,7 +14,7 @@ namespace ApiPortal.Dal.Models_Portal
         }
 
         public PortalClientesSoftlandContext(DbContextOptions<PortalClientesSoftlandContext> options, IHttpContextAccessor contextAccessor)
-             : base(options)
+            : base(options)
         {
             _contextAccessor = contextAccessor;
         }

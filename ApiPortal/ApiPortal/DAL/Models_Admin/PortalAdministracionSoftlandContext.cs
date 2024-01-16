@@ -25,6 +25,7 @@ namespace ApiPortal.Dal.Models_Admin
         public virtual DbSet<EmpresasPortal> EmpresasPortals { get; set; } = null!;
         public virtual DbSet<Implementador> Implementadors { get; set; } = null!;
         public virtual DbSet<LineaProducto> LineaProductos { get; set; } = null!;
+        public virtual DbSet<LogProcesosAdmin> LogProcesosAdmins { get; set; } = null!;
         public virtual DbSet<PermisosImplementacion> PermisosImplementacions { get; set; } = null!;
         public virtual DbSet<Plane> Planes { get; set; } = null!;
         public virtual DbSet<RolesPortal> RolesPortals { get; set; } = null!;
@@ -37,7 +38,7 @@ namespace ApiPortal.Dal.Models_Admin
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalAdministracionSoftland;User Id=sa;Password=204709cejA;");
+                optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalAdministracionSoftland;User Id=sa;Password=204709cejA;TrustServerCertificate=True;");
             }
         }
 
@@ -321,6 +322,28 @@ namespace ApiPortal.Dal.Models_Admin
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<LogProcesosAdmin>(entity =>
+            {
+                entity.HasKey(e => e.IdLogProceso)
+                    .HasName("PK_LogProcesos");
+
+                entity.ToTable("LogProcesosAdmin");
+
+                entity.Property(e => e.Excepcion).IsUnicode(false);
+
+                entity.Property(e => e.Fecha).HasColumnType("date");
+
+                entity.Property(e => e.Hora)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mensaje).IsUnicode(false);
+
+                entity.Property(e => e.Ruta)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<PermisosImplementacion>(entity =>
             {
                 entity.HasKey(e => e.IdPermiso);
@@ -383,6 +406,8 @@ namespace ApiPortal.Dal.Models_Admin
                 entity.Property(e => e.FechaInicioContrato).HasColumnType("date");
 
                 entity.Property(e => e.FechaInicioImplementacion).HasColumnType("date");
+
+                entity.Property(e => e.FechaPasoProduccion).HasColumnType("date");
 
                 entity.Property(e => e.FechaTerminoContrato).HasColumnType("date");
 

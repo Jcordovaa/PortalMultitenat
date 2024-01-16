@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ConfiguracionPortal
     {
-        public int? IdConfiguracionPortal { get; set; }
+        public int IdConfiguracionPortal { get; set; }
         public int? CrmSoftland { get; set; }
         public int? InventarioSoftland { get; set; }
         public int? ContabilidadSoftland { get; set; }
@@ -34,5 +34,6 @@ namespace ApiPortal.Dal.Models_Portal
         public int? MuestraProductos { get; set; }
         public int? MuestraGuiasPendientes { get; set; }
         public int? UtilizaDocumentoPagoRapido { get; set; }
+        public int? EstadoImplementacion { get; set; }
     }
 }

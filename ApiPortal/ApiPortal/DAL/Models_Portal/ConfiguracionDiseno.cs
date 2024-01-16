@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ConfiguracionDiseno
     {
-        public int? IdConfiguracionTextosColores { get; set; }
+        public int IdConfiguracionTextosColores { get; set; }
         public string? TituloResumenContable { get; set; }
         public string? TituloUltimasCompras { get; set; }
         public string? TituloMisCompras { get; set; }

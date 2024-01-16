@@ -23,6 +23,9 @@ namespace ApiPortal.Dal.Models_Admin
         public int? IdImplementador { get; set; }
         public int? IdLineaProducto { get; set; }
         public int? IdAreaComercial { get; set; }
+        public int? EnroladoVpos { get; set; }
+        public int? EnroladoTbk { get; set; }
+        public DateTime? FechaPasoProduccion { get; set; }
 
         public virtual EmpresaEstado? EstadoNavigation { get; set; }
         public virtual AreaComercial? IdAreaComercialNavigation { get; set; }

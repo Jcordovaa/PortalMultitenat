@@ -1059,7 +1059,7 @@ namespace ApiPortal.Services
 
 
                 string body = string.Empty;
-                string rutaCorreo = (item.IdTipoCobranza == 1) ? (item.EnviaEnlacePago == 0) ? "Uploads/MailTemplates/cobranzaSinEnlace.component.html" : "Uploads/MailTemplates/cobranza.component.html" : "Uploads/MailTemplates/precobranza.component.html";
+                string rutaCorreo = "Uploads/MailTemplates/cobranza.component.html";
                 string asunto = string.Empty;
                 using (StreamReader reader = new StreamReader(Path.Combine(_webHostEnvironment.ContentRootPath, rutaCorreo)))
                 {
@@ -1068,11 +1068,6 @@ namespace ApiPortal.Services
 
                 string rutCliente = Convert.ToBase64String(Encoding.UTF8.GetBytes(cobranza.RutCliente));
                 body = body.Replace("{NOMBRE}", cobranza.NombreCliente);
-                if (item.EnviaEnlacePago == 1)
-                {
-                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/{item.IdCobranza}/0");
-                    body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
-                }
 
                 if (item.IdTipoCobranza == 1)
                 {
@@ -1081,6 +1076,8 @@ namespace ApiPortal.Services
                     body = body.Replace("{TituloCorreo}", auxCorreo.TituloCobranza);
                     body = body.Replace("{TextoCorreo}", auxCorreo.TextoCobranza);
                     body = body.Replace("{LOGO}", auxEmpresa.UrlPortal + "/" + auxEmpresa.Logo);
+                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/{item.IdCobranza}/0");
+                    body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
                 }
                 else if (item.IdTipoCobranza == 2)
                 {
@@ -1089,6 +1086,8 @@ namespace ApiPortal.Services
                     body = body.Replace("{TituloCorreo}", auxCorreo.TituloPreCobranza);
                     body = body.Replace("{TextoCorreo}", auxCorreo.TextoPreCobranza);
                     body = body.Replace("{LOGO}", auxCorreo.LogoCorreo);
+                    body = body.Replace("{ENLACE}", $"{urlFrot}/#/sessions/pay/{rutCliente}/0/{item.IdCobranza}/0");
+                    body = body.Replace("{ColorBoton}", auxCorreo.ColorBoton);
                 }
 
                 string codAuxEncriptado = Encrypt.Base64Encode(cobranza.CodAux);

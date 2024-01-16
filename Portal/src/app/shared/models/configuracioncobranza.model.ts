@@ -127,6 +127,7 @@ export class ConfiguracionPortal {
     muestraProductos?: number;
     muestraGuiasPendientes?: number;
     utilizaDocumentoPagoRapido?: number;
+    estadoImplementacion?: number;
 
     constructor() {
         this.idConfiguracionPortal = 0;
@@ -156,5 +157,6 @@ export class ConfiguracionPortal {
         this.muestraProductos = 0;
         this.muestraGuiasPendientes = 0;
         this.utilizaDocumentoPagoRapido = 0;
+        this.estadoImplementacion = 3;
     }
 }

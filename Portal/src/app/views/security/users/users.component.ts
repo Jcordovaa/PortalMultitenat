@@ -211,10 +211,17 @@ export class UsersComponent implements OnInit {
     } else {
 
       this.securityService.editUsuario(this.usuario).subscribe(res => {
-        this.notificationService.success('Correcto', 'Correcto', true);
-        this.getUsuarios();
-        this.modalService.dismissAll();
-        this.spinner.hide();
+        if (res == -1) {
+          this.notificationService.warning('Ya existe un usuario con el correo.', '', true);
+          this.spinner.hide();
+        }else{
+          this.notificationService.success('Correcto', 'Correcto', true);
+          this.getUsuarios();
+          this.modalService.dismissAll();
+          this.spinner.hide();
+        }
+
+       
       }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al editar Usuario', '', true); });
 
     }

@@ -41,7 +41,7 @@ namespace ApiPortal.Controllers
 
 
         [HttpPost("GeneraPagoElectronico")]
-        public async Task<IActionResult> GeneraPagoElectronicoPost([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
+        public async Task<IActionResult> GeneraPagoElectronicoPost([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string? rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
 
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
@@ -134,6 +134,7 @@ namespace ApiPortal.Controllers
                 //Creamos url que se enviara a tbk y una vez finalizada la transacción retornara para poder identificar en que flujo se ejecuta
                 //string urlReturn = pasarela.Protocolo + httpHost + $"/api/Softland/CallbackPago?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}"; ;
                 string urlReturn = sample_baseurl + $"?action=result&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
+                //string urlReturn = sample_baseurl + "https://eoykk81g1au1suh.m.pipedream.net";
                 //Creamos la url que se utilizara para finalizar el proceso
                 string urlFinal = sample_baseurl + $"?action=end&idPago={idPago}&idPasarela={idPasarela}&rutCliente={rutEncriptado}&idCobranza={idCobranza}&idAutomatizacion={idAutomatizacion}&datosPago={datosPago}&redirectTo={redirectTo}&tenant={tenant}";
 
@@ -784,47 +785,57 @@ namespace ApiPortal.Controllers
                                                               .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S")
                                                               .Replace("{AREADATOS}", pasarela.EmpresaSoftlandPay);
 
-                                var multipart = new MultipartFormDataContent();
-                                if (pasarela.IdPasarela == 1)
-                                {
-                                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
 
-                                    multipart.Add(new StringContent(urlFinal), "url_redireccion");
-                                    multipart.Add(new StringContent(urlReturn), "url_callback");
-                                    multipart.Add(new StringContent(idPago.ToString()), "id_interno");
-                                    multipart.Add(new StringContent(monto.ToString()), "monto_total");
-                                    multipart.Add(new StringContent(montoNeto.ToString()), "monto_bruto");
-                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[2]), "rutCliente");
-                                    multipart.Add(new StringContent("B"), "tipo");
-                                    multipart.Add(new StringContent(iva.ToString()), "monto_impuestos");
-                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0])), "nombre_cliente");
-                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1])), "apellido_cliente");
-                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[3]), "correo_cliente");
-                                    multipart.Add(new StringContent(pasarela.EsProduccion == 0 || pasarela.EsProduccion == null ? "N" : "S"), "esProductivo");
-                                }
+                                var data = new Dictionary<string, string>
+{
+    { "url_redireccion", urlFinal },
+    { "url_callback", urlReturn },
+    { "id_interno", idPago.ToString() },
+    { "monto_total", monto.ToString() },
+    { "monto_bruto", montoNeto.ToString() },
+    { "rutCliente", datosPagoDescrinptados.Split(';')[2] },
+    { "tipo", "B" },
+    { "monto_impuestos", iva.ToString() },
+    { "nombre_cliente", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0]) },
+    { "apellido_cliente", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1]) },
+    { "correo_cliente", datosPagoDescrinptados.Split(';')[3] },
+    { "esProductivo", pasarela.EsProduccion == 0 || pasarela.EsProduccion == null ? "N" : "S" }
+};
 
+                                //if (pasarela.IdPasarela == 1)
+                                //{
+                                //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+                                //}
+                                //else
+                                //{
+                                //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                //}
 
+                                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
                                 client.BaseAddress = new Uri(url);
                                 client.DefaultRequestHeaders.Accept.Clear();
-                                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                 client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
                                 HttpResponseMessage response = new HttpResponseMessage();
 
-                                if (pasarela.IdPasarela == 1)
-                                {
-                                    response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
-                                }
+                                //if (pasarela.IdPasarela == 1)
+                                //{
+                                //    var content = new FormUrlEncodedContent(data);
+                                //    response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
+                                //}
+                                //else
+                                //{
+                                //    response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                //}
+
+                                var content = new FormUrlEncodedContent(data);
+                                response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
 
                                 if (response.IsSuccessStatusCode)
                                 {
-                                    var content = await response.Content.ReadAsStringAsync();
-                                    ResultadoVpos result = JsonConvert.DeserializeObject<ResultadoVpos>(content);
+                                    var content2 = await response.Content.ReadAsStringAsync();
+                                    ResultadoVpos result = JsonConvert.DeserializeObject<ResultadoVpos>(content2);
 
                                     vm.Token = pasarela.IdPasarela == 1 ? result.id_transaccion : result.id_merchant;
                                     vm.Url = result.url_pago;
@@ -855,7 +866,7 @@ namespace ApiPortal.Controllers
                                 }
                                 else
                                 {
-                                    var content = await response.Content.ReadAsStringAsync();
+                                    var content2 = await response.Content.ReadAsStringAsync();
                                     log.Estado = "Error";
                                     log.Fecha = DateTime.Now;
 
@@ -1290,7 +1301,7 @@ namespace ApiPortal.Controllers
         }
 
         [HttpGet("GeneraPagoElectronico")]
-        public async Task<IActionResult> GeneraPagoElectronicoGet([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
+        public async Task<IActionResult> GeneraPagoElectronicoGet([FromQuery] int idPago, [FromQuery] int idPasarela, [FromQuery] string? rutCliente, [FromQuery] int idCobranza, [FromQuery] string idAutomatizacion, [FromQuery] string datosPago, [FromQuery] string tenant, [FromQuery] TbkRedirect redirectTo = TbkRedirect.Front)
 
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
@@ -2033,47 +2044,57 @@ namespace ApiPortal.Controllers
                                                               .Replace("{ESPRODUCTIVO}", (pasarela.EsProduccion == 0 || pasarela.EsProduccion == null) ? "N" : "S")
                                                               .Replace("{AREADATOS}", pasarela.EmpresaSoftlandPay);
 
-                                var multipart = new MultipartFormDataContent();
-                                if (pasarela.IdPasarela == 1)
-                                {
-                                    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
 
-                                    multipart.Add(new StringContent(urlFinal), "url_redireccion");
-                                    multipart.Add(new StringContent(urlReturn), "url_callback");
-                                    multipart.Add(new StringContent(idPago.ToString()), "id_interno");
-                                    multipart.Add(new StringContent(monto.ToString()), "monto_total");
-                                    multipart.Add(new StringContent(montoNeto.ToString()), "monto_bruto");
-                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[2]), "rutCliente");
-                                    multipart.Add(new StringContent("B"), "tipo");
-                                    multipart.Add(new StringContent(iva.ToString()), "monto_impuestos");
-                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0])), "nombre_cliente");
-                                    multipart.Add(new StringContent(WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1])), "apellido_cliente");
-                                    multipart.Add(new StringContent(datosPagoDescrinptados.Split(';')[3]), "correo_cliente");
-                                    multipart.Add(new StringContent(pasarela.EsProduccion == 0 || pasarela.EsProduccion == null ? "N" : "S"), "esProductivo");
-                                }
+                                var data = new Dictionary<string, string>
+{
+    { "url_redireccion", urlFinal },
+    { "url_callback", urlReturn },
+    { "id_interno", idPago.ToString() },
+    { "monto_total", monto.ToString() },
+    { "monto_bruto", montoNeto.ToString() },
+    { "rutCliente", datosPagoDescrinptados.Split(';')[2] },
+    { "tipo", "B" },
+    { "monto_impuestos", iva.ToString() },
+    { "nombre_cliente", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[0]) },
+    { "apellido_cliente", WebUtility.UrlDecode(datosPagoDescrinptados.Split(';')[1]) },
+    { "correo_cliente", datosPagoDescrinptados.Split(';')[3] },
+    { "esProductivo", pasarela.EsProduccion == 0 || pasarela.EsProduccion == null ? "N" : "S" }
+};
 
+                                //if (pasarela.IdPasarela == 1)
+                                //{
+                                //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
+                                //}
+                                //else
+                                //{
+                                //    client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
+                                //}
 
+                                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "multipart/form-data");
                                 client.BaseAddress = new Uri(url);
                                 client.DefaultRequestHeaders.Accept.Clear();
-                                client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json; charset=utf-8");
                                 client.DefaultRequestHeaders.Add("SApiKey", accesToken);
                                 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
                                 HttpResponseMessage response = new HttpResponseMessage();
 
-                                if (pasarela.IdPasarela == 1)
-                                {
-                                    response = await client.PostAsync(client.BaseAddress, multipart).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
-                                }
+                                //if (pasarela.IdPasarela == 1)
+                                //{
+                                //    var content = new FormUrlEncodedContent(data);
+                                //    response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
+                                //}
+                                //else
+                                //{
+                                //    response = await client.GetAsync(client.BaseAddress).ConfigureAwait(false);
+                                //}
+
+                                var content = new FormUrlEncodedContent(data);
+                                response = await client.PostAsync(client.BaseAddress, content).ConfigureAwait(false);
 
                                 if (response.IsSuccessStatusCode)
                                 {
-                                    var content = await response.Content.ReadAsStringAsync();
-                                    ResultadoVpos result = JsonConvert.DeserializeObject<ResultadoVpos>(content);
+                                    var content2 = await response.Content.ReadAsStringAsync();
+                                    ResultadoVpos result = JsonConvert.DeserializeObject<ResultadoVpos>(content2);
 
                                     vm.Token = pasarela.IdPasarela == 1 ? result.id_transaccion : result.id_merchant;
                                     vm.Url = result.url_pago;
@@ -2104,7 +2125,7 @@ namespace ApiPortal.Controllers
                                 }
                                 else
                                 {
-                                    var content = await response.Content.ReadAsStringAsync();
+                                    var content2 = await response.Content.ReadAsStringAsync();
                                     log.Estado = "Error";
                                     log.Fecha = DateTime.Now;
 

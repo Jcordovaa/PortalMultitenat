@@ -5,6 +5,8 @@ import { AuthService } from "src/app/shared/services/auth.service";
 import { LocalStoreService } from "src/app/shared/services/local-store.service";
 import { initType } from '../../../../../app.constants'
 import { ConfiguracionEmpresaService } from "src/app/shared/services/configuracionempresa.service";
+import { ConfiguracionPagoClientesService } from "src/app/shared/services/configuracionpagoclientes.service";
+import { ConfiguracionPortal } from "src/app/shared/models/configuracioncobranza.model";
 
 @Component({
   selector: "app-header-sidebar-compact",
@@ -15,15 +17,16 @@ export class HeaderSidebarCompactComponent implements OnInit {
   notifications: any[];
   userName: string = '';
   showBar: boolean = initType() == "PAYMENT" ? false : true;
-  user : any = null;
+  user: any = null;
+
   empresa: any = {
     nombreEmpresa: ''
   };
 
   constructor(
-    private navService: NavigationService, private configuracionEmpresaService :ConfiguracionEmpresaService,
+    private navService: NavigationService, private configuracionEmpresaService: ConfiguracionEmpresaService,
     public searchService: SearchService,
-    private auth: AuthService, 
+    private auth: AuthService,
     private localStoreService: LocalStoreService
   ) {
     this.notifications = [
@@ -71,9 +74,9 @@ export class HeaderSidebarCompactComponent implements OnInit {
         link: "/dashboard/v3"
       }
     ];
-    
-    
-  
+
+
+
   }
 
   ngOnInit() {
@@ -85,23 +88,23 @@ export class HeaderSidebarCompactComponent implements OnInit {
     //   }
     // }
     this.user = this.localStoreService.getItem('currentUserPortal')
-    if ( this.user) {
-      this.userName =  this.user.nombre;
-      
+    if (this.user) {
+      this.userName = this.user.nombre;
+
     }
-    if(this.user.esUsuario == true){
+    if (this.user.esUsuario == true) {
       this.configuracionEmpresaService.getConfig().subscribe(res => {
         this.empresa = res;
-      }, err => {  });
-    }else{
+      }, err => { });
+    } else {
       const user = this.auth.getuser();
-      this.userName =  this.user.nombre;
+      this.userName = this.user.nombre;
       this.empresa.nombreEmpresa = user.nombre
       this.empresa.rutEmpresa = user.rut;
-     
+
     }
 
-
+   
 
   }
 
@@ -117,15 +120,15 @@ export class HeaderSidebarCompactComponent implements OnInit {
     } else {
       this.auth.signout();
     }
-    
+
   }
 
-  perfil(){
+  perfil() {
     if (this.user != null) {
-      if(this.user.esUsuario == true){
-        window.location.href="#/pages/productos";
-      }else{
-        window.location.href="#/payment/profile";
+      if (this.user.esUsuario == true) {
+        window.location.href = "#/pages/productos";
+      } else {
+        window.location.href = "#/payment/profile";
       }
     }
   }

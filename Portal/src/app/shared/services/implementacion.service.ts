@@ -195,14 +195,16 @@ export class ImplementacionService {
             this.appendNestedProperties(formData, tenant[prop], this.capitalizeFirstLetter(prop));
           } else {
             // Verificar si la propiedad es de tipo Date
-            if (tenant[prop] instanceof Date) {
+            if (tenant[prop] instanceof Date && tenant[prop] !== null) {
               // Aquí puedes manejar la propiedad Date como desees
               // Por ejemplo, puedes convertirla a una cadena en el formato deseado
               const formattedDate = tenant[prop].toISOString(); // O el formato que prefieras
               formData.append(this.capitalizeFirstLetter(prop), formattedDate);
             } else {
-              // Si no es Date, simplemente agrega la propiedad al FormData
-              formData.append(this.capitalizeFirstLetter(prop), tenant[prop]);
+              if (tenant[prop] !== null) {
+                // Si no es Date, simplemente agrega la propiedad al FormData
+                formData.append(this.capitalizeFirstLetter(prop), tenant[prop]);
+              }
             }
           }
         }
@@ -236,7 +238,7 @@ export class ImplementacionService {
 
         if (value instanceof File) {
           formData.append(key, value);
-        } else if (value instanceof Date) {
+        } else if (value instanceof Date && value !== null) {
           formData.append(key, value.toISOString());
         } else if (typeof value === 'object' && value !== null) {
           // Si la propiedad es un objeto, llamar recursivamente
@@ -251,6 +253,21 @@ export class ImplementacionService {
   getTemplate(tipo: number, nombreEmpresa: string, config: any): Observable<any> {
     const body = JSON.stringify(config);
     return this.http.post<any>(`${this.apiUrl}/getTemplate/${tipo}/${nombreEmpresa}`, body, this.utils.getHeaders(true));
+  }
+
+  enrolaVpos(vpos: any): Observable<boolean> {
+    const body = JSON.stringify(vpos);
+    return this.http.post<boolean>(`${this.apiUrl}/EnrolarVpos`, body, this.utils.getHeaders(true));
+  }
+
+  enrolaTbk(tbk: any): Observable<boolean> {
+    const body = JSON.stringify(tbk);
+    return this.http.post<boolean>(`${this.apiUrl}/EnrolarTransbank`, body, this.utils.getHeaders(true));
+  }
+
+  pasoProduccion(usuario: any, idtenant: number): Observable<any> {
+    const body = JSON.stringify(usuario);
+    return this.http.post<any>(`${this.apiUrl}/PasoProduccion/${idtenant}`, body, this.utils.getHeaders(true));
   }
 
 }

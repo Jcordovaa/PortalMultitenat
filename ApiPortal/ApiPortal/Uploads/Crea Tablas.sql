@@ -522,6 +522,7 @@ CREATE TABLE [dbo].[ConfiguracionPortal](
 	[MuestraProductos] [int] NULL,
 	[MuestraGuiasPendientes] [int] NULL,
 	[UtilizaDocumentoPagoRapido] [int] NULL,
+	    [EstadoImplementacion] [int] NULL, 
  CONSTRAINT [PK_ConfiguracionPortal] PRIMARY KEY CLUSTERED 
 (
 	[IdConfiguracionPortal] ASC
@@ -1162,6 +1163,8 @@ SET IDENTITY_INSERT [dbo].[Perfil] ON
 GO
 INSERT [dbo].[Perfil] ([IdPerfil], [Nombre], [Descripcion]) VALUES (1, N'Administrador', N'perfil con permisos de administrador')
 GO
+INSERT [dbo].[Perfil] ([IdPerfil], [Nombre], [Descripcion]) VALUES (2, N'Cliente', N'Clienter')
+GO
 SET IDENTITY_INSERT [dbo].[Perfil] OFF
 GO
 SET IDENTITY_INSERT [dbo].[Permisos] ON 
@@ -1195,6 +1198,16 @@ GO
 INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (14, 1, 19, NULL, NULL, NULL, NULL)
 GO																															   
 INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (15, 1, 20, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (16, 2, 4, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (17, 2, 5, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (18, 2, 6, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (19, 2, 7, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Permisos] ([IdPermiso], [IdPerfil], [IdAcceso], [Modificar], [Consultar], [Actualizar], [Insertar]) VALUES (20, 2, 2, NULL, NULL, NULL, NULL)
 GO
 SET IDENTITY_INSERT [dbo].[Permisos] OFF
 GO

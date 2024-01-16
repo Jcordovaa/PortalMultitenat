@@ -1,6 +1,5 @@
 <div class="card user-profile o-hidden mb-4">
     <div class="header-cover" [ngStyle]="{'background-image': 'url(' + configDiseno.bannerPagoRapido + ')'}"></div>
-
     <div class="user-info">
         <!-- <img class="profile-picture avatar-lg mb-2" src="./assets/images/profile.png" alt=""> -->
         <br>
@@ -45,8 +44,8 @@
 
                             <label for="firstName">Fecha: </label>
                             <input type="radio" [value]="1" name="fecha" id="1" [(ngModel)]="tipoFecha"
-                                style="margin-left: 20px;" >
-                            Emisión 
+                                style="margin-left: 20px;">
+                            Emisión
                             <input type="radio" [value]="2" name="fecha" id="2" [(ngModel)]="tipoFecha"
                                 style="margin-left: 10px;">
                             Vencimiento
@@ -56,7 +55,8 @@
                                     <div class="input-group">
                                         <input class="form-control" readonly name="d2" #c2="ngModel"
                                             style="background-color: #f8f9fa;" [(ngModel)]="dateDesde" ngbDatepicker
-                                            #d2="ngbDatepicker" placeholder="DESDE" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            #d2="ngbDatepicker" placeholder="DESDE" [navigation]="'select'"
+                                            [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d2.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -68,7 +68,8 @@
                                     <div class="input-group">
                                         <input class="form-control" readonly name="d1" #c1="ngModel"
                                             style="background-color: #f8f9fa;" [(ngModel)]="dateHasta" ngbDatepicker
-                                            #d1="ngbDatepicker" placeholder="HASTA" [navigation]="'select'" [minDate]="{year: 1900, month: 1, day: 1}">
+                                            #d1="ngbDatepicker" placeholder="HASTA" [navigation]="'select'"
+                                            [minDate]="{year: 1900, month: 1, day: 1}">
                                         <div class="input-group-append">
                                             <button class="btn btn-secondary" (click)="d1.toggle()" type="button">
                                                 <i class="icon-regular i-Calendar-4"></i>
@@ -148,24 +149,35 @@
                                                             <span class="checkmark"></span>
                                                         </label> -->
 
-                                                        <label *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada" class="checkbox checkbox-outline-primary">
-                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                        <label
+                                                            *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada"
+                                                            class="checkbox checkbox-outline-primary">
+                                                            <input type="checkbox" name="checkSel"
+                                                                [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
                                                                 (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
                                                         </label>
-                                                        <label *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && !c.bloqueadoPago" class="checkbox checkbox-outline-primary">
-                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
+                                                        <label
+                                                            *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && !c.bloqueadoPago"
+                                                            class="checkbox checkbox-outline-primary">
+                                                            <input type="checkbox" name="checkSel"
+                                                                [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
                                                                 (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
                                                         </label>
-                                                        <label *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && c.bloqueadoPago" class="checkbox checkbox-outline-primary" [ngbTooltip]="tipContentOtraMonedaBloqueado" container="body">
-                                                            <input type="checkbox" name="checkSel" [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago" 
+                                                        <label
+                                                            *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada && c.bloqueadoPago"
+                                                            class="checkbox checkbox-outline-primary"
+                                                            [ngbTooltip]="tipContentOtraMonedaBloqueado"
+                                                            container="body">
+                                                            <input type="checkbox" name="checkSel"
+                                                                [(ngModel)]="c.checked" [disabled]="c.bloqueadoPago"
                                                                 (change)="onSel($event, c)">
                                                             <span class="checkmark"></span>
                                                         </label>
                                                     </th>
 
-                                                  
+
 
                                                     <td style="text-align: left;" contenteditable="false">{{ c.documento
                                                         }}
@@ -192,12 +204,15 @@
                                                     <td class="alinearTexto"
                                                         *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="100px"
-                                                        [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
+                                                        [ngbTooltip]="tipContentActual" container="body"
+                                                        (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                                         style="cursor: pointer;">{{c.montoBase | monto}}</td>
                                                     <td class="alinearTexto"
                                                         *ngIf="c.codigoMoneda != configuracionPagos.monedaUtilizada"
                                                         contenteditable="false" width="200px"
-                                                        [ngbTooltip]="tipContentActual" container="body" (mouseover)="monedaOrigen = c.desMon" (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
+                                                        [ngbTooltip]="tipContentActual" container="body"
+                                                        (mouseover)="monedaOrigen = c.desMon"
+                                                        (mouseover)="monedaOrigen = c.desMon; valorUfActrual = c.equivalenciaMoneda"
                                                         style="cursor: pointer;">{{c.saldoBase | monto}}</td>
                                                     <td class="alinearTexto"
                                                         *ngIf="c.codigoMoneda == configuracionPagos.monedaUtilizada"
@@ -249,9 +264,6 @@
                                                         </label>
                                                     </th>
                                                     <th scope="col"> </th>
-                                                    <th scope="col" *ngIf="configuracion.permiteAbonoParcial == 1">A
-                                                        Pagar
-                                                    </th>
                                                 </tr>
                                             </thead>
 
@@ -295,14 +307,14 @@
                                                         <span
                                                             *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
                                                             class="badge badge-success mr-1">Pendiente</span><br />
-                                                    </td>
-                                                    <td style="vertical-align:middle;" contenteditable="true"
-                                                        width="120px" *ngIf="configuracion.permiteAbonoParcial == 1">
-                                                        <input type="text" min="0" [disabled]="c.bloqueadoPago"
+                                                        <strong *ngIf="configuracion.permiteAbonoParcial == 1">A Pagar:
+                                                        </strong>
+                                                        <input *ngIf="configuracion.permiteAbonoParcial == 1"
+                                                            type="text" min="0" [disabled]="c.bloqueadoPago"
                                                             onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                                             class="form-control form-control-sm" name="asd"
                                                             [value]="c.aPagar | monto"
-                                                            (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                            (blur)="onChangeAPagar($event.target.value, c, $event)"><br />
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -406,9 +418,6 @@
                                                         </label>
                                                     </th>
                                                     <th scope="col"> </th>
-                                                    <th scope="col" *ngIf="configuracion.permiteAbonoParcial == 1">A
-                                                        Pagar
-                                                    </th>
                                                 </tr>
                                             </thead>
 
@@ -437,14 +446,14 @@
                                                         <span
                                                             *ngIf="c.estado == 'P' || c.estado == 'Pendiente' || c.estado == 'PENDIENTE'"
                                                             class="badge badge-success mr-1">Pendiente</span><br />
-                                                    </td>
-                                                    <td style="vertical-align:middle;" contenteditable="true"
-                                                        width="120px" *ngIf="configuracion.permiteAbonoParcial == 1">
-                                                        <input type="text" min="0"
+                                                        <strong *ngIf="configuracion.permiteAbonoParcial == 1">A Pagar:
+                                                        </strong>
+                                                        <input *ngIf="configuracion.permiteAbonoParcial == 1"
+                                                            type="text" min="0"
                                                             onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                                                             class="form-control form-control-sm" name="asd"
                                                             [disabled]="c.bloqueadoPago" [value]="c.aPagar | monto"
-                                                            (blur)="onChangeAPagar($event.target.value, c, $event)">
+                                                            (blur)="onChangeAPagar($event.target.value, c, $event)"><br />
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -536,7 +545,8 @@
     </div>
 
     <div class="row" style=" display: flex;">
-        <p   class="r-1 text-12" style="font-size: calc(0.25rem + 0.5vw) !important; color: #DF6107; margin-left: 30px;" >*{{configDiseno.textoNoConsideraTodaDeuda}}</p>
+        <p class="r-1 text-12" style="font-size: calc(0.25rem + 0.5vw) !important; color: #DF6107; margin-left: 30px;">
+            *{{configDiseno.textoNoConsideraTodaDeuda}}</p>
     </div>
 </div>
 
@@ -817,18 +827,21 @@
 
 
 
-<ng-template #tipContentActual>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaActual| date: 'dd/MM/yyyy'
+<ng-template #tipContentActual>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaActual|
+        date: 'dd/MM/yyyy'
         }}</b> correspondiente a
     <b>${{valorUfActrual | monto}}</b>
 </ng-template>
 
 
-<ng-template #tipContentOrigen>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaEmision| date: 'dd/MM/yyyy'
+<ng-template #tipContentOrigen>Calculo realizado sobre el valor de <b>{{monedaOrigen}}</b> al dia <b>{{fechaEmision|
+        date: 'dd/MM/yyyy'
         }}</b> correspondiente a
     <b>${{varloUfOrigen | monto}}</b>
 </ng-template>
 
-<ng-template #tipContentOtraMonedaBloqueado>No se encontró valor de la moneda para la fecha actual, se deshabilito el pago de este documento.
+<ng-template #tipContentOtraMonedaBloqueado>No se encontró valor de la moneda para la fecha actual, se deshabilito el
+    pago de este documento.
 </ng-template>
 
 

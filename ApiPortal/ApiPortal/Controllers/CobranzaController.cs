@@ -568,22 +568,6 @@ namespace ApiPortal.Controllers
                         }
                     }
 
-                    if (IdEstadoFinal != 3)
-                    {
-                        MailViewModel mailVm = new MailViewModel();
-                        string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
-                        mailVm.mensaje = item.Nombre + "|" + "ERROR" + "|" + tipoCobranza + "|" + "Asistida";
-                        mailVm.tipo = 9;
-                        await emailService.EnviarCorreosAsync(mailVm);
-                    }
-                    else
-                    {
-                        MailViewModel mailVm = new MailViewModel();
-                        string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
-                        mailVm.mensaje = item.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza + "|" + "Asistida";
-                        mailVm.tipo = 9;
-                        await emailService.EnviarCorreosAsync(mailVm);
-                    }
 
                     //Actualiza estado cobranza cabecera
 
@@ -594,6 +578,28 @@ namespace ApiPortal.Controllers
 
                     //Agregar a logCobranza
                     lc.CobranzasConsideradas = lc.CobranzasConsideradas + item.IdCobranza + ";";
+
+                    if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago))
+                    {
+                        if (IdEstadoFinal != 3)
+                        {
+                            MailViewModel mailVm = new MailViewModel();
+                            string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                            mailVm.mensaje = item.Nombre + "|" + "ERROR" + "|" + tipoCobranza + "|" + "Asistida";
+                            mailVm.tipo = 9;
+                            await emailService.EnviarCorreosAsync(mailVm);
+                        }
+                        else
+                        {
+                            MailViewModel mailVm = new MailViewModel();
+                            string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                            mailVm.mensaje = item.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza + "|" + "Asistida";
+                            mailVm.tipo = 9;
+                            await emailService.EnviarCorreosAsync(mailVm);
+                        }
+                    }
+                   
+
                 }
 
                 lc.FechaTermino = DateTime.Now;
@@ -624,13 +630,14 @@ namespace ApiPortal.Controllers
                 lc.Estado = "ERROR";
                 _context.Entry(lc).State = EntityState.Modified;
                 _context.SaveChanges();
-
-                MailViewModel mailVm = new MailViewModel();
-                MailService emailService = new MailService(_context, _webHostEnvironment);
-                mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Asistida";
-                mailVm.tipo = 9;
-                await emailService.EnviarCorreosAsync(mailVm);
-
+                var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
+                if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago)){
+                    MailViewModel mailVm = new MailViewModel();
+                    MailService emailService = new MailService(_context, _webHostEnvironment);
+                    mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Asistida";
+                    mailVm.tipo = 9;
+                    await emailService.EnviarCorreosAsync(mailVm);
+                }
                 return BadRequest(ex.Message);
             }
         }

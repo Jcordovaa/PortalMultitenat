@@ -231,8 +231,15 @@ namespace ApiPortal.Controllers
 
                 var user = _context.Usuarios.Where(x => x.IdUsuario == usuarios.IdUsuario).FirstOrDefault();
 
+              
+
                 if (user != null)
                 {
+                    var existUser = _context.Usuarios.Where(x => x.IdUsuario != user.IdUsuario && usuarios.Email == x.Email).FirstOrDefault();
+                    if(existUser != null)
+                    {
+                        return Ok(-1);
+                    }
                     user.IdPerfil = usuarios.IdPerfil;
                     user.Nombres = usuarios.Nombres;
                     user.Apellidos = usuarios.Apellidos;

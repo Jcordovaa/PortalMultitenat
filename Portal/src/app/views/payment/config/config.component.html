@@ -6,7 +6,7 @@
     </ul>
 </div>
 
-<div class="separator-breadcrumb border-top"></div> 
+<div class="separator-breadcrumb border-top"></div>
 
 <div class="">
     <ngb-tabset class="p-0">
@@ -15,12 +15,11 @@
                 <div class="col-md-12">
                     <div class="card mb-4">
                         <div class="card-body">
-                           
+
                             <h6 class="mb-2">Seleccione las <strong>Cuentas Contables </strong> desde donde se obtendrán
                                 los documentos pendientes. <img [container]="'body'"
-                                    ngbTooltip="Debe seleccionar al menos una."
-                                    style="cursor: pointer;" src="assets/images/icon/info.png" alt="Información"
-                                    width="22" height="22"></h6>
+                                    ngbTooltip="Debe seleccionar al menos una cuenta contable que maneje tipo de documento y auxiliar. Para esta versión se permiten solo cuentas que no manejen moneda adicional, próximamente se agregara esta funcionalidad." style="cursor: pointer;"
+                                    src="assets/images/icon/info.png" alt="Información" width="22" height="22"></h6>
                             <div class="row mt-2">
                                 <div class="col-md-12 form-group mb-3">
                                     <ng-select class="customAC" style="border-radius: 40px !important;"
@@ -57,11 +56,11 @@
                                     <input type="text" aria-describedby="basic-addon2" class="form-control"
                                         placeholder="Glosa Comprobante Contable" #gComprobante="ngModel"
                                         name="gComprobante" [(ngModel)]="configPagoClientes.glosaComprobante" />
-                                    <div class="input-group-append">
+                                    <!-- <div class="input-group-append">
                                         <span class="input-group-text" id="basic-addon2">
                                             [Tipo de documento] [Folio]
                                         </span>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                             <!-- 
@@ -147,7 +146,7 @@
                                         [items]="centrosCostos" bindLabel="descCC" placeholder="Centro de Costo"
                                         #cc="ngModel" name="cc" [(ngModel)]="configPagoClientes.centroCosto"
                                         bindValue="codiCC"> </ng-select> -->
-                                  <!--  </div> -->
+                                <!--  </div> -->
 
                                 <div class="col-md-3 form-group mb-3" *ngIf="areasNegocio.length > 0">
                                     <label for="moneda">Area de Negocio</label>
@@ -159,15 +158,21 @@
                             </div>
 
                             <ngb-alert class="alert-card" [dismissible]="false">
-                                A considerar: <br/> <br/>
-                                Las deudas que traerá el portal, serán las que se encuentren vigentes a la fecha, para cada uno de sus clientes. Si existe alguna deuda
-                                que usted desee que no se considere en ésta plataforma, deberá realizar con anterioridad los asientos contables según los tratamientos
-                                tributarios correspondientes. <br> <br/>
-                                En el caso de que los saldos de apertura del año en curso estén desactualizados, deberá ejecutar el proceso de "REPROCESO DE APERTURAS" 
+                                A considerar: <br /> <br />
+                                Las deudas que traerá el portal, serán las que se encuentren vigentes a la fecha, para
+                                cada uno de sus clientes. Si existe alguna deuda
+                                que usted desee que no se considere en ésta plataforma, deberá realizar con anterioridad
+                                los asientos contables según los tratamientos
+                                tributarios correspondientes. <br> <br />
+                                En el caso de que los saldos de apertura del año en curso estén desactualizados, deberá
+                                ejecutar el proceso de "REPROCESO DE APERTURAS"
                                 para que la información que visualicen sus clientes sea consistente.
-                                <br><br>
-                                Si tiene anticipos realizados por parte de su cliente, que no tengan documentos asociados, estos saldos en negativo no se verán reflejados en el portal. Por otro lado su cliente solo podrá realizar abonos a documentos emitidos y debidamente contabilizados.
-                               </ngb-alert>
+                                <!-- <br><br>
+                                Si tiene anticipos realizados por parte de su cliente, que no tengan documentos
+                                asociados, estos saldos en negativo no se verán reflejados en el portal. Por otro lado
+                                su cliente solo podrá realizar abonos a documentos emitidos y debidamente
+                                contabilizados. -->
+                            </ngb-alert>
 
 
                             <div class="col-md-12 mt-3 text-center">
@@ -187,8 +192,9 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="form-group row col-md-12 mb-3">
-                                
-                                    <label for="firstName2" class="col-sm-6 col-form-label size">Cantidad Compras Dashboard
+
+                                    <label for="firstName2" class="col-sm-4 col-form-label size">Cantidad Compras
+                                        Dashboard
                                         <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                             (click)="openInfoModal(modalBasic, 4)"
                                             src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
@@ -199,23 +205,8 @@
                                             [(ngModel)]="configPortal.cantidadUltimasCompras" />
                                     </div>
                                 </div>
-
-                                <div class="form-group row col-md-12 mb-3">
-
-                                    <label for="firstName2" class="col-sm-6   col-form-label size">Cantidad Días Documentos Por
-                                        Vencer
-                                        <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 9)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22"></label>
-                                    <div class="col-sm-4">
-                                        <input type="number" class="form-control" placeholder="Cantidad Días"
-                                            #cantidadDias="ngModel" name="cantidadDias"
-                                            [(ngModel)]="cantidadDiasPorVencer" />
-                                    </div>
-                                </div>
-
-                                <!-- <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
+                            </div>
+                            <!-- <div class="col-md-6 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
                                             <span>Mostrar Estado Cliente </span>
@@ -247,21 +238,38 @@
 
                                     </div>
                                 </div> -->
+                            <div class="row">
 
+                                <div class="form-group col-sm-6 col-form-label size">
+                                    <div class="input-group" style="margin-top: 8px;">
+                                        <label for="firstName2">Cantidad Dias Documentos Por Vencer antes de </label>
+                                        <input style="margin-left: 5px;" type="number" class="form-control"
+                                            placeholder="Cantidad Días" #cantidadDias="ngModel" name="cantidadDias"
+                                            [(ngModel)]="cantidadDiasPorVencer" />
+                                        <label style="margin-left: 5px;" for="picker1">días
+                                            <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
+                                                (click)="openInfoModal(modalBasic, 9)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22"></label>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-7 form-group mb-3" style="margin-top: 20px;">
                                     <div class="input-group">
                                         <label class="switch switch-success mr-3">
                                             <span class="size">Mostrar Contactos en Perfil </span>
                                             <input [(ngModel)]="configPortal.muestraContactosPerfil" type="checkbox"
                                                 id="exampleCheck4" name="exampleCheck4" />
-                                                
+
                                             <span class="slider"></span>
                                             <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
                                                 (click)="openInfoModal(modalBasic, 2)"
                                                 src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
                                                 height="22">
                                         </label>
-                                    
+
 
                                     </div>
                                 </div>
@@ -272,14 +280,14 @@
                                             <span class="size">Permite Exportar a Excel </span>
                                             <input [(ngModel)]="configPortal.permiteExportarExcel" type="checkbox"
                                                 id="exampleCheck6" name="exampleCheck6" />
-                                             
+
                                             <span class="slider"></span>
                                             <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 3)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22">
+                                                (click)="openInfoModal(modalBasic, 3)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22">
                                         </label>
-                                       
+
 
                                     </div>
                                 </div>
@@ -292,12 +300,12 @@
                                             <input [(ngModel)]="configPortal.habilitaPagoRapido" type="checkbox"
                                                 id="exampleCheck5" name="exampleCheck5" />
                                             <span class="slider"></span>
-                                            <img container="body" ngbTooltip="Saber más" id="img6" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 6)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22">
+                                            <img container="body" ngbTooltip="Saber más" id="img6"
+                                                style="cursor: pointer;" (click)="openInfoModal(modalBasic, 6)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22">
                                         </label>
-                                 
+
                                     </div>
                                 </div>
 
@@ -308,21 +316,22 @@
                                             <span class="size" style="color: grey;"
                                                 *ngIf="!configPortal.habilitaPagoRapido">Habilitar Búsqueda por
                                                 Documento</span>
-                                            <span class="size" *ngIf="configPortal.habilitaPagoRapido">Habilitar Búsqueda por
+                                            <span class="size" *ngIf="configPortal.habilitaPagoRapido">Habilitar
+                                                Búsqueda por
                                                 Documento</span>
                                             <input [(ngModel)]="configPortal.utilizaDocumentoPagoRapido" type="checkbox"
                                                 [disabled]="!configPortal.habilitaPagoRapido" id="exampleCheck50"
                                                 name="exampleCheck50" />
-                                              
+
                                             <span class="slider" style="background-color: grey;"
                                                 *ngIf="!configPortal.habilitaPagoRapido"></span>
                                             <span *ngIf="configPortal.habilitaPagoRapido" class="slider"></span>
                                             <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 8)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22">
+                                                (click)="openInfoModal(modalBasic, 8)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22">
                                         </label>
-                                     
+
 
                                     </div>
                                 </div>
@@ -335,14 +344,14 @@
                                             <span class="size" style="width: 20px;">Permite abono parcial </span>
                                             <input [(ngModel)]="configPortal.permiteAbonoParcial" type="checkbox"
                                                 id="exampleCheck7" name="exampleCheck7" />
-                                            
-                                            <span  class="slider"></span>
+
+                                            <span class="slider"></span>
                                             <img container="body" ngbTooltip="Saber más" style="cursor: pointer;"
-                                            (click)="openInfoModal(modalBasic, 7)"
-                                            src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
-                                            height="22">
+                                                (click)="openInfoModal(modalBasic, 7)"
+                                                src="https://img.icons8.com/fluent/96/info.png" alt="" width="22"
+                                                height="22">
                                         </label>
-                                    
+
 
                                     </div>
                                 </div>
@@ -367,8 +376,8 @@
                             <div class="card-body">
 
 
-                                <div class="col-md-10"> 
-                                    <div class="card mb-4 margenDesktop" >
+                                <div class="col-md-10">
+                                    <div class="card mb-4 margenDesktop">
                                         <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(1)">
                                             INICIO <i class="arrowIcon"><img
                                                     [src]="inicioDeSesion == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
@@ -514,8 +523,7 @@
                                                         #msjDescargarCobranza="ngModel" name="msjDescargarCobranza"
                                                         [(ngModel)]="configuracionDiseno.textoDescargaCobranza" />
                                                     <img container="body" ngbTooltip="Saber más"
-                                                        style="cursor: pointer;"
-                                                        (click)="openInfoModal(modalBasic, 65)"
+                                                        style="cursor: pointer;" (click)="openInfoModal(modalBasic, 65)"
                                                         src="https://img.icons8.com/fluent/96/info.png" alt=""
                                                         width="22" height="22">
                                                 </div>
@@ -617,7 +625,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="card mb-4 margenDesktop" >
+                                    <div class="card mb-4 margenDesktop">
                                         <div class="card-header" style="cursor: pointer;" (click)="MostrarSeccion(2)">
                                             SIDE BAR <i class="arrowIcon"><img
                                                     [src]="sidebar == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
@@ -699,7 +707,7 @@
                                                     [src]="pagoRapido == 0 ? './assets/images/icon/flecha-hacia-abajo.png' : './assets/images/icon/flecha-hacia-arriba.png'"></i>
                                         </div>
                                         <div class="card-body" *ngIf="pagoRapido == 1">
-<!-- 
+                                            <!-- 
                                             <div class="col-md-12 form-group">
                                                 <label for="firstName2">Mensaje Cobranza Expirada</label>
                                                 <div class="input-group">
@@ -1349,7 +1357,7 @@
                                                     </div>
                                                 </div> -->
 
-<!-- 
+                                                <!-- 
                                                 <div class="col-md-12 form-group">
                                                     <label for="firstName2">Título Productos Comprados</label>
                                                     <div class="input-group">

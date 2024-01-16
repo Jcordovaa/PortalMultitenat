@@ -299,6 +299,7 @@ namespace ApiPortal.Controllers
             try
             {
                 var acc = await _context.Accesos.Where(x => x.Activo == 1).ToListAsync();
+                acc.RemoveAll(x => x.MenuPadre == 2 || x.IdAcceso == 2);
                 List<AccesosVm> accesos = new List<AccesosVm>();
                 foreach (var item in acc)
                 {

@@ -5,7 +5,7 @@ namespace ApiPortal.Dal.Models_Portal
 {
     public partial class ApiSoftland
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public string? Ambiente { get; set; }
         public string? Url { get; set; }
         public string? Token { get; set; }

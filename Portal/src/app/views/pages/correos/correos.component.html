@@ -17,9 +17,8 @@
             <div class="card-body">
               <form #myFormCorreos="ngForm">
                 <div class="row">
-                  <div class="col-md-12 form-group mb-3">
+                  <!-- <div class="col-md-12 form-group mb-3">
                     <label for="firstName2">Servidor SMTP <span class="camporequerido">*</span></label>
-                    <!-- <input type="email" class="form-control form-control-rounded" id="firstName2" placeholder="Servidor SMTP"> -->
                     <input type="text"
                       [ngClass]="smtp.errors && (smtp.dirty || smtp.touched) ? 'form-control is-invalid' : 'form-control'"
                       placeholder="Servidor SMTP" #smtp="ngModel" required maxlength="50" name="smtp"
@@ -28,9 +27,9 @@
                       style="margin-top: 2px; font-size: 12px">
                       Servidor SMTP es requerido
                     </p>
-                  </div>
+                  </div> -->
 
-                  <div class="col-md-12 form-group mb-3">
+                  <!-- <div class="col-md-12 form-group mb-3">
                     <label for="user">Usuario <span class="camporequerido">*</span></label>
                     <input type="text"
                       [ngClass]="user.errors && (user.dirty || user.touched) ? 'form-control is-invalid' : 'form-control'"
@@ -40,9 +39,9 @@
                       style="margin-top: 2px; font-size: 12px">
                       Usuario es requerido
                     </p>
-                  </div>
+                  </div> -->
 
-                  <div class="col-md-12 form-group mb-3">
+                  <!-- <div class="col-md-12 form-group mb-3">
                     <label for="pass">Clave <span class="camporequerido">*</span></label>
                     <input type="password"
                       [ngClass]="pass.errors && (pass.dirty || pass.touched) ? 'form-control is-invalid' : 'form-control'"
@@ -52,9 +51,9 @@
                       style="margin-top: 2px; font-size: 12px">
                       Clave es requerida
                     </p>
-                  </div>
+                  </div> -->
 
-                  <div class="col-md-12 form-group mb-3">
+                  <!-- <div class="col-md-12 form-group mb-3">
                     <label for="correoOrigen">Correo Origen <span class="camporequerido">*</span></label>
                     <input type="text"
                       [ngClass]="correoOrigen.errors && (correoOrigen.dirty || correoOrigen.touched) ? 'form-control is-invalid' : 'form-control'"
@@ -64,7 +63,7 @@
                       style="margin-top: 2px; font-size: 12px">
                       Correo Origen es requerido
                     </p>
-                  </div>
+                  </div> -->
 
                   <div class="col-md-12 form-group mb-3">
                     <label for="correoOrigen">Nombre Origen <span class="camporequerido">*</span></label>
@@ -78,7 +77,7 @@
                     </p>
                   </div>
 
-                  <div class="col-md-12 form-group mb-3">
+                  <!-- <div class="col-md-12 form-group mb-3">
                     <label for="port">Puerto <span class="camporequerido">*</span></label>
                     <input type="number"
                       [ngClass]="port.errors && (port.dirty || port.touched) ? 'form-control is-invalid' : 'form-control'"
@@ -88,21 +87,21 @@
                       style="margin-top: 2px; font-size: 12px">
                       Puerto es requerido
                     </p>
-                  </div>
+                  </div> -->
 
-                  <div class="col-md-12 form-group mb-3 mt-2">
+                  <!-- <div class="col-md-12 form-group mb-3 mt-2">
                     <label class="switch switch-success mr-3">
                       <span>SSL</span>
                       <input [(ngModel)]="config.ssl" type="checkbox" id="exampleCheckSSL" name="exampleCheckSSL" />
                       <span class="slider"></span>
                     </label>
-                  </div>
+                  </div> -->
 
                   <div class="col-md-12 form-group mb-3">
-                    <label for="correos1">Notificación Pago</label>
+                    <label for="correos1">Notificaciones Portal</label>
                     <tag-input id="correos1" name="correos1" inputClass="form-control" [(ngModel)]='correo1'
-                      secondaryPlaceholder="Ingrese correo" (onAdd)="onAdd($event, 1)" theme='primary'
-                      [placeholder]="'Inserte correo'"></tag-input>
+                      secondaryPlaceholder="Inserte y presione enter" (onAdd)="onAdd($event, 1)" theme='primary'
+                      [placeholder]="'Inserte y presione enter'"></tag-input>
                   </div>
 
                   <div class="col-md-12 form-group mb-3">

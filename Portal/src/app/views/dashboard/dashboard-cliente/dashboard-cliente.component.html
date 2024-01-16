@@ -20,8 +20,9 @@
                     [ngStyle]="{backgroundColor: tipoDoc == 1 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoDocumentos}">
                     <div class="inner">
                         <h3 [ngStyle]="{color: configDiseno.colorTextoPendientes}">${{ totalPendiente | monto }} </h3>
-                        <p [ngStyle]="{color: configDiseno.colorTextoPendientes}">{{cantidadPendiente}}
-                            {{configDiseno.tituloPendientesDashboard}}</p>
+                        <!-- <p [ngStyle]="{color: configDiseno.colorTextoPendientes}">{{cantidadPendiente}}
+                            {{configDiseno.tituloPendientesDashboard}}</p> -->
+                            <p [ngStyle]="{color: configDiseno.colorTextoPendientes}">Saldo de su cuenta</p>
                     </div>
                     <!-- <div class="icon">
                         <i class="i-Calendar-3" [ngStyle]="{color: configDiseno.colorIconoPendientes}"
@@ -54,8 +55,10 @@
                     [ngStyle]="{backgroundColor: tipoDoc == 2 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoVencidos}">
                     <div class="inner">
                         <h3 [ngStyle]="{color: configDiseno.colorTextoVencidos}">${{ totalVencidos | monto }} </h3>
-                        <p [ngStyle]="{color: configDiseno.colorTextoVencidos}">{{cantidadVencidos}}
+                        <!-- <p [ngStyle]="{color: configDiseno.colorTextoVencidos}">{{cantidadVencidos}}
                             {{configDiseno.tituloVencidosDashboard}}
+                        </p> -->
+                        <p [ngStyle]="{color: configDiseno.colorTextoVencidos}">Saldo documentos vencidos
                         </p>
                     </div>
                     <!-- <div class="icon">
@@ -86,8 +89,9 @@
                     [ngStyle]="{backgroundColor: tipoDoc == 3 ? configDiseno.colorSeleccionDocumentos : configDiseno.colorFondoPorVencer}">
                     <div class="inner">
                         <h3 [ngStyle]="{color: configDiseno.colorTextoPorVencer}">${{ totalPorVencer | monto }} </h3>
-                        <p [ngStyle]="{color: configDiseno.colorTextoPorVencer}">{{cantidadPorVencer}}
-                            {{configDiseno.tituloPorVencerDashboard}}</p>
+                        <!-- <p [ngStyle]="{color: configDiseno.colorTextoPorVencer}">{{cantidadPorVencer}}
+                            {{configDiseno.tituloPorVencerDashboard}}</p> -->
+                            <p [ngStyle]="{color: configDiseno.colorTextoPorVencer}">Saldo proximo a vencer dentro de los siguientes {{configuracionPagos.diasPorVencer}} días</p>
                     </div>
                     <!-- <div class="icon">
                         <i class="i-Danger" [ngStyle]="{color: configDiseno.colorIconoPorVencer}"
@@ -609,7 +613,7 @@
                                                             <tr>
                                                                 <!-- <th class="TableIcon" scope="col"> </th> -->
                                                                 <th scope="col"> </th>
-                                                                <th scope="col">Detalle</th>
+                                                                <!-- <th scope="col">Detalle</th> -->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -640,7 +644,7 @@
                                                                     <strong>Saldo en Mda. Nacional Actualizado $:
                                                                     </strong>{{documento.saldoBase | monto}}<br />
                                                                 </td>
-                                                                <td style="vertical-align:middle;"
+                                                                <!-- <td style="vertical-align:middle;"
                                                                     *ngIf="existModuloInventario">
                                                                     <div ngbDropdown>
                                                                         <button (click)="verDetalle(documento)"
@@ -660,7 +664,7 @@
                                                                                 <circle cx="12" cy="19" r="1"></circle>
                                                                             </svg></button>
                                                                     </div>
-                                                                </td>
+                                                                </td> -->
                                                             </tr>
                                                         </tbody>
                                                     </table>

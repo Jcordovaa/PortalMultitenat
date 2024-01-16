@@ -105,6 +105,9 @@ namespace ApiPortal.Controllers
                         if (usuario.CuentaActivada == null || usuario.CuentaActivada == 0)
                             return BadRequest("Cuenta ingresada aún no ha sido activada por el usuario.");
 
+                        if (usuario.Activo == null || usuario.Activo == 0)
+                            return BadRequest("Cuenta ingresada inactiva.");
+
                         fullName = $"{usuario.Nombres} {usuario.Apellidos}";
                         isCredentialValid = true;
                         email = usuario.Email;

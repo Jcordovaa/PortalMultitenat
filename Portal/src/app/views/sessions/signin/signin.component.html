@@ -1,6 +1,33 @@
 <!-- [ngStyle]="{'background-image': 'url(' + configDiseno.bannerPortal + ')'}"-->
+<div *ngIf="configuracion.estadoImplementacion != 3"  class="row"[ngStyle]="{'background-color': configDiseno.colorFondoPortada}">
+    <div class="col-md-1"></div>
+    <div class="col-md-10 mb-4" style="margin-top: 10px;">
+        <ngb-alert  class="alert-card alert-danger" [dismissible]="false"
+            style="font-size: calc(0.25rem + 0.5vw) !important; padding: 10px; line-height: normal !important;">
+            Estimado visitante,
+            Le damos la bienvenida a nuestro portal web. Queremos informarle que actualmente nos encontramos en una fase
+            de
+            pruebas para mejorar su experiencia en línea. Durante este período, le pedimos que no realice ninguna acción
+            ni
+            transacción en el sitio.
+            Por favor, tenga en cuenta lo siguiente:
+            <ul style="list-style-type: circle !important">
+                <li style="display: list-item !important"> - Los datos y acciones realizadas durante esta fase de pruebas pueden ser
+                    restablecidos o eliminados en cualquier
+                    momento.</li>
+                <li style="display: list-item !important"> - Algunas funciones o secciones del sitio pueden no estar completamente
+                    operativas o podrían experimentar cambios.</li>
+                <li style="display: list-item !important"> - Se recomienda no realizar pagos durante esta etapa ya que podrían ser procesados pero no descontados de los saldos de los documentos.</li>
+            </ul>
+        </ngb-alert>
+    </div>
+    <div class="col-md-1"></div>
+</div>
 <div *ngIf="!esPago && loadingScreen" class="contenedortaita"
     [ngStyle]="{'border-color': configDiseno.colorFondoPortada, 'background-image': 'url(' + configDiseno.imagenPortada + ')'}">
+
+
+
     <section id="section22" *ngIf="!muestraPago && !muestraInicio " class="contenedor">
         <div class="section00">
         </div>
@@ -105,13 +132,14 @@
                     <div class="row align-items-center">
                         <div class="col-md-12">
                             <div class="password-container">
-                                 <input class="place" id="pass" name="pass" name="passLogin" [(ngModel)]="signInModel.pass" type="password"
-                                (keydown)="onKeydownInicioSesion($event)" placeholder="Password">
+                                <input class="place" id="pass" name="pass" name="passLogin"
+                                    [(ngModel)]="signInModel.pass" type="password"
+                                    (keydown)="onKeydownInicioSesion($event)" placeholder="Password">
                                 <span *ngIf="!showViewPasswordButton" class="password-toggle" (click)="verPass()">
                                     <img [src]="icon">
                                 </span>
                             </div>
-                           
+
                         </div>
                         <!-- <div class="col-md-2">
                             <button style="height: 35px; width: 50px; margin-left: 5px;" class="btn btn-secondary" type="button"

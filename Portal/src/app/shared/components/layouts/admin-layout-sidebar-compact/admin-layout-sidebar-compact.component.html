@@ -1,10 +1,49 @@
-<div class="app-admin-wrap layout-sidebar-compact sidebar-gradient-black-gray clearfix" 
-[ngClass]="{'sidenav-open': navService.sidebarState.sidenavOpen}">
+<div class="app-admin-wrap layout-sidebar-compact sidebar-gradient-black-gray clearfix"
+    [ngClass]="{'sidenav-open': navService.sidebarState.sidenavOpen}">
     <div class="side-content-wrap">
         <app-sidebar-compact></app-sidebar-compact>
     </div>
     <div class="main-content-wrap d-flex flex-column">
         <app-header-sidebar-compact></app-header-sidebar-compact>
+        <div *ngIf="configuracion.estadoImplementacion != 3"  class="row" style="margin-top: 50px;">
+            <div class="col-md-1"></div>
+            <div class="col-md-10 mb-4" style="margin-top: 10px;">
+                <ngb-alert class="alert-card alert-danger"
+                    [dismissible]="false"
+                    style="font-size: calc(0.25rem + 0.5vw) !important; padding: 10px; line-height: normal !important;">
+                    Estimado visitante,
+                    <br>
+                    Le damos la bienvenida a nuestro portal web. Queremos informarle que actualmente nos encontramos en
+                    una
+                    fase
+                    de
+                    pruebas para mejorar su experiencia en línea. Durante este período, le pedimos que no realice
+                    ninguna
+                    acción
+                    ni
+                    transacción en el sitio.
+                    Por favor, tenga en cuenta lo siguiente:
+                    <br>
+                    <br>
+                    <ul style="list-style-type: circle !important">
+                        <li style="display: list-item !important">Los datos y acciones realizadas durante esta fase de
+                            pruebas pueden ser
+                            restablecidos o eliminados en cualquier
+                            momento.</li>
+                            <br>
+                        <li style="display: list-item !important">Algunas funciones o secciones del sitio pueden no
+                            estar
+                            completamente
+                            operativas o podrían experimentar cambios.</li>
+                            <br>
+                        <li style="display: list-item !important">Se recomienda no realizar pagos durante esta etapa ya
+                            que podrían ser procesados pero no descontados de los saldos de los documentos.</li>
+                    </ul>
+                </ngb-alert>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+
         <div class="main-content">
             <router-outlet></router-outlet>
         </div>

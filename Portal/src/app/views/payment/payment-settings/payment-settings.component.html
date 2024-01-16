@@ -18,7 +18,7 @@
                         <div class="card-body">
                           <form #myFormConfig="ngForm">
                             <div class="row">
-                                <!-- <div class="col-md-4 form-group mb-3">
+                                <div class="col-md-4 form-group mb-3">
                                     <label for="estado">Estado</label>
                                     <select [(ngModel)]="pasarela.estado"
                                             class="form-control"
@@ -30,7 +30,7 @@
                                             Activo
                                         </option>
                                     </select>
-                                </div> -->
+                                </div>
 
                                 <div *ngIf="(pasarela.idPasarela == 1 || pasarela.idPasarela == 3) && pasarela.estado == 1" class="col-md-4 form-group mb-3">
                                     <label for="ambiente2">Ambiente</label>

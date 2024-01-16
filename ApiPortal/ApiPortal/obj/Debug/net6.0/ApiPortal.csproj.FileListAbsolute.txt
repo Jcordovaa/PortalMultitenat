@@ -693,14 +693,6 @@ C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Azure.Storag
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Azure.Storage.Common.dll
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.IO.Hashing.dll
 C:\DevtechGit\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Memory.Data.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Identity.Client.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.SqlWmiManagement.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Newtonsoft.Json.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Management.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Transbank.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\ko\Microsoft.CodeAnalysis.Features.resources.dll
-D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Select.Html.dep
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\appsettings.Development.json
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\appsettings.json
@@ -753,6 +745,7 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Extensions.DependencyInjection.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Identity.Client.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Identity.Client.Extensions.Msal.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.IdentityModel.Abstractions.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.IdentityModel.JsonWebTokens.dll
@@ -787,15 +780,18 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.Smo.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.SmoExtended.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.SqlEnum.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.SqlWmiManagement.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.SqlServer.WmiEnum.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Debugger.Contracts.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.Core.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\dotnet-aspnet-codegenerator-design.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Newtonsoft.Json.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\NuGet.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\NuGet.Configuration.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\NuGet.DependencyResolver.Core.dll
@@ -823,12 +819,14 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Drawing.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.IO.Hashing.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Management.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Memory.Data.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Reflection.MetadataLoadContext.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Runtime.Caching.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Security.Cryptography.ProtectedData.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Security.Permissions.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\System.Windows.Extensions.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\Transbank.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\af\Humanizer.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\ar\Humanizer.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\az\Humanizer.resources.dll
@@ -935,6 +933,7 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\fr\Microsoft.CodeAnalysis.Features.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\it\Microsoft.CodeAnalysis.Features.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\ja\Microsoft.CodeAnalysis.Features.resources.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\ko\Microsoft.CodeAnalysis.Features.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\pl\Microsoft.CodeAnalysis.Features.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\pt-BR\Microsoft.CodeAnalysis.Features.resources.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\ru\Microsoft.CodeAnalysis.Features.resources.dll
@@ -977,6 +976,7 @@ D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Data.OleDb.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Diagnostics.PerformanceCounter.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Management.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 D:\Devtech\MultiTenant Portal\PortalMultitenat\ApiPortal\ApiPortal\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll

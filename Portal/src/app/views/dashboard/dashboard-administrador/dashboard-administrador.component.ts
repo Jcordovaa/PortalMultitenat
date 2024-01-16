@@ -82,6 +82,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     folio: number = null;
     configDocumentos: any;
     existModuloInventario: boolean = false;
+    paginaDocumentosPagados: number = 1;
     public paginadorDocumentos: Paginator = {
         startRow: 0,
         endRow: 10,
@@ -735,6 +736,7 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
     }
 
     changePageDocumentosPagados(event: any) {
+        this.paginaDocumentosPagados = event;
         let fHasta = null;
         if (this.dateHasta != null) {
             fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
@@ -1081,7 +1083,37 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
             } else {
                 this.notificationService.success('Se genero el comprobante N° ' + res.numero, '', true);
             }
-            this.obtenerDocumentos(4);
+
+            this.spinner.show();
+
+            this.noResultText = "No se encontraron resultados";
+
+            if ((this.documentosPorPagina.length - 1) < 1) {
+                this.filterDocsPagados();
+            } else {
+                let fHasta = null;
+                if (this.dateHasta != null) {
+                    fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+                }
+
+                let fDesde = null;
+                if (this.dateDesde != null) {
+                    fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+                }
+
+                let filtro = {
+                    codAux: this.searchCodAux,
+                    rut: this.searchRut,
+                    tipoBusqueda: this.selectedEstadoPagos,
+                    numComprobante: this.folio,
+                    fechaDesde: fDesde,
+                    fechaHasta: fHasta,
+                    pagina: this.paginaDocumentosPagados
+                }
+                this.getDocumentosPagados(filtro);
+            }
+
+
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al  generar comprobante', '', true); });
     }
 
@@ -1094,7 +1126,34 @@ export class DashboardAdministradorComponent implements OnInit, DoCheck {
         }
         this.softlandService.actualizaComprobantePago(model).subscribe(res => {
             this.modalService.dismissAll();
-            this.obtenerDocumentos(4);
+            this.spinner.show();
+
+            this.noResultText = "No se encontraron resultados";
+
+            if ((this.documentosPorPagina.length - 1) < 1) {
+                this.filterDocsPagados();
+            } else {
+                let fHasta = null;
+                if (this.dateHasta != null) {
+                    fHasta = new Date(this.dateHasta.year, this.dateHasta.month - 1, this.dateHasta.day, 0, 0, 0);
+                }
+
+                let fDesde = null;
+                if (this.dateDesde != null) {
+                    fDesde = new Date(this.dateDesde.year, this.dateDesde.month - 1, this.dateDesde.day, 0, 0, 0);
+                }
+
+                let filtro = {
+                    codAux: this.searchCodAux,
+                    rut: this.searchRut,
+                    tipoBusqueda: this.selectedEstadoPagos,
+                    numComprobante: this.folio,
+                    fechaDesde: fDesde,
+                    fechaHasta: fHasta,
+                    pagina: this.paginaDocumentosPagados
+                }
+                this.getDocumentosPagados(filtro);
+            }
             this.notificationService.success('Se ha actualizado correctamente el Número de comprobante', '', true);
         }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener contactos del cliente', '', true); });
     }

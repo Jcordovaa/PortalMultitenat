@@ -105,9 +105,9 @@ export class SidebarCompactComponent implements OnInit {
         name: 'Implementación',
         description: '',
         type: 'dropDown',
-        icon: 'i-Money-Bag',
+        icon: 'i-Management',
         sub: [
-            { id: 1, icon: 'i-Home1', name: 'Inicio', state: '/implementation/company', type: 'link' },
+            { id: 1, icon: 'i-File', name: 'Empresas', state: '/implementation/company', type: 'link' },
         ]
     }
   ];

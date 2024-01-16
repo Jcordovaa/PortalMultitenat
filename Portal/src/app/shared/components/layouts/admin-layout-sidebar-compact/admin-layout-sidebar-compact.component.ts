@@ -3,6 +3,8 @@ import { NavigationService } from '../../../services/navigation.service';
 import { SearchService } from 'src/app/shared/services/search.service';
 import { SharedAnimations } from 'src/app/shared/animations/shared-animations';
 import { Router, RouteConfigLoadStart, ResolveStart, RouteConfigLoadEnd, ResolveEnd } from '@angular/router';
+import { ConfiguracionPagoClientesService } from 'src/app/shared/services/configuracionpagoclientes.service';
+import { ConfiguracionPortal } from 'src/app/shared/models/configuracioncobranza.model';
 
 @Component({
   selector: 'app-admin-layout-sidebar-compact',
@@ -11,10 +13,10 @@ import { Router, RouteConfigLoadStart, ResolveStart, RouteConfigLoadEnd, Resolve
 })
 export class AdminLayoutSidebarCompactComponent implements OnInit {
     moduleLoading: boolean;
-  
+    configuracion: ConfiguracionPortal = new ConfiguracionPortal();
     constructor(
       public navService: NavigationService,
-      public searchService: SearchService,
+      public searchService: SearchService, private configuracionService: ConfiguracionPagoClientesService,
       private router: Router
     ) { }
   
@@ -27,6 +29,11 @@ export class AdminLayoutSidebarCompactComponent implements OnInit {
           this.moduleLoading = false;
         }
       });
+
+      const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+      if (configuracionCompletaPortal != null) {
+        this.configuracion = configuracionCompletaPortal.configuracionPortal;
+      }
     }
 
 }
