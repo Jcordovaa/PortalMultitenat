@@ -1,5 +1,7 @@
 ﻿using ApiPortal.Dal.Models_Portal;
 using ApiPortal.Services;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +34,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionCorreo/actualizaConfiguracionCorreo";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-           
+
 
             try
             {
@@ -87,14 +89,14 @@ namespace ApiPortal.Controllers
         }
 
         [HttpPost("actualizaTextos/{tipo}"), Authorize]
-        public async Task<ActionResult> actualizaTextos(int tipo, [FromBody]ConfiguracionCorreo model)
+        public async Task<ActionResult> actualizaTextos(int tipo, [FromBody] ConfiguracionCorreo model)
         {
             SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
             LogApi logApi = new LogApi();
             logApi.Api = "api/ConfiguracionCorreo/actualizaTextos";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -247,57 +249,65 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionCorreo/uploadLogo";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
-                var empresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 var configuracionCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                string rutSinFormato = empresa.RutEmpresa.Replace(".", "");
-                HttpResponseMessage response = new HttpResponseMessage();
                 var httpRequest = _httpContextAccessor.HttpContext.Request;
+
+                var empresa = _context.ConfiguracionEmpresas.FirstOrDefault();
+                var apiSoftland = _context.ApiSoftlands.FirstOrDefault();
+
+                string rutSinFormato = apiSoftland.UrlAlmacenamientoArchivos.Split('/')[apiSoftland.UrlAlmacenamientoArchivos.Split('/').Length - 2].ToString();
+                HttpResponseMessage response = new HttpResponseMessage();
                 if (httpRequest.Form.Files.Count > 0)
                 {
                     foreach (var file in httpRequest.Form.Files)
                     {
-
                         var postedFile = file;
-                        var folderPath = AppDomain.CurrentDomain.BaseDirectory + @"Uploads\" + rutSinFormato;
 
+                        //JCA 01-06-2023: Cambio por Blob service de azure
+                        //Instanciamos BlobServiceClient con la cadena de conexion donde almacenaremos los archivos
+                        string connectionString = apiSoftland.CadenaAlmacenamientoAzure;
+                        BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
-                        if (!Directory.Exists(folderPath))
+                        //Validamos si contenedor para empresa existe
+                        string containerName = rutSinFormato;
+                        BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                        bool exists = await containerClient.ExistsAsync();
+                        if (!exists)
                         {
-                            //Si no existe lo creamos
-                            Directory.CreateDirectory(folderPath);
+                            //Contenedor no existe, debemos crearlo con acceso publico
+                            containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName, PublicAccessType.Blob);
+                        }
+
+                        //Cambiamos nombre archivo
+                        Utils util = new Utils();
+                        string nombreArchivo = util.nombreArchivo(postedFile.FileName, 15);
+
+                        using (var stream = System.IO.File.Create(nombreArchivo))
+                        {
+                            postedFile.CopyTo(stream);
+
+                            BlobClient blobClient = containerClient.GetBlobClient(nombreArchivo);
+
+                            stream.Position = 0;
+                            await blobClient.UploadAsync(stream, overwrite: true);
                         }
 
 
-                        var filePath = folderPath + "/" + postedFile.FileName;
-
-
-                        if (System.IO.File.Exists(filePath))
-                        {
-                            System.IO.File.Delete(filePath);
-                        }
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await postedFile.CopyToAsync(stream);
-                        }
-
-
-
-
-                        var finalUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}" + "/Uploads/" + rutSinFormato + "/" + postedFile.FileName;
+                        var finalUrl = apiSoftland.UrlAlmacenamientoArchivos + nombreArchivo;
 
 
                         configuracionCorreo.LogoCorreo = finalUrl;
                         _context.Entry(configuracionCorreo).Property(x => x.LogoCorreo).IsModified = true;
-                        await _context.SaveChangesAsync();
+                    
                     }
-
                 }
 
+                await _context.SaveChangesAsync();
                 logApi.Termino = DateTime.Now;
                 logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
                 sf.guardarLogApi(logApi);
@@ -327,7 +337,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionCorreo/getTemplate";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {
@@ -526,7 +536,7 @@ namespace ApiPortal.Controllers
             logApi.Api = "api/ConfiguracionCorreo/GetConfiguracionCorreo";
             logApi.Inicio = DateTime.Now;
             logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
-            
+
 
             try
             {

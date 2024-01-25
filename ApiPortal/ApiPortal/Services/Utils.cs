@@ -50,6 +50,9 @@
                 case 14: //IconoEstadoPerfil
                     return "IconoEstadoPerfil." + archivo[1];
                     break;
+                case 15: //IconoEstadoPerfil
+                    return "LogoCorreo." + archivo[1];
+                    break;
             }
 
             return string.Empty;
