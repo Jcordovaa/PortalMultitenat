@@ -632,7 +632,7 @@ namespace ApiPortal.Controllers
                             TextoCambioDatos = "Estimado usuario, los datos de empresa han sido actualizados.",
                             TextoCambioClave = "Estimado se ha realizado un cambio de clave la cual se entrega a cotinuación",
                             TextoRecuperarClave = "Se realizo una recuperacion de contraseña, debera ingresar con la nueva contraseña que se indica a continuación",
-                            TituloAvisoPagoCliente = "Notifación pago cliente",
+                            TituloAvisoPagoCliente = "Notificación Pago Cliente",
                             AsuntoAvisoPagoCliente = "Pago Cliente",
                             TextoAvisoPagoCliente = "Estimado, Se ha realizado el siguiente pago: ",
                             ColorBoton = "#263db5",
@@ -1229,7 +1229,7 @@ namespace ApiPortal.Controllers
                     newTenant.ConnectionString = tenant.ConnectionString;
                     newTenant.CorreoImplementador = tenant.CorreoImplementador;
                     newTenant.Dominio = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
-                    newTenant.Estado = 3;
+                    newTenant.Estado = tenant.Estado;
                     newTenant.FechaInicioContrato = tenant.FechaInicioContrato;
                     newTenant.FechaInicioImplementacion = tenant.FechaInicioImplementacion;
                     newTenant.FechaTerminoContrato = tenant.FechaTerminoContrato;

@@ -171,7 +171,7 @@ namespace ApiPortal.Services
                 reporte = reporte.Replace("{TELEFONOEMPRESA}", configEmpresa.Telefono);
                 reporte = reporte.Replace("{NOMBREEMPRESA}", configEmpresa.NombreEmpresa);
                 reporte = reporte.Replace("{RUTEMPRESA}", configEmpresa.RutEmpresa);
-                reporte = reporte.Replace("{MONTODEUDA}",  String.Format("{0:#,##0}", cobranza.MontoDeuda));
+                reporte = reporte.Replace("{MONTODEUDA}", cobranza.MontoDeuda.Value.ToString("N0").Replace(",", "."));
                 reporte = reporte.Replace("{IMAGENFOOTER}", logoSoftlandFooter);
 
                 //Separamo del html la opcion donde va el detalle
@@ -181,11 +181,11 @@ namespace ApiPortal.Services
                 string detalleDocs = string.Empty;
                 foreach (var item in cobranza.ListaDocumentos)
                 {
-                    string strNumber = String.Format("{0:#,##0}", item.Monto);
+                    //string strNumber = String.Format("{0:#,##0}", item.Monto);
                     detalleDocs = detalleDocs + cadenas[1].Replace("{numeroDoc}", item.Folio.ToString())
                                                           .Replace("{TipoDoc}", item.TipoDocumento)
                                                           .Replace("{FechaDoc}", item.FechaVencimiento.ToString("dd/MM/yyyy"))
-                                                          .Replace("{montoDoc}", strNumber);
+                                                          .Replace("{montoDoc}", item.Monto.ToString("N0").Replace(",", "."));
                 }
 
                 //concatemos el html completo

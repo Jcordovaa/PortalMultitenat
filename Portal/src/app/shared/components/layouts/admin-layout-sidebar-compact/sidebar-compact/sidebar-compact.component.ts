@@ -13,6 +13,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { initType } from '../../../../../app.constants';
 import { ConfiguracionDiseno } from "src/app/shared/models/configuraciondiseno.model";
 import { ConfiguracionDisenoService } from "src/app/shared/services/configuraciondiseno.service";
+import { ConfiguracionPagoClientesService } from "src/app/shared/services/configuracionpagoclientes.service";
 
 @Component({
   selector: "app-sidebar-compact",
@@ -56,7 +57,7 @@ export class SidebarCompactComponent implements OnInit {
             type: 'dropDown',
             icon: 'i-Management',
             sub: [
-                { id: 11, icon: 'i-Male', name: 'Mi Perfil', state: '/pages/productos', type: 'link' },               
+                //{ id: 11, icon: 'i-Male', name: 'Mi Perfil', state: '/pages/productos', type: 'link' },               
                 { id: 8, icon: 'i-Security-Check', name: 'Accesos Cliente', state: '/payment/send-access', type: 'link' },
                 { id: 9, icon: 'i-Gear', name: 'Configuración Portal', state: '/payment/config', type: 'link' },
                 { id: 10, icon: 'i-Mail-Send', name: 'Configuración Correos', state: '/pages/correos', type: 'link' },
@@ -112,8 +113,8 @@ export class SidebarCompactComponent implements OnInit {
     }
   ];
 
-  constructor(public router: Router, public navService: NavigationService, private spinner: NgxSpinnerService, private disenoSerivce: ConfiguracionDisenoService,
-    private securityService: SecurityService, private authService: AuthService) {}
+  constructor(public router: Router, public navService: NavigationService, private spinner: NgxSpinnerService,
+    private securityService: SecurityService, private authService: AuthService,private configuracionService: ConfiguracionPagoClientesService) {}
 
   ngOnInit() {
     this.updateSidebar();
@@ -135,6 +136,11 @@ export class SidebarCompactComponent implements OnInit {
 
         if (user != null) {
           
+          const configuracionCompletaPortal = this.configuracionService.getAllConfiguracionPortalLs();
+          if (configuracionCompletaPortal != null) {
+              this.configDiseno = configuracionCompletaPortal.configuracionDiseno;
+          }
+
           const data: any = {
             
             rut: user.rut,

@@ -1679,10 +1679,10 @@ export class ConfigComponent implements OnInit {
           return;
         }
 
-        if (this.configuracionDiseno.colorBotonEstadoPerfil == '' || this.configuracionDiseno.colorBotonEstadoPerfil == null) {
-          this.notificationService.warning('Debe seleccionar color para Boton Estado de Cuenta', '', true);
-          return;
-        }
+        // if (this.configuracionDiseno.colorBotonEstadoPerfil == '' || this.configuracionDiseno.colorBotonEstadoPerfil == null) {
+        //   this.notificationService.warning('Debe seleccionar color para Boton Estado de Cuenta', '', true);
+        //   return;
+        // }
 
         if (this.configuracionDiseno.colorHoverBotonesPerfil == '' || this.configuracionDiseno.colorHoverBotonesPerfil == null) {
           this.notificationService.warning('Debe seleccionar color para Selección Botón', '', true);
@@ -1724,10 +1724,10 @@ export class ConfigComponent implements OnInit {
           return;
         }
 
-        if (this.defaultImageIconoEstadoPerfil == null && (this.configuracionDiseno.iconoEstadoPerfil == null || this.configuracionDiseno.iconoEstadoPerfil == '')) {
-          this.notificationService.warning('Debe seleccionar Icono Estado de Cuenta', '', true);
-          return;
-        }
+        // if (this.defaultImageIconoEstadoPerfil == null && (this.configuracionDiseno.iconoEstadoPerfil == null || this.configuracionDiseno.iconoEstadoPerfil == '')) {
+        //   this.notificationService.warning('Debe seleccionar Icono Estado de Cuenta', '', true);
+        //   return;
+        // }
 
         this.spinner.show();
         this.configuracionDisenoService.saveConfigDiseno(this.configuracionDiseno, seccion).subscribe(res => {

@@ -3056,6 +3056,10 @@ namespace ApiPortal.Services
                                             {
                                                 item.SaldoBase = item.SaldoBase - detalle.Apagar;
                                                 item.APagar = item.SaldoBase;
+                                                if(configPortal.MonedaUtilizada != item.CodigoMoneda)
+                                                {
+                                                    item.Saldo = item.APagar;
+                                                }
                                             }
                                         }
                                     }

@@ -92,7 +92,7 @@
         <div [ngStyle]="{'background-color': configDiseno.colorFondoPortada}" style="height:100%;" class="border-form">
             <div class="form2">
                 <div class="logo" *ngIf="configDiseno.logoPortada != '' && configDiseno.logoPortada != null">
-                    <img [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
+                    <img  [src]="configDiseno.logoPortada" alt="logo_empresa" width="200" height="46">
                 </div>
                 <form>
                     <input class="place" type="text" placeholder="RUT" name="rutPago" (blur)="validaRutPagoRapido()"

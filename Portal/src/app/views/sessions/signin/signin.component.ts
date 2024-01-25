@@ -306,13 +306,37 @@ export class SigninComponent implements OnInit {
 
     onKeydownInicioSesion(event) {
         if (event.keyCode === 13) {
-            this.iniciarSesion();
+            if (this.signInModel.rutLogin != '' && this.signInModel.rutLogin != null) {
+                if (this.utils.isValidRUT(this.signInModel.rutLogin)) {
+                    this.signInModel.rutLogin = this.utils.checkRut(this.signInModel.rutLogin);
+                    this.iniciarSesion();
+                } else {
+                    this.notificationService.warning('RUT invalido', '', true);
+                    this.signInModel.rutLogin = '';
+                }
+            }else{
+                this.iniciarSesion();
+            }
+
         }
     }
 
     onKeydownPagoRapido(event) {
         if (event.keyCode === 13) {
-            this.pagar();
+            if (this.rutPagoRapido != '' && this.rutPagoRapido != null) {
+                if (this.utils.isValidRUT(this.rutPagoRapido)) {
+                    this.rutPagoRapido = this.utils.checkRut(this.rutPagoRapido);
+                    this.rutEncriptado = window.btoa(this.rutPagoRapido)
+                    this.pagar();
+                } else {
+                    this.notificationService.warning('RUT invalido', '', true);
+                    this.rutPagoRapido = '';
+                    this.rutEncriptado = '';
+                }
+            }else{
+                this.pagar();
+            }
+           
         }
     }
 
