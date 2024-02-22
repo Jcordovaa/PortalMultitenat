@@ -140,8 +140,14 @@ export class NotificationService {
             title: title,
             text: text,
             icon: 'warning',
+            showCancelButton: false,
+            backdrop: true,
             confirmButtonText: 'Aceptar',
-            showCancelButton: false
+            showConfirmButton: false,
+            timerProgressBar: true,
+            timer: 5000,
+            allowEnterKey: false,
+            focusConfirm: false
         })   
         return res
     }

@@ -11,6 +11,7 @@ export class PasarelaPago {
     estado?: number;
     monedaPasarela?: string;
     ambienteConsultarPago?: string;
+    esProduccion?: number
 
     constructor() {
         this.idPasarela = 0;
@@ -25,5 +26,6 @@ export class PasarelaPago {
         this.estado = 0;
         this.monedaPasarela = '';
         this.ambienteConsultarPago = '';
+        this.esProduccion = 0
     }
 }

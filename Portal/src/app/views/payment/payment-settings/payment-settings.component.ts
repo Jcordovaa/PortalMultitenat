@@ -21,7 +21,7 @@ export class PaymentSettingsComponent implements OnInit {
   tipoDocumentos: any = [];
   cuentasContables: any = [];
   verContrasena: number = 0;
-  icon : string = 'assets/images/icon/view.png';
+  icon: string = 'assets/images/icon/view.png';
   public ambiente: string = '';
 
   constructor(private notificationService: NotificationService,
@@ -38,12 +38,12 @@ export class PaymentSettingsComponent implements OnInit {
       this.pasarelas = res;
 
       let tbk = this.pasarelas.filter(x => x.idPasarela == 1);
-      
-      if(tbk.length != null){
-        
-        if(tbk[0].codigoComercio == '597055555532'){
+
+      if (tbk.length != null) {
+
+        if (tbk[0].codigoComercio == '597055555532') {
           this.ambiente = 'INTEGRACION';
-        }else{
+        } else {
           this.ambiente = 'PRODUCCION';
         }
       }
@@ -66,17 +66,25 @@ export class PaymentSettingsComponent implements OnInit {
 
   save(pasarela: PasarelaPago) {
 
-    if(pasarela.idPasarela == 1){
-      if(pasarela.codigoComercio == '' || pasarela.codigoComercio == null){
-        this.notificationService.warning('Debe ingresar código de comercio', '', true); 
+    if (pasarela.idPasarela == 1) {
+      if (pasarela.codigoComercio == '' || pasarela.codigoComercio == null) {
+        this.notificationService.warning('Debe ingresar código de comercio', '', true);
         return;
       }
 
-      if(pasarela.secretKey == '' || pasarela.secretKey == null){
-        this.notificationService.warning('Debe ingresar Api Key', '', true); 
+      if (pasarela.secretKey == '' || pasarela.secretKey == null) {
+        this.notificationService.warning('Debe ingresar Api Key', '', true);
         return;
       }
     }
+
+    // if (pasarela.idPasarela == 1) {
+    //   if (this.ambiente == 'INTEGRACION') {
+    //     pasarela.esProduccion = 0
+    //   } else {
+    //     pasarela.esProduccion = 1
+    //   }
+    // }
 
     this.spinner.show();
     this.pasarelasService.edit(pasarela).subscribe(res => {
@@ -101,14 +109,16 @@ export class PaymentSettingsComponent implements OnInit {
 
   }
 
-  cambiaAmbienteTbk(pasarela: any){
-    if(pasarela.idPasarela == 1){
-      if(this.ambiente == 'INTEGRACION'){
+  cambiaAmbienteTbk(pasarela: any) {
+    if (pasarela.idPasarela == 1) {
+      if (this.ambiente == 'INTEGRACION') {
         pasarela.codigoComercio = '597055555532'
         pasarela.secretKey = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
-      }else{
+        pasarela.esProduccion = 0
+      } else {
         pasarela.codigoComercio = ''
         pasarela.secretKey = ''
+        pasarela.esProduccion = 1
       }
     }
   }

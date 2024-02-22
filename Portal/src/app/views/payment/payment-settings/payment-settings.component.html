@@ -32,7 +32,7 @@
                                     </select>
                                 </div>
 
-                                <div *ngIf="(pasarela.idPasarela == 1 || pasarela.idPasarela == 3) && pasarela.estado == 1" class="col-md-4 form-group mb-3">
+                                <!-- <div *ngIf="(pasarela.idPasarela == 1 || pasarela.idPasarela == 3) && pasarela.estado == 1" class="col-md-4 form-group mb-3">
                                     <label for="ambiente2">Ambiente</label>
                                     <select [(ngModel)]="ambiente" (change)="cambiaAmbienteTbk(pasarela)"
                                             class="form-control"
@@ -77,13 +77,13 @@
                                       Api Key es requerido
                                     </p>
                                     
-                                </div>
+                                </div> -->
 
-                                <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela != 5" class="col-md-2 form-group" style="margin-top: 30px;">
-                                    <!-- <button style="height: 30px; width: 50px; color: #0016b2;"  class="btn btn-primary" (click)="verPass()" ><i style="color: #fff !important;"  name="iconPass" id="iconPass"  class="i-Eye"></i></button> -->
+                                <!-- <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela != 5" class="col-md-2 form-group" style="margin-top: 30px;">
+                                    <button style="height: 30px; width: 50px; color: #0016b2;"  class="btn btn-primary" (click)="verPass()" ><i style="color: #fff !important;"  name="iconPass" id="iconPass"  class="i-Eye"></i></button> 
                                     <button style="height: 30px; width: 50px; color: #0016b2; display: flex; align-items: center;"  class="btn btn-primary" (click)="verPass()" ><img style="color: #fff;padding-bottom: 3px;" [src]="icon"></button>
-                                </div>
-
+                                </div> -->
+<!-- 
                                 <div *ngIf="pasarela.estado == 1 && pasarela.idPasarela == 3" class="col-md-12 form-group" style="padding-bottom: 20px;">
                                     <label for="firstName2">Secret Key<span class="camporequerido">*</span></label>
                                     <input type="text"
@@ -94,7 +94,7 @@
                                       style="margin-top: 2px; font-size: 12px">
                                       Secret Key es requerido
                                     </p>
-                                </div>
+                                </div> -->
 
                                 <div *ngIf="pasarela.estado == 1 && (pasarela.idPasarela == 3 || pasarela.idPasarela == 2)" class="col-md-12 form-group" style="padding-bottom: 20px;">
                                     <label for="firstName2">Moneda<span class="camporequerido">*</span></label>

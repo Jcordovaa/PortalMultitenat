@@ -48,6 +48,7 @@ export class CompanyComponent implements OnInit {
   public esCreacion: number = 0;
   empresas: any[] = [];
   implementadores: any[] = [];
+  servidoresImplementacion: any[] = [];
   areasComerciales: any[] = [];
   lineasProductos: any[] = [];
   empresaImplementacion: EmpresaImplementacion = new EmpresaImplementacion();
@@ -151,6 +152,7 @@ export class CompanyComponent implements OnInit {
     this.spinner.show();
     this.getAreasComerciales();
     this.getImplementadores();
+    this.getServidoresImplementacion();
     this.getLineasProductos();
     this.getPlanes();
     this.getEmpresas();
@@ -179,6 +181,13 @@ export class CompanyComponent implements OnInit {
 
       this.implementadores = res;
     }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener implementadores', '', true); });
+  }
+
+  getServidoresImplementacion() {
+    this.implementacionService.getServidoresImplementacion().subscribe((res: any[]) => {
+
+      this.servidoresImplementacion = res;
+    }, err => { this.spinner.hide(); this.notificationService.error('Ocurrió un error al obtener servidores de implementación', '', true); });
   }
 
   getAreasComerciales() {
@@ -545,9 +554,7 @@ export class CompanyComponent implements OnInit {
       return false;
     }
 
-    if (this.tenant.otImplementacion == null || this.tenant.otImplementacion == '') {
-      return false;
-    }
+   
 
     // if (this.tenant.fechaInicioContrato == null) {
     //   return false;

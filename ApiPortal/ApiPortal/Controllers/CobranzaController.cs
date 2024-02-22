@@ -1,7 +1,9 @@
 ﻿using ApiPortal.Dal.Models_Admin;
 using ApiPortal.Dal.Models_Portal;
 using ApiPortal.ModelSoftland;
+using ApiPortal.Security;
 using ApiPortal.Services;
+using ApiPortal.ViewModelsAdmin;
 using ApiPortal.ViewModelsPortal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
@@ -24,12 +26,14 @@ namespace ApiPortal.Controllers
         private readonly PortalClientesSoftlandContext _context;
         private readonly PortalAdministracionSoftlandContext _admin;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public CobranzaController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, PortalAdministracionSoftlandContext admin)
+        public CobranzaController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, PortalAdministracionSoftlandContext admin, IHttpContextAccessor contextAccessor)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _admin = admin;
+            _contextAccessor = contextAccessor;
         }
 
         private async Task<List<ResumenDocumentosClienteApiDTO>> GetDocumentosClientes2Async(FiltroCobranzaVm model)
@@ -598,7 +602,7 @@ namespace ApiPortal.Controllers
                             await emailService.EnviarCorreosAsync(mailVm);
                         }
                     }
-                   
+
 
                 }
 
@@ -631,7 +635,8 @@ namespace ApiPortal.Controllers
                 _context.Entry(lc).State = EntityState.Modified;
                 _context.SaveChanges();
                 var auxCorreo = _context.ConfiguracionCorreos.FirstOrDefault();
-                if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago)){
+                if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago))
+                {
                     MailViewModel mailVm = new MailViewModel();
                     MailService emailService = new MailService(_context, _webHostEnvironment);
                     mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Asistida";
@@ -1528,6 +1533,333 @@ namespace ApiPortal.Controllers
                 _context.SaveChanges();
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("EnviaCobranzaMultiplesTenants"), Authorize]
+        public async Task<ActionResult> EnviaCobranzaMultiplesTenants()
+        {
+            try
+            {
+                var tenants = _admin.Tenants.Where(x => x.IdTenant != 1 && x.IdTenant != 3006).ToList();
+                foreach (var tenant in tenants)
+                {
+                    var options = new DbContextOptionsBuilder<PortalClientesSoftlandContext>().UseSqlServer(tenant.ConnectionString).Options;
+                    var builder = new SqlConnectionStringBuilder(tenant.ConnectionString);
+                    var newContextPortal = new PortalClientesSoftlandContext(options, _contextAccessor);
+                    var parametroEjecuta = newContextPortal.Parametros.Where(x => x.Nombre == "EjecutaProcesoCobranza").FirstOrDefault();
+                    if (parametroEjecuta != null)
+                    {
+                        if (parametroEjecuta.Valor == "1")
+                        {
+                            SoftlandService sf = new SoftlandService(newContextPortal, _webHostEnvironment);
+                            LogApi logApi = new LogApi();
+                            logApi.Api = "api/cobranza/EnviaCobranzaMultiplesTenants";
+                            logApi.Inicio = DateTime.Now;
+                            logApi.Id = RandomPassword.GenerateRandomText() + logApi.Inicio.ToString();
+
+
+                            string estadoLogC = string.Empty;
+                            LogCobranza lc = new LogCobranza();
+                            lc.FechaInicio = DateTime.Now;
+                            lc.Estado = "PROCESANDO";
+                            newContextPortal.LogCobranzas.Add(lc);
+                            newContextPortal.SaveChanges();
+
+
+                            try
+                            {
+
+                                int horaActual = DateTime.Now.Hour;
+                                int DiaActual = DateTime.Now.Day;
+                                DateTime fecha = DateTime.Now;
+                                DateTime fechaActual = new DateTime(fecha.Year, fecha.Month, fecha.Day, 23, 59, 59);
+                                var diasFeriados = newContextPortal.Feriados.ToList();
+
+                                var auxCorreo = newContextPortal.ConfiguracionCorreos.FirstOrDefault();
+                                var auxEmpresa = newContextPortal.ConfiguracionEmpresas.FirstOrDefault();
+                                string urlFrot = System.Configuration.ConfigurationManager.AppSettings["URL_FRONT"];
+
+                                //Obtiene correos disponibles
+                                MailService mail = new MailService(newContextPortal, _webHostEnvironment);
+                                int correosDisponibles = mail.calculaDisponiblesCobranza();
+
+
+
+                                //Obtenemos tipos de documentos
+                                var tiposDocumentos = await sf.GetAllTipoDocSoftlandAsync(logApi.Id);
+
+                                #region COBRANZA CLASICA
+                                //Genera envio de cobranzas, la ejecución la realiza algun procedimiento externo
+                                var listaManual = newContextPortal.CobranzaCabeceras.Where(x => x.Estado == 1 && x.TipoProgramacion == 1 && x.EsCabeceraInteligente == 0).AsNoTracking().ToList();
+
+
+                                int correosEnviados = 0;
+                                //Recorremos una a una las cobranzas
+                                foreach (var item in listaManual)
+                                {
+                                    //Validamos que cobranza no este vencida
+                                    if (item.FechaFin < DateTime.Now.Date) { continue; }
+                                    //Validamos hora de ejecución
+                                    if (horaActual != item.HoraDeEnvio) { continue; }
+                                    //Validamos fecha de ejecución para cobranzas pendientes
+                                    if (item.IdEstado == 1 && item.FechaInicio != DateTime.Now.Date) { continue; }
+                                    //Validamos fecha de ejecución para cobranzas parcialmente enviadas
+                                    if (item.IdEstado == 2 && item.FechaInicio > DateTime.Now.Date) { continue; }
+
+                                    //obtenemos documentos pendientes de pago para la cobranza
+                                    var listaDocPendientes = newContextPortal.CobranzaDetalles.Where(x => x.IdEstado == 1 && x.IdCobranza == item.IdCobranza).ToList();
+
+                                    //Obtenemos los clientes a los que se le enviara la cobranza
+                                    var clientes = listaDocPendientes.Select(x => x.RutCliente).Distinct().ToList();
+                                    List<DetalleEnvioCobranzaVm> listaEnvio = new List<DetalleEnvioCobranzaVm>();
+
+                                    //Recorremes y seleccionamos los documentos por clientes
+                                    foreach (var al in clientes)
+                                    {
+                                        var docCliente = listaDocPendientes.Where(x => x.RutCliente == al).ToList();
+
+                                        var contactos = await sf.GetContactosClienteAsync(docCliente[0].CodAuxCliente, logApi.Id);
+                                        var cliente = await sf.GetClienteSoftlandAsync(docCliente[0].CodAuxCliente, string.Empty, logApi.Id);
+                                        if (item.EnviaTodosCargos == 1)
+                                        {
+
+                                            if (contactos.Count == 0 && item.EnviaCorreoFicha == 1)
+                                            {
+
+                                                if (!string.IsNullOrEmpty(cliente.Correo))
+                                                {
+                                                    docCliente[0].EmailCliente = cliente.Correo;
+                                                }
+                                            }
+                                            else if (contactos.Count > 0)
+                                            {
+                                                string correos = string.Empty;
+                                                foreach (var c in contactos)
+                                                {
+                                                    if (string.IsNullOrEmpty(correos))
+                                                    {
+                                                        correos = c.Correo;
+                                                    }
+                                                    else
+                                                    {
+                                                        correos = correos + ";" + c.Correo;
+                                                    }
+                                                }
+
+                                                if (string.IsNullOrEmpty(correos) && item.EnviaCorreoFicha == 1)
+                                                {
+                                                    correos = cliente.Correo;
+                                                }
+                                                docCliente[0].EmailCliente = correos;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (contactos.Count == 0 && item.EnviaCorreoFicha == 1)
+                                            {
+                                                string correos = string.Empty;
+                                                if (!string.IsNullOrEmpty(cliente.Correo))
+                                                {
+                                                    docCliente[0].EmailCliente = cliente.Correo;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var cargos = item.CargosContactos.Split(';');
+                                                string correos = string.Empty;
+                                                foreach (var c in contactos)
+                                                {
+                                                    var cargo = cargos.Where(x => x == c.CodCargo).FirstOrDefault();
+                                                    if (cargo != null)
+                                                    {
+                                                        if (string.IsNullOrEmpty(correos))
+                                                        {
+                                                            correos = c.Correo;
+                                                        }
+                                                        else
+                                                        {
+                                                            correos = correos + ";" + c.Correo;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (string.IsNullOrEmpty(correos) && item.EnviaTodosContactos == 1)
+                                                {
+                                                    foreach (var c in contactos)
+                                                    {
+                                                        if (string.IsNullOrEmpty(correos))
+                                                        {
+                                                            correos = c.Correo;
+                                                        }
+                                                        else
+                                                        {
+                                                            correos = correos + ";" + c.Correo;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (string.IsNullOrEmpty(correos) && item.EnviaCorreoFicha == 1)
+                                                {
+                                                    correos = cliente.Correo;
+                                                }
+                                                docCliente[0].EmailCliente = correos;
+                                            }
+                                        }
+
+
+                                        DetalleEnvioCobranzaVm doc = new DetalleEnvioCobranzaVm();
+                                        doc.RutCliente = al;
+                                        doc.NombreCliente = (string.IsNullOrEmpty(docCliente[0].NombreCliente)) ? string.Empty : docCliente[0].NombreCliente;
+                                        doc.EmailCliente = docCliente[0].EmailCliente;
+                                        doc.CantidadDocumentosPendientes = docCliente.Count;
+                                        doc.MontoDeuda = Convert.ToDecimal(docCliente.Sum(x => x.Monto));
+                                        doc.ListaDocumentos = new List<DocumentosCobranzaVM>();
+                                        doc.CodAux = docCliente[0].CodAuxCliente;
+                                        doc.IdCobranza = item.IdCobranza;
+
+                                        //Agregamos documentos
+                                        foreach (var d in docCliente)
+                                        {
+                                            DocumentosCobranzaVM aux = new DocumentosCobranzaVM();
+                                            aux.Folio = (int)d.Folio;
+                                            aux.FechaEmision = (DateTime)d.FechaEmision;
+                                            aux.FechaVencimiento = (DateTime)d.FechaVencimiento;
+                                            aux.Monto = (decimal)d.Monto;
+                                            aux.TipoDocumento = tiposDocumentos.Where(x => x.CodDoc == d.TipoDocumento).FirstOrDefault().DesDoc;
+                                            doc.ListaDocumentos.Add(aux);
+                                        }
+
+                                        //Agrega detalle para envió
+                                        listaEnvio.Add(doc);
+                                    }
+
+                                    int IdEstadoFinal = 3; //ESTADO ENVIADA
+
+                                    //Recorremos resultado de cobranza, generamos documento y enviamos correo
+                                    MailService emailService = new MailService(newContextPortal, _webHostEnvironment);
+                                    string response = await emailService.EnviaCobranzaAsync(listaEnvio, item);
+                                    if (!string.IsNullOrEmpty(response))
+                                    {
+                                        if (response == "2")
+                                        {
+                                            IdEstadoFinal = 2;
+                                        }
+                                        else
+                                        {
+                                            string[] spliteResponse = response.Split('-');
+                                            estadoLogC = spliteResponse[0];
+                                            if (spliteResponse.Length > 1)
+                                            {
+                                                IdEstadoFinal = int.Parse(spliteResponse[1]);
+                                            }
+                                        }
+                                    }
+
+
+                                    //Actualiza estado cobranza cabecera
+
+                                    item.IdEstado = IdEstadoFinal;
+                                    newContextPortal.CobranzaCabeceras.Attach(item);
+                                    newContextPortal.Entry(item).Property(x => x.IdEstado).IsModified = true;
+                                    newContextPortal.SaveChanges();
+
+                                    //Agregar a logCobranza
+                                    lc.CobranzasConsideradas = lc.CobranzasConsideradas + item.IdCobranza + ";";
+
+                                    if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago))
+                                    {
+                                        if (IdEstadoFinal != 3)
+                                        {
+                                            MailViewModel mailVm = new MailViewModel();
+                                            string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                                            mailVm.mensaje = item.Nombre + "|" + "ERROR" + "|" + tipoCobranza + "|" + "Asistida";
+                                            mailVm.tipo = 9;
+                                            await emailService.EnviarCorreosAsync(mailVm);
+                                        }
+                                        else
+                                        {
+                                            MailViewModel mailVm = new MailViewModel();
+                                            string tipoCobranza = item.IdTipoCobranza == 1 ? "Cobranza" : "Pre Cobranza";
+                                            mailVm.mensaje = item.Nombre + "|" + "CORRECTO" + "|" + tipoCobranza + "|" + "Asistida";
+                                            mailVm.tipo = 9;
+                                            await emailService.EnviarCorreosAsync(mailVm);
+                                        }
+                                    }
+
+
+                                }
+
+                                lc.FechaTermino = DateTime.Now;
+                                lc.Estado = "FINALIZADA" + estadoLogC;
+                                newContextPortal.Entry(lc).State = EntityState.Modified;
+                                newContextPortal.SaveChanges();
+                                #endregion
+
+
+                                logApi.Termino = DateTime.Now;
+                                logApi.Segundos = (int?)Math.Round((logApi.Termino - logApi.Inicio).Value.TotalSeconds);
+                                sf.guardarLogApi(logApi);
+
+
+                            }
+                            catch (Exception ex)
+                            {
+                                LogProcesosAdmin logAdmin = new LogProcesosAdmin();
+                                logAdmin.Fecha = DateTime.Now;
+                                logAdmin.Hora = DateTime.Now.ToString("HH:mm:ss");
+                                logAdmin.Excepcion = ex.StackTrace;
+                                logAdmin.Mensaje = ex.Message;
+                                logAdmin.Ruta = $"api/Cobranza/EnviaCobranzaMultiplesTenants - Tenant ID: {tenant.IdTenant}";
+                                _admin.LogProcesosAdmins.Add(logAdmin);
+                                _admin.SaveChanges();
+
+                                LogProceso log = new LogProceso();
+                                log.Fecha = DateTime.Now;
+                                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                                log.Excepcion = ex.StackTrace;
+                                log.Mensaje = ex.Message;
+                                log.Ruta = "api/Cobranza/EnviaCobranzaMultiplesTenants";
+                                newContextPortal.LogProcesos.Add(log);
+                                newContextPortal.SaveChanges();
+
+
+                                lc.FechaTermino = DateTime.Now;
+                                lc.Estado = "ERROR";
+                                newContextPortal.Entry(lc).State = EntityState.Modified;
+                                newContextPortal.SaveChanges();
+                                var auxCorreo = newContextPortal.ConfiguracionCorreos.FirstOrDefault();
+                                if (!string.IsNullOrEmpty(auxCorreo.CorreoAvisoPago))
+                                {
+                                    MailViewModel mailVm = new MailViewModel();
+                                    MailService emailService = new MailService(newContextPortal, _webHostEnvironment);
+                                    mailVm.mensaje = "Proceso de envío" + "|" + "CORRECTO" + "|" + "todos" + "|" + "Asistida";
+                                    mailVm.tipo = 9;
+                                    await emailService.EnviarCorreosAsync(mailVm);
+                                }
+                                continue;
+                            }
+                        }
+
+                    }
+                   
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                LogProcesosAdmin logAdmin = new LogProcesosAdmin();
+                logAdmin.Fecha = DateTime.Now;
+                logAdmin.Hora = DateTime.Now.ToString("HH:mm:ss");
+                logAdmin.Excepcion = ex.StackTrace;
+                logAdmin.Mensaje = ex.Message;
+                logAdmin.Ruta = $"api/Cobranza/EnviaCobranzaMultiplesTenants";
+                _admin.LogProcesosAdmins.Add(logAdmin);
+                _admin.SaveChanges();
+                return BadRequest();
+            }
+
+
         }
     }
 }

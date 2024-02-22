@@ -208,6 +208,8 @@ namespace ApiPortal.Controllers
 
             var fechaCreacion = DateTime.Now;
             var fechaExpiracion = fechaCreacion.AddHours(horas);
+            //var fechaExpiracion = fechaCreacion.AddMinutes(1);
+            //var fechaExpiracion = fechaCreacion.AddDays(2000);
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
             var token = new JwtSecurityToken(

@@ -18,6 +18,7 @@ namespace ApiPortal.Security
                 var tenantStore = context.RequestServices.GetService(typeof(ITenantStore<T>)) as ITenantStore<T>;
                 var resolutionStrategy = context.RequestServices.GetService(typeof(ITenantResolutionStrategy)) as ITenantResolutionStrategy;
 
+               
                 var identifier = await resolutionStrategy.GetTenantIdentifierAsync();
                 var tenant = await tenantStore.GetTenantAsync(identifier);
 

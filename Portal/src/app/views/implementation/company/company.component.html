@@ -508,19 +508,19 @@
                     *ngIf="!conexionBaseDatosValid" class="i-Close" style="color: red;"></i></H4>
               </div>
             </div>
-            <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
-              <div class="form-group">
-                <label for="picker1">Servidor</label>
-                <div class="input-group">
-                  <input type="text" class="form-control" (change)="conexionBaseDatosValid = false"
-                    #servidorPortal="ngModel" name="servidorPortal"
-                    [(ngModel)]="tenant.datosImplementacion.servidorPortal" maxlength="100" />
-                </div>
-              </div>
+            <div class="col-md-6 form-group mb-3" style="margin-top: 15px;">
+              <label for="lastName">Servidor</label>
+              <select [(ngModel)]="tenant.datosImplementacion.idServidorImplementacion" class="form-control" name="servImplementacion"
+                #servImplementacion="ngModel">
+                <option *ngFor="let e of servidoresImplementacion" [ngValue]="e.idServidorImplementacion">
+                  {{ e.nombreServidor }}
+                </option>
+              </select>
             </div>
 
+
             <div class="form-group col-md-6 mb-3" style="margin-top: 15px;">
-              <div class="form-group">
+              <div class="form-group" >
                 <label for="picker1">Base de Datos</label>
                 <div class="input-group">
                   <input type="text" class="form-control" (change)="conexionBaseDatosValid = false" #bdPortal="ngModel"
@@ -528,7 +528,7 @@
                 </div>
               </div>
             </div>
-
+<!-- 
             <div class="form-group col-md-6 mb-3">
               <div class="form-group">
                 <label for="picker1">Usuario</label>
@@ -538,9 +538,9 @@
                     [(ngModel)]="tenant.datosImplementacion.usuarioBaseDatosPortal" maxlength="100" />
                 </div>
               </div>
-            </div>
+            </div> -->
 
-            <div class="form-group col-md-6 mb-3">
+            <!-- <div class="form-group col-md-6 mb-3">
               <div class="form-group">
                 <label for="picker1">Clave</label>
                 <div class="input-group">
@@ -552,7 +552,7 @@
                   </span>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <div class="form-group col-md-12 mb-3" style="margin-top: 15px;text-align: center;">
               <div class="form-group">

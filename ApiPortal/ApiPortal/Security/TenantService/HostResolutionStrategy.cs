@@ -1,14 +1,18 @@
-﻿using ApiPortal.Services;
+﻿using ApiPortal.Dal.Models_Admin;
+using ApiPortal.Services;
+using System;
 
 namespace ApiPortal.Security.TenantService
 {
     public class HostResolutionStrategy : ITenantResolutionStrategy
     {
         private readonly HttpContext? _httpContext;
+        private readonly PortalAdministracionSoftlandContext _admin;
 
-        public HostResolutionStrategy(IHttpContextAccessor httpContext)
+        public HostResolutionStrategy(IHttpContextAccessor httpContext, PortalAdministracionSoftlandContext admin)
         {
             _httpContext = httpContext.HttpContext;
+            _admin = admin;
         }
         public async Task<string> GetTenantIdentifierAsync()
         {
@@ -26,8 +30,18 @@ namespace ApiPortal.Security.TenantService
             }
             else
             {
-                var uri = new Uri(_httpContext.Request.Headers.Origin);
-                return await Task.FromResult(uri.Host);
+                if (!string.IsNullOrEmpty(_httpContext.Request.Headers.Origin.ToString()))
+                {
+                    var uri = new Uri(_httpContext.Request.Headers.Origin);
+                    return await Task.FromResult(uri.Host);
+                }
+                else
+                {
+                   var tenantDefecto = _admin.Tenants.FirstOrDefault();
+                    return await Task.FromResult(tenantDefecto.Identifier);
+
+                }
+             
             }
            
             

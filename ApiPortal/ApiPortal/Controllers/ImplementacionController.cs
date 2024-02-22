@@ -455,8 +455,9 @@ namespace ApiPortal.Controllers
         {
             try
             {
+                var servidorImplementacion = _admin.ServidoresImplementacions.Where(x => x.IdServidorImplementacion == datosImplementacion.IdServidorImplementacion).FirstOrDefault();
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                var retorno = await sf.validaConexionBaseDatosAsync(datosImplementacion);
+                var retorno = await sf.validaConexionBaseDatosAsync(datosImplementacion, servidorImplementacion);
                 return Ok(retorno);
             }
             catch (Exception ex)
@@ -767,6 +768,7 @@ namespace ApiPortal.Controllers
                         CodigoComercioTransbank = "597055555532",
                         UtilizaTransbank = 0,
                         UtilizaVirtualPos = 0,
+                        IdServidorImplementacion = 0
                     };
                 }
                 else
@@ -783,7 +785,7 @@ namespace ApiPortal.Controllers
                     var configuracionPortal = newContextPortal.ConfiguracionPortals.FirstOrDefault();
                     var transbank = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 1).FirstOrDefault();
                     var virtualPos = newContextPortal.PasarelaPagos.Where(x => x.IdPasarela == 5).FirstOrDefault();
-
+                    var servidorImplementacion = _admin.ServidoresImplementacions.Where(x => x.NombreServidor == builder.DataSource).FirstOrDefault();
                     if (!string.IsNullOrEmpty(configuracionCorreo.Clave))
                     {
                         configuracionCorreo.Clave = Encrypt.Base64Decode(configuracionCorreo.Clave);
@@ -809,7 +811,8 @@ namespace ApiPortal.Controllers
                         DocumentoContableTransbank = transbank.TipoDocumento,
                         DocumentoContableVirtualPos = virtualPos.TipoDocumento,
                         UtilizaTransbank = (int)transbank.Estado,
-                        UtilizaVirtualPos = (int)virtualPos.Estado
+                        UtilizaVirtualPos = (int)virtualPos.Estado,
+                        IdServidorImplementacion = servidorImplementacion.IdServidorImplementacion
                     };
 
                 }
@@ -839,8 +842,9 @@ namespace ApiPortal.Controllers
             try
             {
                 SoftlandService sf = new SoftlandService(_context, _webHostEnvironment);
-                tenant.ConnectionString = "Data Source=" + tenant.DatosImplementacion.ServidorPortal + ";Initial Catalog=" + tenant.DatosImplementacion.BaseDatosPortal + ";" +
-                                    "user id=" + tenant.DatosImplementacion.UsuarioBaseDatosPortal + ";password=" + tenant.DatosImplementacion.ClaveBaseDatosPortal + ";Encrypt=False;";
+                var servidorImplementacion = _admin.ServidoresImplementacions.Where(x => x.IdServidorImplementacion == tenant.DatosImplementacion.IdServidorImplementacion).FirstOrDefault();
+                tenant.ConnectionString = "Data Source=" + servidorImplementacion.NombreServidor + ";Initial Catalog=" + tenant.DatosImplementacion.BaseDatosPortal + ";" +
+                                    "user id=" + servidorImplementacion.Usuario + ";password=" + servidorImplementacion.Clave + ";Encrypt=False;";
                 var existenTablas = sf.TableExists(tenant.ConnectionString);
                 if (tenant.IdTenant == 0 || tenant.IdTenant == null || !existenTablas)
                 {
@@ -913,7 +917,7 @@ namespace ApiPortal.Controllers
                     BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
                     //Validamos si contenedor para empresa existe
-                    string containerName = tenant.RutEmpresa.Replace(".", "").Replace("-", "");
+                    string containerName = tenant.Identifier.ToLower().Replace("_", "").Replace(".", "").Replace("-", "");
                     BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
                     bool exists = await containerClient.ExistsAsync();
@@ -1198,10 +1202,19 @@ namespace ApiPortal.Controllers
                         Valor = "9"
                     };
 
+                    Parametro ejecutaProcesoCobranza = new Parametro
+                    {
+                        Nombre = "EjecutaProcesoCobranza",
+                        Estado = 1,
+                        Descripcion = "Indica si se ejecuta proceso de cobranza",
+                        Valor = "1"
+                    };
+
                     newContextPortal.Parametros.Add(urlPagoFront);
                     newContextPortal.Parametros.Add(urlPagoPortal);
                     newContextPortal.Parametros.Add(urlPagoRapido);
                     newContextPortal.Parametros.Add(horasToken);
+                    newContextPortal.Parametros.Add(ejecutaProcesoCobranza);
 
                     Usuario user = new Usuario
                     {
@@ -1254,7 +1267,7 @@ namespace ApiPortal.Controllers
                     BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
                     //Validamos si contenedor para empresa existe
-                    string containerName = tenant.RutEmpresa.Replace(".", "").Replace("-", "");
+                    string containerName = tenant.Identifier.ToLower().Replace("_", "").Replace(".", "").Replace("-", "");
                     BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
                     bool exists = await containerClient.ExistsAsync();
@@ -1865,7 +1878,7 @@ namespace ApiPortal.Controllers
         }
 
 
-        [HttpPost("EnrolarTransbank"), Authorize]
+        [HttpPost("EnrolarTransbank")]
         public async Task<ActionResult> EnrolarTransbank(EnrolarTransbankVm tbk)
         {
             try
@@ -1918,6 +1931,7 @@ namespace ApiPortal.Controllers
                     }
                     else
                     {
+                        var content2 = await response.Content.ReadAsStringAsync();
                         return Ok(false);
                     }
                 }
@@ -2098,6 +2112,38 @@ namespace ApiPortal.Controllers
                 log.Excepcion = ex.StackTrace;
                 log.Mensaje = ex.Message;
                 log.Ruta = "api/Implementacion/PasoProduccion";
+                _admin.LogProcesosAdmins.Add(log);
+                _admin.SaveChanges();
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("ObtenerServidoresImplementacion"), Authorize]
+        public async Task<ActionResult> GetServidoresImplementacion()
+        {
+            try
+            {
+                List<ServidorImplementacionVm> result = new List<ServidorImplementacionVm>();
+                var planes = _admin.ServidoresImplementacions.Where(x => x.Estado == 1).ToList();
+
+                result = planes.ConvertAll(x => new ServidorImplementacionVm
+                {
+                   IdServidorImplementacion = x.IdServidorImplementacion,
+                   NombreServidor = x.NombreServidor,
+                });
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+
+                LogProcesosAdmin log = new LogProcesosAdmin();
+                log.Fecha = DateTime.Now;
+                log.Hora = DateTime.Now.ToString("HH:mm:ss");
+                log.Excepcion = ex.StackTrace;
+                log.Mensaje = ex.Message;
+                log.Ruta = "api/Implementacion/ObtenerPlanes";
                 _admin.LogProcesosAdmins.Add(log);
                 _admin.SaveChanges();
                 return BadRequest(ex.Message);

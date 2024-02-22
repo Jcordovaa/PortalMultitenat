@@ -74,7 +74,7 @@ export class AuthService {
   signout() {
     // this.store.removeItem('currentUserAd');
     this.store.removeItem('currentUserPortal');
-    
+    this.store.setItem("interceptorState", '0');
     this.router.navigateByUrl("/sessions/signin");
   }
 
@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async signoutExpiredToken(){
-    const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Será redirigido al inicio de sesión');
+    const response = await this.notificationService.sesionExpiredMsg('Sesión Expirada', 'Será redirigido al inicio de sesión en unos segundos');
     if (response.isConfirmed) {
       this.signout();
     }else{

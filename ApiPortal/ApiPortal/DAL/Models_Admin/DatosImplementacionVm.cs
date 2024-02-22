@@ -24,6 +24,7 @@ namespace ApiPortal.DAL.Models_Admin
         public string? CodigoComercioTransbank { get; set; }
         public int? AmbienteTransbank { get; set; }
         public string? ApiKeyTransbank { get; set; }
+        public int IdServidorImplementacion { get; set; }
       
 
     }

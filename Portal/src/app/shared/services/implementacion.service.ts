@@ -25,6 +25,11 @@ export class ImplementacionService {
     return this.http.get<any[]>(`${this.apiUrl}/ObtenerImplementadores`, this.utils.getHeaders(true));
   }
 
+  getServidoresImplementacion(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/ObtenerServidoresImplementacion`, this.utils.getHeaders(true));
+  }
+
+
   getAreasComerciales(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/ObtenerAreasComerciales`, this.utils.getHeaders(true));
   }

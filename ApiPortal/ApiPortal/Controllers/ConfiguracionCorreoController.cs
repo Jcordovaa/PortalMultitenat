@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiPortal.Dal.Models_Admin;
+using ApiPortal.Security;
 
 namespace ApiPortal.Controllers
 {
@@ -18,12 +20,14 @@ namespace ApiPortal.Controllers
         private readonly PortalClientesSoftlandContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly PortalAdministracionSoftlandContext _admin;
 
-        public ConfiguracionCorreoController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor)
+        public ConfiguracionCorreoController(PortalClientesSoftlandContext context, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContextAccessor, PortalAdministracionSoftlandContext admin)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _httpContextAccessor = httpContextAccessor;
+            _admin = admin;
         }
 
         [HttpPost("actualizaConfiguracionCorreo"), Authorize]
@@ -259,7 +263,8 @@ namespace ApiPortal.Controllers
                 var empresa = _context.ConfiguracionEmpresas.FirstOrDefault();
                 var apiSoftland = _context.ApiSoftlands.FirstOrDefault();
 
-                string rutSinFormato = apiSoftland.UrlAlmacenamientoArchivos.Split('/')[apiSoftland.UrlAlmacenamientoArchivos.Split('/').Length - 2].ToString();
+               
+                string rutSinFormato = new Uri(empresa.UrlPortal).Host.ToLower().Replace("_", "").Replace(".", "").Replace("-", ""); ;
                 HttpResponseMessage response = new HttpResponseMessage();
                 if (httpRequest.Form.Files.Count > 0)
                 {

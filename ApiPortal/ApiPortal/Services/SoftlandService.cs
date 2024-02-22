@@ -9985,12 +9985,13 @@ namespace ApiPortal.Services
 
         }
 
-        public async Task<bool> validaConexionBaseDatosAsync(DatosImplementacionVm datosImplementacion)
+        public async Task<bool> validaConexionBaseDatosAsync(DatosImplementacionVm datosImplementacion, ServidoresImplementacion servidorImplementacion)
         {
             try
             {
-                string connectionString = "Data Source=" + datosImplementacion.ServidorPortal + ";Initial Catalog=" + datosImplementacion.BaseDatosPortal + ";" +
-                                      "user id=" + datosImplementacion.UsuarioBaseDatosPortal + ";password=" + datosImplementacion.ClaveBaseDatosPortal + ";Encrypt=False;";
+              
+                string connectionString = "Data Source=" + servidorImplementacion.NombreServidor + ";Initial Catalog=" + datosImplementacion.BaseDatosPortal + ";" +
+                                      "user id=" + servidorImplementacion.Usuario + ";password=" + servidorImplementacion.Clave + ";Encrypt=False;";
                 SqlConnection con = new SqlConnection(connectionString);
 
                 con.Open();

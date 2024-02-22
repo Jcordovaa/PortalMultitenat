@@ -29,6 +29,7 @@ namespace ApiPortal.Dal.Models_Admin
         public virtual DbSet<PermisosImplementacion> PermisosImplementacions { get; set; } = null!;
         public virtual DbSet<Plane> Planes { get; set; } = null!;
         public virtual DbSet<RolesPortal> RolesPortals { get; set; } = null!;
+        public virtual DbSet<ServidoresImplementacion> ServidoresImplementacions { get; set; } = null!;
         public virtual DbSet<Tenant> Tenants { get; set; } = null!;
         public virtual DbSet<UsuariosPortal> UsuariosPortals { get; set; } = null!;
         public virtual DbSet<UsuariosPortalToken> UsuariosPortalTokens { get; set; } = null!;
@@ -38,7 +39,7 @@ namespace ApiPortal.Dal.Models_Admin
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=innova.zapto.org,1435;Database=PortalAdministracionSoftland;User Id=sa;Password=204709cejA;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=sofcluespdsds01.database.windows.net;Database=SOFCLUES-PD-SDB-ADMINISTRACIONPORTAL;User Id=intgra;Password=1ntgra2020$;");
             }
         }
 
@@ -382,6 +383,25 @@ namespace ApiPortal.Dal.Models_Admin
 
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(100)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<ServidoresImplementacion>(entity =>
+            {
+                entity.HasKey(e => e.IdServidorImplementacion);
+
+                entity.ToTable("ServidoresImplementacion");
+
+                entity.Property(e => e.Clave)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.NombreServidor)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Usuario)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
             });
 

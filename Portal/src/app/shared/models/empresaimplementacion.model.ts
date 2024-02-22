@@ -118,6 +118,7 @@ export class DatosImplementacion {
     documentoContableTransbank?: string
     documentoContableVirtualPos?: string
     apiKeyTransbank?: string
+    idServidorImplementacion?: number
   
 
     constructor() {
@@ -139,6 +140,7 @@ export class DatosImplementacion {
         this.documentoContableVirtualPos = ''
         this.ambienteTransbank = 0
         this.apiKeyTransbank = ''
+        this.idServidorImplementacion = 0
        
     }
 }

@@ -1,4 +1,5 @@
 import { Component, HostListener } from '@angular/core';
+import { LocalStoreService } from './shared/services/local-store.service';
 
 @Component({
   selector: 'app-root',
@@ -6,6 +7,7 @@ import { Component, HostListener } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+
   title = 'bootDash';
 
   // Agrega un evento para escuchar los cambios en el LocalStorage
@@ -16,4 +18,5 @@ export class AppComponent {
       window.location.reload();
     }
   }
+
 }
