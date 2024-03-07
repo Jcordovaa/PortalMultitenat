@@ -2669,7 +2669,7 @@
             <div class="input-group">
               <input type="text"
                 [ngClass]="apikeyTransbankk.errors && (apikeyTransbankk.dirty || apikeyTransbankk.touched) ? 'form-control is-invalid' : 'form-control'"
-                #apikeyTransbankk="ngModel" name="apikeyTransbankk" [(ngModel)]="apikeyTransbank" maxlength="12"
+                #apikeyTransbankk="ngModel" name="apikeyTransbankk" [(ngModel)]="apikeyTransbank" 
                 placeholder="RUT" />
             </div>
             <p *ngIf="apikeyTransbankk.errors && (apikeyTransbankk.dirty || apikeyTransbankk.touched)"
@@ -2688,7 +2688,7 @@
               <input type="text"
                 [ngClass]="secretKeyTransbankk.errors && (secretKeyTransbankk.dirty || secretKeyTransbankk.touched) ? 'form-control is-invalid' : 'form-control'"
                 #secretKeyTransbankk="ngModel" name="secretKeyTransbankk" [(ngModel)]="secretkeyTransbank"
-                maxlength="12" placeholder="RUT" />
+                 placeholder="RUT" />
             </div>
             <p *ngIf="secretKeyTransbankk.errors && (secretKeyTransbankk.dirty || secretKeyTransbankk.touched)"
               class="text-danger" style="margin-top: 2px; font-size: 12px">

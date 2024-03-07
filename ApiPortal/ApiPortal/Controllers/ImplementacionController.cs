@@ -845,6 +845,7 @@ namespace ApiPortal.Controllers
                 var servidorImplementacion = _admin.ServidoresImplementacions.Where(x => x.IdServidorImplementacion == tenant.DatosImplementacion.IdServidorImplementacion).FirstOrDefault();
                 tenant.ConnectionString = "Data Source=" + servidorImplementacion.NombreServidor + ";Initial Catalog=" + tenant.DatosImplementacion.BaseDatosPortal + ";" +
                                     "user id=" + servidorImplementacion.Usuario + ";password=" + servidorImplementacion.Clave + ";Encrypt=False;";
+                tenant.Identifier = new Uri(tenant.DatosImplementacion.ConfiguracionEmpresa.UrlPortal).Host;
                 var existenTablas = sf.TableExists(tenant.ConnectionString);
                 if (tenant.IdTenant == 0 || tenant.IdTenant == null || !existenTablas)
                 {

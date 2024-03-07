@@ -10,7 +10,7 @@ import { ITipoApi } from '../shared/enums/TipoApi';
 })
 export class Utils {
     //public Server: string = 'https://localhost:44375';
-   // public Server: string = 'https://localhost:7043'; //NET CORE
+    // public Server: string = 'https://localhost:7043'; //NET CORE
     //public Server: string = 'https://apiportal.intgra.cl/';
     //public Server: string = 'https://apiportal.intgra.cl/';  //BERRYLION
     //APP SERVICE:
